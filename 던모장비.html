@@ -108,18 +108,26 @@ th { background: #eee; }
       });
     }
 
-    // 캐릭터 버튼 생성
-    function createCharacterButtons() {
-      const container = document.getElementById("characterButtons");
-      container.innerHTML = "";
-      const names = [...new Set(data.map(d => d.Name))];
-      names.forEach(name => {
-        const btn = document.createElement("button");
-        btn.textContent = name;
-        btn.onclick = () => showCharacterInventory(name);
-        container.appendChild(btn);
-      });
-    }
+// 캐릭터 버튼 생성
+function createCharacterButtons() {
+  const container = document.getElementById("characterButtons");
+  container.innerHTML = "";
+
+  // 캐릭터 이름과 직업을 함께 표시
+  const names = [...new Set(data.map(d => d.Name))];
+  names.forEach(name => {
+    // 해당 캐릭터의 직업(Class) 가져오기
+    const charData = data.find(d => d.Name === name);
+    const job = charData ? charData.Class : "";
+
+    const btn = document.createElement("button");
+    btn.textContent = `${job} (${name})`;   // 직업(캐릭터 이름) 형식
+    btn.onclick = () => showCharacterInventory(name);
+    container.appendChild(btn);
+  });
+}
+
+
 
 
     // 캐릭터 보유 장비 표시
