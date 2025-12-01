@@ -59,7 +59,7 @@ th { background: #eee; }
     <div class="set-list" id="characterButtons"></div>
   </div>
 
-  <!-- 캐릭터 결과 표시 (방어구 위에 위치) -->
+  <!-- 캐릭터 결과 표시 -->
   <div id="characterResult">캐릭터를 선택하면 보유 장비가 표시됩니다.</div>
 
   <!-- 방어구 -->
@@ -94,7 +94,6 @@ th { background: #eee; }
       "깊은 불구덩이의 섬멸자","허영 속 어둠의 피조물","부정한 빛의 우상"];
 
     let data = [];
-    let selectedCharacter = "";
 
     // CSV 파싱
     function parseCSV(csv) {
@@ -117,186 +116,207 @@ th { background: #eee; }
       names.forEach(name => {
         const btn = document.createElement("button");
         btn.textContent = name;
-        btn.onclick = () => {
-          selectedCharacter = name;
-          showCharacterInventory(name);
-        };
+        btn.onclick = () => showCharacterInventory(name);
         container.appendChild(btn);
       });
     }
 
-// 캐릭터 보유 장비 표시 (방어구/악세/특장으로 나눠서 출력, 3세트/5세트 색상 강조)
-function showCharacterInventory(name) {
-  const filtered = data.filter(d => d.Name === name);
-  let html = `<h2>${name} 보유 장비 현황</h2>`;
 
-  if (filtered.length === 0) {
-    html += `<p>보유 장비 없음</p>`;
-  } else {
-    // 방어구
-    html += `<h3>[방어구]</h3><table><tr><th>세트</th><th>직업</th>
-      <th>상의</th><th>하의</th><th>어깨</th><th>벨트</th><th>신발</th></tr>`;
-    filtered.filter(d => armorSets.includes(d.Set)).forEach(d => {
-      const ownedParts = ["P1","P2","P3","P4","P5"].filter(k => (parseInt(d[k],10) || 0) > 0).length;
-      let rowColor = "";
-      if (ownedParts >= 3 && ownedParts < 5) rowColor = "background-color:#fefeeb;"; // 연한 노란색
-      else if (ownedParts === 5) rowColor = "background-color:#ffff99;"; // 진한 노란색
-      html += `<tr style="${rowColor}">
-        <td>${d.Set}</td><td>${d.Class}</td>
-        <td>${d.P1 || ""}</td>
-        <td>${d.P2 || ""}</td>
-        <td>${d.P3 || ""}</td>
-        <td>${d.P4 || ""}</td>
-        <td>${d.P5 || ""}</td>
-      </tr>`;
-    });
-    html += `</table>`;
+    // 캐릭터 보유 장비 표시
+    function showCharacterInventory(name) {
+      const filtered = data.filter(d => d.Name === name);
+      let html = `<h2>${name} 보유 장비 현황</h2>`;
 
-    // 악세
-    html += `<h3>[악세]</h3><table><tr><th>세트</th><th>직업</th>
-      <th>팔찌</th><th>목걸이</th><th>반지</th></tr>`;
-    filtered.filter(d => accSets.includes(d.Set)).forEach(d => {
-      const ownedParts = ["P1","P2","P3"].filter(k => (parseInt(d[k],10) || 0) > 0).length;
-      let rowColor = ownedParts === 3 ? "background-color:#ffff99;" : ""; // 풀세트일 때 진한 노란색
-      html += `<tr style="${rowColor}">
-        <td>${d.Set}</td><td>${d.Class}</td>
-        <td>${d.P1 || ""}</td>
-        <td>${d.P2 || ""}</td>
-        <td>${d.P3 || ""}</td>
-      </tr>`;
-    });
-    html += `</table>`;
-
-    // 특장
-    html += `<h3>[특장]</h3><table><tr><th>세트</th><th>직업</th>
-      <th>귀걸이</th><th>마법석</th><th>보장</th></tr>`;
-    filtered.filter(d => specialSets.includes(d.Set)).forEach(d => {
-      const ownedParts = ["P1","P2","P3"].filter(k => (parseInt(d[k],10) || 0) > 0).length;
-      let rowColor = ownedParts === 3 ? "background-color:#ffff99;" : ""; // 풀세트일 때 진한 노란색
-      html += `<tr style="${rowColor}">
-        <td>${d.Set}</td><td>${d.Class}</td>
-        <td>${d.P1 || ""}</td>
-        <td>${d.P2 || ""}</td>
-        <td>${d.P3 || ""}</td>
-      </tr>`;
-    });
-    html += `</table>`;
-  }
-
-  // 캐릭터 결과 영역에 출력 (방어구 위쪽)
-  document.getElementById("characterResult").innerHTML = html;
-}
-
-   // 버튼 생성 (전체 데이터 기준)
-function createButtons(setNames, containerId, type) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = "";
-
-  setNames.forEach(setName => {
-    const btn = document.createElement("button");
-    btn.textContent = setName;
-    btn.classList.add("disabled");
-    btn.onclick = () => showSet(setName, type);
-
-    // 전체 데이터에서 해당 세트만 필터링
-    const filteredAll = data.filter(d => d.Set === setName);
-    const partKeys = (type === "armor") ? ["P1","P2","P3","P4","P5"] : ["P1","P2","P3"];
-
-    // 파트별 보유 여부 확인
-    let nonZeroCount = 0;
-    for (let key of partKeys) {
-      const sum = filteredAll.reduce((acc, d) => acc + (parseInt(d[key], 10) || 0), 0);
-      if (sum > 0) nonZeroCount++;
-    }
-
-    // 버튼 라벨 및 활성화 처리
-    if (type === "armor") {
-      let threeSetCount = 0, fiveSetCount = 0;
-      filteredAll.forEach(d => {
-        const ownedParts = partKeys.filter(k => (parseInt(d[k], 10) || 0) > 0).length;
-        if (ownedParts >= 3 && ownedParts < 5) threeSetCount++;
-        if (ownedParts === 5) fiveSetCount++;
-      });
-      btn.textContent = `${setName} (${threeSetCount}/${fiveSetCount})`;
-      if (nonZeroCount === 5) btn.classList.remove("disabled");
-    } else {
-      const fullOwnedCount = filteredAll.filter(d => partKeys.every(k => (parseInt(d[k], 10) || 0) > 0)).length;
-      btn.textContent = `${setName} (${fullOwnedCount})`;
-      if (nonZeroCount === partKeys.length) btn.classList.remove("disabled");
-    }
-
-    container.appendChild(btn);
-  });
-}
-
-
-    // 세트 출력 (전체 데이터 기준)
-    function showSet(setName, type) {
-      const filtered = data.filter(d => d.Set === setName);
-      const visible = filtered.map(d => ({ d, idx: data.indexOf(d) }))
-        .filter(x => x.d.P1+x.d.P2+x.d.P3+x.d.P4+x.d.P5 > 0);
-
-      let html = `<h2>${setName} 보유 현황</h2>`;
-      if (visible.length === 0) {
-        html += `<p>보유 없음</p>`;
+      if (filtered.length === 0) {
+        html += `<p style="color:red;">CSV 파일을 불러오지 않았거나 해당 캐릭터 데이터가 없습니다.</p>`;
       } else {
-        const makeCell = (x, key) => `
+        const makeCell = (d, key, idx, type) => `
           <td>
-            <button class="part-btn" data-type="${type}" data-index="${x.idx}" data-key="${key}" data-delta="-1">-</button>
-            <span style="color:blue; font-weight:bold">${(parseInt(x.d[key], 10) || 0) > 0 ? x.d[key] : ""}</span>
-            <button class="part-btn" data-type="${type}" data-index="${x.idx}" data-key="${key}" data-delta="1">+</button>
+            <button class="part-btn" data-type="${type}" data-index="${idx}" data-key="${key}" data-delta="-1">-</button>
+            <span style="color:blue; font-weight:bold">${(parseInt(d[key],10) || 0) > 0 ? d[key] : ""}</span>
+            <button class="part-btn" data-type="${type}" data-index="${idx}" data-key="${key}" data-delta="1">+</button>
           </td>`;
 
-        if (type === "armor") {
-          html += `<table><tr><th>캐릭터</th><th>직업</th>
-            <th>상의</th><th>하의</th><th>어깨</th><th>벨트</th><th>신발</th></tr>`;
-          visible.forEach(x => {
-            const owned = ["P1","P2","P3","P4","P5"].filter(k => (parseInt(x.d[k], 10) || 0) > 0).length;
-            let rowColor = "";
-            if (owned >= 3 && owned < 5) rowColor = "background-color:#fefeeb;";
-            else if (owned === 5) rowColor = "background-color:#ffff99;";
-            html += `<tr style="${rowColor}">
-              <td>${x.d.Name}</td><td>${x.d.Class}</td>
-              ${makeCell(x,"P1")}
-              ${makeCell(x,"P2")}
-              ${makeCell(x,"P3")}
-              ${makeCell(x,"P4")}
-              ${makeCell(x,"P5")}
-            </tr>`;
-          });
-        } else if (type === "acc") {
-          html += `<table><tr><th>캐릭터</th><th>직업</th>
-            <th>팔찌</th><th>목걸이</th><th>반지</th></tr>`;
-          visible.forEach(x => {
-            const owned = ["P1","P2","P3"].filter(k => (parseInt(x.d[k], 10) || 0) > 0).length;
-            const rowColor = owned === 3 ? "background-color:#ffff99;" : "";
-            html += `<tr style="${rowColor}">
-              <td>${x.d.Name}</td><td>${x.d.Class}</td>
-              ${makeCell(x,"P1")}
-              ${makeCell(x,"P2")}
-              ${makeCell(x,"P3")}
-            </tr>`;
-          });
-        } else if (type === "special") {
-          html += `<table><tr><th>캐릭터</th><th>직업</th>
-            <th>귀걸이</th><th>마법석</th><th>보장</th></tr>`;
-          visible.forEach(x => {
-            const owned = ["P1","P2","P3"].filter(k => (parseInt(x.d[k], 10) || 0) > 0).length;
-            const rowColor = owned === 3 ? "background-color:#ffff99;" : "";
-            html += `<tr style="${rowColor}">
-              <td>${x.d.Name}</td><td>${x.d.Class}</td>
-              ${makeCell(x,"P1")}
-              ${makeCell(x,"P2")}
-              ${makeCell(x,"P3")}
-            </tr>`;
-          });
-        }
+        // 방어구
+        html += `<h3>[방어구]</h3><table><tr><th>세트</th><th>직업</th>
+          <th>상의</th><th>하의</th><th>어깨</th><th>벨트</th><th>신발</th></tr>`;
+        filtered.filter(d => armorSets.includes(d.Set)).forEach(d => {
+          const ownedParts = ["P1","P2","P3","P4","P5"].filter(k => (parseInt(d[k],10) || 0) > 0).length;
+          let rowColor = "";
+          if (ownedParts >= 3 && ownedParts < 5) rowColor = "background-color:#fefeeb;";
+          else if (ownedParts === 5) rowColor = "background-color:#ffff99;";
+          const idx = data.indexOf(d);
+          html += `<tr style="${rowColor}">
+            <td>${d.Set}</td><td>${d.Class}</td>
+            ${makeCell(d,"P1",idx,"armor")}
+            ${makeCell(d,"P2",idx,"armor")}
+            ${makeCell(d,"P3",idx,"armor")}
+            ${makeCell(d,"P4",idx,"armor")}
+            ${makeCell(d,"P5",idx,"armor")}
+          </tr>`;
+        });
+        html += `</table>`;
+
+        // 악세
+        html += `<h3>[악세]</h3><table><tr><th>세트</th><th>직업</th>
+          <th>팔찌</th><th>목걸이</th><th>반지</th></tr>`;
+        filtered.filter(d => accSets.includes(d.Set)).forEach(d => {
+          const ownedParts = ["P1","P2","P3"].filter(k => (parseInt(d[k],10) || 0) > 0).length;
+          let rowColor = ownedParts === 3 ? "background-color:#ffff99;" : "";
+          const idx = data.indexOf(d);
+          html += `<tr style="${rowColor}">
+            <td>${d.Set}</td><td>${d.Class}</td>
+            ${makeCell(d,"P1",idx,"acc")}
+            ${makeCell(d,"P2",idx,"acc")}
+            ${makeCell(d,"P3",idx,"acc")}
+          </tr>`;
+        });
+        html += `</table>`;
+
+        // 특장
+        html += `<h3>[특장]</h3><table><tr><th>세트</th><th>직업</th>
+          <th>귀걸이</th><th>마법석</th><th>보장</th></tr>`;
+        filtered.filter(d => specialSets.includes(d.Set)).forEach(d => {
+          const ownedParts = ["P1","P2","P3"].filter(k => (parseInt(d[k],10) || 0) > 0).length;
+          let rowColor = ownedParts === 3 ? "background-color:#ffff99;" : "";
+          const idx = data.indexOf(d);
+          html += `<tr style="${rowColor}">
+            <td>${d.Set}</td><td>${d.Class}</td>
+            ${makeCell(d,"P1",idx,"special")}
+            ${makeCell(d,"P2",idx,"special")}
+            ${makeCell(d,"P3",idx,"special")}
+          </tr>`;
+        });
         html += `</table>`;
       }
-      document.getElementById("result").innerHTML = html;
+
+      document.getElementById("characterResult").innerHTML = html;
     }
 
-    // 버튼 클릭 이벤트 위임 (증감 처리)
+    // 세트 버튼 생성
+    function createButtons(setNames, containerId, type) {
+      const container = document.getElementById(containerId);
+      if (!container) {
+        console.warn(`[createButtons] 컨테이너가 없음: ${containerId}`);
+        return;
+      }
+      container.innerHTML = "";
+
+      setNames.forEach(setName => {
+        const btn = document.createElement("button");
+        btn.textContent = setName;
+        btn.classList.add("disabled");
+        btn.onclick = () => showSet(setName, type);
+
+        const filteredAll = data.filter(d => d.Set === setName);
+        const partKeys = (type === "armor") ? ["P1","P2","P3","P4","P5"] : ["P1","P2","P3"];
+
+        let nonZeroCount = 0;
+        for (let key of partKeys) {
+          const sum = filteredAll.reduce((acc, d) => acc + (parseInt(d[key], 10) || 0), 0);
+          if (sum > 0) nonZeroCount++;
+        }
+
+        if (type === "armor") {
+          let threeSetCount = 0, fiveSetCount = 0;
+          filteredAll.forEach(d => {
+            const ownedParts = partKeys.filter(k => (parseInt(d[k], 10) || 0) > 0).length;
+            if (ownedParts >= 3 && ownedParts < 5) threeSetCount++;
+            if (ownedParts === 5) fiveSetCount++;
+          });
+          btn.textContent = `${setName} (${threeSetCount}/${fiveSetCount})`;
+          if (nonZeroCount === 5) btn.classList.remove("disabled");
+        } else {
+          const fullOwnedCount = filteredAll.filter(d => partKeys.every(k => (parseInt(d[k], 10) || 0) > 0)).length;
+          btn.textContent = `${setName} (${fullOwnedCount})`;
+          if (nonZeroCount === partKeys.length) btn.classList.remove("disabled");
+        }
+
+        container.appendChild(btn);
+      });
+    }
+
+   // 세트 상세 보유 현황 표시
+function showSet(setName, type) {
+  const filtered = data.filter(d => d.Set === setName);
+  let html = `<h2>${setName} 보유 현황</h2>`;
+
+  if (filtered.length === 0) {
+    html += `<p style="color:red;">CSV 파일을 불러오지 않았거나 해당 세트 데이터가 없습니다.</p>`;
+  } else {
+    // 세트 화면에서는 +,- 버튼 없이 숫자만 표시
+    const makeCell = (d, key) => `
+      <td>
+        <span style="color:blue; font-weight:bold">${(parseInt(d[key],10) || 0) > 0 ? d[key] : ""}</span>
+      </td>`;
+
+    if (type === "armor") {
+      html += `<table><tr><th>세트</th><th>직업</th>
+        <th>상의</th><th>하의</th><th>어깨</th><th>벨트</th><th>신발</th></tr>`;
+      filtered.forEach(d => {
+        const ownedParts = ["P1","P2","P3","P4","P5"].filter(k => (parseInt(d[k],10) || 0) > 0).length;
+        let rowColor = "";
+        if (ownedParts >= 3 && ownedParts < 5) rowColor = "background-color:#fefeeb;";
+        else if (ownedParts === 5) rowColor = "background-color:#ffff99;";
+        html += `<tr style="${rowColor}">
+          <td>${d.Set}</td><td>${d.Class}</td>
+          ${makeCell(d,"P1")}
+          ${makeCell(d,"P2")}
+          ${makeCell(d,"P3")}
+          ${makeCell(d,"P4")}
+          ${makeCell(d,"P5")}
+        </tr>`;
+      });
+      html += `</table>`;
+    } else {
+      html += `<table><tr><th>세트</th><th>직업</th>
+        <th>부위1</th><th>부위2</th><th>부위3</th></tr>`;
+      filtered.forEach(d => {
+        const ownedParts = ["P1","P2","P3"].filter(k => (parseInt(d[k],10) || 0) > 0).length;
+        let rowColor = ownedParts === 3 ? "background-color:#ffff99;" : "";
+        html += `<tr style="${rowColor}">
+          <td>${d.Set}</td><td>${d.Class}</td>
+          ${makeCell(d,"P1")}
+          ${makeCell(d,"P2")}
+          ${makeCell(d,"P3")}
+        </tr>`;
+      });
+      html += `</table>`;
+    }
+  }
+
+  document.getElementById("result").innerHTML = html;
+}
+
+
+    // 캐릭터 결과 테이블의 +,- 버튼 이벤트 처리
+    document.getElementById("characterResult").addEventListener("click", function(e) {
+      const btn = e.target.closest(".part-btn");
+      if (!btn) return;
+
+      const idx = parseInt(btn.dataset.index, 10);
+      const key = btn.dataset.key;
+      const delta = parseInt(btn.dataset.delta, 10);
+      const type = btn.dataset.type;
+
+      const target = data[idx];
+      if (!target) return;
+
+      const allowedKeys = type === "armor" ? ["P1","P2","P3","P4","P5"] : ["P1","P2","P3"];
+      if (!allowedKeys.includes(key)) return;
+
+      target[key] = Math.max(0, (parseInt(target[key], 10) || 0) + delta);
+
+      // 캐릭터 화면 갱신
+      showCharacterInventory(target.Name);
+
+      // 아래쪽 버튼 숫자 갱신
+      createButtons(armorSets, "armorButtons", "armor");
+      createButtons(accSets, "accButtons", "acc");
+      createButtons(specialSets, "specialButtons", "special");
+    });
+
+    // 세트 결과 테이블의 +,- 버튼 이벤트 처리
     document.getElementById("result").addEventListener("click", function(e) {
       const btn = e.target.closest(".part-btn");
       if (!btn) return;
@@ -314,8 +334,10 @@ function createButtons(setNames, containerId, type) {
 
       target[key] = Math.max(0, (parseInt(target[key], 10) || 0) + delta);
 
-      // 다시 렌더링
+      // 세트 화면 갱신
       showSet(target.Set, type);
+
+      // 아래쪽 버튼 숫자 갱신
       createButtons(armorSets, "armorButtons", "armor");
       createButtons(accSets, "accButtons", "acc");
       createButtons(specialSets, "specialButtons", "special");
@@ -334,12 +356,13 @@ function createButtons(setNames, containerId, type) {
         // 캐릭터 버튼 생성
         createCharacterButtons();
 
-        // 버튼 그룹 생성
+        // 아래쪽 버튼 그룹 생성
         createButtons(armorSets, "armorButtons", "armor");
         createButtons(accSets, "accButtons", "acc");
         createButtons(specialSets, "specialButtons", "special");
 
-        document.getElementById("result").innerHTML = "캐릭터 버튼을 클릭하면 결과가 표시됩니다.";
+        // 안내 문구
+        document.getElementById("result").innerHTML = "세트 버튼을 클릭하면 상세 보유 현황이 표시됩니다.";
       };
       reader.readAsText(file);
     });
@@ -374,7 +397,15 @@ function createButtons(setNames, containerId, type) {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     }
+
+    // 초기 버튼 렌더링 (빈 데이터라도 버튼은 보이게)
+    document.addEventListener("DOMContentLoaded", () => {
+      createButtons(armorSets, "armorButtons", "armor");
+      createButtons(accSets, "accButtons", "acc");
+      createButtons(specialSets, "specialButtons", "special");
+    });
   </script>
 </body>
 </html>
