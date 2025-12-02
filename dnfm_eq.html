@@ -61,6 +61,36 @@
     padding:6px 10px; border-radius:6px; border:1px solid #2a3158;
     background:#181c33; color:#e6e9ff; cursor:pointer;
   }
+  
+.character-wrapper {
+  display: inline-flex;   /* 버튼들을 옆으로 붙여서 정렬 */
+  align-items: center;    /* 세로 가운데 정렬 */
+  margin: 5px;
+}
+
+.character-wrapper {
+  display: inline-flex;   /* 버튼들을 옆으로 붙여서 정렬 */
+  align-items: center;    /* 세로 가운데 정렬 */
+  margin: 5px;
+}
+
+.delete-btn {
+  padding: 4px 8px;       /* 조금 더 작게 */
+  background: linear-gradient(135deg, #8c1a1a, #b22222);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.delete-btn:hover {
+  background: linear-gradient(135deg, #b22222, #8c1a1a);
+  transform: scale(1.05);
+}
+
+
+
 </style>
 </head>
 <body>
@@ -222,17 +252,45 @@ function calcDistinctParts(char, groupKey){
 }
 
 // ===== 캐릭터 버튼 렌더 =====
+// ===== 캐릭터 버튼 렌더 =====
 function renderCharacterList(){
-  const listEl=document.getElementById("characterList");
-  listEl.innerHTML="";
-  characters.forEach(c=>{
-    const btn=document.createElement("button");
-    btn.className="char-btn";
-    btn.textContent=`${c.job} (${c.name})`;
-    btn.onclick=()=>showSetButtons(c);
-    listEl.appendChild(btn);
+  const listEl = document.getElementById("characterList");
+  listEl.innerHTML = "";
+
+  characters.forEach((c, index) => {
+    // 캐릭터 하나를 감싸는 wrapper
+    const wrapper = document.createElement("div");
+    wrapper.className = "character-wrapper";  // 👉 CSS에서 inline-block 처리
+
+    // 삭제 버튼
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "－";
+    delBtn.className = "delete-btn";   // 👉 페이지 스타일에 맞춘 삭제 버튼
+    delBtn.onclick = () => {
+      if(confirm(`${c.name} 캐릭터를 삭제하시겠습니까?`)){
+        characters.splice(index, 1);   // 배열에서 삭제
+        renderCharacterList();         // 목록 다시 그리기
+        document.getElementById("setList").innerHTML = "";
+        document.getElementById("panel").innerHTML = "";
+      }
+    };
+
+    // 캐릭터 버튼
+    const btn = document.createElement("button");
+    btn.className = "char-btn";
+    btn.textContent = `${c.job} (${c.name})`;
+    btn.onclick = () => showSetButtons(c);
+
+    // wrapper에 버튼들 추가
+    wrapper.appendChild(delBtn);
+    wrapper.appendChild(btn);
+
+    // 전체 목록에 wrapper 추가
+    listEl.appendChild(wrapper);
   });
 }
+
+
 renderCharacterList();
 
 // ===== 캐릭터 추가 =====
