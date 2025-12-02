@@ -6,39 +6,85 @@
 <style>
   body { font-family:sans-serif; background:#0f1222; color:#e6e9ff; }
   h1 { margin-bottom:10px; }
-  .char-btn, .set-btn { margin:5px; padding:8px 12px; background:#181c33; border:1px solid #2a3158;
-              border-radius:8px; cursor:pointer; color:#e6e9ff; }
+
+  /* 툴바 영역 */
+  .toolbar { margin:15px 0; display:flex; gap:10px; align-items:center; }
+  .action-btn, .file-label {
+    min-width:140px; text-align:center; padding:10px 16px;
+    border-radius:6px; cursor:pointer; font-weight:bold; transition:0.2s;
+  }
+  .action-btn { background:linear-gradient(135deg,#25c2a0,#1a8c7d); border:none; color:#fff; }
+  .action-btn:hover { background:linear-gradient(135deg,#1a8c7d,#25c2a0); }
+  .file-label { background:#4a3f7a; color:#fff; border:none; }
+  .file-label:hover { background:#5a4f8a; }
+  .file-label input { display:none; }
+
+  /* 캐릭터 추가 폼 */
+  .form-box { display:flex; gap:10px; margin:10px 0; }
+  .form-box input {
+    width:20ch; padding:6px; border-radius:6px; border:1px solid #2a3158;
+    background:#181c33; color:#e6e9ff;
+  }
+  .add-btn {
+    background:linear-gradient(135deg,#ffd700,#e6b800); border:none; color:#000;
+    padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:bold; transition:0.2s;
+  }
+  .add-btn:hover { background:linear-gradient(135deg,#e6b800,#ffd700); }
+
+  /* 캐릭터 버튼 */
+  .char-btn {
+    margin:5px; padding:10px 16px; background:#2a3158; border:none;
+    border-radius:6px; color:#fff; font-weight:bold; cursor:pointer; transition:0.2s;
+  }
+  .char-btn:hover { background:#3a4270; }
+
+  /* 세트 버튼 */
+  .set-btn {
+    margin:5px; padding:8px 14px; min-width:180px;
+    background:#181c33; border:1px solid #2a3158; border-radius:6px;
+    color:#e6e9ff; font-weight:bold; cursor:pointer; transition:0.2s;
+    text-align:center; white-space:nowrap;
+  }
+  .set-btn:hover { background:#2a3158; }
+  .set-btn.set3 { background-color:#25c2a0; color:#fff; }
+  .set-btn.set5 { background-color:#ffd700; color:#000; }
+
   h2 { margin:24px 0 8px; }
-  table { border-collapse:collapse; width:100%; margin-top:6px; }
-  th, td { border:1px solid #2a3158; padding:6px; text-align:center; }
+  table { border-collapse:collapse; margin-top:6px; table-layout:fixed; }
+  th, td { border:1px solid #2a3158; padding:6px; text-align:center; white-space:nowrap; }
   th { background:#181c33; }
-  tr.set3 { background-color:rgba(37,194,160,0.35); }   /* 초록색 */
-  tr.set5 { background-color:rgba(255,215,0,0.45); }   /* 노란색 */
-  .set-btn.set3 { background-color:#25c2a0; color:#fff; }   /* 초록색 버튼 */
-  .set-btn.set5 { background-color:#ffd700; color:#000; }   /* 노란색 버튼 */
-  .num-btn { padding:6px 10px; border-radius:6px; border:1px solid #2a3158;
-             background:#181c33; color:#e6e9ff; cursor:pointer; }
+  tr.set3 { background-color:rgba(37,194,160,0.35); }
+  tr.set5 { background-color:rgba(255,215,0,0.45); }
+
+  /* 숫자 버튼 */
+  .num-btn {
+    padding:6px 10px; border-radius:6px; border:1px solid #2a3158;
+    background:#181c33; color:#e6e9ff; cursor:pointer;
+  }
 </style>
 </head>
 <body>
 
 <h1>캐릭터 장비 관리</h1>
-<div>
-  <button onclick="exportCSV()">CSV 저장</button>
-  <input type="file" id="csvFile" accept=".csv">
+<div class="toolbar">
+  <button class="action-btn" onclick="exportCSV()">💾 CSV 저장</button>
+  <label class="file-label">
+    📂 CSV 불러오기
+    <input type="file" id="csvFile" accept=".csv">
+  </label>
 </div>
-<div id="csvOutput"></div>
 
 <h2>[캐릭터]</h2>
-<div id="addCharacterForm">
-  이름: <input type="text" id="newCharName">
-  직업: <input type="text" id="newCharJob">
-  <button onclick="addCharacter()">추가</button>
+<div class="form-box">
+  <input type="text" id="newCharName" placeholder="이름 입력">
+  <input type="text" id="newCharJob" placeholder="직업 입력">
+  <button class="add-btn" onclick="addCharacter()">➕ 추가</button>
 </div>
 <div id="characterList"></div>
 
 <div id="setList"></div>
 <div id="panel"></div>
+
 
 <script>
 // ===== 세트 정의 (예시 일부만, 실제로는 전체 세트/접두어 정의 필요) =====
@@ -128,6 +174,28 @@ const characters = [
   }}
 ];
 
+// ===== 전역 최대 길이 계산 =====
+let globalSetNameWidth=200, globalSlotWidth=100;
+function calculateGlobalWidths(){
+  const allNames=[], allSlots=[];
+  [ {sets:ARMOR_SETS,pref:ARMOR_PREFIX},
+    {sets:ACCESSORY_SETS,pref:ACCESSORY_PREFIX},
+    {sets:SPECIAL_SETS,pref:SPECIAL_PREFIX} ].forEach(({sets,pref})=>{
+      Object.keys(sets).forEach(setName=>{
+        allNames.push(setName);
+        const prefixes=pref[setName]||[];
+        prefixes.forEach(p=>{
+          allNames.push(`${p}: ${setName}`);
+          EXCEED_TAGS.forEach(ex=>allNames.push(`[${ex}] ${p}: ${setName}`));
+        });
+        sets[setName].forEach(slot=>allSlots.push(slot));
+      });
+  });
+  globalSetNameWidth=Math.max(...allNames.map(n=>n.length))*12;
+  globalSlotWidth=Math.max(...allSlots.map(s=>s.length))*12;
+}
+calculateGlobalWidths();
+
 // ===== 유틸 =====
 function isExceedName(name){ return /^\[(선봉|의지|이상)\]\s/.test(name); }
 function getGroupKey(name){ return name.replace(/^\[.*?\]\s*/,""); }
@@ -138,14 +206,14 @@ function getSetType(setName){
   return "ARMOR";
 }
 function calcDistinctParts(char, groupKey){
-  const baseSet = groupKey.includes(": ") ? groupKey.split(": ").pop() : groupKey;
+  const baseSet=groupKey.includes(": ")?groupKey.split(": ").pop():groupKey;
   const slots=ALL_SETS[baseSet]||[];
   let countDistinct=0;
   slots.forEach(slot=>{
     let total=char.armorCounts[`${groupKey} ${slot}`]||0;
-    if(slot==="상의"||slot==="팔찌"||slot==="귀걸이"){
+    if(["상의","팔찌","귀걸이"].includes(slot)){
       EXCEED_TAGS.forEach(tag=>{
-        total += char.armorCounts[`[${tag}] ${groupKey} ${slot}`]||0;
+        total+=char.armorCounts[`[${tag}] ${groupKey} ${slot}`]||0;
       });
     }
     if(total>0) countDistinct++;
@@ -169,13 +237,10 @@ renderCharacterList();
 
 // ===== 캐릭터 추가 =====
 function addCharacter(){
-  const name = document.getElementById("newCharName").value.trim();
-  const job = document.getElementById("newCharJob").value.trim();
-  if(!name || !job){
-    alert("이름과 직업을 입력하세요!");
-    return;
-  }
-  const newChar = { id:"c"+Date.now(), job:job, name:name, armorCounts:{} };
+  const name=document.getElementById("newCharName").value.trim();
+  const job=document.getElementById("newCharJob").value.trim();
+  if(!name||!job){ alert("이름과 직업을 입력하세요!"); return; }
+  const newChar={id:"c"+Date.now(), job:job, name:name, armorCounts:{}};
   characters.push(newChar);
   renderCharacterList();
   document.getElementById("newCharName").value="";
@@ -184,182 +249,214 @@ function addCharacter(){
 
 // ===== 세트 버튼 표시 =====
 function showSetButtons(char){
-  const setList=document.getElementById("setList");
-  setList.innerHTML="";
-  const armorTitle=document.createElement("h2");
-  armorTitle.textContent="[방어구]";
+  const setList = document.getElementById("setList");
+  setList.innerHTML = "";
+
+  // 방어구
+  const armorTitle = document.createElement("h2");
+  armorTitle.textContent = "[방어구]";
   setList.appendChild(armorTitle);
-  Object.keys(ARMOR_SETS).forEach(setName=>setList.appendChild(makeSetButton(setName,char)));
-  const accTitle=document.createElement("h2");
-  accTitle.textContent="[악세]";
+  Object.keys(ARMOR_SETS).forEach(setName => {
+    setList.appendChild(makeSetButton(setName, char));
+  });
+
+  // 악세
+  const accTitle = document.createElement("h2");
+  accTitle.textContent = "[악세]";
   setList.appendChild(accTitle);
-  Object.keys(ACCESSORY_SETS).forEach(setName=>setList.appendChild(makeSetButton(setName,char)));
-  const spTitle=document.createElement("h2");
-  spTitle.textContent="[특장]";
+  Object.keys(ACCESSORY_SETS).forEach(setName => {
+    setList.appendChild(makeSetButton(setName, char));
+  });
+
+  // 특장
+  const spTitle = document.createElement("h2");
+  spTitle.textContent = "[특장]";
   setList.appendChild(spTitle);
-  Object.keys(SPECIAL_SETS).forEach(setName=>setList.appendChild(makeSetButton(setName,char)));
-  document.getElementById("panel").innerHTML="";
+  Object.keys(SPECIAL_SETS).forEach(setName => {
+    setList.appendChild(makeSetButton(setName, char));
+  });
+
+  document.getElementById("panel").innerHTML = "";
 }
 
-function makeSetButton(setName,char){
-  let count3=0, count5=0;
-  const prefixes=ALL_PREFIX[setName]||[];
-  const groups=[setName, ...prefixes.map(pref=>`${pref}: ${setName}`)];
-  groups.forEach(group=>{
-    const distinctParts=calcDistinctParts(char, group);
-    const fullSize=ALL_SETS[setName].length;
-    if(fullSize===5){ if(distinctParts===fullSize) count5++; else if(distinctParts>=3) count3++; }
-    else { if(distinctParts===3) count3++; }
+// ===== 세트 버튼 생성 =====
+function makeSetButton(setName, char){
+  let count3 = 0, count5 = 0;
+  const prefixes = ALL_PREFIX[setName] || [];
+  const groups = [setName, ...prefixes.map(pref => `${pref}: ${setName}`)];
+
+  groups.forEach(group => {
+    const distinctParts = calcDistinctParts(char, group);
+    const fullSize = (ALL_SETS[setName] || []).length;
+    if(fullSize === 5){
+      if(distinctParts === fullSize) count5++;
+      else if(distinctParts >= 3) count3++;
+    } else {
+      if(distinctParts === 3) count3++;
+    }
   });
-  const btn=document.createElement("button");
-  btn.className="set-btn";
-  const setType=getSetType(setName);
-  if(setType==="ARMOR"){
-    btn.textContent=`${setName} (${count3}/${count5})`;
-    if(count5>0) btn.classList.add("set5");
-    else if(count3>0) btn.classList.add("set3");
+
+  const btn = document.createElement("button");
+  btn.className = "set-btn";
+  const setType = getSetType(setName);
+
+  if(setType === "ARMOR"){
+    btn.textContent = `${setName} (${count3}/${count5})`;
+    if(count5 > 0) btn.classList.add("set5");
+    else if(count3 > 0) btn.classList.add("set3");
   } else {
-    btn.textContent=`${setName} (${count3})`;
-    if(count3>0) btn.classList.add("set3");
+    btn.textContent = `${setName} (${count3})`;
+    if(count3 > 0) btn.classList.add("set3");
   }
-  btn.onclick=()=>openSet(setName,char);
+
+  btn.onclick = () => openSet(setName, char);
   return btn;
 }
 
-let currentSetName=null;
-let currentChar=null;
+// ===== 표 행 생성 =====
+function makeRow(name, setName, char){
+  const slots = ALL_SETS[setName] || [];
+  const groupKey = getGroupKey(name);
+  const isExceed = isExceedName(name);
+  const setType = getSetType(setName);
+  const exceedSlots = EXCEED_SLOTS[setType];
 
-function makeRow(name,setName,char){
-  const slots=ALL_SETS[setName];
-  const groupKey=getGroupKey(name);
-  const isExceed=isExceedName(name);
-  const setType=getSetType(setName);
-  const exceedSlots=EXCEED_SLOTS[setType];
-
-  let distinctParts=calcDistinctParts(char,groupKey);
+  let distinctParts = calcDistinctParts(char, groupKey);
   if(isExceed){
-    exceedSlots.forEach(slot=>{
-      const val=char.armorCounts[`${name} ${slot}`]||0;
-      if(val<=0) distinctParts=0;
+    exceedSlots.forEach(slot => {
+      const val = char.armorCounts[`${name} ${slot}`] || 0;
+      if(val <= 0) distinctParts = 0;
     });
   }
 
-  const tr=document.createElement("tr");
-  if(setType==="ARMOR"){
-    if(distinctParts===slots.length) tr.className="set5";
-    else if(distinctParts>=3) tr.className="set3";
+  const tr = document.createElement("tr");
+  if(setType === "ARMOR"){
+    if(distinctParts === slots.length) tr.className = "set5";
+    else if(distinctParts >= 3) tr.className = "set3";
   } else {
-    if(distinctParts===3) tr.className="set3";
+    if(distinctParts === 3) tr.className = "set3";
   }
 
-  let html=`<td>${name}</td>`;
-  slots.forEach(slot=>{
-    let key=`${name} ${slot}`;
-    const val=char.armorCounts[key]||0;
+  let html = `<td>${name}</td>`;
+  slots.forEach(slot => {
+    let key = `${name} ${slot}`;
+    const val = char.armorCounts[key] || 0;
     if(isExceed){
       if(exceedSlots.includes(slot)){
-        html+=`<td>${makeNumberButton(char.id,key,val)}</td>`;
-      } else { html+=`<td></td>`; }
+        html += `<td>${makeNumberButton(char.id, key, val)}</td>`;
+      } else {
+        html += `<td></td>`;
+      }
     } else {
-      html+=`<td>${makeNumberButton(char.id,key,val)}</td>`;
+      html += `<td>${makeNumberButton(char.id, key, val)}</td>`;
     }
   });
-  tr.innerHTML=html;
+  tr.innerHTML = html;
   return tr;
 }
 
-function openSet(setName,char){
-  currentSetName=setName;
-  currentChar=char;
-  const panel=document.getElementById("panel");
-  panel.innerHTML=`<h2>[${setName} 세트]</h2>`;
-  const slots=ALL_SETS[setName];
-  const table=document.createElement("table");
-  table.innerHTML=`<thead>
-    <tr><th>세트 이름</th>${slots.map(s=>`<th>${s}</th>`).join("")}</tr>
-  </thead><tbody></tbody>`;
-  const tbody=table.querySelector("tbody");
+// ===== 세트 표 열기 =====
+function openSet(setName, char){
+  // ✅ 현재 선택된 세트와 캐릭터를 저장해둡니다
+  currentSetName = setName;
+  currentChar = char;
 
-  // 기본 세트
-  tbody.appendChild(makeRow(setName,setName,char));
-  // 접두어 세트
-  const prefixes=ALL_PREFIX[setName]||[];
-  prefixes.forEach(pref=>{
-    tbody.appendChild(makeRow(`${pref}: ${setName}`,setName,char));
+  const panel = document.getElementById("panel");
+  panel.innerHTML = `<h2>[${setName} 세트]</h2>`;
+
+  const slots = ALL_SETS[setName] || [];
+  const table = document.createElement("table");
+  table.innerHTML = `<thead>
+    <tr><th>세트 이름</th>${slots.map(s => `<th>${s}</th>`).join("")}</tr>
+  </thead><tbody></tbody>`;
+  const tbody = table.querySelector("tbody");
+
+  // 기본 세트 행
+  tbody.appendChild(makeRow(setName, setName, char));
+
+  // 접두어 세트 행
+  const prefixes = ALL_PREFIX[setName] || [];
+  prefixes.forEach(pref => {
+    tbody.appendChild(makeRow(`${pref}: ${setName}`, setName, char));
   });
-  // 익시드 세트
-  prefixes.forEach(pref=>{
-    EXCEED_TAGS.forEach(ex=>{
-      tbody.appendChild(makeRow(`[${ex}] ${pref}: ${setName}`,setName,char));
+
+  // 익시드 세트 행
+  prefixes.forEach(pref => {
+    EXCEED_TAGS.forEach(ex => {
+      tbody.appendChild(makeRow(`[${ex}] ${pref}: ${setName}`, setName, char));
     });
   });
 
   panel.appendChild(table);
+
+  // === 전역 최대 길이 적용 ===
+  table.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+    cell.style.width = globalSetNameWidth + "px";
+  });
+  table.querySelectorAll("th:not(:first-child), td:not(:first-child)").forEach(cell => {
+    cell.style.width = globalSlotWidth + "px";
+  });
 }
 
-// 숫자 버튼 생성
-function makeNumberButton(charId,key,val){
-  return `<button class="num-btn" 
+// ===== 숫자 버튼 =====
+function makeNumberButton(charId, key, val){
+  return `<button class="num-btn"
             onmousedown="startDecrement('${charId}','${key}')"
             onmouseup="stopDecrement()"
             onclick="increment('${charId}','${key}')">${val}</button>`;
 }
 
-// 증가/감소 로직
-function increment(charId,key){
-  const char=characters.find(c=>c.id===charId);
-  char.armorCounts[key]=(char.armorCounts[key]||0)+1;
+// ===== 증가/감소 =====
+function increment(charId, key){
+  const char = characters.find(c => c.id === charId);
+  char.armorCounts[key] = (char.armorCounts[key] || 0) + 1;
   showSetButtons(char);
-  openSet(currentSetName,char);
+  if(currentSetName && currentChar){
+    openSet(currentSetName, currentChar);  // ✅ 저장된 값으로 다시 열기
+  }
 }
 
-let decInterval=null;
-function startDecrement(charId,key){
-  decInterval=setInterval(()=>{
-    const char=characters.find(c=>c.id===charId);
-    const cur=char.armorCounts[key]||0;
-    char.armorCounts[key]=Math.max(0,cur-1);
+function startDecrement(charId, key){
+  decInterval = setInterval(() => {
+    const char = characters.find(c => c.id === charId);
+    const cur = char.armorCounts[key] || 0;
+    char.armorCounts[key] = Math.max(0, cur - 1);
     showSetButtons(char);
-    openSet(currentSetName,char);
-  },500);
+    if(currentSetName && currentChar){
+      openSet(currentSetName, currentChar); // ✅ 저장된 값으로 다시 열기
+    }
+  }, 500);
 }
+
 function stopDecrement(){
   clearInterval(decInterval);
-  decInterval=null;
+  decInterval = null;
 }
 
 // ===== CSV 저장 =====
-function exportCSV() {
+function exportCSV(){
   const headers = ["이름","직업","카테고리","세트명","슬롯","접두어","보유개수"];
   const rows = [headers];
-
   const CATS = [
-    { cat:"방어구", sets: ARMOR_SETS, pref: ARMOR_PREFIX },
-    { cat:"악세",   sets: ACCESSORY_SETS, pref: ACCESSORY_PREFIX },
-    { cat:"특장",   sets: SPECIAL_SETS, pref: SPECIAL_PREFIX }
+    {cat:"방어구", sets:ARMOR_SETS, pref:ARMOR_PREFIX},
+    {cat:"악세",   sets:ACCESSORY_SETS, pref:ACCESSORY_PREFIX},
+    {cat:"특장",   sets:SPECIAL_SETS, pref:SPECIAL_PREFIX}
   ];
-
-  // 캐릭터 순서대로 돌리기
   characters.forEach(char=>{
     CATS.forEach(({cat, sets, pref})=>{
       Object.keys(sets).forEach(setName=>{
         const slots = sets[setName];
         const pfxs = pref[setName] || [];
         const groups = [setName, ...pfxs.map(p=>`${p}: ${setName}`)];
-
         groups.forEach(group=>{
           slots.forEach(slot=>{
-            // 기본/접두어 장비
             const count = char.armorCounts[`${group} ${slot}`] || 0;
             rows.push([char.name, char.job, cat, setName, slot,
                        group.includes(": ")?group.split(": ")[0]:"", count]);
-
-            // 익시드 장비
             const exceedNeeded =
               (cat==="방어구" && slot==="상의") ||
               (cat==="악세"   && slot==="팔찌") ||
               (cat==="특장"   && slot==="귀걸이");
-
             if (exceedNeeded && pfxs.length>0) {
               EXCEED_TAGS.forEach(tag=>{
                 const exceedGroup = `[${tag}] ${group}`;
@@ -380,7 +477,6 @@ function exportCSV() {
       });
     });
   });
-
   const escape = v => String(v).replace(/"/g,'""');
   const csvContent = "\uFEFF" + rows.map(r=>r.map(escape).map(v=>`"${v}"`).join(",")).join("\n");
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -426,7 +522,7 @@ function displayCSV(csvText){
     }
     const char = grouped[key];
     let groupName;
-    if(row["접두어"].includes("(익시드:")){
+    if(row["접두어"] && row["접두어"].includes("(익시드:")){
       const basePrefix = row["접두어"].split(" ")[0];
       const tag = row["접두어"].match(/\(익시드:(.+)\)/)[1];
       groupName = `[${tag}] ${basePrefix}: ${row["세트명"]}`;
