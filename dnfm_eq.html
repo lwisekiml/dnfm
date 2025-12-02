@@ -12,25 +12,17 @@
   table { border-collapse:collapse; width:100%; margin-top:6px; }
   th, td { border:1px solid #2a3158; padding:6px; text-align:center; }
   th { background:#181c33; }
-  .btn { padding:2px 6px; margin:0 2px; border-radius:4px; border:none; cursor:pointer; }
-  .plus { background:#25c2a0; color:#fff; }
-  .minus { background:#ff6b6b; color:#fff; }
-  /* 세트 버튼 색상 */
-.set-btn.set3 { background-color:#25c2a0; color:#fff; }   /* 초록색 */
-.set-btn.set5 { background-color:#ffd700; color:#000; }   /* 노란색 */
-
-/* 표 행 색상도 동일하게 적용 */
-tr.set3 { background-color:rgba(37,194,160,0.35); }
-tr.set5 { background-color:rgba(255,215,0,0.45); }
-
-
+  tr.set3 { background-color:rgba(37,194,160,0.35); }   /* 초록색 */
+  tr.set5 { background-color:rgba(255,215,0,0.45); }   /* 노란색 */
+  .set-btn.set3 { background-color:#25c2a0; color:#fff; }   /* 초록색 버튼 */
+  .set-btn.set5 { background-color:#ffd700; color:#000; }   /* 노란색 버튼 */
+  .num-btn { padding:6px 10px; border-radius:6px; border:1px solid #2a3158;
+             background:#181c33; color:#e6e9ff; cursor:pointer; }
 </style>
 </head>
 <body>
 
 <h1>캐릭터 장비 관리</h1>
-
-<!-- 버튼을 제목 바로 밑에 배치 -->
 <div>
   <button onclick="exportCSV()">CSV 저장</button>
   <input type="file" id="csvFile" accept=".csv">
@@ -167,7 +159,6 @@ characters.forEach(c=>{
 function showSetButtons(char){
   const setList=document.getElementById("setList");
   setList.innerHTML="";
-
   // 방어구
   const armorTitle=document.createElement("h2");
   armorTitle.textContent="[방어구]";
@@ -175,7 +166,6 @@ function showSetButtons(char){
   Object.keys(ARMOR_SETS).forEach(setName=>{
     setList.appendChild(makeSetButton(setName,char));
   });
-
   // 악세
   const accTitle=document.createElement("h2");
   accTitle.textContent="[악세]";
@@ -183,7 +173,6 @@ function showSetButtons(char){
   Object.keys(ACCESSORY_SETS).forEach(setName=>{
     setList.appendChild(makeSetButton(setName,char));
   });
-
   // 특장
   const spTitle=document.createElement("h2");
   spTitle.textContent="[특장]";
@@ -191,7 +180,6 @@ function showSetButtons(char){
   Object.keys(SPECIAL_SETS).forEach(setName=>{
     setList.appendChild(makeSetButton(setName,char));
   });
-
   document.getElementById("panel").innerHTML="";
 }
 
@@ -209,10 +197,8 @@ function makeSetButton(setName,char){
       if(distinctParts===3) count3++;
     }
   });
-
   const btn=document.createElement("button");
   btn.className="set-btn";
-
   const setType=getSetType(setName);
   if(setType==="ARMOR"){
     btn.textContent=`${setName} (${count3}/${count5})`;
@@ -222,7 +208,6 @@ function makeSetButton(setName,char){
     btn.textContent=`${setName} (${count3})`;
     if(count3>0) btn.classList.add("set3");
   }
-
   btn.onclick=()=>openSet(setName,char);
   return btn;
 }
@@ -236,7 +221,6 @@ function makeRow(name,setName,char){
   const isExceed=isExceedName(name);
   const setType=getSetType(setName);
   const exceedSlots=EXCEED_SLOTS[setType];
-
   let distinctParts=calcDistinctParts(char,groupKey);
   if(isExceed){
     exceedSlots.forEach(slot=>{
@@ -244,29 +228,23 @@ function makeRow(name,setName,char){
       if(val<=0) distinctParts=0;
     });
   }
-
   const tr=document.createElement("tr");
-  if(distinctParts===slots.length) tr.className="set5";
-  else if(distinctParts>=3) tr.className="set3";
-
+  if(setType==="ARMOR"){
+    if(distinctParts===slots.length) tr.className="set5";
+    else if(distinctParts>=3) tr.className="set3";
+  } else {
+    if(distinctParts===3) tr.className="set3";
+  }
   let html=`<td>${name}</td>`;
   slots.forEach(slot=>{
     let key=`${name} ${slot}`;
     const val=char.armorCounts[key]||0;
     if(isExceed){
       if(exceedSlots.includes(slot)){
-        html+=`<td>
-          <button class="btn minus" onclick="dec('${char.id}','${key}')">-</button>
-          ${val}
-          <button class="btn plus" onclick="inc('${char.id}','${key}')">+</button>
-        </td>`;
+        html+=`<td>${makeNumberButton(char.id,key,val)}</td>`;
       } else { html+=`<td></td>`; }
     } else {
-      html+=`<td>
-        <button class="btn minus" onclick="dec('${char.id}','${key}')">-</button>
-        ${val}
-        <button class="btn plus" onclick="inc('${char.id}','${key}')">+</button>
-      </td>`;
+      html+=`<td>${makeNumberButton(char.id,key,val)}</td>`;
     }
   });
   tr.innerHTML=html;
@@ -284,9 +262,8 @@ function openSet(setName,char){
     <tr><th>세트 이름</th>${slots.map(s=>`<th>${s}</th>`).join("")}</tr>
   </thead><tbody></tbody>`;
   const tbody=table.querySelector("tbody");
-
   tbody.appendChild(makeRow(setName,setName,char));
-  const prefixes=ALL_PREFIX[setName]||[];
+    const prefixes=ALL_PREFIX[setName]||[];
   prefixes.forEach(pref=>{
     tbody.appendChild(makeRow(`${pref}: ${setName}`,setName,char));
   });
@@ -299,19 +276,33 @@ function openSet(setName,char){
   panel.appendChild(table);
 }
 
-// ===== 증감 함수 =====
-function inc(charId,key){
+function makeNumberButton(charId,key,val){
+  return `<button class="num-btn" 
+            onmousedown="startDecrement('${charId}','${key}')"
+            onmouseup="stopDecrement()"
+            onclick="increment('${charId}','${key}')">${val}</button>`;
+}
+
+function increment(charId,key){
   const char=characters.find(c=>c.id===charId);
   char.armorCounts[key]=(char.armorCounts[key]||0)+1;
   showSetButtons(char);
   openSet(currentSetName,char);
 }
-function dec(charId,key){
-  const char=characters.find(c=>c.id===charId);
-  const cur=char.armorCounts[key]||0;
-  char.armorCounts[key]=Math.max(0,cur-1);
-  showSetButtons(char);
-  openSet(currentSetName,char);
+
+let decInterval=null;
+function startDecrement(charId,key){
+  decInterval=setInterval(()=>{
+    const char=characters.find(c=>c.id===charId);
+    const cur=char.armorCounts[key]||0;
+    char.armorCounts[key]=Math.max(0,cur-1);
+    showSetButtons(char);
+    openSet(currentSetName,char);
+  },500);
+}
+function stopDecrement(){
+  clearInterval(decInterval);
+  decInterval=null;
 }
 
 // ===== CSV 저장 =====
@@ -336,7 +327,8 @@ function exportCSV() {
           // 기본/접두어 장비
           characters.forEach(char=>{
             const count = char.armorCounts[`${group} ${slot}`] || 0;
-            rows.push([char.name, char.job, cat, setName, slot, group.includes(": ")?group.split(": ")[0]:"", count]);
+            rows.push([char.name, char.job, cat, setName, slot,
+                       group.includes(": ")?group.split(": ")[0]:"", count]);
           });
 
           // 익시드 장비 (특정 슬롯만)
@@ -386,7 +378,6 @@ function exportCSV() {
 document.getElementById("csvFile").addEventListener("change", function(e){
   const file = e.target.files[0];
   if (!file) return;
-
   const reader = new FileReader();
   reader.onload = function(evt){
     const text = evt.target.result;
