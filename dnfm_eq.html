@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>캐릭터 장비 관리 + CSV</title>
+<style>
+  body { font-family:sans-serif; background:#0f1222; color:#e6e9ff; }
+  h1 { margin-bottom:10px; }
+  .char-btn, .set-btn { margin:5px; padding:8px 12px; background:#181c33; border:1px solid #2a3158;
+              border-radius:8px; cursor:pointer; color:#e6e9ff; }
+  h2 { margin:24px 0 8px; }
+  table { border-collapse:collapse; width:100%; margin-top:6px; }
+  th, td { border:1px solid #2a3158; padding:6px; text-align:center; }
+  th { background:#181c33; }
+  .btn { padding:2px 6px; margin:0 2px; border-radius:4px; border:none; cursor:pointer; }
+  .plus { background:#25c2a0; color:#fff; }
+  .minus { background:#ff6b6b; color:#fff; }
+  /* 세트 버튼 색상 */
+.set-btn.set3 { background-color:#25c2a0; color:#fff; }   /* 초록색 */
+.set-btn.set5 { background-color:#ffd700; color:#000; }   /* 노란색 */
+
+/* 표 행 색상도 동일하게 적용 */
+tr.set3 { background-color:rgba(37,194,160,0.35); }
+tr.set5 { background-color:rgba(255,215,0,0.45); }
+
+
+</style>
+</head>
+<body>
+
+<h1>캐릭터 장비 관리</h1>
+
+<!-- 버튼을 제목 바로 밑에 배치 -->
+<div>
+  <button onclick="exportCSV()">CSV 저장</button>
+  <input type="file" id="csvFile" accept=".csv">
+</div>
+<div id="csvOutput"></div>
+
+<div id="characterList"></div>
+<div id="setList"></div>
+<div id="panel"></div>
+
+<script>
+// ===== 세트 정의 (방어구/악세/특장) =====
+const ARMOR_SETS = {
+  "어느 말괄량이의 탐사복": ["상의","하의","어깨","벨트","신발"],
+  "포이즈닝 퀸 스파이더": ["상의","하의","어깨","벨트","신발"],
+  "거인의 스펙쿨룸 아이언": ["상의","하의","어깨","벨트","신발"],
+  "어둠을 쏘아 내리는": ["상의","하의","어깨","벨트","신발"],
+  "수호자의 초합금": ["상의","하의","어깨","벨트","신발"],
+  "스티키 애시드 웨펀": ["상의","하의","어깨","벨트","신발"],
+  "섬뜩한 강철 용": ["상의","하의","어깨","벨트","신발"],
+  "익스플로시브 버닝 스톤": ["상의","하의","어깨","벨트","신발"],
+  "빛의 헌신자": ["상의","하의","어깨","벨트","신발"],
+  "여명을 쏘아 올리는 자": ["상의","하의","어깨","벨트","신발"],
+  "콰트로 카시테움": ["상의","하의","어깨","벨트","신발"],
+  "그란테 전투기갑 파츠": ["상의","하의","어깨","벨트","신발"],
+  "레거시:마력의 소용돌이": ["상의","하의","어깨","벨트","신발"],
+  "레거시:자연의 수호자": ["상의","하의","어깨","벨트","신발"]
+};
+const ARMOR_PREFIX = {
+  "어느 말괄량이의 탐사복": ["전격","허상"],
+  "포이즈닝 퀸 스파이더": ["작열","침식"],
+  "거인의 스펙쿨룸 아이언": ["수호","왜곡"],
+  "어둠을 쏘아 내리는": ["자상","맹독"],
+  "수호자의 초합금": ["허상","보호"],
+  "스티키 애시드 웨펀": ["맹독","왜곡"],
+  "섬뜩한 강철 용": ["쇄도","침식"],
+  "익스플로시브 버닝 스톤": ["신속","연격"],
+  "빛의 헌신자": ["수호","연격"],
+  "여명을 쏘아 올리는 자": ["자상","쇄도"],
+  "콰트로 카시테움": ["작열","보호"],
+  "그란테 전투기갑 파츠": ["신속","전격"],
+  "레거시:마력의 소용돌이": [],
+  "레거시:자연의 수호자": []
+};
+
+const ACCESSORY_SETS = {
+  "엘팅 메모리얼의 기억": ["팔찌","목걸이","반지"],
+  "섬뜩한 빛의 관리자": ["팔찌","목걸이","반지"],
+  "부식된 메탈기어": ["팔찌","목걸이","반지"],
+  "화력 개조 탄띠": ["팔찌","목걸이","반지"],
+  "신비로운 빛의 소용돌이": ["팔찌","목걸이","반지"],
+  "콰트로 마누스 연산장치": ["팔찌","목걸이","반지"],
+  "레거시:에테리얼 리베넌트": ["팔찌","목걸이","반지"],
+  "레거시:지나온 영광의 시대": ["팔찌","목걸이","반지"]
+};
+const ACCESSORY_PREFIX = {
+  "엘팅 메모리얼의 기억": ["견고","혈독"],
+  "섬뜩한 빛의 관리자": ["초석","각오"],
+  "부식된 메탈기어": ["각오","가속"],
+  "화력 개조 탄띠": ["혈독","견고"],
+  "신비로운 빛의 소용돌이": ["조화","초석"],
+  "콰트로 마누스 연산장치": ["가속","조화"],
+  "레거시:에테리얼 리베넌트": [],
+  "레거시:지나온 영광의 시대": []
+};
+
+const SPECIAL_SETS = {
+  "개구쟁이 호문쿨루스": ["귀걸이","마법석","보장"],
+  "라이트닝 에너지 코어": ["귀걸이","마법석","보장"],
+  "철갑을 두른 탑의 수호꾼": ["귀걸이","마법석","보장"],
+  "깊은 불구덩이의 섬멸자": ["귀걸이","마법석","보장"],
+  "허영 속 어둠의 피조물": ["귀걸이","마법석","보장"],
+  "부정한 빛의 우상": ["귀걸이","마법석","보장"]
+};
+const SPECIAL_PREFIX = {
+  "개구쟁이 호문쿨루스": ["전격","허상"],
+  "라이트닝 에너지 코어": ["전격","허상"],
+  "철갑을 두른 탑의 수호꾼": ["전격","허상"],
+  "깊은 불구덩이의 섬멸자": ["전격","허상"],
+  "허영 속 어둠의 피조물": ["전격","허상"],
+  "부정한 빛의 우상": ["전격","허상"]
+};
+
+const ALL_SETS = {...ARMOR_SETS, ...ACCESSORY_SETS, ...SPECIAL_SETS};
+const ALL_PREFIX = {...ARMOR_PREFIX, ...ACCESSORY_PREFIX, ...SPECIAL_PREFIX};
+const EXCEED_TAGS = ["선봉","의지","이상"];
+const EXCEED_SLOTS = { "ARMOR":["상의"], "ACCESSORY":["팔찌"], "SPECIAL":["귀걸이"] };
+
+// ===== 캐릭터 예시 =====
+const characters = [
+  {id:"c1", job:"검귀", name:"강의", armorCounts:{
+    "어느 말괄량이의 탐사복 상의":1,
+    "엘팅 메모리얼의 기억 팔찌":1,
+    "[의지] 견고: 엘팅 메모리얼의 기억 팔찌":1,
+    "개구쟁이 호문쿨루스 귀걸이":1
+  }}
+];
+
+// ===== 유틸 =====
+function isExceedName(name){ return /^\[(선봉|의지|이상)\]\s/.test(name); }
+function getGroupKey(name){ return name.replace(/^\[.*?\]\s*/,""); }
+function getSetType(setName){
+  if(ARMOR_SETS[setName]) return "ARMOR";
+  if(ACCESSORY_SETS[setName]) return "ACCESSORY";
+  if(SPECIAL_SETS[setName]) return "SPECIAL";
+  return "ARMOR";
+}
+function calcDistinctParts(char, groupKey){
+  const baseSet = groupKey.includes(": ") ? groupKey.split(": ").pop() : groupKey;
+  const slots=ALL_SETS[baseSet]||[];
+  let countDistinct=0;
+  slots.forEach(slot=>{
+    let total=char.armorCounts[`${groupKey} ${slot}`]||0;
+    if(slot==="상의"||slot==="팔찌"||slot==="귀걸이"){
+      EXCEED_TAGS.forEach(tag=>{
+        total += char.armorCounts[`[${tag}] ${groupKey} ${slot}`]||0;
+      });
+    }
+    if(total>0) countDistinct++;
+  });
+  return countDistinct;
+}
+
+// ===== 렌더 =====
+const listEl=document.getElementById("characterList");
+characters.forEach(c=>{
+  const btn=document.createElement("button");
+  btn.className="char-btn";
+  btn.textContent=`${c.job} (${c.name})`;
+  btn.onclick=()=>showSetButtons(c);
+  listEl.appendChild(btn);
+});
+
+function showSetButtons(char){
+  const setList=document.getElementById("setList");
+  setList.innerHTML="";
+
+  // 방어구
+  const armorTitle=document.createElement("h2");
+  armorTitle.textContent="[방어구]";
+  setList.appendChild(armorTitle);
+  Object.keys(ARMOR_SETS).forEach(setName=>{
+    setList.appendChild(makeSetButton(setName,char));
+  });
+
+  // 악세
+  const accTitle=document.createElement("h2");
+  accTitle.textContent="[악세]";
+  setList.appendChild(accTitle);
+  Object.keys(ACCESSORY_SETS).forEach(setName=>{
+    setList.appendChild(makeSetButton(setName,char));
+  });
+
+  // 특장
+  const spTitle=document.createElement("h2");
+  spTitle.textContent="[특장]";
+  setList.appendChild(spTitle);
+  Object.keys(SPECIAL_SETS).forEach(setName=>{
+    setList.appendChild(makeSetButton(setName,char));
+  });
+
+  document.getElementById("panel").innerHTML="";
+}
+
+function makeSetButton(setName,char){
+  let count3=0, count5=0;
+  const prefixes=ALL_PREFIX[setName]||[];
+  const groups=[setName, ...prefixes.map(pref=>`${pref}: ${setName}`)];
+  groups.forEach(group=>{
+    const distinctParts=calcDistinctParts(char, group);
+    const fullSize=ALL_SETS[setName].length;
+    if(fullSize===5){ // 방어구
+      if(distinctParts===fullSize) count5++;
+      else if(distinctParts>=3) count3++;
+    } else { // 악세/특장
+      if(distinctParts===3) count3++;
+    }
+  });
+
+  const btn=document.createElement("button");
+  btn.className="set-btn";
+
+  const setType=getSetType(setName);
+  if(setType==="ARMOR"){
+    btn.textContent=`${setName} (${count3}/${count5})`;
+    if(count5>0) btn.classList.add("set5");
+    else if(count3>0) btn.classList.add("set3");
+  } else {
+    btn.textContent=`${setName} (${count3})`;
+    if(count3>0) btn.classList.add("set3");
+  }
+
+  btn.onclick=()=>openSet(setName,char);
+  return btn;
+}
+
+let currentSetName=null;
+let currentChar=null;
+
+function makeRow(name,setName,char){
+  const slots=ALL_SETS[setName];
+  const groupKey=getGroupKey(name);
+  const isExceed=isExceedName(name);
+  const setType=getSetType(setName);
+  const exceedSlots=EXCEED_SLOTS[setType];
+
+  let distinctParts=calcDistinctParts(char,groupKey);
+  if(isExceed){
+    exceedSlots.forEach(slot=>{
+      const val=char.armorCounts[`${name} ${slot}`]||0;
+      if(val<=0) distinctParts=0;
+    });
+  }
+
+  const tr=document.createElement("tr");
+  if(distinctParts===slots.length) tr.className="set5";
+  else if(distinctParts>=3) tr.className="set3";
+
+  let html=`<td>${name}</td>`;
+  slots.forEach(slot=>{
+    let key=`${name} ${slot}`;
+    const val=char.armorCounts[key]||0;
+    if(isExceed){
+      if(exceedSlots.includes(slot)){
+        html+=`<td>
+          <button class="btn minus" onclick="dec('${char.id}','${key}')">-</button>
+          ${val}
+          <button class="btn plus" onclick="inc('${char.id}','${key}')">+</button>
+        </td>`;
+      } else { html+=`<td></td>`; }
+    } else {
+      html+=`<td>
+        <button class="btn minus" onclick="dec('${char.id}','${key}')">-</button>
+        ${val}
+        <button class="btn plus" onclick="inc('${char.id}','${key}')">+</button>
+      </td>`;
+    }
+  });
+  tr.innerHTML=html;
+  return tr;
+}
+
+function openSet(setName,char){
+  currentSetName=setName;
+  currentChar=char;
+  const panel=document.getElementById("panel");
+  panel.innerHTML=`<h2>[${setName} 세트]</h2>`;
+  const slots=ALL_SETS[setName];
+  const table=document.createElement("table");
+  table.innerHTML=`<thead>
+    <tr><th>세트 이름</th>${slots.map(s=>`<th>${s}</th>`).join("")}</tr>
+  </thead><tbody></tbody>`;
+  const tbody=table.querySelector("tbody");
+
+  tbody.appendChild(makeRow(setName,setName,char));
+  const prefixes=ALL_PREFIX[setName]||[];
+  prefixes.forEach(pref=>{
+    tbody.appendChild(makeRow(`${pref}: ${setName}`,setName,char));
+  });
+  prefixes.forEach(pref=>{
+    EXCEED_TAGS.forEach(ex=>{
+      tbody.appendChild(makeRow(`[${ex}] ${pref}: ${setName}`,setName,char));
+    });
+  });
+
+  panel.appendChild(table);
+}
+
+// ===== 증감 함수 =====
+function inc(charId,key){
+  const char=characters.find(c=>c.id===charId);
+  char.armorCounts[key]=(char.armorCounts[key]||0)+1;
+  showSetButtons(char);
+  openSet(currentSetName,char);
+}
+function dec(charId,key){
+  const char=characters.find(c=>c.id===charId);
+  const cur=char.armorCounts[key]||0;
+  char.armorCounts[key]=Math.max(0,cur-1);
+  showSetButtons(char);
+  openSet(currentSetName,char);
+}
+
+// ===== CSV 저장 =====
+function exportCSV() {
+  const headers = ["이름","직업","카테고리","세트명","슬롯","접두어","보유개수"];
+  const rows = [headers];
+
+  const CATS = [
+    { cat:"방어구", sets: ARMOR_SETS, pref: ARMOR_PREFIX },
+    { cat:"악세",   sets: ACCESSORY_SETS, pref: ACCESSORY_PREFIX },
+    { cat:"특장",   sets: SPECIAL_SETS, pref: SPECIAL_PREFIX }
+  ];
+
+  CATS.forEach(({cat, sets, pref})=>{
+    Object.keys(sets).forEach(setName=>{
+      const slots = sets[setName];
+      const pfxs = pref[setName] || [];
+      const groups = [setName, ...pfxs.map(p=>`${p}: ${setName}`)];
+
+      groups.forEach(group=>{
+        slots.forEach(slot=>{
+          // 기본/접두어 장비
+          characters.forEach(char=>{
+            const count = char.armorCounts[`${group} ${slot}`] || 0;
+            rows.push([char.name, char.job, cat, setName, slot, group.includes(": ")?group.split(": ")[0]:"", count]);
+          });
+
+          // 익시드 장비 (특정 슬롯만)
+          const exceedNeeded =
+            (cat==="방어구" && slot==="상의") ||
+            (cat==="악세"   && slot==="팔찌") ||
+            (cat==="특장"   && slot==="귀걸이");
+
+          if (exceedNeeded && pfxs.length>0) {
+            EXCEED_TAGS.forEach(tag=>{
+              const exceedGroup = `[${tag}] ${group}`;
+              characters.forEach(char=>{
+                const countEx = char.armorCounts[`${exceedGroup} ${slot}`] || 0;
+                rows.push([
+                  char.name,
+                  char.job,
+                  cat,
+                  setName,
+                  slot,
+                  `${group.includes(": ")?group.split(": ")[0]:""} (익시드:${tag})`,
+                  countEx
+                ]);
+              });
+            });
+          }
+        });
+      });
+    });
+  });
+
+  // CSV 문자열 생성
+  const escape = v => String(v).replace(/"/g,'""');
+  const csvContent = "\uFEFF" + rows.map(r=>r.map(escape).map(v=>`"${v}"`).join(",")).join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sets_characters.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ===== CSV 읽기 =====
+document.getElementById("csvFile").addEventListener("change", function(e){
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    const text = evt.target.result;
+    displayCSV(text);
+  };
+  reader.readAsText(file, "utf-8");
+});
+
+function displayCSV(csvText){
+  const lines = csvText.trim().split("\n");
+  const headers = lines[0].split(",").map(h=>h.replace(/^"|"$/g,""));
+  const data = lines.slice(1).map(line=>{
+    const cells = line.split(",").map(c=>c.replace(/^"|"$/g,""));
+    const obj = {};
+    headers.forEach((h,i)=>obj[h]=cells[i]);
+    return obj;
+  });
+
+  // 캐릭터 데이터 초기화
+  characters.length = 0;
+  const grouped = {};
+
+  data.forEach(row=>{
+    const key = row["이름"]+"_"+row["직업"];
+    if(!grouped[key]){
+      grouped[key] = {id:key, name:row["이름"], job:row["직업"], armorCounts:{}};
+      characters.push(grouped[key]);
+    }
+    const char = grouped[key];
+
+    // 접두어/익시드 처리
+    let groupName;
+    if(row["접두어"].includes("(익시드:")){
+      // 예: "견고 (익시드:의지)" → [의지] 견고: 세트명
+      const basePrefix = row["접두어"].split(" ")[0]; // "견고"
+      const tag = row["접두어"].match(/\(익시드:(.+)\)/)[1]; // "의지"
+      groupName = `[${tag}] ${basePrefix}: ${row["세트명"]}`;
+    } else if(row["접두어"]){
+      groupName = `${row["접두어"]}: ${row["세트명"]}`;
+    } else {
+      groupName = row["세트명"];
+    }
+
+    const slot = row["슬롯"];
+    const fullKey = `${groupName} ${slot}`;
+    char.armorCounts[fullKey] = parseInt(row["보유개수"],10);
+  });
+
+  // UI 다시 렌더링
+  const listEl=document.getElementById("characterList");
+  listEl.innerHTML="";
+  characters.forEach(c=>{
+    const btn=document.createElement("button");
+    btn.className="char-btn";
+    btn.textContent=`${c.job} (${c.name})`;
+    btn.onclick=()=>showSetButtons(c);
+    listEl.appendChild(btn);
+  });
+
+  document.getElementById("setList").innerHTML="";
+  document.getElementById("panel").innerHTML="";
+}
+</script>
+
+</body>
+</html>
