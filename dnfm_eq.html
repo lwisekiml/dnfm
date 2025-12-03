@@ -88,7 +88,7 @@
     background: linear-gradient(135deg, #b22222, #8c1a1a);
     transform: scale(1.05);
   }
-  
+
 .char-btn.active {
   background: #b8860b;   /* 은은한 금빛 계열 (DarkGoldenrod) */
   color: #fff;
@@ -125,36 +125,36 @@
 <script>
 // ===== 세트 정의 (예시 일부만, 실제로는 전체 세트/접두어 정의 필요) =====
 const ARMOR_SETS = {
-  "어느 말괄량이의 탐사복": ["상의","하의","어깨","벨트","신발"],
-  "포이즈닝 퀸 스파이더": ["상의","하의","어깨","벨트","신발"],
-  "거인의 스펙쿨룸 아이언": ["상의","하의","어깨","벨트","신발"],
-  "어둠을 쏘아 내리는": ["상의","하의","어깨","벨트","신발"],
-  "수호자의 초합금": ["상의","하의","어깨","벨트","신발"],
-  "스티키 애시드 웨펀": ["상의","하의","어깨","벨트","신발"],
-  "섬뜩한 강철 용": ["상의","하의","어깨","벨트","신발"],
-  "익스플로시브 버닝 스톤": ["상의","하의","어깨","벨트","신발"],
-  "빛의 헌신자": ["상의","하의","어깨","벨트","신발"],
-  "여명을 쏘아 올리는 자": ["상의","하의","어깨","벨트","신발"],
-  "콰트로 카시테움": ["상의","하의","어깨","벨트","신발"],
-  "그란테 전투기갑 파츠": ["상의","하의","어깨","벨트","신발"],
-  "레거시:마력의 소용돌이": ["상의","하의","어깨","벨트","신발"],
-  "레거시:자연의 수호자": ["상의","하의","어깨","벨트","신발"]
+ "어느 말괄량이의 탐사복": ["상의","하의","어깨","벨트","신발"],
+ "포이즈닝 퀸 스파이더": ["상의","하의","어깨","벨트","신발"],
+ "거인의 스펙쿨룸 아이언": ["상의","하의","어깨","벨트","신발"],
+ "어둠을 쏘아 내리는": ["상의","하의","어깨","벨트","신발"],
+ "수호자의 초합금": ["상의","하의","어깨","벨트","신발"],
+ "스틱키 애시드 웨펀": ["상의","하의","어깨","벨트","신발"],
+ "섬뜩한 강철 용": ["상의","하의","어깨","벨트","신발"],
+ "익스플로시브 버닝 스톤": ["상의","하의","어깨","벨트","신발"],
+ "빛의 헌신자": ["상의","하의","어깨","벨트","신발"],
+ "여명을 쏘아 올리는 자": ["상의","하의","어깨","벨트","신발"],
+ "콰트로 카시테움": ["상의","하의","어깨","벨트","신발"],
+ "그란테 전투기갑 파츠": ["상의","하의","어깨","벨트","신발"],
+ "레거시:마력의 소용돌이": ["상의","하의","어깨","벨트","신발"],
+ "레거시:자연의 수호자": ["상의","하의","어깨","벨트","신발"]
 };
 const ARMOR_PREFIX = {
-  "어느 말괄량이의 탐사복": ["전격","허상"],
-  "포이즈닝 퀸 스파이더": ["작열","침식"],
-  "거인의 스펙쿨룸 아이언": ["수호","왜곡"],
-  "어둠을 쏘아 내리는": ["자상","맹독"],
-  "수호자의 초합금": ["허상","보호"],
-  "스티키 애시드 웨펀": ["맹독","왜곡"],
-  "섬뜩한 강철 용": ["쇄도","침식"],
-  "익스플로시브 버닝 스톤": ["신속","연격"],
-  "빛의 헌신자": ["수호","연격"],
-  "여명을 쏘아 올리는 자": ["자상","쇄도"],
-  "콰트로 카시테움": ["작열","보호"],
-  "그란테 전투기갑 파츠": ["신속","전격"],
-  "레거시:마력의 소용돌이": [],
-  "레거시:자연의 수호자": []
+ "어느 말괄량이의 탐사복": ["전격","허상"],
+ "포이즈닝 퀸 스파이더": ["작열","침식"],
+ "거인의 스펙쿨룸 아이언": ["수호","왜곡"],
+ "어둠을 쏘아 내리는": ["자상","맹독"],
+ "수호자의 초합금": ["허상","보호"],
+ "스틱키 애시드 웨펀": ["맹독","왜곡"],
+ "섬뜩한 강철 용": ["쇄도","침식"],
+ "익스플로시브 버닝 스톤": ["신속","연격"],
+ "빛의 헌신자": ["수호","연격"],
+ "여명을 쏘아 올리는 자": ["자상","쇄도"],
+ "콰트로 카시테움": ["작열","보호"],
+ "그란테 전투기갑 파츠": ["신속","전격"],
+ "레거시:마력의 소용돌이": [],
+ "레거시:자연의 수호자": []
 };
 
 const ACCESSORY_SETS = {
@@ -236,11 +236,19 @@ calculateGlobalWidths();
 function isExceedName(name){ return /^\[(선봉|의지|이상)\]\s/.test(name); }
 function getGroupKey(name){ return name.replace(/^\[.*?\]\s*/,""); }
 function getSetType(setName){
-  if(ARMOR_SETS[setName]) return "ARMOR";
-  if(ACCESSORY_SETS[setName]) return "ACCESSORY";
-  if(SPECIAL_SETS[setName]) return "SPECIAL";
-  return "ARMOR";
+ if(ARMOR_SETS[setName]) return "ARMOR";
+ if(ACCESSORY_SETS[setName]) return "ACCESSORY";
+ if(SPECIAL_SETS[setName]) return "SPECIAL";
+ 
+ // 접두어나 익시드가 붙은 이름에서 기본 세트명을 추출하여 판별
+ const baseName = setName.includes(':') ? setName.split(':').pop().trim() : setName;
+ if(ARMOR_SETS[baseName]) return "ARMOR";
+ if(ACCESSORY_SETS[baseName]) return "ACCESSORY";
+ if(SPECIAL_SETS[baseName]) return "SPECIAL";
+ 
+ return "ARMOR"; // 기본값
 }
+
 function calcDistinctParts(char, groupKey){
   const baseSet=groupKey.includes(": ")?groupKey.split(": ").pop():groupKey;
   const slots=ALL_SETS[baseSet]||[];
@@ -257,7 +265,6 @@ function calcDistinctParts(char, groupKey){
   return countDistinct;
 }
 
-// ===== 캐릭터 버튼 렌더 =====
 // ===== 캐릭터 버튼 렌더 =====
 function renderCharacterList(){
   const listEl = document.getElementById("characterList");
@@ -322,62 +329,115 @@ function showSetButtons(char){
   const setList = document.getElementById("setList");
   setList.innerHTML = "";
 
-  // 방어구
-  const armorTitle = document.createElement("h2");
-  armorTitle.textContent = "[방어구]";
-  setList.appendChild(armorTitle);
-  Object.keys(ARMOR_SETS).forEach(setName => {
-    setList.appendChild(makeSetButton(setName, char));
-  });
+ // ----------------------------------------------------
+ // 1. 각 카테고리별 아이템 총 개수 계산
+ // ----------------------------------------------------
+ let totalArmor = 0;
+ let totalAccessory = 0;
+ let totalSpecial = 0;
 
-  // 악세
-  const accTitle = document.createElement("h2");
-  accTitle.textContent = "[악세]";
-  setList.appendChild(accTitle);
-  Object.keys(ACCESSORY_SETS).forEach(setName => {
-    setList.appendChild(makeSetButton(setName, char));
-  });
+ Object.entries(char.armorCounts).forEach(([fullKey, count]) => {
+  if (count <= 0) return; 
 
-  // 특장
-  const spTitle = document.createElement("h2");
-  spTitle.textContent = "[특장]";
-  setList.appendChild(spTitle);
-  Object.keys(SPECIAL_SETS).forEach(setName => {
-    setList.appendChild(makeSetButton(setName, char));
-  });
+  const parts = fullKey.split(' ');
+  const slot = parts.pop();
+  const name = parts.join(' ');
+
+  const groupKey = getGroupKey(name);
+  const setType = getSetType(groupKey);
+
+  if (setType === "ARMOR") totalArmor += count;
+  else if (setType === "ACCESSORY") totalAccessory += count;
+  else if (setType === "SPECIAL") totalSpecial += count;
+ });
+ 
+ // ----------------------------------------------------
+ // 2. 제목에 총 개수를 포함하여 표시
+ // ----------------------------------------------------
+
+ // 방어구
+ const armorTitle = document.createElement("h2");
+ armorTitle.textContent = `[방어구 (${totalArmor}개)]`; 
+ setList.appendChild(armorTitle);
+ Object.keys(ARMOR_SETS).forEach(setName => {
+  setList.appendChild(makeSetButton(setName, char));
+ });
+
+ // 악세
+ const accTitle = document.createElement("h2");
+ accTitle.textContent = `[악세 (${totalAccessory}개)]`;
+ setList.appendChild(accTitle);
+ Object.keys(ACCESSORY_SETS).forEach(setName => {
+  setList.appendChild(makeSetButton(setName, char));
+ });
+
+ // 특장
+ const spTitle = document.createElement("h2");
+ spTitle.textContent = `[특장 (${totalSpecial}개)]`;
+ setList.appendChild(spTitle);
+ Object.keys(SPECIAL_SETS).forEach(setName => {
+  setList.appendChild(makeSetButton(setName, char));
+ });
 
   document.getElementById("panel").innerHTML = "";
 }
 
 // ===== 세트 버튼 생성 =====
 function makeSetButton(setName, char){
-  let count3 = 0, count5 = 0;
-  const prefixes = ALL_PREFIX[setName] || [];
-  const groups = [setName, ...prefixes.map(pref => `${pref}: ${setName}`)];
+ let count3 = 0, count5 = 0;
+ let totalParts = 0; // z 값 (총 개수) 초기화
 
-  groups.forEach(group => {
-    const distinctParts = calcDistinctParts(char, group);
-    const fullSize = (ALL_SETS[setName] || []).length;
-    if(fullSize === 5){
-      if(distinctParts === fullSize) count5++;
-      else if(distinctParts >= 3) count3++;
-    } else {
-      if(distinctParts === 3) count3++;
-    }
-  });
+ const slots = ALL_SETS[setName] || [];
+ const prefixes = ALL_PREFIX[setName] || [];
+ const groups = [setName, ...prefixes.map(pref => `${pref}: ${setName}`)];
 
-  const btn = document.createElement("button");
-  btn.className = "set-btn";
-  const setType = getSetType(setName);
+ groups.forEach(group => {
+  const distinctParts = calcDistinctParts(char, group);
+  const fullSize = slots.length;
 
-  if(setType === "ARMOR"){
-    btn.textContent = `${setName} (${count3}/${count5})`;
-    if(count5 > 0) btn.classList.add("set5");
-    else if(count3 > 0) btn.classList.add("set3");
+    // 해당 세트 그룹의 모든 부위 총합 계산 (z 값 계산)
+    slots.forEach(slot => {
+        let count = char.armorCounts[`${group} ${slot}`] || 0;
+        // 익시드 부위가 해당 슬롯일 경우 익시드 카운트도 추가
+        if (getSetType(setName) === "ARMOR" && slot === "상의" && prefixes.length > 0) {
+            EXCEED_TAGS.forEach(tag => {
+                count += char.armorCounts[`[${tag}] ${group} ${slot}`] || 0;
+            });
+        } else if (getSetType(setName) === "ACCESSORY" && slot === "팔찌" && prefixes.length > 0) {
+            EXCEED_TAGS.forEach(tag => {
+                count += char.armorCounts[`[${tag}] ${group} ${slot}`] || 0;
+            });
+        } else if (getSetType(setName) === "SPECIAL" && slot === "귀걸이" && prefixes.length > 0) {
+            EXCEED_TAGS.forEach(tag => {
+                count += char.armorCounts[`[${tag}] ${group} ${slot}`] || 0;
+            });
+        }
+        totalParts += count;
+    });
+    // 총합 계산 로직 끝
+
+  if(fullSize === 5){
+   if(distinctParts === fullSize) count5++;
+   else if(distinctParts >= 3) count3++;
   } else {
-    btn.textContent = `${setName} (${count3})`;
-    if(count3 > 0) btn.classList.add("set3");
+   if(distinctParts === 3) count3++;
   }
+ });
+
+ const btn = document.createElement("button");
+ btn.className = "set-btn";
+ const setType = getSetType(setName);
+
+ if(setType === "ARMOR"){
+  // 방어구: 세트 이름 (총 부위 개수) 3세트 달성 횟수/5세트 달성 횟수
+  btn.textContent = `${setName} (${totalParts}) ${count3}/${count5}`; // 👈 형식 수정
+  if(count5 > 0) btn.classList.add("set5");
+  else if(count3 > 0) btn.classList.add("set3");
+ } else {
+  // 악세/특장: 세트 이름 (총 부위 개수) 3세트 달성 횟수
+  btn.textContent = `${setName} (${totalParts}) ${count3}`; // 👈 형식 수정
+  if(count3 > 0) btn.classList.add("set3");
+ }
 
   btn.onclick = () => openSet(setName, char);
   return btn;
@@ -426,6 +486,8 @@ function makeRow(name, setName, char){
 }
 
 // ===== 세트 표 열기 =====
+let currentSetName = null;
+let currentChar = null;
 function openSet(setName, char){
   currentSetName = setName;
   currentChar = char;
@@ -547,6 +609,7 @@ function makeNumberButton(charId, key, val){
 
 
 // ===== 증가/감소 =====
+let decInterval = null;
 function increment(charId, key){
   const char = characters.find(c => c.id === charId);
   char.armorCounts[key] = (char.armorCounts[key] || 0) + 1;
