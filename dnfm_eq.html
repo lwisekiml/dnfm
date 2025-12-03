@@ -88,6 +88,14 @@
     background: linear-gradient(135deg, #b22222, #8c1a1a);
     transform: scale(1.05);
   }
+  
+.char-btn.active {
+  background: #b8860b;   /* 은은한 금빛 계열 (DarkGoldenrod) */
+  color: #fff;
+  border: 1px solid #daa520; /* 조금 더 밝은 금빛 테두리 */
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); /* 은은한 금빛 그림자 */
+}
+
 </style>
 </head>
 <body>
@@ -277,7 +285,13 @@ function renderCharacterList(){
     const btn = document.createElement("button");
     btn.className = "char-btn";
     btn.textContent = `${c.job} (${c.name})`;
-    btn.onclick = () => showSetButtons(c);
+    btn.onclick = () => {
+      // 모든 버튼에서 active 제거
+      document.querySelectorAll(".char-btn").forEach(b => b.classList.remove("active"));
+      // 현재 버튼에 active 추가
+      btn.classList.add("active");
+      showSetButtons(c);
+    };
 
     // wrapper에 버튼들 추가
     wrapper.appendChild(delBtn);
