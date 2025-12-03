@@ -89,6 +89,15 @@
   transform: scale(1.05);
 }
 
+.num-btn.positive {
+  background: linear-gradient(135deg, #3399cc, #2a6f9e); /* 차분한 파랑 계열 */
+  color: #fff;
+  font-weight: bold;
+  border: 1px solid #3399cc;
+}
+
+
+
 
 
 </style>
@@ -458,11 +467,13 @@ function openSet(setName, char){
 
 // ===== 숫자 버튼 =====
 function makeNumberButton(charId, key, val){
-  return `<button class="num-btn"
+  const extraClass = val > 0 ? " positive" : "";
+  return `<button class="num-btn${extraClass}"
             onmousedown="startDecrement('${charId}','${key}')"
             onmouseup="stopDecrement()"
             onclick="increment('${charId}','${key}')">${val}</button>`;
 }
+
 
 // ===== 증가/감소 =====
 function increment(charId, key){
