@@ -61,45 +61,33 @@
     padding:6px 10px; border-radius:6px; border:1px solid #2a3158;
     background:#181c33; color:#e6e9ff; cursor:pointer;
   }
-  
-.character-wrapper {
-  display: inline-flex;   /* 버튼들을 옆으로 붙여서 정렬 */
-  align-items: center;    /* 세로 가운데 정렬 */
-  margin: 5px;
-}
+  .num-btn.positive {
+    background: linear-gradient(135deg, #3399cc, #2a6f9e);
+    color: #fff;
+    font-weight: bold;
+    border: 1px solid #3399cc;
+  }
 
-.character-wrapper {
-  display: inline-flex;   /* 버튼들을 옆으로 붙여서 정렬 */
-  align-items: center;    /* 세로 가운데 정렬 */
-  margin: 5px;
-}
+  .character-wrapper {
+    display: inline-flex;
+    align-items: center;
+    margin: 5px;
+  }
 
-.delete-btn {
-  padding: 4px 8px;       /* 조금 더 작게 */
-  background: linear-gradient(135deg, #8c1a1a, #b22222);
-  border: none;
-  border-radius: 4px;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.delete-btn:hover {
-  background: linear-gradient(135deg, #b22222, #8c1a1a);
-  transform: scale(1.05);
-}
-
-.num-btn.positive {
-  background: linear-gradient(135deg, #3399cc, #2a6f9e); /* 차분한 파랑 계열 */
-  color: #fff;
-  font-weight: bold;
-  border: 1px solid #3399cc;
-}
-
-
-
-
-
+  .delete-btn {
+    padding: 4px 8px;
+    background: linear-gradient(135deg, #8c1a1a, #b22222);
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .delete-btn:hover {
+    background: linear-gradient(135deg, #b22222, #8c1a1a);
+    transform: scale(1.05);
+  }
 </style>
 </head>
 <body>
@@ -123,6 +111,7 @@
 
 <div id="setList"></div>
 <div id="panel"></div>
+
 
 
 <script>
@@ -424,7 +413,6 @@ function makeRow(name, setName, char){
 
 // ===== 세트 표 열기 =====
 function openSet(setName, char){
-  // ✅ 현재 선택된 세트와 캐릭터를 저장해둡니다
   currentSetName = setName;
   currentChar = char;
 
@@ -438,16 +426,11 @@ function openSet(setName, char){
   </thead><tbody></tbody>`;
   const tbody = table.querySelector("tbody");
 
-  // 기본 세트 행
   tbody.appendChild(makeRow(setName, setName, char));
-
-  // 접두어 세트 행
   const prefixes = ALL_PREFIX[setName] || [];
   prefixes.forEach(pref => {
     tbody.appendChild(makeRow(`${pref}: ${setName}`, setName, char));
   });
-
-  // 익시드 세트 행
   prefixes.forEach(pref => {
     EXCEED_TAGS.forEach(ex => {
       tbody.appendChild(makeRow(`[${ex}] ${pref}: ${setName}`, setName, char));
@@ -456,14 +439,88 @@ function openSet(setName, char){
 
   panel.appendChild(table);
 
-  // === 전역 최대 길이 적용 ===
   table.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
     cell.style.width = globalSetNameWidth + "px";
   });
   table.querySelectorAll("th:not(:first-child), td:not(:first-child)").forEach(cell => {
     cell.style.width = globalSlotWidth + "px";
   });
+
+  // ✅ 요약 패널 추가
+  showSetSlotSummary(setName);
 }
+
+// ===== 캐릭터별 슬롯 요약 =====
+function showSetSlotSummary(setName){
+  const summaryPanel = document.createElement("div");
+  summaryPanel.innerHTML = `<h2>[${setName} 세트 캐릭터별 슬롯 현황]</h2>`;
+
+  const slots = ALL_SETS[setName] || [];
+  const table = document.createElement("table");
+  table.innerHTML = `<thead>
+    <tr><th>캐릭터</th><th>직업</th>${slots.map(s=>`<th>${s}</th>`).join("")}<th>세트 달성</th></tr>
+  </thead><tbody></tbody>`;
+  const tbody = table.querySelector("tbody");
+
+  const prefixes = ALL_PREFIX[setName] || [];
+  const groups = [setName, ...prefixes.map(p => `${p}: ${setName}`)];
+  const setType = getSetType(setName);
+
+  characters.forEach(char => {
+    let hasAny = false;
+    let html = `<td>${char.name}</td><td>${char.job}</td>`;
+
+    // 슬롯별 합계(모든 그룹+익시드) 표시
+    slots.forEach(slot => {
+      let total = 0;
+      groups.forEach(group => {
+        total += char.armorCounts[`${group} ${slot}`] || 0;
+        EXCEED_TAGS.forEach(tag=>{
+          total += char.armorCounts[`[${tag}] ${group} ${slot}`] || 0;
+        });
+      });
+      if(total > 0) hasAny = true;
+      html += `<td>${total}</td>`;
+    });
+
+    if(!hasAny) return;
+
+    // 달성 여부: 그룹별 고유 파츠 수의 최대값으로 판정
+    let maxDistinct = 0;
+    groups.forEach(group=>{
+      const distinct = calcDistinctParts(char, group);
+      if(distinct > maxDistinct) maxDistinct = distinct;
+    });
+
+    let status = "-";
+    if(setType === "ARMOR"){
+      if(maxDistinct === slots.length) status = "5세트 달성";
+      else if(maxDistinct >= 3) status = "3세트 달성";
+    } else {
+      // 악세/특장은 3부위
+      if(maxDistinct === 3) status = "3세트 달성";
+    }
+
+    html += `<td>${status}</td>`;
+    const tr = document.createElement("tr");
+    // 시각 강조 (선택사항): 달성 정도에 따라 행 배경 적용
+    if(setType === "ARMOR"){
+      if(maxDistinct === slots.length) tr.className = "set5";
+      else if(maxDistinct >= 3) tr.className = "set3";
+    } else {
+      if(maxDistinct === 3) tr.className = "set3";
+    }
+
+    tr.innerHTML = html;
+    tbody.appendChild(tr);
+  });
+
+  summaryPanel.appendChild(table);
+  document.getElementById("panel").appendChild(summaryPanel);
+}
+
+
+
 
 // ===== 숫자 버튼 =====
 function makeNumberButton(charId, key, val){
