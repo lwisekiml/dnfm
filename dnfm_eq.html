@@ -680,18 +680,26 @@ function exportCSV(){
       });
     });
   });
+
   const escape = v => String(v).replace(/"/g,'""');
   const csvContent = "\uFEFF" + rows.map(r=>r.map(escape).map(v=>`"${v}"`).join(",")).join("\n");
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "sets_characters.csv";
+
+  // --- 여기서 파일명에 년월일시 추가 ---
+  const now = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  const filename = `sets_characters_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}.csv`;
+  a.download = filename;
+  
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
 
 // ===== CSV 읽기 =====
 document.getElementById("csvFile").addEventListener("change", function(e){
