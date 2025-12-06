@@ -436,81 +436,72 @@
 
   // ===== 세트 버튼 생성 =====
   function makeSetButton(setName, char){
-    let count3 = 0, count5 = 0;
-    let totalParts = 0; // x 값 (총 개수) 초기화
+  let count3 = 0, count5 = 0;
+  let totalParts = 0; // x 값 (총 개수) 초기화
 
-    const slots = ALL_SETS[setName] || [];
-    const prefixes = ALL_PREFIX[setName] || [];
-    const setType = getSetType(setName);
-    const exceedSlots = EXCEED_SLOTS[setType] || [];
+  const slots = ALL_SETS[setName] || [];
+  const prefixes = ALL_PREFIX[setName] || [];
+  const setType = getSetType(setName);
+  const exceedSlots = EXCEED_SLOTS[setType] || [];
 
-    // 1. 전체 고유 부위 개수 계산 (접두어/익시드 무시)
-    const distinctParts = calcTotalDistinctParts(char, setName);
-
-    // 2. 총 부위 개수 (totalParts, x 값) 계산
-    const allGroupKeys = [setName];
-    prefixes.forEach(pref => {
-      const prefixedName = `${pref}: ${setName}`;
-      allGroupKeys.push(prefixedName);
-      EXCEED_TAGS.forEach(tag => {
-        allGroupKeys.push(`[${tag}] ${prefixedName}`);
-      });
+  // 1. 전체 고유 부위 개수 계산 (접두어/익시드 무시)
+  const distinctParts = calcTotalDistinctParts(char, setName); 
+  
+  // 2. 총 부위 개수 (totalParts, x 값) 계산
+  const allGroupKeys = [setName]; 
+  prefixes.forEach(pref => {
+    const prefixedName = `${pref}: ${setName}`;
+    allGroupKeys.push(prefixedName); 
+    EXCEED_TAGS.forEach(tag => {
+      allGroupKeys.push(`[${tag}] ${prefixedName}`);
     });
+  });
 
-    allGroupKeys.forEach(groupKey => {
-      const isExceedKey = groupKey.startsWith('[');
-      slots.forEach(slot => {
-        let key = `${groupKey} ${slot}`;
-
-        if (isExceedKey && !exceedSlots.includes(slot)) {
-          return;
-        }
-
-        totalParts += char.armorCounts[key] || 0;
-      });
+  allGroupKeys.forEach(groupKey => {
+    const isExceedKey = groupKey.startsWith('[');
+    slots.forEach(slot => {
+      let key = `${groupKey} ${slot}`;
+      
+      if (isExceedKey && !exceedSlots.includes(slot)) {
+        return;
+      }
+      
+      totalParts += char.armorCounts[key] || 0;
     });
-    // 총합 계산 끝
+  });
+  // 총합 계산 끝
 
-    // 3. 단일 distinctParts를 사용한 최종 세트 판정
-    const fullSize = slots.length;
+  // 3. 단일 distinctParts를 사용한 최종 세트 판정
+  const fullSize = slots.length;
 
-    if(fullSize === 5){ // 방어구
-      if(distinctParts === fullSize) count5 = 1; // 5세트 달성
-      else if(distinctParts >= 3) count3 = 1; // 3세트 달성 (3 또는 4)
-    } else { // 악세/특장 (3부위)
-      if(distinctParts === 3) count3 = 1; // 3세트 달성
-    }
-
-    const btn = document.createElement("button");
-    btn.className = "set-btn";
-
-    // 화면 표시를 위한 0 또는 1 값 설정
-    const final_count3 = count3 > 0 ? 1 : 0;
-    const final_count5 = count5 > 0 ? 1 : 0;
-    const count3_html = final_count3 > 0 ? `<span class="count-3">${final_count3}</span>` : 0;
-    const count5_html = final_count5 > 0 ? `<span class="count-5">${final_count5}</span>` : 0;
-
-
-    // 배경색 적용
-    if(final_count5 > 0) btn.classList.add("set5");
-    else if(final_count3 > 0) btn.classList.add("set3");
-
-
-    // 새로운 형식으로 내용 구성 (두 줄)
-    let buttonContent;
-    if(setType === "ARMOR"){
-      // 방어구: 3세트(y), 5세트(z) 모두 표시
-      buttonContent = `${setName}<br>장비수:${totalParts} | 3세트:${count3_html} | 5세트:${count5_html}`;
-    } else {
-      // 악세/특장: 3세트(y)만 표시
-      buttonContent = `${setName}<br>장비수:${totalParts} | 3세트:${count3_html}`;
-    }
-
-    btn.innerHTML = buttonContent; // innerHTML로 내용 설정
-
-    btn.onclick = () => openSet(setName, char);
-    return btn;
+  if(fullSize === 5){ // 방어구
+    if(distinctParts === fullSize) count5 = 1; // 5세트 달성
+    else if(distinctParts >= 3) count3 = 1; // 3세트 달성 (3 또는 4)
+  } else { // 악세/특장 (3부위)
+    if(distinctParts === 3) count3 = 1; // 3세트 달성
   }
+
+  const btn = document.createElement("button");
+  btn.className = "set-btn";
+
+  // 화면 표시를 위한 0 또는 1 값 설정
+  const final_count3 = count3 > 0 ? 1 : 0;
+  const final_count5 = count5 > 0 ? 1 : 0;
+  
+  // 배경색 적용
+  if(final_count5 > 0) btn.classList.add("set5"); 
+  else if(final_count3 > 0) btn.classList.add("set3");
+
+
+  // 🚨 수정된 부분: "세트명 (장비수)" 형태로 내용 구성
+  const buttonContent = `${setName} (${totalParts})`;
+ 
+
+  btn.innerHTML = buttonContent; // innerHTML로 내용 설정
+
+  btn.onclick = () => openSet(setName, char);
+  return btn;
+}
 
   // ===== 표 행 생성 (makeRow 함수 수정) =====
   function makeRow(name, setName, char){
