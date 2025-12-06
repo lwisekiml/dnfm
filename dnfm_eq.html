@@ -95,6 +95,9 @@
   border: 1px solid #daa520; /* 조금 더 밝은 금빛 테두리 */
   box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); /* 은은한 금빛 그림자 */
 }
+/* 세트 버튼 안에 사용할 숫자 색상 */
+.set-btn .count-3 { color: #000000; /* 밝은 파란색 */ font-weight: bold; }
+.set-btn .count-5 { color: #ff4d4f; /* 밝은 빨간색 */ font-weight: bold; }
 
 </style>
 </head>
@@ -204,6 +207,8 @@ const EXCEED_SLOTS = { "ARMOR":["상의"], "ACCESSORY":["팔찌"], "SPECIAL":["�
 const characters = [
   {id:"c1", job:"검귀", name:"강의", armorCounts:{
     "어느 말괄량이의 탐사복 상의":1,
+	"어느 말괄량이의 탐사복 하의":1,
+	"어느 말괄량이의 탐사복 어깨":1,
     "엘팅 메모리얼의 기억 팔찌":1,
     "[의지] 견고: 엘팅 메모리얼의 기억 팔찌":1,
     "개구쟁이 호문쿨루스 귀걸이":1
@@ -384,63 +389,69 @@ function showSetButtons(char){
 
 // ===== 세트 버튼 생성 =====
 function makeSetButton(setName, char){
- let count3 = 0, count5 = 0;
- let totalParts = 0; // z 값 (총 개수) 초기화
+let count3 = 0, count5 = 0;
+let totalParts = 0; // x 값 (총 개수) 초기화
 
- const slots = ALL_SETS[setName] || [];
- const prefixes = ALL_PREFIX[setName] || [];
- const groups = [setName, ...prefixes.map(pref => `${pref}: ${setName}`)];
+const slots = ALL_SETS[setName] || [];
+const prefixes = ALL_PREFIX[setName] || [];
+// 일반 세트 그룹과 접두어 그룹 모두 포함
+const groups = [setName, ...prefixes.map(pref => `${pref}: ${setName}`)];
 
- groups.forEach(group => {
-  const distinctParts = calcDistinctParts(char, group);
-  const fullSize = slots.length;
+groups.forEach(group => {
+ const distinctParts = calcDistinctParts(char, group);
+ const fullSize = slots.length;
 
-    // 해당 세트 그룹의 모든 부위 총합 계산 (z 값 계산)
-    slots.forEach(slot => {
-        let count = char.armorCounts[`${group} ${slot}`] || 0;
-        // 익시드 부위가 해당 슬롯일 경우 익시드 카운트도 추가
-        if (getSetType(setName) === "ARMOR" && slot === "상의" && prefixes.length > 0) {
-            EXCEED_TAGS.forEach(tag => {
-                count += char.armorCounts[`[${tag}] ${group} ${slot}`] || 0;
-            });
-        } else if (getSetType(setName) === "ACCESSORY" && slot === "팔찌" && prefixes.length > 0) {
-            EXCEED_TAGS.forEach(tag => {
-                count += char.armorCounts[`[${tag}] ${group} ${slot}`] || 0;
-            });
-        } else if (getSetType(setName) === "SPECIAL" && slot === "귀걸이" && prefixes.length > 0) {
-            EXCEED_TAGS.forEach(tag => {
-                count += char.armorCounts[`[${tag}] ${group} ${slot}`] || 0;
-            });
-        }
-        totalParts += count;
-    });
-    // 총합 계산 로직 끝
+  // 해당 세트 그룹의 모든 부위 총합 계산 (x 값 계산)
+  slots.forEach(slot => {
+    let count = char.armorCounts[`${group} ${slot}`] || 0;
+    // 익시드 부위 처리 (상의, 팔찌, 귀걸이)
+    const setType = getSetType(setName);
+    if (prefixes.length > 0) { // 접두어가 있는 경우에만 익시드 부위를 추가적으로 체크
+      if ((setType === "ARMOR" && slot === "상의") ||
+        (setType === "ACCESSORY" && slot === "팔찌") ||
+        (setType === "SPECIAL" && slot === "귀걸이")) {
+        EXCEED_TAGS.forEach(tag => {
+          count += char.armorCounts[`[${tag}] ${group} ${slot}`] || 0;
+        });
+      }
+    }
+    totalParts += count;
+  });
+  // 총합 계산 로직 끝
 
-  if(fullSize === 5){
-   if(distinctParts === fullSize) count5++;
-   else if(distinctParts >= 3) count3++;
-  } else {
-   if(distinctParts === 3) count3++;
-  }
- });
-
- const btn = document.createElement("button");
- btn.className = "set-btn";
- const setType = getSetType(setName);
-
- if(setType === "ARMOR"){
-  // 방어구: 세트 이름 (총 부위 개수) 3세트 달성 횟수/5세트 달성 횟수
-  btn.textContent = `${setName} (${totalParts}) ${count3}/${count5}`; // 👈 형식 수정
-  if(count5 > 0) btn.classList.add("set5");
-  else if(count3 > 0) btn.classList.add("set3");
+ if(fullSize === 5){
+ if(distinctParts === fullSize) count5++; // 5세트 달성 (z)
+ else if(distinctParts >= 3) count3++; // 3세트 달성 (y)
  } else {
-  // 악세/특장: 세트 이름 (총 부위 개수) 3세트 달성 횟수
-  btn.textContent = `${setName} (${totalParts}) ${count3}`; // 👈 형식 수정
-  if(count3 > 0) btn.classList.add("set3");
+ if(distinctParts === 3) count3++;   // 3세트 달성 (y)
  }
+});
 
-  btn.onclick = () => openSet(setName, char);
-  return btn;
+const btn = document.createElement("button");
+btn.className = "set-btn";
+
+// 3세트 (y)와 5세트 (z)의 색상 적용
+const count3_html = count3 > 0 ? `<span class="count-3">${count3}</span>` : count3;
+const count5_html = count5 > 0 ? `<span class="count-5">${count5}</span>` : count5;
+
+// 새로운 형식으로 내용 구성 (두 줄)
+// 줄 바꿈을 위해 <br> 사용
+let buttonContent;
+if(getSetType(setName) === "ARMOR"){
+ // 방어구: 3세트(y), 5세트(z) 모두 표시
+ buttonContent = `${setName}<br>장비수:${totalParts} | 3세트:${count3_html} | 5세트:${count5_html}`;
+ if(count5 > 0) btn.classList.add("set5"); // 기존 배경색 유지
+ else if(count3 > 0) btn.classList.add("set3"); // 기존 배경색 유지
+} else {
+ // 악세/특장: 3세트(y)만 표시
+ buttonContent = `${setName}<br>장비수:${totalParts} | 3세트:${count3_html}`;
+ if(count3 > 0) btn.classList.add("set3"); // 기존 배경색 유지
+}
+
+btn.innerHTML = buttonContent; // innerHTML로 내용 설정
+
+btn.onclick = () => openSet(setName, char);
+return btn;
 }
 
 // ===== 표 행 생성 =====
