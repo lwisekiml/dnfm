@@ -607,45 +607,44 @@ function showSetSlotSummary(setName){
 }
 
 
-
-
 // ===== 숫자 버튼 =====
 function makeNumberButton(charId, key, val){
-  const extraClass = val > 0 ? " positive" : "";
-  return `<button class="num-btn${extraClass}"
-            onmousedown="startDecrement('${charId}','${key}')"
-            onmouseup="stopDecrement()"
-            onclick="increment('${charId}','${key}')">${val}</button>`;
+ const extraClass = val > 0 ? " positive" : "";
+ // 🚨 oncontextmenu 이벤트 추가: 마우스 우클릭 시 decrement 호출
+ // oncontextmenu는 기본 메뉴(context menu)를 띄우는 동작을 막기 위해 'return false;'를 추가합니다.
+ return `<button class="num-btn${extraClass}"
+      oncontextmenu="decrement('${charId}','${key}'); return false;" 
+      onclick="increment('${charId}','${key}')">${val}</button>`;
 }
 
 
-// ===== 증가/감소 =====
-let decInterval = null;
+// ===== 증가/감소 (감소 로직 수정됨) =====
 function increment(charId, key){
-  const char = characters.find(c => c.id === charId);
-  char.armorCounts[key] = (char.armorCounts[key] || 0) + 1;
-  showSetButtons(char);
-  if(currentSetName && currentChar){
-    openSet(currentSetName, currentChar);  // ✅ 저장된 값으로 다시 열기
-  }
+ const char = characters.find(c => c.id === charId);
+ char.armorCounts[key] = (char.armorCounts[key] || 0) + 1;
+ showSetButtons(char);
+ if(currentSetName && currentChar){
+  openSet(currentSetName, currentChar); // ✅ 저장된 값으로 다시 열기
+ }
 }
 
-function startDecrement(charId, key){
-  decInterval = setInterval(() => {
-    const char = characters.find(c => c.id === charId);
-    const cur = char.armorCounts[key] || 0;
-    char.armorCounts[key] = Math.max(0, cur - 1);
-    showSetButtons(char);
-    if(currentSetName && currentChar){
-      openSet(currentSetName, currentChar); // ✅ 저장된 값으로 다시 열기
-    }
-  }, 500);
+// 🚨 새로 추가된 감소 함수: 우클릭 시 호출
+function decrement(charId, key){
+ const char = characters.find(c => c.id === charId);
+ const cur = char.armorCounts[key] || 0;
+ char.armorCounts[key] = Math.max(0, cur - 1); // 0보다 작아지지 않게
+ showSetButtons(char);
+ if(currentSetName && currentChar){
+  openSet(currentSetName, currentChar); // ✅ 저장된 값으로 다시 열기
+ }
 }
 
-function stopDecrement(){
-  clearInterval(decInterval);
-  decInterval = null;
-}
+/*
+// ⚠️ 기존 길게 누르면 감소 로직 (startDecrement, stopDecrement)은 삭제했습니다.
+// let decInterval = null;
+// function startDecrement(charId, key){...}
+// function stopDecrement(){...}
+*/
 
 // ===== CSV 저장 =====
 function exportCSV(){
