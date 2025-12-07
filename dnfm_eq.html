@@ -750,7 +750,7 @@
     // --- 여기서 파일명에 년월일시 추가 ---
     const now = new Date();
     const pad = n => String(n).padStart(2, "0");
-    const filename = `sets_characters_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}.csv`;
+    const filename = `sets_characters_${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}.csv`;
     a.download = filename;
 
     document.body.appendChild(a);
