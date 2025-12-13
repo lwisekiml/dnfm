@@ -99,6 +99,31 @@
     .set-btn .count-3 { color: #000000; /* 밝은 파란색 */ font-weight: bold; }
     .set-btn .count-5 { color: #ff4d4f; /* 밝은 빨간색 */ font-weight: bold; }
 
+    /* ========================= */
+    /* 모달 스타일 */
+    /* ========================= */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.7); display: none; justify-content: center;
+        align-items: center; z-index: 1000;
+    }
+    .modal-content {
+        background: #181c33; padding: 30px; border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); text-align: center;
+        min-width: 300px;
+    }
+    .modal-content h3 { margin-top: 0; color: #ffd700; }
+    .modal-options { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
+    .modal-btn {
+        padding: 10px 20px; border: none; border-radius: 6px;
+        font-weight: bold; cursor: pointer; transition: 0.2s;
+    }
+    .modal-delete-btn { background: #b22222; color: #fff; }
+    .modal-delete-btn:hover { background: #8c1a1a; }
+    .modal-reset-btn { background: #3399cc; color: #fff; }
+    .modal-reset-btn:hover { background: #2a6f9e; }
+    .modal-cancel-btn { background: #4a3f7a; color: #fff; }
+    .modal-cancel-btn:hover { background: #5a4f8a; }
   </style>
 </head>
 <body>
@@ -123,17 +148,38 @@
 <div id="setList"></div>
 <div id="panel"></div>
 
+<div id="actionModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="modalCharName"></h3>
+    <p>원하는 작업을 선택해 주세요.</p>
+    <div class="modal-options">
+      <button class="modal-btn modal-delete-btn" onclick="deleteCharacterConfirmed()">캐릭터 삭제</button>
+      <button class="modal-btn modal-reset-btn" onclick="resetCharacterStatsConfirmed()">수치 초기화</button>
+      <button class="modal-btn modal-cancel-btn" onclick="closeActionModal()">취소</button>
+    </div>
+  </div>
+</div>
 
+<div id="confirmModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="confirmTitle"></h3>
+    <p id="confirmMessage"></p>
+    <div class="modal-options">
+      <button class="modal-btn modal-delete-btn" id="confirmYes" onclick="handleConfirmedAction()">확인</button>
+      <button class="modal-btn modal-cancel-btn" onclick="closeConfirmModal()">취소</button>
+    </div>
+  </div>
+</div>
 
 <script>
-	// =======================================================
-  // [로컬 스토리지] 데이터 영속성 함수 추가
+  // =======================================================
+  // [로컬 스토리지] 데이터 영속성 함수
   // =======================================================
 
   // 로컬 스토리지에서 데이터를 불러와서 characters 배열을 초기화합니다.
   function loadLocalData() {
     try {
-        const data = localStorage.getItem('characterTrackerData');
+        const data = localStorage.getItem('dnfm_eq_Data');
         if (data) {
             const loadedChars = JSON.parse(data);
             characters.length = 0; // 배열 비우기
@@ -153,7 +199,7 @@
     }
   }
 
-  // ===== 세트 정의 (예시 일부만, 실제로는 전체 세트/접두어 정의 필요) =====
+  // ===== 세트 정의 =====
   const ARMOR_SETS = {
     "어느 말괄량이의 탐사복": ["상의","하의","어깨","벨트","신발"],
     "포이즈닝 퀸 스파이더": ["상의","하의","어깨","벨트","신발"],
@@ -281,24 +327,6 @@
     return "ARMOR"; // 기본값
   }
 
-  function calcDistinctParts(char, groupKey){
-    const baseSet=groupKey.includes(": ")?groupKey.split(": ").pop():groupKey;
-    const slots=ALL_SETS[baseSet]||[];
-    let countDistinct=0;
-    slots.forEach(slot=>{
-      let total=char.armorCounts[`${groupKey} ${slot}`]||0;
-      if(["상의","팔찌","귀걸이"].includes(slot)){
-        EXCEED_TAGS.forEach(tag=>{
-          total+=char.armorCounts[`[${tag}] ${groupKey} ${slot}`]||0;
-        });
-      }
-      if(total>0) countDistinct++;
-    });
-    return countDistinct;
-  }
-
-
-  // 🚨 [새 로직] 접두어/익시드 상관없이 기본 세트 이름으로 전체 고유 부위 개수 계산
   function calcTotalDistinctParts(char, baseSetName) {
     const slots = ALL_SETS[baseSetName] || [];
     const prefixes = ALL_PREFIX[baseSetName] || [];
@@ -342,6 +370,110 @@
 
     return totalDistinct;
   }
+  
+  // =======================================================
+  // [모달] 제어 및 액션 함수 (수정 및 추가됨)
+  // =======================================================
+  let currentActionCharId = null; 
+  let pendingActionType = null; // 현재 2차 확인 대기 중인 작업: 'delete' 또는 'reset'
+
+  // 1차 모달 (작업 선택) 제어
+  function closeActionModal() {
+    document.getElementById("actionModal").style.display = 'none';
+    // currentActionCharId는 2차 확인 로직에서 초기화되므로 여기서 남겨둠
+  }
+
+  function openActionModal(charId, charName, charJob) {
+    currentActionCharId = charId;
+    document.getElementById("modalCharName").textContent = `${charJob} (${charName}) 에 대한 작업 선택`;
+    document.getElementById("actionModal").style.display = 'flex';
+  }
+
+  // 2차 모달 (최종 확인) 제어
+  function closeConfirmModal() {
+    document.getElementById("confirmModal").style.display = 'none';
+  }
+
+  function openConfirmModal(title, message, actionType) {
+    // 1차 모달이 열려 있을 경우 닫음
+    closeActionModal(); 
+    
+    pendingActionType = actionType;
+    document.getElementById("confirmTitle").textContent = title;
+    document.getElementById("confirmMessage").textContent = message;
+    document.getElementById("confirmModal").style.display = 'flex';
+  }
+
+
+  // 1차 모달에서 '캐릭터 삭제' 선택 시 (2차 모달 호출)
+  function deleteCharacterConfirmed() {
+    if (!currentActionCharId) return;
+
+    openConfirmModal(
+      "캐릭터 삭제 확인",
+      "캐릭터를 정말 삭제하시겠습니까? 해당 캐릭터의 모든 데이터가 영구적으로 지워집니다.",
+      'delete'
+    );
+  }
+
+  // 1차 모달에서 '수치 초기화' 선택 시 (2차 모달 호출)
+  function resetCharacterStatsConfirmed() {
+    if (!currentActionCharId) return;
+
+    openConfirmModal(
+      "수치 초기화 확인",
+      "장비 수치를 정말 초기화하시겠습니까? 현재 장착된 모든 장비 수치가 0이 됩니다.",
+      'reset'
+    );
+  }
+
+  // 2차 모달에서 '확인' 버튼 클릭 시 (실제 작업 수행)
+  function handleConfirmedAction() {
+    const charId = currentActionCharId;
+    const action = pendingActionType;
+
+    closeConfirmModal(); // 2차 확인 모달 닫기
+    
+    if (!charId || !action) {
+      currentActionCharId = null;
+      pendingActionType = null;
+      return;
+    }
+
+    const char = characters.find(c => c.id === charId);
+
+    if (action === 'delete') {
+      // 실제 캐릭터 삭제 로직
+      const index = characters.findIndex(c => c.id === charId);
+      if (index !== -1) {
+          characters.splice(index, 1);
+          saveLocalData();
+          renderCharacterList();
+          document.getElementById("setList").innerHTML = "";
+          document.getElementById("panel").innerHTML = "";
+      }
+    } else if (action === 'reset') {
+      // 실제 수치 초기화 로직
+      if (char) {
+          char.armorCounts = {}; // 수치 초기화
+          saveLocalData();
+          
+          // UI 업데이트
+          renderCharacterList();
+          showSetButtons(char); 
+          
+          // 현재 캐릭터가 선택되어 있었다면 UI 리셋
+          if (currentChar && currentChar.id === charId) {
+              document.getElementById("setList").innerHTML = ""; 
+              document.getElementById("panel").innerHTML = "";
+          }
+      }
+    }
+
+    // 작업 완료 후 ID 초기화
+    currentActionCharId = null;
+    pendingActionType = null;
+  }
 
 
   // ===== 캐릭터 버튼 렌더 =====
@@ -359,13 +491,7 @@
       delBtn.textContent = "－";
       delBtn.className = "delete-btn";   // 👉 페이지 스타일에 맞춘 삭제 버튼
       delBtn.onclick = () => {
-        if(confirm(`${c.name} 캐릭터를 삭제하시겠습니까?`)){
-          characters.splice(index, 1);   // 배열에서 삭제
-          saveLocalData(); // [로컬 스토리지] 데이터 변경 후 저장
-          renderCharacterList();         // 목록 다시 그리기
-          document.getElementById("setList").innerHTML = "";
-          document.getElementById("panel").innerHTML = "";
-        }
+        openActionModal(c.id, c.name, c.job); // 1차 선택 모달 호출
       };
 
       // 캐릭터 버튼
@@ -534,7 +660,7 @@
   return btn;
 }
 
-  // ===== 표 행 생성 (makeRow 함수 수정) =====
+  // ===== 표 행 생성 =====
   function makeRow(name, setName, char){
     const slots = ALL_SETS[setName] || [];
     const groupKey = getGroupKey(name);
@@ -568,7 +694,6 @@
     }
 
     let html = `<td>${name}</td>`;
-    // ... (나머지 부위 버튼 생성 로직은 동일) ...
     slots.forEach(slot => {
       let key = `${name} ${slot}`;
       const val = char.armorCounts[key] || 0;
@@ -789,7 +914,7 @@
   }
 
 
-  // ===== CSV 읽기 (생략) =====
+  // ===== CSV 읽기 =====
   document.getElementById("csvFile").addEventListener("change", function(e){
     const file = e.target.files[0];
     if (!file) return;
