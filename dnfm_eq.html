@@ -126,6 +126,33 @@
 
 
 <script>
+	// =======================================================
+  // [로컬 스토리지] 데이터 영속성 함수 추가
+  // =======================================================
+
+  // 로컬 스토리지에서 데이터를 불러와서 characters 배열을 초기화합니다.
+  function loadLocalData() {
+    try {
+        const data = localStorage.getItem('characterTrackerData');
+        if (data) {
+            const loadedChars = JSON.parse(data);
+            characters.length = 0; // 배열 비우기
+            characters.push(...loadedChars); // 새 데이터로 채우기
+        }
+    } catch (e) {
+        console.error("로컬 데이터를 불러오는 중 오류 발생:", e);
+    }
+  }
+
+  // 현재 characters 배열을 로컬 스토리지에 저장합니다.
+  function saveLocalData() {
+    try {
+        localStorage.setItem('dnfm_eq_Data', JSON.stringify(characters));
+    } catch (e) {
+        console.error("로컬 데이터를 저장하는 중 오류 발생:", e);
+    }
+  }
+
   // ===== 세트 정의 (예시 일부만, 실제로는 전체 세트/접두어 정의 필요) =====
   const ARMOR_SETS = {
     "어느 말괄량이의 탐사복": ["상의","하의","어깨","벨트","신발"],
@@ -317,7 +344,7 @@
   }
 
 
-  // ===== 캐릭터 버튼 렌더 (생략) =====
+  // ===== 캐릭터 버튼 렌더 =====
   function renderCharacterList(){
     const listEl = document.getElementById("characterList");
     listEl.innerHTML = "";
@@ -334,6 +361,7 @@
       delBtn.onclick = () => {
         if(confirm(`${c.name} 캐릭터를 삭제하시겠습니까?`)){
           characters.splice(index, 1);   // 배열에서 삭제
+          saveLocalData(); // [로컬 스토리지] 데이터 변경 후 저장
           renderCharacterList();         // 목록 다시 그리기
           document.getElementById("setList").innerHTML = "";
           document.getElementById("panel").innerHTML = "";
@@ -362,6 +390,8 @@
   }
 
 
+  // [로컬 스토리지] 초기 로드 및 렌더링
+  loadLocalData();
   renderCharacterList();
 
   // ===== 캐릭터 추가 =====
@@ -371,6 +401,7 @@
     if(!name||!job){ alert("이름과 직업을 입력하세요!"); return; }
     const newChar={id:"c"+Date.now(), job:job, name:name, armorCounts:{}};
     characters.push(newChar);
+    saveLocalData(); // [로컬 스토리지] 데이터 변경 후 저장
     renderCharacterList();
     document.getElementById("newCharName").value="";
     document.getElementById("newCharJob").value="";
@@ -445,13 +476,13 @@
   const exceedSlots = EXCEED_SLOTS[setType] || [];
 
   // 1. 전체 고유 부위 개수 계산 (접두어/익시드 무시)
-  const distinctParts = calcTotalDistinctParts(char, setName); 
-  
+  const distinctParts = calcTotalDistinctParts(char, setName);
+
   // 2. 총 부위 개수 (totalParts, x 값) 계산
-  const allGroupKeys = [setName]; 
+  const allGroupKeys = [setName];
   prefixes.forEach(pref => {
     const prefixedName = `${pref}: ${setName}`;
-    allGroupKeys.push(prefixedName); 
+    allGroupKeys.push(prefixedName);
     EXCEED_TAGS.forEach(tag => {
       allGroupKeys.push(`[${tag}] ${prefixedName}`);
     });
@@ -461,11 +492,11 @@
     const isExceedKey = groupKey.startsWith('[');
     slots.forEach(slot => {
       let key = `${groupKey} ${slot}`;
-      
+
       if (isExceedKey && !exceedSlots.includes(slot)) {
         return;
       }
-      
+
       totalParts += char.armorCounts[key] || 0;
     });
   });
@@ -487,15 +518,15 @@
   // 화면 표시를 위한 0 또는 1 값 설정
   const final_count3 = count3 > 0 ? 1 : 0;
   const final_count5 = count5 > 0 ? 1 : 0;
-  
+
   // 배경색 적용
-  if(final_count5 > 0) btn.classList.add("set5"); 
+  if(final_count5 > 0) btn.classList.add("set5");
   else if(final_count3 > 0) btn.classList.add("set3");
 
 
   // 🚨 수정된 부분: "세트명 (장비수)" 형태로 내용 구성
   const buttonContent = `${setName} (${totalParts})`;
- 
+
 
   btn.innerHTML = buttonContent; // innerHTML로 내용 설정
 
@@ -661,23 +692,20 @@
     document.getElementById("panel").appendChild(summaryPanel);
   }
 
-
-
-
   // ===== 숫자 버튼 (우클릭 감소 기능 포함) =====
   function makeNumberButton(charId, key, val){
     const extraClass = val > 0 ? " positive" : "";
     return `<button class="num-btn${extraClass}"
-      oncontextmenu="decrement('${charId}','${key}'); return false;" 
+      oncontextmenu="decrement('${charId}','${key}'); return false;"
       onclick="increment('${charId}','${key}')">${val}</button>`;
   }
 
 
   // ===== 증가/감소 =====
-  // 기존 startDecrement, stopDecrement 제거
   function increment(charId, key){
     const char = characters.find(c => c.id === charId);
     char.armorCounts[key] = (char.armorCounts[key] || 0) + 1;
+    saveLocalData(); // [로컬 스토리지] 데이터 변경 후 저장
     showSetButtons(char);
     if(currentSetName && currentChar){
       openSet(currentSetName, currentChar); // ✅ 저장된 값으로 다시 열기
@@ -689,6 +717,7 @@
     const char = characters.find(c => c.id === charId);
     const cur = char.armorCounts[key] || 0;
     char.armorCounts[key] = Math.max(0, cur - 1); // 0보다 작아지지 않게
+    saveLocalData(); // [로컬 스토리지] 데이터 변경 후 저장
     showSetButtons(char);
     if(currentSetName && currentChar){
       openSet(currentSetName, currentChar); // ✅ 저장된 값으로 다시 열기
@@ -787,7 +816,8 @@
     data.forEach(row=>{
       const key = row["이름"]+"_"+row["직업"];
       if(!grouped[key]){
-        grouped[key] = {id:key, name:row["이름"], job:row["직업"], armorCounts:{}};
+        // CSV에서 읽은 캐릭터에 임시 ID 부여
+        grouped[key] = {id:"c_imp_"+Date.now()+"_"+Math.random(), name:row["이름"], job:row["직업"], armorCounts:{}};
         characters.push(grouped[key]);
       }
       const char = grouped[key];
@@ -805,6 +835,8 @@
       const fullKey = `${groupName} ${slot}`;
       char.armorCounts[fullKey] = parseInt(row["보유개수"],10);
     });
+
+    saveLocalData(); // [로컬 스토리지] CSV 가져오기 성공 시 로컬에 저장
 
     renderCharacterList();
     document.getElementById("setList").innerHTML="";
