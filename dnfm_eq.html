@@ -41,13 +41,27 @@
     /* 세트 버튼 */
     .set-btn {
       margin:5px; padding:8px 14px; min-width:180px;
-      background:#181c33; border:1px solid #2a3158; border-radius:6px;
+      background:#181c33; 
+      /* 🚨 이 부분을 수정했습니다: 1px -> 3px solid transparent로 변경하여 공간 확보 */
+      border:3px solid transparent; 
+      border-radius:6px;
       color:#e6e9ff; font-weight:bold; cursor:pointer; transition:0.2s;
       text-align:center; white-space:nowrap;
     }
-    .set-btn:hover { background:#2a3158; }
+    .set-btn:hover { 
+        background:#2a3158; 
+        /* 호버 시 테두리 색상만 살짝 변경 (움직임 방지) */
+        border-color: #3a4270; 
+    }
     .set-btn.set3 { background-color:#25c2a0; color:#fff; }
     .set-btn.set5 { background-color:#ffd700; color:#000; }
+    
+    /* 세트 버튼 선택 시 */
+    .set-btn.selected {
+      /* 3px 두께가 유지되므로 움직임 없음 */
+      border: 3px solid #ffffff; /* 흰색 테두리 강조 */
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.7); /* 은은한 흰색 그림자 */
+    }
 
     h2 { margin:24px 0 8px; }
     table { border-collapse:collapse; margin-top:6px; table-layout:fixed; }
@@ -98,7 +112,7 @@
     /* 세트 버튼 안에 사용할 숫자 색상 */
     .set-btn .count-3 { color: #000000; /* 밝은 파란색 */ font-weight: bold; }
     .set-btn .count-5 { color: #ff4d4f; /* 밝은 빨간색 */ font-weight: bold; }
-	
+
 	/* CSS 섹션에 추가 (선택 사항) */
 .exceed-tag {
     color: #25c2a0; /* 초록색 */
@@ -633,7 +647,7 @@
   }
 
   // ===== 세트 버튼 생성 =====
-  function makeSetButton(setName, char){
+function makeSetButton(setName, char){
     let count3 = 0, count5 = 0;
     let totalParts = 0; // x 값 (총 개수) 초기화
 
@@ -689,6 +703,11 @@
     // 배경색 적용
     if(final_count5 > 0) btn.classList.add("set5");
     else if(final_count3 > 0) btn.classList.add("set3");
+    
+    // [선택 상태 유지 로직 추가]: 현재 선택된 세트와 이름이 같으면 selected 클래스 유지
+    if (currentSetName === setName && currentChar && currentChar.id === char.id) {
+        btn.classList.add("selected");
+    }
 
 
     // 🚨 수정된 부분: "세트명 (장비수)" 형태로 내용 구성
@@ -697,10 +716,17 @@
 
     btn.innerHTML = buttonContent; // innerHTML로 내용 설정
 
-    btn.onclick = () => openSet(setName, char);
+    btn.onclick = (event) => {
+        // [선택 로직 추가]: 모든 세트 버튼에서 'selected' 클래스 제거
+        document.querySelectorAll(".set-btn").forEach(b => b.classList.remove("selected"));
+        // [선택 로직 추가]: 현재 클릭된 버튼에 'selected' 클래스 추가
+        event.currentTarget.classList.add("selected");
+        
+        openSet(setName, char);
+    };
+    
     return btn;
-  }
-
+}
   // ===== 표 행 생성 =====
   function makeRow(name, setName, char){
     const slots = ALL_SETS[setName] || [];
