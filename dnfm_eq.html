@@ -176,19 +176,25 @@
   // [로컬 스토리지] 데이터 영속성 함수
   // =======================================================
 
-  // 로컬 스토리지에서 데이터를 불러와서 characters 배열을 초기화합니다.
-  function loadLocalData() {
+// 로컬 스토리지에서 데이터를 불러와서 characters 배열을 초기화합니다.
+function loadLocalData() {
     try {
         const data = localStorage.getItem('dnfm_eq_Data');
         if (data) {
             const loadedChars = JSON.parse(data);
             characters.length = 0; // 배열 비우기
+            // 💡 updateTimes 필드가 없을 경우 빈 객체로 초기화
+            loadedChars.forEach(char => {
+                if (!char.updateTimes) {
+                    char.updateTimes = {};
+                }
+            });
             characters.push(...loadedChars); // 새 데이터로 채우기
         }
     } catch (e) {
         console.error("로컬 데이터를 불러오는 중 오류 발생:", e);
     }
-  }
+}
 
   // 현재 characters 배열을 로컬 스토리지에 저장합니다.
   function saveLocalData() {
@@ -275,18 +281,25 @@
   const ALL_PREFIX = {...ARMOR_PREFIX, ...ACCESSORY_PREFIX, ...SPECIAL_PREFIX};
   const EXCEED_TAGS = ["선봉","의지","이상"];
   const EXCEED_SLOTS = { "ARMOR":["상의"], "ACCESSORY":["팔찌"], "SPECIAL":["귀걸이"] };
-
+ 
   // ===== 캐릭터 배열 =====
-  const characters = [
-    {id:"c1", job:"검귀", name:"강의", armorCounts:{
-        "어느 말괄량이의 탐사복 상의":1,
-        "어느 말괄량이의 탐사복 하의":1,
-        "어느 말괄량이의 탐사복 어깨":1,
-        "엘팅 메모리얼의 기억 팔찌":1,
-        "[의지] 견고: 엘팅 메모리얼의 기억 팔찌":1,
-        "개구쟁이 호문쿨루스 귀걸이":1
-      }}
-  ];
+const characters = [
+    {id:"c1", job:"검귀", name:"강의", armorCounts:{
+        "어느 말괄량이의 탐사복 상의":1,
+        "어느 말괄량이의 탐사복 하의":1,
+        "어느 말괄량이의 탐사복 어깨":1,
+        "엘팅 메모리얼의 기억 팔찌":1,
+        "[의지] 견고: 엘팅 메모리얼의 기억 팔찌":1,
+        "개구쟁이 호문쿨루스 귀걸이":1
+      }, updateTimes: { // 💡 추가된 필드: 아이템별 업데이트 시간 저장
+        "어느 말괄량이의 탐사복 상의": Date.now(),
+        "어느 말괄량이의 탐사복 하의": Date.now(),
+        "어느 말괄량이의 탐사복 어깨": Date.now(),
+        "엘팅 메모리얼의 기억 팔찌": Date.now(),
+        "[의지] 견고: 엘팅 메모리얼의 기억 팔찌": Date.now(),
+        "개구쟁이 호문쿨루스 귀걸이": Date.now()
+    }} 
+];
 
   // ===== 전역 최대 길이 계산 =====
   let globalSetNameWidth=200, globalSlotWidth=100;
@@ -520,18 +533,19 @@
   loadLocalData();
   renderCharacterList();
 
-  // ===== 캐릭터 추가 =====
-  function addCharacter(){
+// ===== 캐릭터 추가 =====
+function addCharacter(){
     const name=document.getElementById("newCharName").value.trim();
     const job=document.getElementById("newCharJob").value.trim();
     if(!name||!job){ alert("이름과 직업을 입력하세요!"); return; }
-    const newChar={id:"c"+Date.now(), job:job, name:name, armorCounts:{}};
+    // 💡 updateTimes: {} 추가
+    const newChar={id:"c"+Date.now(), job:job, name:name, armorCounts:{}, updateTimes: {}}; 
     characters.push(newChar);
     saveLocalData(); // [로컬 스토리지] 데이터 변경 후 저장
     renderCharacterList();
     document.getElementById("newCharName").value="";
     document.getElementById("newCharJob").value="";
-  }
+}
 
   // ===== 세트 버튼 표시 =====
   function showSetButtons(char){
@@ -826,72 +840,96 @@
   }
 
 
-  // ===== 증가/감소 =====
-  function increment(charId, key){
+// ===== 증가/감소 =====
+function increment(charId, key){
     const char = characters.find(c => c.id === charId);
     char.armorCounts[key] = (char.armorCounts[key] || 0) + 1;
+    // 💡 업데이트 시간 추가/갱신
+    char.updateTimes[key] = Date.now();
     saveLocalData(); // [로컬 스토리지] 데이터 변경 후 저장
     showSetButtons(char);
     if(currentSetName && currentChar){
-      openSet(currentSetName, currentChar); // ✅ 저장된 값으로 다시 열기
+        openSet(currentSetName, currentChar); // ✅ 저장된 값으로 다시 열기
     }
-  }
+}
 
-  // 🚨 감소 함수 (우클릭 시 호출)
-  function decrement(charId, key){
+// 🚨 감소 함수 (우클릭 시 호출)
+function decrement(charId, key){
     const char = characters.find(c => c.id === charId);
     const cur = char.armorCounts[key] || 0;
     char.armorCounts[key] = Math.max(0, cur - 1); // 0보다 작아지지 않게
+    // 💡 업데이트 시간 추가/갱신 (0이 되어도 마지막 수정 시간은 남김)
+    char.updateTimes[key] = Date.now();
     saveLocalData(); // [로컬 스토리지] 데이터 변경 후 저장
     showSetButtons(char);
     if(currentSetName && currentChar){
-      openSet(currentSetName, currentChar); // ✅ 저장된 값으로 다시 열기
+        openSet(currentSetName, currentChar); // ✅ 저장된 값으로 다시 열기
     }
-  }
+}
 
-  // ===== CSV 저장 (생략) =====
-  function exportCSV(){
-    const headers = ["이름","직업","카테고리","세트명","슬롯","접두어","보유개수"];
+// ===== CSV 저장 (생략) =====
+function exportCSV(){
+    // 💡 헤더에 "업데이트 시간" 추가
+    const headers = ["이름","직업","카테고리","세트명","슬롯","접두어","보유개수","업데이트 시간"];
     const rows = [headers];
     const CATS = [
-      {cat:"방어구", sets:ARMOR_SETS, pref:ARMOR_PREFIX},
-      {cat:"악세", sets:ACCESSORY_SETS, pref:ACCESSORY_PREFIX},
-      {cat:"특장", sets:SPECIAL_SETS, pref:SPECIAL_PREFIX}
+        {cat:"방어구", sets:ARMOR_SETS, pref:ARMOR_PREFIX},
+        {cat:"악세", sets:ACCESSORY_SETS, pref:ACCESSORY_PREFIX},
+        {cat:"특장", sets:SPECIAL_SETS, pref:SPECIAL_PREFIX}
     ];
+
+    // 💡 시간 포맷팅 함수
+    const formatUpdateTime = (timestamp) => {
+        if (!timestamp) return "";
+        const date = new Date(timestamp);
+        const pad = n => String(n).padStart(2, "0");
+        return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    };
+
     characters.forEach(char=>{
-      CATS.forEach(({cat, sets, pref})=>{
-        Object.keys(sets).forEach(setName=>{
-          const slots = sets[setName];
-          const pfxs = pref[setName] || [];
-          const groups = [setName, ...pfxs.map(p=>`${p}: ${setName}`)];
-          groups.forEach(group=>{
-            slots.forEach(slot=>{
-              const count = char.armorCounts[`${group} ${slot}`] || 0;
-              rows.push([char.name, char.job, cat, setName, slot,
-                group.includes(": ")?group.split(": ")[0]:"", count]);
-              const exceedNeeded =
-                      (cat==="방어구" && slot==="상의") ||
-                      (cat==="악세" && slot==="팔찌") ||
-                      (cat==="특장" && slot==="귀걸이");
-              if (exceedNeeded && pfxs.length>0) {
-                EXCEED_TAGS.forEach(tag=>{
-                  const exceedGroup = `[${tag}] ${group}`;
-                  const countEx = char.armorCounts[`${exceedGroup} ${slot}`] || 0;
-                  rows.push([
-                    char.name,
-                    char.job,
-                    cat,
-                    setName,
-                    slot,
-                    `${group.includes(": ")?group.split(": ")[0]:""} (익시드:${tag})`,
-                    countEx
-                  ]);
+        CATS.forEach(({cat, sets, pref})=>{
+            Object.keys(sets).forEach(setName=>{
+                const slots = sets[setName];
+                const pfxs = pref[setName] || [];
+                const groups = [setName, ...pfxs.map(p=>`${p}: ${setName}`)];
+                groups.forEach(group=>{
+                    slots.forEach(slot=>{
+                        const key = `${group} ${slot}`;
+                        const count = char.armorCounts[key] || 0;
+                        const updateTime = formatUpdateTime(char.updateTimes[key]); // 💡 시간 포맷팅
+
+                        // 💡 로우에 updateTime 필드 추가
+                        rows.push([char.name, char.job, cat, setName, slot,
+                            group.includes(": ")?group.split(": ")[0]:"", count, updateTime]); 
+
+                        const exceedNeeded =
+                            (cat==="방어구" && slot==="상의") ||
+                            (cat==="악세" && slot==="팔찌") ||
+                            (cat==="특장" && slot==="귀걸이");
+                        if (exceedNeeded && pfxs.length>0) {
+                            EXCEED_TAGS.forEach(tag=>{
+                                const exceedGroup = `[${tag}] ${group}`;
+                                const exceedKey = `${exceedGroup} ${slot}`; // 💡 익시드 키
+                                const countEx = char.armorCounts[exceedKey] || 0;
+                                const updateTimeEx = formatUpdateTime(char.updateTimes[exceedKey]); // 💡 익시드 시간 포맷팅
+
+                                // 💡 익시드 로우에 updateTimeEx 필드 추가
+                                rows.push([
+                                    char.name,
+                                    char.job,
+                                    cat,
+                                    setName,
+                                    slot,
+                                    `${group.includes(": ")?group.split(": ")[0]:""} (익시드:${tag})`,
+                                    countEx,
+                                    updateTimeEx
+                                ]);
+                            });
+                        }
+                    });
                 });
-              }
             });
-          });
         });
-      });
     });
 
     const escape = v => String(v).replace(/"/g,'""');
@@ -911,8 +949,7 @@
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }
-
+}
 
   // ===== CSV 읽기 =====
   document.getElementById("csvFile").addEventListener("change", function(e){
@@ -926,39 +963,48 @@
     reader.readAsText(file, "utf-8");
   });
 
-  function displayCSV(csvText){
+function displayCSV(csvText){
     const lines = csvText.trim().split("\n");
     const headers = lines[0].split(",").map(h=>h.replace(/^"|"$/g,""));
     const data = lines.slice(1).map(line=>{
-      const cells = line.split(",").map(c=>c.replace(/^"|"$/g,""));
-      const obj = {};
-      headers.forEach((h,i)=>obj[h]=cells[i]);
-      return obj;
+        const cells = line.split(",").map(c=>c.replace(/^"|"$/g,""));
+        const obj = {};
+        headers.forEach((h,i)=>obj[h]=cells[i]);
+        return obj;
     });
 
     characters.length = 0;
     const grouped = {};
     data.forEach(row=>{
-      const key = row["이름"]+"_"+row["직업"];
-      if(!grouped[key]){
-        // CSV에서 읽은 캐릭터에 임시 ID 부여
-        grouped[key] = {id:"c_imp_"+Date.now()+"_"+Math.random(), name:row["이름"], job:row["직업"], armorCounts:{}};
-        characters.push(grouped[key]);
-      }
-      const char = grouped[key];
-      let groupName;
-      if(row["접두어"] && row["접두어"].includes("(익시드:")){
-        const basePrefix = row["접두어"].split(" ")[0];
-        const tag = row["접두어"].match(/\(익시드:(.+)\)/)[1];
-        groupName = `[${tag}] ${basePrefix}: ${row["세트명"]}`;
-      } else if(row["접두어"]){
-        groupName = `${row["접두어"]}: ${row["세트명"]}`;
-      } else {
-        groupName = row["세트명"];
-      }
-      const slot = row["슬롯"];
-      const fullKey = `${groupName} ${slot}`;
-      char.armorCounts[fullKey] = parseInt(row["보유개수"],10);
+        const key = row["이름"]+"_"+row["직업"];
+        if(!grouped[key]){
+            // CSV에서 읽은 캐릭터에 임시 ID 부여 및 updateTimes 초기화
+            grouped[key] = {id:"c_imp_"+Date.now()+"_"+Math.random(), name:row["이름"], job:row["직업"], armorCounts:{}, updateTimes: {}}; 
+            characters.push(grouped[key]);
+        }
+        const char = grouped[key];
+        let groupName;
+        if(row["접두어"] && row["접두어"].includes("(익시드:")){
+            const basePrefix = row["접두어"].split(" ")[0];
+            const tag = row["접두어"].match(/\(익시드:(.+)\)/)[1];
+            groupName = `[${tag}] ${basePrefix}: ${row["세트명"]}`;
+        } else if(row["접두어"]){
+            groupName = `${row["접두어"]}: ${row["세트명"]}`;
+        } else {
+            groupName = row["세트명"];
+        }
+        const slot = row["슬롯"];
+        const fullKey = `${groupName} ${slot}`;
+        char.armorCounts[fullKey] = parseInt(row["보유개수"],10);
+        
+        // 💡 업데이트 시간 처리
+        if (row["업데이트 시간"]) {
+            // CSV에서 읽은 시간 문자열을 Date 객체로 변환하여 timestamp 저장
+            const date = new Date(row["업데이트 시간"]);
+            if (!isNaN(date.getTime())) { // 유효한 날짜인지 확인
+                char.updateTimes[fullKey] = date.getTime();
+            }
+        }
     });
 
     saveLocalData(); // [로컬 스토리지] CSV 가져오기 성공 시 로컬에 저장
@@ -966,7 +1012,7 @@
     renderCharacterList();
     document.getElementById("setList").innerHTML="";
     document.getElementById("panel").innerHTML="";
-  }
+}
 </script>
 
 </body>
