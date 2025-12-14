@@ -98,6 +98,16 @@
     /* 세트 버튼 안에 사용할 숫자 색상 */
     .set-btn .count-3 { color: #000000; /* 밝은 파란색 */ font-weight: bold; }
     .set-btn .count-5 { color: #ff4d4f; /* 밝은 빨간색 */ font-weight: bold; }
+	
+	/* CSS 섹션에 추가 (선택 사항) */
+.exceed-tag {
+    color: #25c2a0; /* 초록색 */
+    font-weight: bold;
+}
+.prefix-tag {
+    color: #e6b800; /* 연한 노란색 */
+    font-weight: bold;
+}
 
     /* ========================= */
     /* 모달 스타일 */
@@ -884,45 +894,45 @@
     }
   }
 
-  // =======================================================
-  // [추가 기능] 최근 업데이트 내역 표시 (팝업창으로 수정)
-  // =======================================================
+// =======================================================
+// [추가 기능] 최근 업데이트 내역 표시 (팝업창 및 익시드 태그별 색상 적용)
+// =======================================================
 
-  function showRecentUpdates() {
+function showRecentUpdates() {
     const allUpdates = [];
 
     // 1. 모든 캐릭터의 장비 업데이트 내역 수집
     characters.forEach(char => {
-      Object.entries(char.updateTimes).forEach(([fullKey, timestamp]) => {
-        if (timestamp > 0) {
-          const parts = fullKey.split(' ');
-          const slot = parts.pop();
-          const itemName = parts.join(' ');
+        Object.entries(char.updateTimes).forEach(([fullKey, timestamp]) => {
+            if (timestamp > 0) {
+                const parts = fullKey.split(' ');
+                const slot = parts.pop();
+                const itemName = parts.join(' ');
+                
+                let baseSetName = itemName;
+                if (itemName.includes(':')) {
+                    const prefixParts = itemName.match(/(\[.*?\])?\s*(.+?):\s*(.+)/);
+                    if (prefixParts) {
+                        baseSetName = prefixParts[3];
+                    }
+                }
+                
+                const setType = getSetType(baseSetName);
+                let category = "방어구";
+                if (setType === "ACCESSORY") category = "악세";
+                else if (setType === "SPECIAL") category = "특장";
 
-          let baseSetName = itemName;
-          if (itemName.includes(':')) {
-            const prefixParts = itemName.match(/(\[.*?\])?\s*(.+?):\s*(.+)/);
-            if (prefixParts) {
-              baseSetName = prefixParts[3];
+                allUpdates.push({
+                    name: char.name,
+                    job: char.job,
+                    itemName: itemName, 
+                    category: category,
+                    slot: slot,
+                    count: char.armorCounts[fullKey] || 0,
+                    timestamp: timestamp
+                });
             }
-          }
-
-          const setType = getSetType(baseSetName);
-          let category = "방어구";
-          if (setType === "ACCESSORY") category = "악세";
-          else if (setType === "SPECIAL") category = "특장";
-
-          allUpdates.push({
-            name: char.name,
-            job: char.job,
-            itemName: itemName,
-            category: category,
-            slot: slot,
-            count: char.armorCounts[fullKey] || 0,
-            timestamp: timestamp
-          });
-        }
-      });
+        });
     });
 
     // 2. 시간 내림차순으로 정렬
@@ -930,10 +940,6 @@
 
     // 3. UI 렌더링 (모달 내부 영역 사용)
     const modalContent = document.getElementById("updateModalContent");
-
-    // 모달을 열기 전에 기존 세트 UI 초기화
-    document.getElementById("setList").innerHTML = "";
-    document.getElementById("panel").innerHTML = "";
 
     if (allUpdates.length === 0) {
       modalContent.innerHTML = "<p>최근 업데이트된 장비 내역이 없습니다.</p>";
@@ -965,11 +971,58 @@
       const date = new Date(item.timestamp);
       const formatTime = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}:${String(date.getSeconds()).padStart(2,'0')}`;
 
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
+        // 💡 아이템 이름 스타일링 로직 시작
+        let styledItemName = item.itemName;
+        let setBaseName = item.itemName;
+        
+        // 1. 익시드 태그 ([Tag]) 처리 (태그별 색상 적용)
+        const exceedMatch = styledItemName.match(/^(\[.*?\])\s*(.*)/);
+        if (exceedMatch) {
+            const tag = exceedMatch[1]; // 예: [의지]
+            let color = '';
+
+            if (tag === '[선봉]') {
+                color = '#ff4d4f'; // 연한 빨간색
+            } else if (tag === '[이상]') {
+                color = '#25c2a0'; // 초록색 (기존 유지)
+            } else if (tag === '[의지]') {
+                color = '#3399cc'; // 연한 파란색
+            } else {
+                 // 정의되지 않은 태그는 기본 초록색 유지
+                color = '#25c2a0';
+            }
+
+            const exceedTag = `<span style="color:${color}; font-weight:bold;">${tag}</span>`;
+            
+            setBaseName = exceedMatch[2]; // Prefix: SetName
+            styledItemName = exceedTag + " " + setBaseName;
+        }
+
+        // 2. 접두어 (Prefix:) 처리 (연한 노란색: #e6b800) (이전과 동일)
+        const prefixMatch = setBaseName.match(/(.+?):\s*(.+)/);
+        
+        if (prefixMatch) {
+            const prefix = prefixMatch[1];
+            const baseName = prefixMatch[2];
+            
+            const styledPrefix = `<span style="color:#e6b800; font-weight:bold;">${prefix}</span>`;
+            
+            if (exceedMatch) {
+                // 익시드 태그 + (노란색 접두어) + : + (세트 이름)
+                styledItemName = styledItemName.replace(setBaseName, `${styledPrefix}: ${baseName}`);
+            } else {
+                // (노란색 접두어) + : + (세트 이름)
+                styledItemName = `${styledPrefix}: ${baseName}`;
+            }
+        }
+        // 💡 아이템 이름 스타일링 로직 끝
+
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
             <td>${item.job} / ${item.name}</td>
             <td>[${item.category}] ${item.slot}</td>
-            <td style="text-align:left;">${item.itemName}</td>
+            <td style="text-align:left;">${styledItemName}</td>
             <td>${item.count}</td>
             <td>${formatTime}</td>
         `;
@@ -980,11 +1033,6 @@
     modalContent.innerHTML = "";
     modalContent.appendChild(table);
     document.getElementById("updateModal").style.display = 'flex';
-
-    // 캐릭터 버튼 active 해제
-    document.querySelectorAll(".char-btn").forEach(b => b.classList.remove("active"));
-    currentSetName = null;
-    currentChar = null;
   }
 
 
