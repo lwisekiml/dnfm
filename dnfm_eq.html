@@ -727,8 +727,9 @@ function makeSetButton(setName, char){
     
     return btn;
 }
-  // ===== 표 행 생성 =====
-  function makeRow(name, setName, char){
+
+// ===== 표 행 생성 =====
+function makeRow(name, setName, char){
     const slots = ALL_SETS[setName] || [];
     const groupKey = getGroupKey(name);
     const isExceed = isExceedName(name);
@@ -760,7 +761,56 @@ function makeSetButton(setName, char){
       }
     }
 
-    let html = `<td>${name}</td>`;
+
+    // =========================================================
+    // 💡 [최종 수정] 아이템 이름 스타일링 로직 시작 (HTML 문자열 조립)
+    // =========================================================
+    let itemName = name;
+    let finalHtmlName = itemName;
+    
+    // 1. 익시드 태그 ([Tag]) 처리 (태그 제거 및 스타일링된 태그 생성)
+    const exceedMatch = itemName.match(/^(\[.*?\])\s*(.*)/);
+    let exceedTagHtml = '';
+    let nameWithoutTag = itemName;
+
+    if (exceedMatch) {
+        const tag = exceedMatch[1]; // 예: [이상]
+        nameWithoutTag = exceedMatch[2]; // 예: 전격: 어느 말괄량이의 탐사복
+        let color = '';
+
+        if (tag === '[선봉]') {
+            color = '#ff4d4f'; // 빨간색
+        } else if (tag === '[이상]') {
+            color = '#25c2a0'; // 초록색
+        } else if (tag === '[의지]') {
+            color = '#3399cc'; // 파란색
+        }
+        
+        exceedTagHtml = `<span style="color:${color}; font-weight:bold;">${tag}</span> `;
+    }
+    
+    // 2. 접두어 (Prefix:) 처리 (노란색 적용)
+    let baseNameHtml = nameWithoutTag; // 익시드 태그가 있었든 없었든, 나머지 이름
+    
+    const prefixMatch = nameWithoutTag.match(/(.+?):\s*(.+)/);
+    
+    if (prefixMatch) {
+        const prefix = prefixMatch[1]; // 예: 전격
+        const baseSet = prefixMatch[2]; // 예: 어느 말괄량이의 탐사복
+        
+        const styledPrefix = `<span style="color:#e6b800; font-weight:bold;">${prefix}</span>`;
+        
+        baseNameHtml = `${styledPrefix}: ${baseSet}`;
+    }
+    
+    // 3. 최종 HTML 문자열 조립
+    finalHtmlName = exceedTagHtml + baseNameHtml;
+    // =========================================================
+    // 💡 [최종 수정] 아이템 이름 스타일링 로직 끝
+    // =========================================================
+
+    let html = `<td style="text-align:left;">${finalHtmlName}</td>`; // 최종 HTML을 삽입
+    
     slots.forEach(slot => {
       let key = `${name} ${slot}`;
       const val = char.armorCounts[key] || 0;
@@ -776,7 +826,7 @@ function makeSetButton(setName, char){
     });
     tr.innerHTML = html;
     return tr;
-  }
+}
 
   // ===== 세트 표 열기 (생략) =====
   let currentSetName = null;
