@@ -828,10 +828,18 @@ function makeRow(name, setName, char){
     return tr;
 }
 
-  // ===== 세트 표 열기 (생략) =====
-  let currentSetName = null;
-  let currentChar = null;
-  function openSet(setName, char){
+// ===== 전역 상태 변수 =====
+let currentSetName = null;
+let currentChar = null;
+let currentFilter = 'ALL'; // 💡 현재 선택된 필터 ('ALL', 'BASE', 'PREFIX', 'EXCEED')
+
+// ===== 세트 표 열기 =====
+function openSet(setName, char){
+    // 세트가 변경될 때마다 기본 필터를 'ALL'로 초기화하고 UI 업데이트
+    if (currentSetName !== setName || currentChar?.id !== char.id) {
+         currentFilter = 'ALL'; 
+    }
+    
     currentSetName = setName;
     currentChar = char;
 
@@ -841,8 +849,8 @@ function makeRow(name, setName, char){
     const slots = ALL_SETS[setName] || [];
     const table = document.createElement("table");
     table.innerHTML = `<thead>
-  <tr><th>세트 이름</th>${slots.map(s => `<th>${s}</th>`).join("")}</tr>
- </thead><tbody></tbody>`;
+ <tr><th>세트 이름</th>${slots.map(s => `<th>${s}</th>`).join("")}</tr>
+</thead><tbody></tbody>`;
     const tbody = table.querySelector("tbody");
 
     tbody.appendChild(makeRow(setName, setName, char));
@@ -865,74 +873,176 @@ function makeRow(name, setName, char){
       cell.style.width = globalSlotWidth + "px";
     });
 
-    // ✅ 요약 패널 추가
+    // ✅ 요약 패널 영역에 필터 버튼 추가
+    const summaryHeader = document.createElement("div");
+    summaryHeader.innerHTML = `<h2>[${setName} 세트 캐릭터별 슬롯 현황]</h2>`;
+    
+    const filterContainer = document.createElement("div");
+    filterContainer.className = "toolbar"; // 기존 toolbar 스타일 재활용
+    filterContainer.style.marginBottom = "20px";
+    filterContainer.style.marginTop = "10px";
+
+    // 필터 버튼 정의
+    const filters = [
+        { id: 'ALL', text: '모두' },
+        { id: 'BASE', text: '일반' },
+        { id: 'PREFIX', text: '접두어' },
+        { id: 'EXCEED', text: '익시드' }
+    ];
+
+    filters.forEach(filter => {
+        const btn = document.createElement("button");
+        btn.textContent = filter.text;
+        btn.className = "action-btn set-btn"; // set-btn 스타일을 재활용하여 버튼 모양 생성
+        btn.style.minWidth = 'unset'; // 너비 제한 해제
+        btn.style.background = '#4a3f7a'; // 배경색 통일 (file-label 색상 재활용)
+        // btn.style.borderColor = 'transparent'; // 기본 테두리 제거
+
+        // 현재 필터와 일치하면 'selected' 클래스 추가 (흰색 테두리)
+        if (currentFilter === filter.id) {
+            btn.classList.add('selected');
+        }
+
+        btn.onclick = () => {
+            currentFilter = filter.id;
+            // 모든 버튼에서 selected 제거
+            filterContainer.querySelectorAll('.set-btn').forEach(b => b.classList.remove('selected'));
+            // 현재 클릭된 버튼에 selected 추가
+            btn.classList.add('selected');
+            
+            // 필터링된 내용을 다시 렌더링
+            showSetSlotSummary(setName);
+        };
+        filterContainer.appendChild(btn);
+    });
+    
+    panel.appendChild(summaryHeader);
+    panel.appendChild(filterContainer);
+    
+    // ✅ 필터에 맞게 요약 패널 렌더링
     showSetSlotSummary(setName);
-  }
+}
 
-  // ===== 캐릭터별 슬롯 요약 (생략) =====
-  function showSetSlotSummary(setName){
-    const summaryPanel = document.createElement("div");
-    summaryPanel.innerHTML = `<h2>[${setName} 세트 캐릭터별 슬롯 현황]</h2>`;
-
+// ===== 캐릭터별 슬롯 요약 (수정됨) =====
+function showSetSlotSummary(setName){
+    // 기존 showSetSlotSummary가 렌더링하던 영역을 찾아서 비우거나 새로 만듭니다.
+    // openSet에서 'summaryHeader'와 'filterContainer'를 이미 추가했으므로,
+    // 여기서는 실제 테이블만 다시 그립니다.
+    let tableContainer = document.getElementById("summaryTableContainer");
+    if (!tableContainer) {
+        tableContainer = document.createElement("div");
+        tableContainer.id = "summaryTableContainer";
+        document.getElementById("panel").appendChild(tableContainer);
+    }
+    tableContainer.innerHTML = '';
+    
     const slots = ALL_SETS[setName] || [];
     const table = document.createElement("table");
-    table.innerHTML = `<thead>
-  <tr><th>캐릭터</th><th>직업</th>${slots.map(s=>`<th>${s}</th>`).join("")}<th>세트 달성</th></tr>
- </thead><tbody></tbody>`;
+
+    // 필터에 따라 헤더 내용과 세트 달성 열 표시 여부 결정
+    const isFiltered = currentFilter !== 'ALL';
+    let headerHtml = `<tr><th>캐릭터</th><th>직업</th>${slots.map(s=>`<th>${s}</th>`).join("")}`;
+    if (!isFiltered) {
+        headerHtml += `<th>세트 달성</th></tr>`;
+    } else {
+        headerHtml += `</tr>`;
+    }
+    
+    table.innerHTML = `<thead>${headerHtml}</thead><tbody></tbody>`;
     const tbody = table.querySelector("tbody");
 
     const prefixes = ALL_PREFIX[setName] || [];
-    const groups = [setName, ...prefixes.map(p => `${p}: ${setName}`)];
     const setType = getSetType(setName);
 
     characters.forEach(char => {
-      let hasAny = false;
-      let html = `<td>${char.name}</td><td>${char.job}</td>`;
+        let hasAny = false;
+        let html = `<td>${char.name}</td><td>${char.job}</td>`;
 
-      // 슬롯별 합계(모든 그룹+익시드) 표시
-      slots.forEach(slot => {
-        let total = 0;
-        groups.forEach(group => {
-          total += char.armorCounts[`${group} ${slot}`] || 0;
-          EXCEED_TAGS.forEach(tag=>{
-            total += char.armorCounts[`[${tag}] ${group} ${slot}`] || 0;
-          });
+        // 슬롯별 합계 계산 (현재 필터에 맞게)
+        slots.forEach(slot => {
+            let total = calculateSlotCountByFilter(char, setName, slot, currentFilter);
+            
+            if(total > 0) hasAny = true;
+            html += `<td>${total}</td>`;
         });
-        if(total > 0) hasAny = true;
-        html += `<td>${total}</td>`;
-      });
 
-      if(!hasAny) return;
+        if(!hasAny) return; // 하나도 장착 안 했으면 건너뜁니다.
 
-      // 🚨 달성 여부: 접두어/익시드 무시하고 전체 고유 부위 개수로 판정
-      const totalDistinct = calcTotalDistinctParts(char, setName);
+        // '모두' 필터일 경우에만 '세트 달성' 열 추가
+        if (!isFiltered) {
+            // 🚨 달성 여부: 접두어/익시드 무시하고 전체 고유 부위 개수로 판정
+            const totalDistinct = calcTotalDistinctParts(char, setName);
 
-      let status = "-";
-      if(setType === "ARMOR"){
-        if(totalDistinct === slots.length) status = "5세트 달성";
-        else if(totalDistinct >= 3) status = "3세트 달성";
-      } else {
-        // 악세/특장은 3부위
-        if(totalDistinct === 3) status = "3세트 달성";
-      }
+            let status = "-";
+            if(setType === "ARMOR"){
+                if(totalDistinct === slots.length) status = "5세트 달성";
+                else if(totalDistinct >= 3) status = "3세트 달성";
+            } else {
+                if(totalDistinct === 3) status = "3세트 달성";
+            }
 
-      html += `<td>${status}</td>`;
-      const tr = document.createElement("tr");
-      // 시각 강조 (총 고유 부위 개수 기준)
-      if(setType === "ARMOR"){
-        if(totalDistinct === slots.length) tr.className = "set5";
-        else if(totalDistinct >= 3) tr.className = "set3";
-      } else {
-        if(totalDistinct === 3) tr.className = "set3";
-      }
+            html += `<td>${status}</td>`;
+        }
 
-      tr.innerHTML = html;
-      tbody.appendChild(tr);
+        const tr = document.createElement("tr");
+        
+        // '모두' 필터일 경우에만 시각 강조 (총 고유 부위 개수 기준)
+        if (!isFiltered) {
+            const totalDistinct = calcTotalDistinctParts(char, setName);
+            if(setType === "ARMOR"){
+                if(totalDistinct === slots.length) tr.className = "set5";
+                else if(totalDistinct >= 3) tr.className = "set3";
+            } else {
+                if(totalDistinct === 3) tr.className = "set3";
+            }
+        }
+
+
+        tr.innerHTML = html;
+        tbody.appendChild(tr);
     });
 
-    summaryPanel.appendChild(table);
-    document.getElementById("panel").appendChild(summaryPanel);
-  }
+    tableContainer.appendChild(table);
+}
+
+// ===== [신규 함수] 필터별 슬롯 개수 계산 =====
+function calculateSlotCountByFilter(char, setName, slot, filter) {
+    const prefixes = ALL_PREFIX[setName] || [];
+    
+    let total = 0;
+    
+    // 검색 대상 그룹 목록 정의
+    const baseGroup = setName;
+    const prefixedGroups = prefixes.map(p => `${p}: ${setName}`);
+    const exceedGroups = prefixes.flatMap(p => 
+        EXCEED_TAGS.map(tag => `[${tag}] ${p}: ${setName}`)
+    );
+
+    let groupsToSearch = [];
+    
+    if (filter === 'ALL') {
+        // '모두': 일반, 접두어, 익시드 모두 합산
+        groupsToSearch = [baseGroup, ...prefixedGroups, ...exceedGroups];
+    } else if (filter === 'BASE') {
+        // '일반': 순수 세트 이름만
+        groupsToSearch = [baseGroup];
+    } else if (filter === 'PREFIX') {
+        // '접두어': 접두어 붙은 세트만 (익시드 제외)
+        groupsToSearch = prefixedGroups;
+    } else if (filter === 'EXCEED') {
+        // '익시드': 익시드 붙은 세트만
+        groupsToSearch = exceedGroups;
+    }
+
+    groupsToSearch.forEach(group => {
+        const fullKey = `${group} ${slot}`;
+        // 주의: 'BASE'와 'PREFIX' 필터에서는 익시드가 붙은 키는 제외됩니다.
+        // 'ALL' 필터에서는 익시드가 붙은 키도 포함됩니다. (위의 groupsToSearch 정의에 따름)
+        total += char.armorCounts[fullKey] || 0;
+    });
+
+    return total;
+}
 
   // ===== 숫자 버튼 (우클릭 감소 기능 포함) =====
   function makeNumberButton(charId, key, val){
