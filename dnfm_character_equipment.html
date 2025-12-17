@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG 통합 장비 관리 시스템</title>
+    <style>
+        :root {
+            --bg: #0f0f12;
+            --table-bg: #1a1a1f;
+            --border: #444; 
+            --border-heavy: #c5a678; 
+            --gold: #c5a678;
+            --text: #ddd;
+            --input-bg: #000;
+            --fs: 11px;
+            --txt-epic: #fcc419;   --txt-unique: #ff80ab; --txt-rare: #b197fc;   --txt-uncom: #4dabf7; --txt-common: #888;
+            --ex-sunbong: #ff5252; --ex-uiji: #448aff;
+            --emb-red: #4a1212; --emb-yellow: #4a3f12; --emb-blue: #121d4a; --emb-green: #124a1d; --emb-gray: #2d2d2d;
+            --gakin-2: #fff5f5bb; 
+        }
+
+        body { background-color: var(--bg); color: var(--text); font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 10px; }
+        h2 { color: var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: 5px; margin: 0 0 10px 0; font-size: 1.1rem; }
+
+        .control-bar { margin-bottom: 10px; display: flex; gap: 10px; align-items: center; position: sticky; top: 0; background: var(--bg); z-index: 1000; padding: 5px 0; }
+        .btn-action { background: #1d4ed8; color: white; border: none; padding: 5px 15px; cursor: pointer; border-radius: 3px; font-weight: bold; font-size: 11px;}
+        .btn-add { background: #7c3aed; }
+        .status-msg { font-size: 12px; color: var(--gold); }
+
+        /* 캐릭터 섹션 바깥 테두리 제거 */
+        .char-section { margin-bottom: 30px; }
+        
+        .table-container { overflow-x: auto; }
+        
+        /* 표 전체 테두리를 금색(#c5a678)으로 설정 */
+        table { 
+            border-collapse: collapse; 
+            background-color: var(--table-bg); 
+            width: max-content; 
+            font-size: var(--fs); 
+            border: 2px solid var(--gold); 
+        }
+        
+        th, td { border: 1px solid var(--border) !important; padding: 1px 2px; text-align: center; height: 26px; color: #ccc; }
+        th { background-color: #2a2a32; color: var(--gold); font-weight: bold; white-space: nowrap; }
+        
+        .v-border-heavy { border-left: 2px solid var(--border-heavy) !important; }
+        .group-header { border-bottom: 2px solid var(--gold) !important; }
+        
+        .grade-box { display: flex; align-items: center; justify-content: center; gap: 2px; width: 100%; height: 100%; }
+        .grade-box input { width: 30px !important; text-align: right; border: none !important; background: transparent !important; }
+        .grade-box span { color: var(--gold); font-weight: bold; font-size: 10px; }
+
+        .col-char-info { width: 120px !important; }
+        .col-slot { width: 45px !important; font-weight: bold; color: var(--gold) !important; }
+        .col-rarity { width: 65px !important; }
+        .col-exceed { width: 45px !important; }
+        .col-prefix { width: 50px !important; }
+        .col-val-short { width: 35px !important; }
+        .col-grade { width: 55px !important; }
+        .col-emblem { width: 40px !important; }
+        .col-enchant { width: 55px !important; min-width: 55px; } 
+
+        input, select { background: var(--input-bg); color: #fff; border: 1px solid #444; padding: 1px 2px; width: 100%; font-size: var(--fs); box-sizing: border-box; height: 22px; outline: none; text-align: center; }
+        input:disabled, select:disabled { cursor: not-allowed; opacity: 1; -webkit-text-fill-color: inherit; }
+
+        .rare-에픽, .bg-에픽 { color: var(--txt-epic) !important; font-weight: bold; }
+        .rare-유니크, .bg-유니크 { color: var(--txt-unique) !important; font-weight: bold; }
+        .rare-레어, .bg-레어 { color: var(--txt-rare) !important; font-weight: bold; }
+        .rare-언커먼, .bg-언커먼 { color: var(--txt-uncom) !important; font-weight: bold; }
+        .rare-커먼, .bg-커먼 { color: var(--txt-common) !important; font-weight: bold; }
+        .ex-이상 { color: var(--txt-epic) !important; font-weight: bold; }
+        .ex-선봉 { color: var(--ex-sunbong) !important; font-weight: bold; }
+        .ex-의지 { color: var(--ex-uiji) !important; font-weight: bold; }
+        .prefix-selected { color: var(--txt-epic) !important; font-weight: bold; }
+        
+        .emb-bg-red { background-color: var(--emb-red) !important; }
+        .emb-bg-yellow { background-color: var(--emb-yellow) !important; }
+        .emb-bg-blue { background-color: var(--emb-blue) !important; }
+        .emb-bg-green { background-color: var(--emb-green) !important; }
+        .emb-bg-gray { background-color: var(--emb-gray) !important; }
+
+        .artifact-main-wrapper { display: flex; gap: 8px; justify-content: start; align-items: center; padding: 2px 5px; }
+        .art-group { display: flex; flex-direction: column; gap: 2px; border: 1px solid #444; padding: 3px; background: #000; }
+        .art-item { display: flex; align-items: center; gap: 2px; }
+
+        #skillRunemodal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1f; border: 2px solid var(--gold); padding: 15px; z-index: 2000; width: 450px;}
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1999; }
+        .v-line { border-left: 1px solid #555; height: 12px; margin: 0 8px; display: inline-block; vertical-align: middle; }
+        
+        .btn-char-lock { background: #b91c1c; color: white; padding: 4px; cursor: pointer; font-size: 11px; border:none; margin-bottom: 2px;}
+        .btn-char-unlock { background: #444; color: white; padding: 4px; cursor: pointer; font-size: 11px; border:none; }
+        .btn-active { border: 2px solid white !important; }
+    </style>
+</head>
+<body>
+
+<h2>🛡️ RPG 통합 장비 관리 시스템</h2>
+
+<div class="control-bar">
+    <button class="btn-action" onclick="exportToJSON()">📤 JSON 파일 저장</button>
+    <button class="btn-action" onclick="document.getElementById('fileInput').click()">📥 JSON 파일 불러오기</button>
+    <button class="btn-action btn-add" onclick="createCharacterTable()">➕ 캐릭터 추가</button>
+    <input type="file" id="fileInput" style="display:none" accept=".json" onchange="importFromJSON(this)">
+    <span id="statusMsg" class="status-msg"></span>
+</div>
+
+<div id="characterContainer"></div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeRuneModal()"></div>
+<div id="skillRunemodal">
+    <h3 style="color:var(--gold); margin-top:0;">💎 스킬룬 & 각인 설정</h3>
+    <table style="width:100%; border-collapse: collapse; font-size:12px; border:1px solid #444;">
+        <thead>
+            <tr style="color:var(--gold);">
+                <th>번호</th><th>스킬룬 이름</th><th>룬 레벨</th><th>스킬 레벨</th>
+            </tr>
+        </thead>
+        <tbody id="runeModalBody"></tbody>
+        <tfoot>
+            <tr style="border-top: 2px solid var(--gold);">
+                <td style="color:var(--gold); font-weight:bold; height:35px; text-align:center;">각인</td>
+                <td><input type="text" id="m-gakin1" placeholder="메인 미표시"></td>
+                <td><input type="text" id="m-gakin2" placeholder="메인 표시"></td>
+                <td style="background:#222;">-</td>
+            </tr>
+        </tfoot>
+    </table>
+    <div style="margin-top:15px; display:flex; gap:10px; justify-content:center;">
+        <button class="btn-action" style="background:#059669;" onclick="saveRuneData()">저장</button>
+        <button class="btn-action" style="background:#4b5563;" onclick="closeRuneModal()">취소</button>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'dnfm_character_equipment_data_v2';
+    const slots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호", "외형칭호", "오라", "아바타", "스킬룬", "크리쳐"];
+    const heavyBorderSlots = ["무기", "벨트", "반지", "마법석", "아바타", "스킬룬", "크리쳐"];
+    const prefixes = ["", "전격", "허상", "작열", "침식", "수호", "왜곡", "자상", "맹독", "보호", "쇄도", "신속", "연격"];
+    const runeNames = ["", "각성", "가호", "왜곡", "지혜", "수호", "보호", "가속", "겁화", "혹한", "섬광", "암격", "숙련", "회복", "명상", "파멸", "허상", "마력", "불굴", "재물", "기교", "귀백", "혼백", "견고", "생존", "작열", "맹독", "자상", "전격", "모독", "기만", "경화", "속박", "나태", "칠흑", "몽환", "충격", "결빙", "미지"];
+    const runeLevels = ["", "I", "II", "III", "IV"];
+    const runeSkillLevels = ["", "0", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60", "65"];
+    const noSkillLvRunes = ["가호", "왜곡", "수호", "보호", "귀백", "혼백"];
+
+    const artOptions = {
+        red: ["힘", "지능", "체력", "정신력", "적중", "회피"],
+        blue: ["HP MAX", "MP MAX", "물리 공격력", "마법 공격력", "물리 방어력", "마법 방어력"],
+        green: ["물리 크리티컬", "마법 크리티컬", "공격속도", "캐스팅속도", "이동속도", "화속성 강화", "수속성 강화", "명속성 강화", "암속성 강화", "모든 속성 강화"]
+    };
+
+    const mData = {
+        weapon: { n1: ["", "데미지 증가", "추가 데미지", "모든 직업 50레벨스킬", "화속성 강화", "수속성 강화", "명속성 강화", "암속성 강화", "힘", "지능", "물리 공격력", "마법 공격력"], n2: ["", "물리 공격력", "마법 공격력", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "적중", "회피"] },
+        armor: { n1: ["", "힘", "지능", "체력", "정신력", "물리 크리티컬", "마법 크리티컬"], n2: ["", "물리 크리티컬", "마법 크리티컬", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "적중", "회피"] },
+        accessory: { n1: ["", "화속성 강화", "수속성 강화", "명속성 강화", "암속성 강화", "힘", "지능", "체력", "정신력"], n2: ["", "화속성 강화", "수속성 강화", "명속성 강화", "암속성 강화", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "화속성 저항", "수속성 저항", "명속성 저항", "암속성 저항", "적중", "회피"] },
+        special: { n1: ["", "물리 공격력", "마법 공격력", "힘", "지능", "물리 크리티컬", "마법 크리티컬", "적중", "회피"], n2: ["", "물리 공격력", "마법 공격력", "물리 크리티컬", "마법 크리티컬", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "적중", "회피"] }
+    };
+
+    let charRuneData = {}; 
+    let currentEditingCharId = null;
+
+    function createCharacterTable(savedData = null) {
+        const charId = savedData && savedData.id ? savedData.id : "char_" + Date.now() + Math.random().toString(16).slice(2);
+        const section = document.createElement('div');
+        section.className = 'char-section';
+        section.id = charId;
+
+        charRuneData[charId] = (savedData && savedData.runeData) ? savedData.runeData : { runes: Array(15).fill().map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] };
+
+        section.innerHTML = `
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="col-char-info">직업/이름</th>
+                            <th rowspan="2" class="col-slot v-border-heavy">슬롯</th>
+                            <th rowspan="2" class="col-rarity">희귀도</th>
+                            <th rowspan="2" class="col-exceed">익시드</th>
+                            <th rowspan="2" class="col-prefix">접두어</th>
+                            <th rowspan="2" style="min-width:120px;">아이템이름</th>
+                            <th rowspan="2" class="col-val-short">강화</th>
+                            <th colspan="4" class="group-header">마법봉인</th>
+                            <th colspan="2" class="group-header">엠블렘</th>
+                            <th colspan="2" class="group-header">마법부여</th>
+                            <th rowspan="2" style="min-width:140px;" class="v-border-heavy">설명</th>
+                            <th rowspan="2" class="col-val-short">연마</th>
+                            <th rowspan="2" class="col-grade">등급</th>
+                        </tr>
+                        <tr>
+                            <th>마법봉인</th><th class="col-val-short">수치</th><th>마법봉인</th><th class="col-val-short">수치</th>
+                            <th class="col-emblem">엠블렘</th><th class="col-emblem">엠블렘</th>
+                            <th class="col-enchant">마법부여</th><th class="col-val-short">수치</th>
+                        </tr>
+                    </thead>
+                    <tbody class="tbody-content"></tbody>
+                </table>
+            </div>`;
+
+        const tbody = section.querySelector('.tbody-content');
+        slots.forEach((slot, index) => {
+            const tr = document.createElement('tr');
+            if (heavyBorderSlots.includes(slot)) tr.style.borderBottom = "2px solid var(--border-heavy)";
+            if (index === 0) {
+                tr.innerHTML += `<td rowspan="${slots.length}" style="background-color: #121216; vertical-align: top;"><div style="display:flex; flex-direction:column; gap:4px; padding:5px;"><input type="text" placeholder="직업" oninput="autoSave()"><input type="text" placeholder="이름" oninput="autoSave()"><button onclick="toggleEdit('${charId}', true)" class="btn-char-lock lock-btn">잠금</button><button onclick="toggleEdit('${charId}', false)" class="btn-char-unlock unlock-btn">해제</button></div></td>`;
+            }
+
+            if (slot === "스킬룬") {
+                tr.innerHTML += `<td class="col-slot v-border-heavy">스킬룬</td>
+                    <td colspan="3"><button class="btn-action" onclick="openRuneModal('${charId}')" style="background:#059669; padding:2px 8px;">수정</button> <button class="btn-action" onclick="resetRuneData('${charId}')" style="background:#444; padding:2px 8px;">초기화</button></td>
+                    <td colspan="10" id="${charId}_runeSummary" style="text-align:left; padding-left:10px; color:var(--gold); font-size:11px; font-weight:bold;">설정된 룬 없음</td>
+                    <td class="v-border-heavy"><input type="text" oninput="autoSave()"></td>
+                    <td>-</td><td>-</td>`;
+            } else if (slot === "크리쳐") {
+                tr.innerHTML += `<td class="col-slot v-border-heavy">크리쳐</td>
+                    <td class="col-rarity"><select onchange="updateStyle(this, 'rarity')" class="rare-에픽"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select></td>
+                    <td colspan="2"><input type="text" placeholder="크리쳐 이름" oninput="autoSave()"></td>
+                    <td colspan="10">
+                        <div class="artifact-main-wrapper">
+                            ${['red', 'blue', 'green'].map(color => `
+                                <div class="art-group">
+                                    ${[1, 2].map(num => `<div class="art-item"><select class="art-color-select bg-에픽" style="width:65px;" onchange="updateStyle(this, 'artBg')"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select><select class="art-opt-select bg-에픽" style="width:110px;" onchange="autoSave()"><option value="">옵션 선택</option>${artOptions[color].map(o=>`<option>${o}</option>`).join('')}</select></div>`).join('')}
+                                </div>`).join('')}
+                        </div>
+                    </td>
+                    <td class="v-border-heavy"><input type="text" oninput="autoSave()"></td>
+                    <td>-</td><td>-</td>`;
+            } else {
+                const isEq = index < 12; 
+                const isEx = ['상의', '팔찌', '귀걸이'].includes(slot);
+                const hasEmb = !["외형칭호", "오라", "아바타", "크리쳐"].includes(slot);
+                let g = { n1: [], n2: [] };
+                if(slot === "무기") g = mData.weapon;
+                else if(index >= 1 && index <= 5) g = mData.armor; 
+                else if(index >= 6 && index <= 8) g = mData.accessory; 
+                else if(index >= 9 && index <= 11) g = mData.special;
+
+                let embCls = (["상의", "하의"].includes(slot)) ? "emb-bg-red" : (["어깨", "벨트"].includes(slot)) ? "emb-bg-yellow" : (["신발", "팔찌"].includes(slot)) ? "emb-bg-blue" : (["목걸이", "반지"].includes(slot)) ? "emb-bg-green" : "emb-bg-gray";
+                
+                tr.innerHTML += `<td class="col-slot v-border-heavy">${slot}</td>
+                    <td class="col-rarity"><select onchange="updateStyle(this, 'rarity')" class="rare-에픽"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select></td>
+                    <td class="col-exceed">${isEx ? `<select onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-'}</td>
+                    <td class="col-prefix">${isEq ? `<select onchange="updateStyle(this,'prefix')">${prefixes.map(p=>`<option>${p}</option>`).join('')}</select>` : '-'}</td>
+                    <td><input type="text" oninput="autoSave()"></td>
+                    <td class="col-val-short">${isEq ? '<input type="text" oninput="autoSave()">' : '-'}</td>
+                    <td>${isEq ? `<select onchange="autoSave()">${g.n1.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
+                    <td class="col-val-short">${isEq ? '<input type="text" oninput="autoSave()">' : '-'}</td>
+                    <td>${isEq ? `<select onchange="autoSave()">${g.n2.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
+                    <td class="col-val-short">${isEq ? '<input type="text" oninput="autoSave()">' : '-'}</td>
+                    <td class="col-emblem">${hasEmb ? `<input type="text" class="${embCls}" oninput="autoSave()">` : '-'}</td>
+                    <td class="col-emblem">${hasEmb ? `<input type="text" class="${embCls}" oninput="autoSave()">` : '-'}</td>
+                    <td class="col-enchant">${index < 12 || slot === "칭호" ? '<input type="text" oninput="autoSave()">' : '-'}</td>
+                    <td class="col-val-short">${index < 12 || slot === "칭호" ? '<input type="text" oninput="autoSave()">' : '-'}</td>
+                    <td class="v-border-heavy"><input type="text" oninput="autoSave()"></td>
+                    <td class="col-val-short">${isEq ? '<input type="text" oninput="autoSave()">' : '-'}</td>
+                    <td class="col-grade">${isEq ? '<div class="grade-box"><input type="text" oninput="autoSave()"><span>%</span></div>' : '-'}</td>`;
+            }
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('characterContainer').appendChild(section);
+        updateRuneSummary(charId);
+
+        if (savedData) {
+            const inputs = section.querySelectorAll('input, select');
+            savedData.inputs.forEach((d, idx) => { if (inputs[idx]) { inputs[idx].value = d.val; inputs[idx].className = d.cls; } });
+            toggleEdit(charId, savedData.locked);
+        } else { toggleEdit(charId, true); }
+    }
+    function openRuneModal(charId) {
+        currentEditingCharId = charId;
+        const body = document.getElementById('runeModalBody');
+        body.innerHTML = '';
+        const data = charRuneData[charId];
+        for(let i=0; i<15; i++) {
+            const r = data.runes[i] || { name: '', lv: '', skillLv: '' };
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${i+1}</td><td><select class="m-rune-name">${runeNames.map(n=>`<option ${r.name===n?'selected':''}>${n}</option>`).join('')}</select></td><td><select class="m-rune-lv">${runeLevels.map(n=>`<option ${r.lv===n?'selected':''}>${n}</option>`).join('')}</select></td><td><select class="m-rune-skillLv">${runeSkillLevels.map(n=>`<option ${r.skillLv===n?'selected':''}>${n}</option>`).join('')}</select></td>`;
+            body.appendChild(tr);
+        }
+        document.getElementById('m-gakin1').value = data.gakin[0];
+        document.getElementById('m-gakin2').value = data.gakin[1];
+        document.getElementById('modalOverlay').style.display = 'block';
+        document.getElementById('skillRunemodal').style.display = 'block';
+    }
+    function closeRuneModal() { document.getElementById('modalOverlay').style.display = 'none'; document.getElementById('skillRunemodal').style.display = 'none'; }
+    function saveRuneData() {
+        const body = document.getElementById('runeModalBody');
+        const rows = body.querySelectorAll('tr');
+        const newRunes = [];
+        rows.forEach(row => { newRunes.push({ name: row.querySelector('.m-rune-name').value, lv: row.querySelector('.m-rune-lv').value, skillLv: row.querySelector('.m-rune-skillLv').value }); });
+        charRuneData[currentEditingCharId] = { runes: newRunes, gakin: [document.getElementById('m-gakin1').value, document.getElementById('m-gakin2').value] };
+        updateRuneSummary(currentEditingCharId); closeRuneModal(); autoSave();
+    }
+    function updateRuneSummary(charId) {
+        const summaryEl = document.getElementById(`${charId}_runeSummary`);
+        const data = charRuneData[charId];
+        const activeRunes = data.runes.filter(r => r.name !== '');
+        let runeStr = "설정된 룬 없음";
+        if(activeRunes.length > 0) {
+            const runeMap = new Map();
+            activeRunes.forEach(r => {
+                const effectiveSkillLv = noSkillLvRunes.includes(r.name) ? "" : r.skillLv;
+                const key = `${r.name}|${r.lv}|${effectiveSkillLv}`;
+                if(runeMap.has(key)) runeMap.get(key).count += 1; else runeMap.set(key, { ...r, count: 1 });
+            });
+            const summaryArray = [];
+            runeMap.forEach((val) => {
+                const skillLv = (noSkillLvRunes.includes(val.name) || !val.skillLv) ? "" : `[${val.skillLv}]`;
+                summaryArray.push(`${val.name}${val.lv}${skillLv} ${val.count}개`);
+            });
+            runeStr = summaryArray.join(' / ');
+        }
+        let gakinContent = "";
+        const g2 = data.gakin[1] || "";
+        if (g2) { gakinContent = `<span class="v-line"></span> <span style="color:var(--gakin-2);">${g2}</span>`; }
+        summaryEl.innerHTML = runeStr + gakinContent;
+    }
+    function resetRuneData(charId) { if(confirm("초기화하시겠습니까?")) { charRuneData[charId] = { runes: Array(15).fill().map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] }; updateRuneSummary(charId); autoSave(); } }
+    function toggleEdit(charId, isLock) {
+        const section = document.getElementById(charId);
+        section.querySelectorAll('input, select, button.btn-action').forEach(el => { if(!el.classList.contains('lock-btn') && !el.classList.contains('unlock-btn')) el.disabled = isLock; });
+        const lBtn = section.querySelector('.lock-btn'); const uBtn = section.querySelector('.unlock-btn');
+        if (isLock) { lBtn.classList.add('btn-active'); uBtn.classList.remove('btn-active'); } 
+        else { uBtn.classList.add('btn-active'); lBtn.classList.remove('btn-active'); }
+        autoSave();
+    }
+    function updateStyle(el, type) {
+        el.className = Array.from(el.classList).filter(c => !c.startsWith('rare-') && !c.startsWith('ex-') && !c.startsWith('bg-') && c !== 'prefix-selected').join(' ');
+        if (el.value) {
+            if (type === 'rarity') el.classList.add('rare-' + el.value);
+            else if (type === 'exceed') el.classList.add('ex-' + el.value);
+            else if (type === 'prefix') el.classList.add('prefix-selected');
+            else if (type === 'artBg') {
+                el.classList.add('bg-' + el.value);
+                const optSelect = el.parentElement.querySelector('.art-opt-select');
+                if(optSelect) optSelect.className = 'art-opt-select bg-' + el.value;
+            }
+        }
+        autoSave();
+    }
+    function autoSave() {
+        clearTimeout(window.sTime);
+        window.sTime = setTimeout(() => {
+            const allData = Array.from(document.querySelectorAll('.char-section')).map(sec => ({
+                id: sec.id, locked: sec.querySelector('.lock-btn').classList.contains('btn-active'),
+                inputs: Array.from(sec.querySelectorAll('input, select')).map(el => ({ val: el.value, cls: el.className })),
+                runeData: charRuneData[sec.id]
+            }));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+            document.getElementById('statusMsg').innerText = "💾 저장됨";
+            setTimeout(() => document.getElementById('statusMsg').innerText = "", 1000);
+        }, 800);
+    }
+    function exportToJSON() { const data = localStorage.getItem(STORAGE_KEY); if(!data) return alert("저장된 데이터가 없습니다."); const blob = new Blob([data], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `dnfm_backup.json`; a.click(); }
+    function importFromJSON(input) { 
+        const reader = new FileReader(); 
+        reader.onload = (e) => { try { const data = JSON.parse(e.target.result); document.getElementById('characterContainer').innerHTML = ""; charRuneData = {}; data.forEach(d => createCharacterTable(d)); autoSave(); } catch(err) { alert("올바른 JSON 파일이 아닙니다."); } }; 
+        reader.readAsText(input.files[0]); 
+    }
+    window.onload = () => { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); if (saved.length > 0) saved.forEach(d => createCharacterTable(d)); else createCharacterTable(); };
+</script>
+</body>
+</html>
