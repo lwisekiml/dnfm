@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG 통합 장비 관리 시스템</title>
+    <style>
+        :root {
+            --bg: #0f0f12;
+            --table-bg: #1a1a1f;
+            --border: #333;
+            --border-heavy: #c5a678;
+            --gold: #c5a678;
+            --text: #ddd;
+            --input-bg: #000;
+            --fs: 11px;
+            --txt-epic: #fcc419;   --txt-unique: #ff80ab; --txt-rare: #b197fc;   --txt-uncom: #4dabf7; --txt-common: #888;
+            --ex-isang: #fcc419;   --ex-sunbong: #ff5252; --ex-uiji: #448aff;
+            --emb-red: #4a1212; --emb-yellow: #4a3f12; --emb-blue: #121d4a; --emb-green: #124a1d; --emb-gray: #2d2d2d;
+        }
+
+        body { background-color: var(--bg); color: var(--text); font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 10px; }
+        h2 { color: var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: 5px; margin: 0 0 10px 0; font-size: 1.1rem; }
+
+        .control-bar { margin-bottom: 10px; display: flex; gap: 10px; align-items: center; }
+        .btn-action { background: #1d4ed8; color: white; border: none; padding: 5px 15px; cursor: pointer; border-radius: 3px; font-weight: bold; font-size: 11px;}
+        .btn-action:hover { opacity: 0.8; }
+        .status-msg { font-size: 12px; color: var(--gold); }
+
+        /* 잠금/해제 버튼 스타일 */
+        .btn-char-lock { background: #b91c1c; color: white; border: 2px solid transparent; padding: 4px; cursor: pointer; font-size: 11px; border-radius: 2px; font-weight: bold; transition: border 0.2s; }
+        .btn-char-unlock { background: #444; color: white; border: 2px solid transparent; padding: 4px; cursor: pointer; font-size: 11px; border-radius: 2px; transition: border 0.2s; }
+        
+        /* 활성화된 버튼 테두리 */
+        .btn-active { border: 2px solid white !important; }
+
+        .table-container { overflow-x: auto; border: 1px solid var(--border); }
+        table { border-collapse: collapse; background-color: var(--table-bg); width: max-content; font-size: var(--fs); }
+        th { background-color: #2a2a32; color: var(--gold); padding: 2px 4px; border: 1px solid var(--border); white-space: nowrap; }
+        .group-header { border-bottom: 2px solid var(--gold); background-color: #1a1a1f; }
+        td { border: 1px solid var(--border); padding: 1px 2px; text-align: center; height: 26px; color: #888; }
+        
+        input, select {
+            background: var(--input-bg); color: #fff; border: 1px solid #444;
+            padding: 1px 2px; width: 100%; font-size: var(--fs); box-sizing: border-box;
+            height: 22px; outline: none; text-align: center; text-align-last: center;
+        }
+        input:disabled, select:disabled { cursor: not-allowed; opacity: 1; -webkit-text-fill-color: inherit; }
+
+        .rare-에픽, .ex-이상, .prefix-selected, .bg-에픽 { color: var(--txt-epic) !important; font-weight: bold; }
+        .rare-유니크, .bg-유니크 { color: var(--txt-unique) !important; font-weight: bold; }
+        .rare-레어, .bg-레어 { color: var(--txt-rare) !important; font-weight: bold; }
+        .rare-언커먼, .bg-언커먼 { color: var(--txt-uncom) !important; font-weight: bold; }
+        .rare-커먼, .bg-커먼 { color: var(--txt-common) !important; font-weight: bold; }
+        .ex-선봉 { color: var(--ex-sunbong) !important; font-weight: bold; }
+        .ex-의지 { color: var(--ex-uiji) !important; font-weight: bold; }
+
+        .emb-bg-red { background-color: var(--emb-red) !important; }
+        .emb-bg-yellow { background-color: var(--emb-yellow) !important; }
+        .emb-bg-blue { background-color: var(--emb-blue) !important; }
+        .emb-bg-green { background-color: var(--emb-green) !important; }
+        .emb-bg-gray { background-color: var(--emb-gray) !important; }
+
+        .col-slot { font-weight: bold; color: var(--gold) !important; width: 70px; }
+        .char-info-container { display: flex; flex-direction: column; gap: 4px; padding: 10px 5px; width: 110px; }
+        .artifact-main-wrapper { display: flex; gap: 8px; justify-content: start; align-items: center; padding: 5px; }
+        .art-group { display: flex; flex-direction: column; gap: 3px; border: 1px solid #444; padding: 4px; background: #000; }
+        .art-item { display: flex; align-items: center; gap: 3px; }
+        .grade-box { display: flex; align-items: center; gap: 1px; }
+    </style>
+</head>
+<body>
+
+<h2>🛡️ 통합 장비 관리 시스템</h2>
+
+<div class="control-bar">
+    <button class="btn-action" onclick="exportToJSON()">📤 JSON 파일 저장</button>
+    <button class="btn-action" onclick="document.getElementById('fileInput').click()">📥 JSON 파일 불러오기</button>
+    <input type="file" id="fileInput" style="display:none" accept=".json" onchange="importFromJSON(this)">
+    <span id="statusMsg" class="status-msg"></span>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th rowspan="2" style="width:120px;">직업/이름</th>
+                <th rowspan="2" class="col-slot">슬롯</th>
+                <th rowspan="2" style="width:70px;">희귀도</th>
+                <th rowspan="2" style="width:55px;">익시드</th>
+                <th rowspan="2" style="width:55px;">접두어</th>
+                <th rowspan="2" style="min-width:120px;">아이템이름</th>
+                <th rowspan="2" style="width:40px;">연마</th>
+                <th rowspan="2" style="width:40px;">강화</th>
+                <th rowspan="2" style="width:65px;">등급변환</th>
+                <th colspan="4" class="group-header">마법봉인</th>
+                <th colspan="2" class="group-header">엠블럼</th>
+                <th colspan="2" class="group-header">마법부여</th>
+                <th rowspan="2" style="min-width:140px;">설명</th>
+            </tr>
+            <tr>
+                <th style="width:110px;">마법봉인</th><th style="width:40px;">수치</th>
+                <th style="width:110px;">마법봉인</th><th style="width:40px;">수치</th>
+                <th style="width:70px;">엠블럼</th><th style="width:70px;">엠블럼</th>
+                <th style="width:120px;">마법부여</th><th style="width:40px;">수치</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+<script>
+    const slots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호", "외형칭호", "오라", "아바타", "크리쳐"];
+    const heavyBorderSlots = ["무기", "벨트", "반지", "마법석", "외형칭호", "오라", "아바타", "크리쳐"];
+    const prefixes = ["", "전격", "허상", "작열", "침식", "수호", "왜곡", "자상", "맹독", "보호", "쇄도", "신속", "연격"];
+
+    const mData = {
+        weapon: { n1: ["", "데미지 증가", "추가 데미지", "모든 직업 50레벨스킬", "화속성 강화", "수속성 강화", "명속성 강화", "암속성 강화", "힘", "지능", "물리 공격력", "마법 공격력"], n2: ["", "물리 공격력", "마법 공격력", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "적중", "회피"] },
+        armor: { n1: ["", "힘", "지능", "체력", "정신력", "물리 크리티컬", "마법 크리티컬"], n2: ["", "물리 크리티컬", "마법 크리티컬", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "적중", "회피"] },
+        accessory: { n1: ["", "화속성 강화", "수속성 강화", "명속성 강화", "암속성 강화", "힘", "지능", "체력", "정신력"], n2: ["", "화속성 강화", "수속성 강화", "명속성 강화", "암속성 강화", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "화속성 저항", "수속성 저항", "명속성 저항", "암속성 저항", "적중", "회피"] },
+        special: { n1: ["", "물리 공격력", "마법 공격력", "힘", "지능", "물리 크리티컬", "마법 크리티컬", "적중", "회피"], n2: ["", "물리 공격력", "마법 공격력", "물리 크리티컬", "마법 크리티컬", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "적중", "회피"] }
+    };
+
+    const artOptions = {
+        red: ["힘", "지능", "체력", "정신력", "적중", "회피"],
+        blue: ["HP MAX", "MP MAX", "물리 공격력", "마법 공격력", "물리 방어력", "마법 방어력"],
+        green: ["물리 크리티컬", "마법 크리티컬", "공격속도", "캐스팅속도", "이동속도", "화속성 강화", "수속성 강화", "명속성 강화", "암속성 강화", "모든 속성 강화"]
+    };
+
+    function saveData() {
+        const inputs = document.querySelectorAll('input, select');
+        const data = Array.from(inputs).map((el, idx) => ({ index: idx, value: el.value, classes: el.className }));
+        localStorage.setItem('rpg_equipment_data', JSON.stringify(data));
+        showStatus("💾 자동 저장됨");
+    }
+
+    function loadData() {
+        const saved = localStorage.getItem('rpg_equipment_data');
+        if (!saved) { toggleEdit(false); return; }
+        const data = JSON.parse(saved);
+        const inputs = document.querySelectorAll('input, select');
+        data.forEach(item => {
+            if (inputs[item.index]) {
+                inputs[item.index].value = item.value;
+                inputs[item.index].className = item.classes;
+            }
+        });
+        toggleEdit(true); // 기본적으로 잠금 상태로 로드
+    }
+
+    function exportToJSON() {
+        const inputs = document.querySelectorAll('input, select');
+        const data = Array.from(inputs).map((el, idx) => ({ index: idx, value: el.value, classes: el.className }));
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `equipment_data.json`;
+        a.click();
+    }
+
+    function importFromJSON(input) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                localStorage.setItem('rpg_equipment_data', JSON.stringify(data));
+                loadData();
+                showStatus("📥 파일 불러오기 성공");
+            } catch(err) { alert("JSON 파일 형식이 잘못되었습니다."); }
+        };
+        reader.readAsText(input.files[0]);
+    }
+
+    let saveTimeout;
+    function autoSave() { clearTimeout(saveTimeout); saveTimeout = setTimeout(saveData, 800); }
+
+    function showStatus(msg) {
+        const statusMsg = document.getElementById('statusMsg');
+        if(statusMsg) {
+            statusMsg.innerText = msg;
+            setTimeout(() => statusMsg.innerText = "", 1500);
+        }
+    }
+
+    function updateStyle(el, type) {
+        el.className = Array.from(el.classList).filter(c => !c.startsWith('rare-') && !c.startsWith('ex-') && !c.startsWith('bg-') && c !== 'prefix-selected' && !c.startsWith('emb-bg-')).join(' ');
+        if (el.value) {
+            if (type === 'rarity') el.classList.add('rare-' + el.value);
+            else if (type === 'exceed') el.classList.add('ex-' + el.value);
+            else if (type === 'prefix') el.classList.add('prefix-selected');
+            else if (type === 'artBg') {
+                el.classList.add('bg-' + el.value);
+                const target = el.parentElement.querySelector('.art-opt-select');
+                if(target) target.className = 'art-opt-select bg-' + el.value;
+            }
+        }
+        autoSave();
+    }
+
+    function toggleEdit(isLock) {
+        document.querySelectorAll('input, select').forEach(el => el.disabled = isLock);
+        
+        // 버튼 테두리 제어
+        const lockBtn = document.getElementById('lockBtn');
+        const unlockBtn = document.getElementById('unlockBtn');
+        
+        if(isLock) {
+            lockBtn.classList.add('btn-active');
+            unlockBtn.classList.remove('btn-active');
+            showStatus("🔒 잠금 활성화");
+            saveData();
+        } else {
+            unlockBtn.classList.add('btn-active');
+            lockBtn.classList.remove('btn-active');
+            showStatus("🔓 잠금 해제됨");
+        }
+    }
+
+    const tbody = document.getElementById('tableBody');
+    slots.forEach((slot, index) => {
+        const tr = document.createElement('tr');
+        if (heavyBorderSlots.includes(slot)) tr.style.borderBottom = "2px solid var(--border-heavy)";
+        
+        if (index === 0) {
+            tr.innerHTML += `
+                <td rowspan="17" style="background-color: #121216; vertical-align: top;">
+                    <div class="char-info-container">
+                        <input type="text" placeholder="직업명" oninput="autoSave()">
+                        <input type="text" placeholder="이름" oninput="autoSave()">
+                        <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 10px;">
+                            <button id="lockBtn" onclick="toggleEdit(true)" class="btn-char-lock">잠금</button>
+                            <button id="unlockBtn" onclick="toggleEdit(false)" class="btn-char-unlock">잠금 해제</button>
+                        </div>
+                    </div>
+                </td>`;
+        }
+
+        if (slot === "크리쳐") {
+            tr.style.backgroundColor = "#1a1a25";
+            tr.innerHTML += `
+                <td class="col-slot">크리쳐</td>
+                <td><select onchange="updateStyle(this, 'rarity')" class="rare-에픽"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option></select></td>
+                <td colspan="2"><input type="text" placeholder="크리쳐 이름" oninput="autoSave()"></td>
+                <td colspan="13">
+                    <div class="artifact-main-wrapper">
+                        ${['red', 'blue', 'green'].map(color => `
+                            <div class="art-group">
+                                ${[1, 2].map(num => `
+                                    <div class="art-item">
+                                        <select class="art-color-select bg-에픽" style="width:75px;" onchange="updateStyle(this, 'artBg')">
+                                            <option value="에픽">에픽</option><option value="유니크">유니크</option><option value="레어">레어</option><option value="언커먼">언커먼</option><option value="커먼">커먼</option>
+                                        </select>
+                                        <select class="art-opt-select bg-에픽" style="width:115px;" onchange="autoSave()"><option value="">옵션 선택</option>${artOptions[color].map(o=>`<option>${o}</option>`).join('')}</select>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </td>`;
+        } else {
+            const isEq = index < 12;
+            const isEx = ['상의', '팔찌', '귀걸이'].includes(slot);
+            let g = slot === "무기" ? mData.weapon : (index < 6 ? mData.armor : (index < 9 ? mData.accessory : mData.special));
+            let embClass = (["상의", "하의"].includes(slot)) ? "emb-bg-red" : (["어깨", "벨트"].includes(slot)) ? "emb-bg-yellow" : (["신발", "팔찌"].includes(slot)) ? "emb-bg-blue" : (["목걸이", "반지"].includes(slot)) ? "emb-bg-green" : (["보조장비", "귀걸이", "마법석", "칭호"].includes(slot)) ? "emb-bg-gray" : "";
+
+            tr.innerHTML += `
+                <td class="col-slot">${slot}</td>
+                <td><select onchange="updateStyle(this, 'rarity')" class="rare-에픽"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option></select></td>
+                <td>${isEx ? `<select onchange="updateStyle(this, 'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-'}</td>
+                <td>${isEq ? `<select onchange="updateStyle(this, 'prefix')">${prefixes.map(p=>`<option value="${p}">${p}</option>`).join('')}</select>` : '-'}</td>
+                <td><input type="text" oninput="autoSave()"></td>
+                <td>${isEq ? '<input type="text" oninput="autoSave()">' : '-'}</td>
+                <td>${isEq ? '<input type="text" oninput="autoSave()">' : '-'}</td>
+                <td>${isEq ? '<div class="grade-box"><input type="text" oninput="autoSave()"><span>%</span></div>' : '-'}</td>
+                <td>${isEq ? `<select onchange="autoSave()">${g.n1.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
+                <td>${isEq ? '<input type="text" oninput="autoSave()">' : '-'}</td>
+                <td>${isEq ? `<select onchange="autoSave()">${g.n2.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
+                <td>${isEq ? '<input type="text" oninput="autoSave()">' : '-'}</td>
+                <td>${index < 13 ? `<input type="text" class="${embClass}" oninput="autoSave()">` : '-'}</td>
+                <td>${index < 13 ? `<input type="text" class="${embClass}" oninput="autoSave()">` : '-'}</td>
+                <td>${index < 13 ? '<input type="text" oninput="autoSave()">' : '-'}</td>
+                <td>${index < 13 ? '<input type="text" oninput="autoSave()">' : '-'}</td>
+                <td><input type="text" oninput="autoSave()"></td>`;
+        }
+        tbody.appendChild(tr);
+    });
+
+    window.onload = loadData;
+</script>
+</body>
+</html>
