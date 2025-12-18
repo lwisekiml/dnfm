@@ -291,7 +291,7 @@
                     <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_reinforce" oninput="autoSave()">` : '-'}</td>
                     <td>${isEq ? `<select data-key="${slot}_seal1" onchange="handleSealChange(this)">${g.n1.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
                     <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal1_val" oninput="autoSave()">` : '-'}</td>
-                    <td>${isEq ? `<select data-key="${slot}_seal2" onchange="autoSave()">${g.n2.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
+                    <td>${isEq ? `<select data-key="${slot}_seal2" onchange="handleSealChange(this)">${g.n2.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
                     <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal2_val" oninput="autoSave()">` : '-'}</td>
                     <td class="col-emblem">
                         ${hasEmb ? (isElemSlot ? `<select data-key="${slot}_emb1" class="${embCls}" onchange="autoSave()">${elementEmbList.map(e=>`<option>${e}</option>`).join('')}</select>` : `<input type="text" data-key="${slot}_emb1" class="${embCls}" oninput="autoSave()">`) : '-'}
@@ -321,17 +321,39 @@
         } else { toggleEdit(charId, true); }
     }
 
-    // 마법봉인 옵션 변경 핸들러
+    // 마법봉인 옵션 자동 수치 입력 핸들러
     function handleSealChange(el) {
         const key = el.getAttribute('data-key');
-        // 고유 옵션(seal1) 중 무기 슬롯에서 '데미지 증가' 선택 시 수치 7 자동 입력
-        if (key === "무기_seal1" && el.value === "데미지 증가") {
-            const row = el.closest('tr');
-            const valInput = row.querySelector('input[data-key="무기_seal1_val"]');
-            if (valInput) {
-                valInput.value = "7";
-            }
+        const row = el.closest('tr');
+        const opt = el.value;
+
+        // 1. 무기 고유 옵션 (n1) 자동 수치
+        if (key === "무기_seal1") {
+            const vIn = row.querySelector('input[data-key="무기_seal1_val"]');
+            if (!vIn) return;
+            
+            const n1Table = {
+                "데미지 증가": "8", "추가 데미지": "8", "모든 직업 50레벨스킬": "1",
+                "화속성 강화": "10", "수속성 강화": "10", "명속성 강화": "10", "암속성 강화": "10",
+                "힘": "46", "지능": "46", "물리 공격력": "19", "마법 공격력": "19"
+            };
+            if (n1Table[opt]) vIn.value = n1Table[opt];
         }
+
+        // 2. 무기 일반 옵션 (n2) 자동 수치
+        if (key === "무기_seal2") {
+            const vIn = row.querySelector('input[data-key="무기_seal2_val"]');
+            if (!vIn) return;
+
+            const n2Table = {
+                "물리 공격력": "18", "마법 공격력": "18", "힘": "46", "지능": "46",
+                "체력": "46", "정신력": "46", "공격속도": "1.6", "캐스팅속도": "2",
+                "이동속도": "1.6", "최대 HP 증가": "456", "최대 MP 증가": "270",
+                "물리 방어력": "234", "마법 방어력": "178", "적중": "124", "회피": "70"
+            };
+            if (n2Table[opt]) vIn.value = n2Table[opt];
+        }
+
         autoSave();
     }
 
