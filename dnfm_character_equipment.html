@@ -179,7 +179,7 @@
 </div>
 
 <script>
-    const STORAGE_KEY = 'dnfm_character_equipment_data_v2';
+    const STORAGE_KEY = 'dnfm_character_equipment_data';
     const slots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호", "외형칭호", "오라", "아바타", "스킬룬", "크리쳐"];
     const heavyBorderSlots = ["무기", "벨트", "반지", "마법석", "아바타", "스킬룬", "크리쳐"];
     const prefixes = ["", "전격", "허상", "작열", "침식", "수호", "왜곡", "자상", "맹독", "보호", "쇄도", "신속", "연격"];
@@ -503,7 +503,7 @@
             setTimeout(() => document.getElementById('statusMsg').innerText = "", 1000);
         }, 800);
     }
-    function exportToJSON() { const data = localStorage.getItem(STORAGE_KEY); if(!data) return alert("저장된 데이터가 없습니다."); const blob = new Blob([data], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `dnfm_backup.json`; a.click(); }
+    function exportToJSON() { const data = localStorage.getItem(STORAGE_KEY); if(!data) return alert("저장된 데이터가 없습니다."); const blob = new Blob([data], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `dnfm_character_equipment_backup.json`; a.click(); }
     function importFromJSON(input) { 
         const reader = new FileReader(); 
         reader.onload = (e) => { try { const data = JSON.parse(e.target.result); document.getElementById('characterContainer').innerHTML = ""; charRuneData = {}; data.forEach(d => createCharacterTable(d)); autoSave(); } catch(err) { alert("올바른 JSON 파일이 아닙니다."); } }; 
