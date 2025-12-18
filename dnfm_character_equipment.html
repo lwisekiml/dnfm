@@ -130,7 +130,7 @@
         .btn-active { border: 2px solid white !important; }
 
         .m-rune-name { width: 68px !important; } 
-        .m-rune-lv { width: 48px !important; }   
+        .m-rune-lv { width: 48px !important; }    
         .m-rune-skillLv { width: 50px !important; } 
         .col-m-num { width: 30px; }
 
@@ -279,14 +279,15 @@
                 else if(index >= 9 && index <= 11) g = mData.special;
                 let embCls = (["상의", "하의"].includes(slot)) ? "emb-bg-red" : (["어깨", "벨트"].includes(slot)) ? "emb-bg-yellow" : (["신발", "팔찌"].includes(slot)) ? "emb-bg-blue" : (["목걸이", "반지"].includes(slot)) ? "emb-bg-green" : "emb-bg-gray";
                 
-                const rarityOptions = (slot === "무기" || slot === "상의") 
+                const tierSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비"];
+                const rarityOptions = tierSlots.includes(slot)
                     ? `<option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option><option>티어</option>`
                     : `<option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>`;
 
                 tr.innerHTML += `<td class="col-slot v-border-heavy">${slot}</td>
                     <td class="col-rarity"><select data-key="${slot}_rarity" data-slot="${slot}" onchange="updateStyle(this, 'rarity')" class="rare-에픽">${rarityOptions}</select></td>
-                    <td class="col-exceed">${isExSlot ? `<select data-key="${slot}_exceed" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-'}</td>
-                    <td class="col-prefix">${isEq ? `<select data-key="${slot}_prefix" onchange="updateStyle(this,'prefix')">${prefixes.map(p=>`<option>${p}</option>`).join('')}</select>` : '-'}</td>
+                    <td class="col-exceed">${isExSlot ? `<select data-key="${slot}_exceed" data-slot="${slot}" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-'}</td>
+                    <td class="col-prefix">${isEq ? `<select data-key="${slot}_prefix" data-slot="${slot}" onchange="updateStyle(this,'prefix')">${prefixes.map(p=>`<option>${p}</option>`).join('')}</select>` : '-'}</td>
                     <td><input type="text" data-key="${slot}_itemname" oninput="autoSave()"></td>
                     <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_reinforce" oninput="autoSave()">` : '-'}</td>
                     <td>${isEq ? `<select data-key="${slot}_seal1" data-slot="${slot}" onchange="handleSealChange(this)">${g.n1.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
@@ -385,20 +386,37 @@
         const row = el.closest('tr');
         const slot = el.getAttribute('data-slot');
         el.className = Array.from(el.classList).filter(c => !c.startsWith('rare-') && !c.startsWith('ex-') && !c.startsWith('bg-') && c !== 'prefix-selected' && c !== 'prefix-tier').join(' ');
+        
         if (el.value) {
             if (type === 'rarity') {
                 el.classList.add('rare-' + el.value);
-                if (slot === "무기" || slot === "상의") {
+                
+                const tierSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비"];
+                if (tierSlots.includes(slot)) {
                     const prefixSel = row.querySelector(`select[data-key="${slot}_prefix"]`);
                     const exceedSel = row.querySelector(`select[data-key="${slot}_exceed"]`);
+                    
                     if (el.value === "티어") {
-                        if (prefixSel) { prefixSel.innerHTML = tierPrefixes.map(p => `<option>${p}</option>`).join(''); prefixSel.className = 'prefix-tier'; }
-                        if (slot === "상의" && exceedSel) { exceedSel.value = ""; exceedSel.disabled = true; exceedSel.parentElement.innerText = "-"; }
+                        if (prefixSel) { 
+                            prefixSel.innerHTML = tierPrefixes.map(p => `<option>${p}</option>`).join(''); 
+                            prefixSel.className = 'prefix-tier'; 
+                        }
+                        if (exceedSel) { 
+                            exceedSel.value = ""; 
+                            exceedSel.disabled = true; 
+                            exceedSel.parentElement.innerText = "-"; 
+                        }
                     } else {
-                        if (prefixSel) { prefixSel.innerHTML = prefixes.map(p => `<option>${p}</option>`).join(''); prefixSel.className = ''; }
-                        if (slot === "상의" && exceedSel && exceedSel.disabled) {
-                            const td = exceedSel.parentElement;
-                            td.innerHTML = `<select data-key="상의_exceed" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>`;
+                        if (prefixSel) { 
+                            prefixSel.innerHTML = prefixes.map(p => `<option>${p}</option>`).join(''); 
+                            prefixSel.className = ''; 
+                        }
+                        const exTd = row.cells[3];
+                        if (exTd && exTd.innerText === "-") {
+                            const isExSlot = ['상의', '팔찌', '귀걸이'].includes(slot);
+                            exTd.innerHTML = isExSlot 
+                                ? `<select data-key="${slot}_exceed" data-slot="${slot}" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>`
+                                : '-';
                         }
                     }
                 }
