@@ -80,11 +80,9 @@
             height: 22px; 
             outline: none; 
             text-align: center; 
-            
             -webkit-appearance: none; 
             -moz-appearance: none; 
             appearance: none; 
-
             cursor: pointer;
             pointer-events: auto !important; 
             touch-action: auto !important;
@@ -112,23 +110,36 @@
         .ex-의지 { color: var(--ex-uiji) !important; font-weight: bold; }
         .prefix-selected { color: var(--txt-epic) !important; font-weight: bold; }
         
-        .emb-bg-red { background: linear-gradient(to bottom, #6a1a1a 0%, var(--emb-red) 100%) !important; }
-        .emb-bg-yellow { background: linear-gradient(to bottom, #6a5a1a 0%, var(--emb-yellow) 100%) !important; }
-        .emb-bg-blue { background: linear-gradient(to bottom, #1a2a6a 0%, var(--emb-blue) 100%) !important; }
-        .emb-bg-green { background: linear-gradient(to bottom, #1a6a2a 0%, var(--emb-green) 100%) !important; }
-        .emb-bg-gray { background: linear-gradient(to bottom, #444 0%, var(--emb-gray) 100%) !important; }
+        .emb-bg-red { background: linear-gradient(to bottom, #6a1a1a 0%, var(--emb-red) 100%) !important; color: #fff !important; }
+        .emb-bg-yellow { background: linear-gradient(to bottom, #6a5a1a 0%, var(--emb-yellow) 100%) !important; color: #fff !important; }
+        .emb-bg-blue { background: linear-gradient(to bottom, #1a2a6a 0%, var(--emb-blue) 100%) !important; color: #fff !important; }
+        .emb-bg-green { background: linear-gradient(to bottom, #1a6a2a 0%, var(--emb-green) 100%) !important; color: #fff !important; }
+        .emb-bg-gray { background: linear-gradient(to bottom, #444 0%, var(--emb-gray) 100%) !important; color: #fff !important; }
 
         .artifact-main-wrapper { display: flex; gap: 8px; justify-content: start; align-items: center; padding: 2px 5px; }
         .art-group { display: flex; flex-direction: column; gap: 2px; border: 1px solid #444; padding: 3px; background: #000; }
         .art-item { display: flex; align-items: center; gap: 2px; }
 
-        #skillRunemodal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1f; border: 2px solid var(--gold); padding: 15px; z-index: 2000; width: 450px;}
+        /* 모달 스타일 수정 */
+        #skillRunemodal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1f; border: 2px solid var(--gold); padding: 15px; z-index: 2000; width: 310px; max-height: 85vh; overflow-y: auto;}
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1999; }
         .v-line { border-left: 1px solid #555; height: 12px; margin: 0 8px; display: inline-block; vertical-align: middle; }
         
         .btn-char-lock { background: #b91c1c; color: white; padding: 4px; cursor: pointer; font-size: 11px; border:none; margin-bottom: 2px;}
         .btn-char-unlock { background: #444; color: white; padding: 4px; cursor: pointer; font-size: 11px; border:none; }
         .btn-active { border: 2px solid white !important; }
+
+        /* 모달 내 선택창 너비 */
+        .m-rune-name { width: 68px !important; } 
+        .m-rune-lv { width: 48px !important; }   
+        .m-rune-skillLv { width: 50px !important; } 
+        .col-m-num { width: 30px; }
+
+        /* 각인 독립 영역 스타일 */
+        .gakin-section { margin-top: 10px; border-top: 2px solid var(--gold); padding-top: 10px; }
+        .gakin-title { color: var(--gold); font-weight: bold; font-size: 12px; margin-bottom: 5px; text-align: center; }
+        .gakin-container { display: flex; gap: 5px; width: 100%; }
+        .m-gakin-input-box { flex: 1; } /* 1:1 비율 보장 */
     </style>
 </head>
 <body>
@@ -148,23 +159,29 @@
 <div class="modal-overlay" id="modalOverlay" onclick="closeRuneModal()"></div>
 <div id="skillRunemodal">
     <h3 style="color:var(--gold); margin-top:0;">💎 스킬룬 & 각인 설정</h3>
+    
     <table style="width:100%; border-collapse: collapse; font-size:12px; border:1px solid #444;">
         <thead>
             <tr style="color:var(--gold);">
-                <th>번호</th><th>스킬룬 이름</th><th>룬 레벨</th><th>스킬 레벨</th>
+                <th class="col-m-num">번호</th><th style="width:68px;">스킬룬 이름</th><th style="width:48px;">룬 레벨</th><th style="width:50px;">스킬 레벨</th>
             </tr>
         </thead>
         <tbody id="runeModalBody"></tbody>
-        <tfoot>
-            <tr style="border-top: 2px solid var(--gold);">
-                <td style="color:var(--gold); font-weight:bold; height:35px; text-align:center;">각인</td>
-                <td><input type="text" id="m-gakin1" placeholder="메인 미표시"></td>
-                <td><input type="text" id="m-gakin2" placeholder="메인 표시"></td>
-                <td style="background:#222;">-</td>
-            </tr>
-        </tfoot>
     </table>
-    <div style="margin-top:15px; display:flex; gap:10px; justify-content:center;">
+
+    <div class="gakin-section">
+        <div class="gakin-title">각인 설정</div>
+        <div class="gakin-container">
+            <div class="m-gakin-input-box">
+                <input type="text" id="m-gakin1" placeholder="메인 미표시 (50%)">
+            </div>
+            <div class="m-gakin-input-box">
+                <input type="text" id="m-gakin2" placeholder="메인 표시 (50%)">
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top:15px; display:flex; gap:10px; justify-content:center; padding-bottom: 5px;">
         <button class="btn-action" style="background:#059669;" onclick="saveRuneData()">저장</button>
         <button class="btn-action" style="background:#4b5563;" onclick="closeRuneModal()">취소</button>
     </div>
@@ -203,7 +220,7 @@
         section.className = 'char-section';
         section.id = charId;
 
-        charRuneData[charId] = (savedData && savedData.runeData) ? savedData.runeData : { runes: Array(15).fill().map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] };
+        charRuneData[charId] = (savedData && savedData.runeData) ? savedData.runeData : { runes: Array(20).fill().map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] };
 
         section.innerHTML = `
             <div class="table-container">
@@ -263,15 +280,12 @@
                 const isEx = ['상의', '팔찌', '귀걸이'].includes(slot);
                 const hasEmb = !["외형칭호", "오라", "아바타", "크리쳐"].includes(slot);
                 const isElemSlot = ["보조장비", "귀걸이", "마법석", "칭호"].includes(slot);
-
                 let g = { n1: [], n2: [] };
                 if(slot === "무기") g = mData.weapon;
                 else if(index >= 1 && index <= 5) g = mData.armor; 
                 else if(index >= 6 && index <= 8) g = mData.accessory; 
                 else if(index >= 9 && index <= 11) g = mData.special;
-
                 let embCls = (["상의", "하의"].includes(slot)) ? "emb-bg-red" : (["어깨", "벨트"].includes(slot)) ? "emb-bg-yellow" : (["신발", "팔찌"].includes(slot)) ? "emb-bg-blue" : (["목걸이", "반지"].includes(slot)) ? "emb-bg-green" : "emb-bg-gray";
-                
                 tr.innerHTML += `<td class="col-slot v-border-heavy">${slot}</td>
                     <td class="col-rarity"><select data-key="${slot}_rarity" onchange="updateStyle(this, 'rarity')" class="rare-에픽"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select></td>
                     <td class="col-exceed">${isEx ? `<select data-key="${slot}_exceed" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-'}</td>
@@ -314,10 +328,10 @@
         const body = document.getElementById('runeModalBody');
         body.innerHTML = '';
         const data = charRuneData[charId];
-        for(let i=0; i<15; i++) {
+        for(let i=0; i<20; i++) {
             const r = data.runes[i] || { name: '', lv: '', skillLv: '' };
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${i+1}</td><td><select class="m-rune-name">${runeNames.map(n=>`<option ${r.name===n?'selected':''}>${n}</option>`).join('')}</select></td><td><select class="m-rune-lv">${runeLevels.map(n=>`<option ${r.lv===n?'selected':''}>${n}</option>`).join('')}</select></td><td><select class="m-rune-skillLv">${runeSkillLevels.map(n=>`<option ${r.skillLv===n?'selected':''}>${n}</option>`).join('')}</select></td>`;
+            tr.innerHTML = `<td class="col-m-num">${i+1}</td><td><select class="m-rune-name">${runeNames.map(n=>`<option ${r.name===n?'selected':''}>${n}</option>`).join('')}</select></td><td><select class="m-rune-lv">${runeLevels.map(n=>`<option ${r.lv===n?'selected':''}>${n}</option>`).join('')}</select></td><td><select class="m-rune-skillLv">${runeSkillLevels.map(n=>`<option ${r.skillLv===n?'selected':''}>${n}</option>`).join('')}</select></td>`;
             body.appendChild(tr);
         }
         document.getElementById('m-gakin1').value = data.gakin[0];
@@ -358,7 +372,7 @@
         if (g2) { gakinContent = `<span class="v-line"></span> <span style="color:var(--gakin-2);">${g2}</span>`; }
         summaryEl.innerHTML = runeStr + gakinContent;
     }
-    function resetRuneData(charId) { if(confirm("초기화하시겠습니까?")) { charRuneData[charId] = { runes: Array(15).fill().map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] }; updateRuneSummary(charId); autoSave(); } }
+    function resetRuneData(charId) { if(confirm("초기화하시겠습니까?")) { charRuneData[charId] = { runes: Array(20).fill().map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] }; updateRuneSummary(charId); autoSave(); } }
     function toggleEdit(charId, isLock) {
         const section = document.getElementById(charId);
         section.querySelectorAll('input, select, button.btn-action').forEach(el => { if(!el.classList.contains('lock-btn') && !el.classList.contains('unlock-btn')) el.disabled = isLock; });
