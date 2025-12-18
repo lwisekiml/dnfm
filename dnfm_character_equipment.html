@@ -48,9 +48,10 @@
         
         .col-char-info { width: 120px !important; }
         .col-slot { width: 45px !important; font-weight: bold; color: var(--gold) !important; }
-        .col-rarity { width: 65px !important; }
+        /* 희귀도와 접두어 칸 길이를 글자 길이에 맞춰 수정 */
+        .col-rarity { width: 42px !important; }
         .col-exceed { width: 45px !important; }
-        .col-prefix { width: 50px !important; }
+        .col-prefix { width: 38px !important; }
         .col-val-short { width: 35px !important; }
         .col-emblem { width: 40px !important; }
         .col-enchant { width: 55px !important; min-width: 55px; } 
@@ -68,12 +69,11 @@
             text-align: center; 
         }
 
-        /* 선택지 스타일 및 터치/가독성 수정 */
-        select { 
+        select {
             background: linear-gradient(to bottom, #2a2a32 0%, #000000 100%); 
             color: #fff; 
             border: 1px solid #555; 
-            padding: 1px 2px; 
+            padding: 1px 0px;
             width: 100%; 
             font-size: var(--fs); 
             box-sizing: border-box; 
@@ -91,12 +91,7 @@
             -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
         }
 
-        /* 선택 목록(드롭다운) 내부의 글자색과 배경색 강제 지정 */
-        select option {
-            background-color: #1a1a1f; 
-            color: #fff;
-        }
-        
+        select option { background-color: #1a1a1f; color: #fff; }
         select:hover { border-color: var(--gold); }
 
         input:disabled, select:disabled { 
