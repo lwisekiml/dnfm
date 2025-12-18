@@ -48,7 +48,6 @@
         
         .col-char-info { width: 120px !important; }
         .col-slot { width: 45px !important; font-weight: bold; color: var(--gold) !important; }
-        /* 희귀도와 접두어 칸 길이를 글자 길이에 맞춰 수정 */
         .col-rarity { width: 42px !important; }
         .col-exceed { width: 45px !important; }
         .col-prefix { width: 38px !important; }
@@ -69,11 +68,11 @@
             text-align: center; 
         }
 
-        select {
+        select { 
             background: linear-gradient(to bottom, #2a2a32 0%, #000000 100%); 
             color: #fff; 
             border: 1px solid #555; 
-            padding: 1px 0px;
+            padding: 1px 0px; 
             width: 100%; 
             font-size: var(--fs); 
             box-sizing: border-box; 
@@ -104,11 +103,13 @@
         .rare-레어, .bg-레어 { color: var(--txt-rare) !important; font-weight: bold; }
         .rare-언커먼, .bg-언커먼 { color: var(--txt-uncom) !important; font-weight: bold; }
         .rare-커먼, .bg-커먼 { color: var(--txt-common) !important; font-weight: bold; }
+        .rare-티어 { color: #ffffff !important; font-weight: bold; }
         
         .ex-이상 { color: var(--ex-isang) !important; font-weight: bold; }
         .ex-선봉 { color: var(--ex-sunbong) !important; font-weight: bold; }
         .ex-의지 { color: var(--ex-uiji) !important; font-weight: bold; }
         .prefix-selected { color: var(--txt-epic) !important; font-weight: bold; }
+        .prefix-tier { color: #ffffff !important; font-weight: bold; }
         
         .emb-bg-red { background: linear-gradient(to bottom, #6a1a1a 0%, var(--emb-red) 100%) !important; color: #fff !important; }
         .emb-bg-yellow { background: linear-gradient(to bottom, #6a5a1a 0%, var(--emb-yellow) 100%) !important; color: #fff !important; }
@@ -120,7 +121,6 @@
         .art-group { display: flex; flex-direction: column; gap: 2px; border: 1px solid #444; padding: 3px; background: #000; }
         .art-item { display: flex; align-items: center; gap: 2px; }
 
-        /* 모달 스타일 수정 */
         #skillRunemodal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1f; border: 2px solid var(--gold); padding: 15px; z-index: 2000; width: 310px; max-height: 85vh; overflow-y: auto;}
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1999; }
         .v-line { border-left: 1px solid #555; height: 12px; margin: 0 8px; display: inline-block; vertical-align: middle; }
@@ -129,17 +129,15 @@
         .btn-char-unlock { background: #444; color: white; padding: 4px; cursor: pointer; font-size: 11px; border:none; }
         .btn-active { border: 2px solid white !important; }
 
-        /* 모달 내 선택창 너비 */
         .m-rune-name { width: 68px !important; } 
         .m-rune-lv { width: 48px !important; }   
         .m-rune-skillLv { width: 50px !important; } 
         .col-m-num { width: 30px; }
 
-        /* 각인 독립 영역 스타일 */
         .gakin-section { margin-top: 10px; border-top: 2px solid var(--gold); padding-top: 10px; }
         .gakin-title { color: var(--gold); font-weight: bold; font-size: 12px; margin-bottom: 5px; text-align: center; }
         .gakin-container { display: flex; gap: 5px; width: 100%; }
-        .m-gakin-input-box { flex: 1; } /* 1:1 비율 보장 */
+        .m-gakin-input-box { flex: 1; }
     </style>
 </head>
 <body>
@@ -159,7 +157,6 @@
 <div class="modal-overlay" id="modalOverlay" onclick="closeRuneModal()"></div>
 <div id="skillRunemodal">
     <h3 style="color:var(--gold); margin-top:0;">💎 스킬룬 & 각인 설정</h3>
-    
     <table style="width:100%; border-collapse: collapse; font-size:12px; border:1px solid #444;">
         <thead>
             <tr style="color:var(--gold);">
@@ -168,19 +165,13 @@
         </thead>
         <tbody id="runeModalBody"></tbody>
     </table>
-
     <div class="gakin-section">
         <div class="gakin-title">각인 설정</div>
         <div class="gakin-container">
-            <div class="m-gakin-input-box">
-                <input type="text" id="m-gakin1" placeholder="메인 미표시 (50%)">
-            </div>
-            <div class="m-gakin-input-box">
-                <input type="text" id="m-gakin2" placeholder="메인 표시 (50%)">
-            </div>
+            <div class="m-gakin-input-box"><input type="text" id="m-gakin1" placeholder="메인 미표시 (50%)"></div>
+            <div class="m-gakin-input-box"><input type="text" id="m-gakin2" placeholder="메인 표시 (50%)"></div>
         </div>
     </div>
-
     <div style="margin-top:15px; display:flex; gap:10px; justify-content:center; padding-bottom: 5px;">
         <button class="btn-action" style="background:#059669;" onclick="saveRuneData()">저장</button>
         <button class="btn-action" style="background:#4b5563;" onclick="closeRuneModal()">취소</button>
@@ -192,6 +183,7 @@
     const slots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호", "외형칭호", "오라", "아바타", "스킬룬", "크리쳐"];
     const heavyBorderSlots = ["무기", "벨트", "반지", "마법석", "아바타", "스킬룬", "크리쳐"];
     const prefixes = ["", "전격", "허상", "작열", "침식", "수호", "왜곡", "자상", "맹독", "보호", "쇄도", "신속", "연격"];
+    const tierPrefixes = ["", "T1", "T2", "T3", "T4", "T5", "T6", "T7"];
     const runeNames = ["", "각성", "가호", "왜곡", "지혜", "수호", "보호", "가속", "겁화", "혹한", "섬광", "암격", "숙련", "회복", "명상", "파멸", "허상", "마력", "불굴", "재물", "기교", "귀백", "혼백", "견고", "생존", "작열", "맹독", "자상", "전격", "모독", "기만", "경화", "속박", "나태", "칠흑", "몽환", "충격", "결빙", "미지"];
     const runeLevels = ["", "I", "II", "III", "IV"];
     const runeSkillLevels = ["", "0", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60", "65"];
@@ -240,7 +232,7 @@
                             <th rowspan="2" style="min-width:230px;" class="v-border-heavy">설명</th>
                         </tr>
                         <tr>
-                            <th>마법봉인</th><th class="col-val-short">수치</th><th>마법봉인</th><th class="col-val-short">수치</th>
+                            <th>고유 옵션</th><th class="col-val-short">수치</th><th>일반 옵션</th><th class="col-val-short">수치</th>
                             <th class="col-emblem">엠블렘</th><th class="col-emblem">엠블렘</th>
                             <th class="col-enchant">마법부여</th><th class="col-val-short">수치</th>
                         </tr>
@@ -277,7 +269,7 @@
                     <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()"></td>`;
             } else {
                 const isEq = index < 12; 
-                const isEx = ['상의', '팔찌', '귀걸이'].includes(slot);
+                const isExSlot = ['상의', '팔찌', '귀걸이'].includes(slot);
                 const hasEmb = !["외형칭호", "오라", "아바타", "크리쳐"].includes(slot);
                 const isElemSlot = ["보조장비", "귀걸이", "마법석", "칭호"].includes(slot);
                 let g = { n1: [], n2: [] };
@@ -286,13 +278,18 @@
                 else if(index >= 6 && index <= 8) g = mData.accessory; 
                 else if(index >= 9 && index <= 11) g = mData.special;
                 let embCls = (["상의", "하의"].includes(slot)) ? "emb-bg-red" : (["어깨", "벨트"].includes(slot)) ? "emb-bg-yellow" : (["신발", "팔찌"].includes(slot)) ? "emb-bg-blue" : (["목걸이", "반지"].includes(slot)) ? "emb-bg-green" : "emb-bg-gray";
+                
+                const rarityOptions = (slot === "무기" || slot === "상의") 
+                    ? `<option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option><option>티어</option>`
+                    : `<option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>`;
+
                 tr.innerHTML += `<td class="col-slot v-border-heavy">${slot}</td>
-                    <td class="col-rarity"><select data-key="${slot}_rarity" onchange="updateStyle(this, 'rarity')" class="rare-에픽"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select></td>
-                    <td class="col-exceed">${isEx ? `<select data-key="${slot}_exceed" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-'}</td>
+                    <td class="col-rarity"><select data-key="${slot}_rarity" data-slot="${slot}" onchange="updateStyle(this, 'rarity')" class="rare-에픽">${rarityOptions}</select></td>
+                    <td class="col-exceed">${isExSlot ? `<select data-key="${slot}_exceed" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-'}</td>
                     <td class="col-prefix">${isEq ? `<select data-key="${slot}_prefix" onchange="updateStyle(this,'prefix')">${prefixes.map(p=>`<option>${p}</option>`).join('')}</select>` : '-'}</td>
                     <td><input type="text" data-key="${slot}_itemname" oninput="autoSave()"></td>
                     <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_reinforce" oninput="autoSave()">` : '-'}</td>
-                    <td>${isEq ? `<select data-key="${slot}_seal1" onchange="autoSave()">${g.n1.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
+                    <td>${isEq ? `<select data-key="${slot}_seal1" onchange="handleSealChange(this)">${g.n1.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
                     <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal1_val" oninput="autoSave()">` : '-'}</td>
                     <td>${isEq ? `<select data-key="${slot}_seal2" onchange="autoSave()">${g.n2.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
                     <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal2_val" oninput="autoSave()">` : '-'}</td>
@@ -317,10 +314,75 @@
                 if (savedData.inputs && savedData.inputs[key]) {
                     el.value = savedData.inputs[key].val;
                     el.className = savedData.inputs[key].cls;
+                    if (key.endsWith('_rarity')) updateStyle(el, 'rarity', true);
                 }
             });
             toggleEdit(charId, savedData.locked);
         } else { toggleEdit(charId, true); }
+    }
+
+    // 마법봉인 옵션 변경 핸들러
+    function handleSealChange(el) {
+        const key = el.getAttribute('data-key');
+        // 고유 옵션(seal1) 중 무기 슬롯에서 '데미지 증가' 선택 시 수치 7 자동 입력
+        if (key === "무기_seal1" && el.value === "데미지 증가") {
+            const row = el.closest('tr');
+            const valInput = row.querySelector('input[data-key="무기_seal1_val"]');
+            if (valInput) {
+                valInput.value = "7";
+            }
+        }
+        autoSave();
+    }
+
+    function updateStyle(el, type, isInitial = false) {
+        const row = el.closest('tr');
+        const slot = el.getAttribute('data-slot');
+
+        el.className = Array.from(el.classList).filter(c => !c.startsWith('rare-') && !c.startsWith('ex-') && !c.startsWith('bg-') && c !== 'prefix-selected' && c !== 'prefix-tier').join(' ');
+        
+        if (el.value) {
+            if (type === 'rarity') {
+                el.classList.add('rare-' + el.value);
+                
+                if (slot === "무기" || slot === "상의") {
+                    const prefixSel = row.querySelector(`select[data-key="${slot}_prefix"]`);
+                    const exceedSel = row.querySelector(`select[data-key="${slot}_exceed"]`);
+                    
+                    if (el.value === "티어") {
+                        if (prefixSel) {
+                            prefixSel.innerHTML = tierPrefixes.map(p => `<option>${p}</option>`).join('');
+                            prefixSel.className = 'prefix-tier';
+                        }
+                        if (slot === "상의" && exceedSel) {
+                            exceedSel.value = "";
+                            exceedSel.disabled = true;
+                            exceedSel.parentElement.innerText = "-";
+                        }
+                    } else {
+                        if (prefixSel) {
+                            prefixSel.innerHTML = prefixes.map(p => `<option>${p}</option>`).join('');
+                            prefixSel.className = '';
+                        }
+                        if (slot === "상의" && exceedSel && exceedSel.disabled) {
+                            const td = exceedSel.parentElement;
+                            td.innerHTML = `<select data-key="상의_exceed" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>`;
+                        }
+                    }
+                }
+            }
+            else if (type === 'exceed') el.classList.add('ex-' + el.value);
+            else if (type === 'prefix') {
+                if (el.value.startsWith('T')) el.classList.add('prefix-tier');
+                else el.classList.add('prefix-selected');
+            }
+            else if (type === 'artBg') {
+                el.classList.add('bg-' + el.value);
+                const optSelect = el.parentElement.querySelector('.art-opt-select');
+                if(optSelect) optSelect.className = 'art-opt-select bg-' + el.value;
+            }
+        }
+        if (!isInitial) autoSave();
     }
 
     function openRuneModal(charId) {
@@ -379,20 +441,6 @@
         const lBtn = section.querySelector('.lock-btn'); const uBtn = section.querySelector('.unlock-btn');
         if (isLock) { lBtn.classList.add('btn-active'); uBtn.classList.remove('btn-active'); } 
         else { uBtn.classList.add('btn-active'); lBtn.classList.remove('btn-active'); }
-        autoSave();
-    }
-    function updateStyle(el, type) {
-        el.className = Array.from(el.classList).filter(c => !c.startsWith('rare-') && !c.startsWith('ex-') && !c.startsWith('bg-') && c !== 'prefix-selected').join(' ');
-        if (el.value) {
-            if (type === 'rarity') el.classList.add('rare-' + el.value);
-            else if (type === 'exceed') el.classList.add('ex-' + el.value);
-            else if (type === 'prefix') el.classList.add('prefix-selected');
-            else if (type === 'artBg') {
-                el.classList.add('bg-' + el.value);
-                const optSelect = el.parentElement.querySelector('.art-opt-select');
-                if(optSelect) optSelect.className = 'art-opt-select bg-' + el.value;
-            }
-        }
         autoSave();
     }
     function autoSave() {
