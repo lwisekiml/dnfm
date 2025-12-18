@@ -321,88 +321,81 @@
         } else { toggleEdit(charId, true); }
     }
 
-    // 마법봉인 옵션 자동 수치 입력 핸들러
     function handleSealChange(el) {
         const key = el.getAttribute('data-key');
         const slot = el.getAttribute('data-slot');
         const row = el.closest('tr');
         const opt = el.value;
         const armors = ["상의", "어깨", "하의", "신발", "벨트"];
+        const accs = ["목걸이", "팔찌", "반지"];
+        const specials = ["보조장비", "귀걸이", "마법석"];
 
-        // 1. 고유 옵션 (seal1) 자동 수치
+        const commonValTable = {
+            "힘": "46", "지능": "46", "체력": "46", "정신력": "46",
+            "공격속도": "1.6", "캐스팅속도": "2", "이동속도": "1.6",
+            "최대 HP 증가": "456", "최대 MP 증가": "270",
+            "물리 방어력": "234", "마법 방어력": "178", "적중": "124", "회피": "70"
+        };
+
+        // 고유 옵션 (seal1)
         if (key.includes("_seal1")) {
             const vIn = row.querySelector(`input[data-key="${slot}_seal1_val"]`);
             if (!vIn) return;
 
             if (slot === "무기") {
-                const weaponTable = {
-                    "데미지 증가": "8", "추가 데미지": "8", "모든 직업 50레벨스킬": "1",
-                    "화속성 강화": "10", "수속성 강화": "10", "명속성 강화": "10", "암속성 강화": "10",
-                    "힘": "46", "지능": "46", "물리 공격력": "19", "마법 공격력": "19"
-                };
+                const weaponTable = { "데미지 증가": "8", "추가 데미지": "8", "모든 직업 50레벨스킬": "1", "화속성 강화": "10", "수속성 강화": "10", "명속성 강화": "10", "암속성 강화": "10", "힘": "46", "지능": "46", "물리 공격력": "19", "마법 공격력": "19" };
                 if (weaponTable[opt]) vIn.value = weaponTable[opt];
             } else if (armors.includes(slot)) {
-                const armorTable = {
-                    "힘": "46", "지능": "46", "체력": "46", "정신력": "46",
-                    "물리 크리티컬": "29", "마법 크리티컬": "29"
-                };
+                const armorTable = { "힘": "46", "지능": "46", "체력": "46", "정신력": "46", "물리 크리티컬": "29", "마법 크리티컬": "29" };
                 if (armorTable[opt]) vIn.value = armorTable[opt];
+            } else if (accs.includes(slot)) {
+                const accTable = { "화속성 강화": "10", "수속성 강화": "10", "명속성 강화": "10", "암속성 강화": "10", "힘": "46", "지능": "46", "체력": "46", "정신력": "46" };
+                if (accTable[opt]) vIn.value = accTable[opt];
+            } else if (specials.includes(slot)) {
+                const specTable = { "물리 공격력": "19", "마법 공격력": "19", "힘": "46", "지능": "46", "물리 크리티컬": "60", "마법 크리티컬": "60", "적중": "75", "회피": "75" };
+                if (specTable[opt]) vIn.value = specTable[opt];
             }
         }
 
-        // 2. 일반 옵션 (seal2) 자동 수치
+        // 일반 옵션 (seal2)
         if (key.includes("_seal2")) {
             const vIn = row.querySelector(`input[data-key="${slot}_seal2_val"]`);
             if (!vIn) return;
 
-            const commonTable = {
-                "힘": "46", "지능": "46", "체력": "46", "정신력": "46",
-                "공격속도": "1.6", "캐스팅속도": "2", "이동속도": "1.6",
-                "최대 HP 증가": "456", "최대 MP 증가": "270",
-                "물리 방어력": "234", "마법 방어력": "178", "적중": "124", "회피": "70"
-            };
-
             if (slot === "무기") {
                 if (opt === "물리 공격력" || opt === "마법 공격력") vIn.value = "18";
-                else if (commonTable[opt]) vIn.value = commonTable[opt];
+                else if (commonValTable[opt]) vIn.value = commonValTable[opt];
             } else if (armors.includes(slot)) {
                 if (opt === "물리 크리티컬" || opt === "마법 크리티컬") vIn.value = "30";
-                else if (commonTable[opt]) vIn.value = commonTable[opt];
+                else if (commonValTable[opt]) vIn.value = commonValTable[opt];
+            } else if (accs.includes(slot)) {
+                const resTable = { "화속성 저항": "8", "수속성 저항": "8", "명속성 저항": "8", "암속성 저항": "8", "화속성 강화": "8", "수속성 강화": "8", "명속성 강화": "8", "암속성 강화": "8" };
+                if (resTable[opt]) vIn.value = resTable[opt];
+                else if (commonValTable[opt]) vIn.value = commonValTable[opt];
+            } else if (specials.includes(slot)) {
+                if (opt === "물리 공격력" || opt === "마법 공격력") vIn.value = "18";
+                else if (opt === "물리 크리티컬" || opt === "마법 크리티컬") vIn.value = "30";
+                else if (commonValTable[opt]) vIn.value = commonValTable[opt];
             }
         }
-
         autoSave();
     }
 
     function updateStyle(el, type, isInitial = false) {
         const row = el.closest('tr');
         const slot = el.getAttribute('data-slot');
-
         el.className = Array.from(el.classList).filter(c => !c.startsWith('rare-') && !c.startsWith('ex-') && !c.startsWith('bg-') && c !== 'prefix-selected' && c !== 'prefix-tier').join(' ');
-        
         if (el.value) {
             if (type === 'rarity') {
                 el.classList.add('rare-' + el.value);
-                
                 if (slot === "무기" || slot === "상의") {
                     const prefixSel = row.querySelector(`select[data-key="${slot}_prefix"]`);
                     const exceedSel = row.querySelector(`select[data-key="${slot}_exceed"]`);
-                    
                     if (el.value === "티어") {
-                        if (prefixSel) {
-                            prefixSel.innerHTML = tierPrefixes.map(p => `<option>${p}</option>`).join('');
-                            prefixSel.className = 'prefix-tier';
-                        }
-                        if (slot === "상의" && exceedSel) {
-                            exceedSel.value = "";
-                            exceedSel.disabled = true;
-                            exceedSel.parentElement.innerText = "-";
-                        }
+                        if (prefixSel) { prefixSel.innerHTML = tierPrefixes.map(p => `<option>${p}</option>`).join(''); prefixSel.className = 'prefix-tier'; }
+                        if (slot === "상의" && exceedSel) { exceedSel.value = ""; exceedSel.disabled = true; exceedSel.parentElement.innerText = "-"; }
                     } else {
-                        if (prefixSel) {
-                            prefixSel.innerHTML = prefixes.map(p => `<option>${p}</option>`).join('');
-                            prefixSel.className = '';
-                        }
+                        if (prefixSel) { prefixSel.innerHTML = prefixes.map(p => `<option>${p}</option>`).join(''); prefixSel.className = ''; }
                         if (slot === "상의" && exceedSel && exceedSel.disabled) {
                             const td = exceedSel.parentElement;
                             td.innerHTML = `<select data-key="상의_exceed" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>`;
@@ -411,10 +404,7 @@
                 }
             }
             else if (type === 'exceed') el.classList.add('ex-' + el.value);
-            else if (type === 'prefix') {
-                if (el.value.startsWith('T')) el.classList.add('prefix-tier');
-                else el.classList.add('prefix-selected');
-            }
+            else if (type === 'prefix') { if (el.value.startsWith('T')) el.classList.add('prefix-tier'); else el.classList.add('prefix-selected'); }
             else if (type === 'artBg') {
                 el.classList.add('bg-' + el.value);
                 const optSelect = el.parentElement.querySelector('.art-opt-select');
@@ -487,15 +477,8 @@
         window.sTime = setTimeout(() => {
             const allData = Array.from(document.querySelectorAll('.char-section')).map(sec => {
                 const inputsObj = {};
-                sec.querySelectorAll('input[data-key], select[data-key]').forEach(el => {
-                    inputsObj[el.getAttribute('data-key')] = { val: el.value, cls: el.className };
-                });
-                return {
-                    id: sec.id, 
-                    locked: sec.querySelector('.lock-btn').classList.contains('btn-active'),
-                    inputs: inputsObj,
-                    runeData: charRuneData[sec.id]
-                };
+                sec.querySelectorAll('input[data-key], select[data-key]').forEach(el => { inputsObj[el.getAttribute('data-key')] = { val: el.value, cls: el.className }; });
+                return { id: sec.id, locked: sec.querySelector('.lock-btn').classList.contains('btn-active'), inputs: inputsObj, runeData: charRuneData[sec.id] };
             });
             localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
             document.getElementById('statusMsg').innerText = "💾 저장됨";
