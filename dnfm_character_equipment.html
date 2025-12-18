@@ -289,9 +289,9 @@
                     <td class="col-prefix">${isEq ? `<select data-key="${slot}_prefix" onchange="updateStyle(this,'prefix')">${prefixes.map(p=>`<option>${p}</option>`).join('')}</select>` : '-'}</td>
                     <td><input type="text" data-key="${slot}_itemname" oninput="autoSave()"></td>
                     <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_reinforce" oninput="autoSave()">` : '-'}</td>
-                    <td>${isEq ? `<select data-key="${slot}_seal1" onchange="handleSealChange(this)">${g.n1.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
+                    <td>${isEq ? `<select data-key="${slot}_seal1" data-slot="${slot}" onchange="handleSealChange(this)">${g.n1.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
                     <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal1_val" oninput="autoSave()">` : '-'}</td>
-                    <td>${isEq ? `<select data-key="${slot}_seal2" onchange="handleSealChange(this)">${g.n2.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
+                    <td>${isEq ? `<select data-key="${slot}_seal2" data-slot="${slot}" onchange="handleSealChange(this)">${g.n2.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
                     <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal2_val" oninput="autoSave()">` : '-'}</td>
                     <td class="col-emblem">
                         ${hasEmb ? (isElemSlot ? `<select data-key="${slot}_emb1" class="${embCls}" onchange="autoSave()">${elementEmbList.map(e=>`<option>${e}</option>`).join('')}</select>` : `<input type="text" data-key="${slot}_emb1" class="${embCls}" oninput="autoSave()">`) : '-'}
@@ -324,34 +324,51 @@
     // 마법봉인 옵션 자동 수치 입력 핸들러
     function handleSealChange(el) {
         const key = el.getAttribute('data-key');
+        const slot = el.getAttribute('data-slot');
         const row = el.closest('tr');
         const opt = el.value;
+        const armors = ["상의", "어깨", "하의", "신발", "벨트"];
 
-        // 1. 무기 고유 옵션 (n1) 자동 수치
-        if (key === "무기_seal1") {
-            const vIn = row.querySelector('input[data-key="무기_seal1_val"]');
+        // 1. 고유 옵션 (seal1) 자동 수치
+        if (key.includes("_seal1")) {
+            const vIn = row.querySelector(`input[data-key="${slot}_seal1_val"]`);
             if (!vIn) return;
-            
-            const n1Table = {
-                "데미지 증가": "8", "추가 데미지": "8", "모든 직업 50레벨스킬": "1",
-                "화속성 강화": "10", "수속성 강화": "10", "명속성 강화": "10", "암속성 강화": "10",
-                "힘": "46", "지능": "46", "물리 공격력": "19", "마법 공격력": "19"
-            };
-            if (n1Table[opt]) vIn.value = n1Table[opt];
+
+            if (slot === "무기") {
+                const weaponTable = {
+                    "데미지 증가": "8", "추가 데미지": "8", "모든 직업 50레벨스킬": "1",
+                    "화속성 강화": "10", "수속성 강화": "10", "명속성 강화": "10", "암속성 강화": "10",
+                    "힘": "46", "지능": "46", "물리 공격력": "19", "마법 공격력": "19"
+                };
+                if (weaponTable[opt]) vIn.value = weaponTable[opt];
+            } else if (armors.includes(slot)) {
+                const armorTable = {
+                    "힘": "46", "지능": "46", "체력": "46", "정신력": "46",
+                    "물리 크리티컬": "29", "마법 크리티컬": "29"
+                };
+                if (armorTable[opt]) vIn.value = armorTable[opt];
+            }
         }
 
-        // 2. 무기 일반 옵션 (n2) 자동 수치
-        if (key === "무기_seal2") {
-            const vIn = row.querySelector('input[data-key="무기_seal2_val"]');
+        // 2. 일반 옵션 (seal2) 자동 수치
+        if (key.includes("_seal2")) {
+            const vIn = row.querySelector(`input[data-key="${slot}_seal2_val"]`);
             if (!vIn) return;
 
-            const n2Table = {
-                "물리 공격력": "18", "마법 공격력": "18", "힘": "46", "지능": "46",
-                "체력": "46", "정신력": "46", "공격속도": "1.6", "캐스팅속도": "2",
-                "이동속도": "1.6", "최대 HP 증가": "456", "최대 MP 증가": "270",
+            const commonTable = {
+                "힘": "46", "지능": "46", "체력": "46", "정신력": "46",
+                "공격속도": "1.6", "캐스팅속도": "2", "이동속도": "1.6",
+                "최대 HP 증가": "456", "최대 MP 증가": "270",
                 "물리 방어력": "234", "마법 방어력": "178", "적중": "124", "회피": "70"
             };
-            if (n2Table[opt]) vIn.value = n2Table[opt];
+
+            if (slot === "무기") {
+                if (opt === "물리 공격력" || opt === "마법 공격력") vIn.value = "18";
+                else if (commonTable[opt]) vIn.value = commonTable[opt];
+            } else if (armors.includes(slot)) {
+                if (opt === "물리 크리티컬" || opt === "마법 크리티컬") vIn.value = "30";
+                else if (commonTable[opt]) vIn.value = commonTable[opt];
+            }
         }
 
         autoSave();
