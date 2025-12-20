@@ -335,28 +335,38 @@ function createCharacterTable(savedData = null) {
         if (heavyBorderSlots.includes(slot)) tr.style.borderBottom = "2px solid var(--border-heavy)";
         
         if (index === 0) {
-            // [여기가 질문하신 부분] 캐릭터 정보 열: 힘지능/속강 선택지 및 기본 정보
-            tr.innerHTML += `<td rowspan="${slots.length}" style="background-color: #121216; vertical-align: top;">
-                <div style="display:flex; flex-direction:column; gap:4px; padding:5px;">
-                    <select data-key="info_stat_type" onchange="applySealHighlight('${charId}'); autoSave();" style="border:1px solid #444; background:#000; color:#fff; font-size:11px; height:22px;">
-                        <option value="">(스탯 선택)</option>
-                        <option value="힘">힘</option>
-                        <option value="지능">지능</option>
-                    </select>
-                    <select data-key="info_ele_type" onchange="applySealHighlight('${charId}'); autoSave();" style="border:1px solid #444; background:#000; color:#fff; font-size:11px; height:22px;">
-                        <option value=""></option>
-                        <option value="화속강">화속강</option>
-                        <option value="수속강">수속강</option>
-                        <option value="명속강">명속강</option>
-                        <option value="암속강">암속강</option>
-                    </select>
-                    <input type="text" placeholder="직업" data-key="info_job" oninput="autoSave()">
-                    <input type="text" placeholder="이름" data-key="info_name" oninput="autoSave()">
-                    <button onclick="toggleEdit('${charId}', true)" class="btn-char-lock lock-btn">잠금</button>
-                    <button onclick="toggleEdit('${charId}', false)" class="btn-char-unlock unlock-btn">해제</button>
-                    <button onclick="deleteCharacter('${charId}')" class="del-btn" style="background:#ff4d4d; color:white; border:none; padding:4px; cursor:pointer; font-size:11px; border-radius:2px; margin-top:4px;">삭제</button>
-                </div>
-            </td>`;
+            // [수정된 부분] 캐릭터 정보 열: 힘/지능과 속강을 가로로 배치하고 아래에 굵은 줄 추가
+tr.innerHTML += `<td rowspan="${slots.length}" style="background-color: #121216; vertical-align: top;">
+    <div style="display:flex; flex-direction:column; gap:4px; padding:5px;">
+        <div style="display:flex; gap:4px;">
+            <select data-key="info_stat_type" onchange="applySealHighlight('${charId}'); autoSave();" style="flex:1; border:1px solid #444; background:#000; color:#fff; font-size:11px; height:22px;">
+                <option value="">(스탯)</option>
+                <option value="힘">힘</option>
+                <option value="지능">지능</option>
+            </select>
+            <select data-key="info_ele_type" onchange="applySealHighlight('${charId}'); autoSave();" style="flex:1; border:1px solid #444; background:#000; color:#fff; font-size:11px; height:22px;">
+                <option value=""></option>
+                <option value="화속강">화속강</option>
+                <option value="수속강">수속강</option>
+                <option value="명속강">명속강</option>
+                <option value="암속강">암속강</option>
+            </select>
+        </div>
+        <div style="border-bottom: 2px solid var(--gold); margin: 4px 0;"></div>
+
+        <input type="text" placeholder="직업" data-key="info_job" oninput="autoSave()">
+        <input type="text" placeholder="이름" data-key="info_name" oninput="autoSave()">
+        
+        <div style="border-bottom: 2px solid var(--gold); margin: 8px 0;"></div>
+
+        <button onclick="toggleEdit('${charId}', true)" class="btn-char-lock lock-btn">잠금</button>
+        <button onclick="toggleEdit('${charId}', false)" class="btn-char-unlock unlock-btn">해제</button>
+        
+        <div style="border-bottom: 2px solid var(--gold); margin: 10px 0;"></div>
+
+        <button onclick="deleteCharacter('${charId}')" class="del-btn" style="background:#ff4d4d; color:white; border:none; padding:4px; cursor:pointer; font-size:11px; border-radius:2px;">삭제</button>
+    </div>
+</td>`;
         }
 
         // --- 스킬룬 / 크리쳐 로직 생략 (기존과 동일) ---
