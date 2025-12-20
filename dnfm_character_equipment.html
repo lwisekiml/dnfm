@@ -908,8 +908,8 @@ function applySealHighlight(charId) {
 
         // --- [신규 추가] 엠블렘 속강 강조 로직 ---
         if (embHighlightSlots.includes(slot) && eleType !== "") {
-            // 엠블렘1(emb1)의 값이 속강 선택지(eleType)와 같을 경우
-            if (emb1 && emb1.value === eleType) {
+            // 엠블렘1(emb1)의 값이 속강 선택지(eleType)와 같을 경우 또는 모속강일 경우
+            if (emb1 && emb1.value === eleType || emb1.value === "모속강") {
                 emb1.classList.add('highlight-yellow');
                 // 오른쪽 텍스트 입력란(emb2)도 함께 강조
                 if (emb2) emb2.classList.add('highlight-yellow');
