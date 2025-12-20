@@ -188,7 +188,7 @@
 </div>
 
 <script>
-    const STORAGE_KEY = 'dnfm_character_equipment_data';
+const STORAGE_KEY = 'dnfm_character_equipment_data';
     const slots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호", "외형칭호", "오라", "아바타", "스킬룬", "크리쳐"];
     const heavyBorderSlots = ["무기", "벨트", "반지", "마법석", "아바타", "스킬룬", "크리쳐"];
     const prefixes = ["", "전격", "허상", "작열", "침식", "수호", "왜곡", "자상", "맹독", "보호", "쇄도", "신속", "연격"];
@@ -214,13 +214,45 @@
 
     let charRuneData = {}; 
     let currentEditingCharId = null;
+    let changeHistory = [];
+    let lastSnapshot = localStorage.getItem(STORAGE_KEY) ? JSON.parse(localStorage.getItem(STORAGE_KEY)) : [];
+
+    const rarityColors = {
+        "에픽": "#fcc419", "유니크": "#ff80ab", "레어": "#b197fc", "언커먼": "#4dabf7", "커먼": "#888", "티어": "#ffffff",
+        "선봉": "#ff5252", "의지": "#448aff", "이상": "#40c057", "데이터 초기화됨": "#ff5252", "새로운 설정으로 변경됨": "#40c057"
+    };
+
+    function getSpanWithColor(text) {
+        const color = rarityColors[text] || "#ddd"; 
+        return `<span style="color:${color}; font-weight:bold;">${text}</span>`;
+    }
+
+    // [중요] 누락되었던 잠금 함수 추가
+    function toggleEdit(charId, isLock) {
+        const section = document.getElementById(charId);
+        if (!section) return;
+        section.querySelectorAll('input, select, button.btn-action').forEach(el => { 
+            if(!el.classList.contains('lock-btn') && !el.classList.contains('unlock-btn')) {
+                el.disabled = isLock; 
+            }
+        });
+        const lBtn = section.querySelector('.lock-btn'); 
+        const uBtn = section.querySelector('.unlock-btn');
+        if (isLock) { 
+            lBtn.classList.add('btn-active'); 
+            uBtn.classList.remove('btn-active'); 
+        } else { 
+            uBtn.classList.add('btn-active'); 
+            lBtn.classList.remove('btn-active'); 
+        }
+        autoSave();
+    }
 
     function createCharacterTable(savedData = null) {
         const charId = savedData && savedData.id ? savedData.id : "char_" + Date.now() + Math.random().toString(16).slice(2);
         const section = document.createElement('div');
         section.className = 'char-section';
         section.id = charId;
-
         charRuneData[charId] = (savedData && savedData.runeData) ? savedData.runeData : { runes: Array(20).fill().map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] };
 
         section.innerHTML = `
@@ -289,9 +321,7 @@
                 let embCls = (["상의", "하의"].includes(slot)) ? "emb-bg-red" : (["어깨", "벨트"].includes(slot)) ? "emb-bg-yellow" : (["신발", "팔찌"].includes(slot)) ? "emb-bg-blue" : (["목걸이", "반지"].includes(slot)) ? "emb-bg-green" : "emb-bg-gray";
                 
                 const tierSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비"];
-                const rarityOptions = tierSlots.includes(slot)
-                    ? `<option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option><option>티어</option>`
-                    : `<option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>`;
+                const rarityOptions = tierSlots.includes(slot) ? `<option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option><option>티어</option>` : `<option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>`;
 
                 tr.innerHTML += `<td class="col-slot v-border-heavy">${slot}</td>
                     <td class="col-rarity"><select data-key="${slot}_rarity" data-slot="${slot}" onchange="updateStyle(this, 'rarity')" class="rare-에픽">${rarityOptions}</select></td>
@@ -303,9 +333,7 @@
                     <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal1_val" oninput="autoSave()">` : '-'}</td>
                     <td>${isEq ? `<select data-key="${slot}_seal2" data-slot="${slot}" onchange="handleSealChange(this)">${g.n2.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
                     <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal2_val" oninput="autoSave()">` : '-'}</td>
-                    <td class="col-emblem">
-                        ${hasEmb ? (isElemSlot ? `<select data-key="${slot}_emb1" class="${embCls}" onchange="autoSave()">${elementEmbList.map(e=>`<option>${e}</option>`).join('')}</select>` : `<input type="text" data-key="${slot}_emb1" class="${embCls}" oninput="autoSave()">`) : '-'}
-                    </td>
+                    <td class="col-emblem">${hasEmb ? (isElemSlot ? `<select data-key="${slot}_emb1" class="${embCls}" onchange="autoSave()">${elementEmbList.map(e=>`<option>${e}</option>`).join('')}</select>` : `<input type="text" data-key="${slot}_emb1" class="${embCls}" oninput="autoSave()">`) : '-'}</td>
                     <td class="col-emblem">${hasEmb ? `<input type="text" data-key="${slot}_emb2" class="${embCls}" oninput="autoSave()">` : '-'}</td>
                     <td class="col-enchant">${index < 12 || slot === "칭호" ? `<input type="text" data-key="${slot}_enchant" oninput="autoSave()">` : '-'}</td>
                     <td class="col-val-short">${index < 12 || slot === "칭호" ? `<input type="text" data-key="${slot}_enchant_val" oninput="autoSave()">` : '-'}</td>
@@ -339,19 +367,11 @@
         const armors = ["상의", "어깨", "하의", "신발", "벨트"];
         const accs = ["목걸이", "팔찌", "반지"];
         const specials = ["보조장비", "귀걸이", "마법석"];
+        const commonValTable = { "힘": "46", "지능": "46", "체력": "46", "정신력": "46", "공격속도": "1.6", "캐스팅속도": "2", "이동속도": "1.6", "최대 HP 증가": "456", "최대 MP 증가": "270", "물리 방어력": "234", "마법 방어력": "178", "적중": "124", "회피": "70" };
 
-        const commonValTable = {
-            "힘": "46", "지능": "46", "체력": "46", "정신력": "46",
-            "공격속도": "1.6", "캐스팅속도": "2", "이동속도": "1.6",
-            "최대 HP 증가": "456", "최대 MP 증가": "270",
-            "물리 방어력": "234", "마법 방어력": "178", "적중": "124", "회피": "70"
-        };
-
-        // 고유 옵션 (seal1)
         if (key.includes("_seal1")) {
             const vIn = row.querySelector(`input[data-key="${slot}_seal1_val"]`);
             if (!vIn) return;
-
             if (slot === "무기") {
                 const weaponTable = { "데미지 증가": "8", "추가 데미지": "8", "모든 직업 50레벨스킬": "1", "화속성 강화": "10", "수속성 강화": "10", "명속성 강화": "10", "암속성 강화": "10", "힘": "46", "지능": "46", "물리 공격력": "19", "마법 공격력": "19" };
                 if (weaponTable[opt]) vIn.value = weaponTable[opt];
@@ -371,7 +391,6 @@
         if (key.includes("_seal2")) {
             const vIn = row.querySelector(`input[data-key="${slot}_seal2_val"]`);
             if (!vIn) return;
-
             if (slot === "무기") {
                 if (opt === "물리 공격력" || opt === "마법 공격력") vIn.value = "18";
                 else if (commonValTable[opt]) vIn.value = commonValTable[opt];
@@ -399,33 +418,18 @@
         if (el.value) {
             if (type === 'rarity') {
                 el.classList.add('rare-' + el.value);
-                
                 const tierSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비"];
                 if (tierSlots.includes(slot)) {
                     const prefixSel = row.querySelector(`select[data-key="${slot}_prefix"]`);
-                    const exceedSel = row.querySelector(`select[data-key="${slot}_exceed"]`);
-                    
+                    const exceedTd = row.cells[3];
                     if (el.value === "티어") {
-                        if (prefixSel) { 
-                            prefixSel.innerHTML = tierPrefixes.map(p => `<option>${p}</option>`).join(''); 
-                            prefixSel.className = 'prefix-tier'; 
-                        }
-                        if (exceedSel) { 
-                            exceedSel.value = ""; 
-                            exceedSel.disabled = true; 
-                            exceedSel.parentElement.innerText = "-"; 
-                        }
+                        if (prefixSel) { prefixSel.innerHTML = tierPrefixes.map(p => `<option>${p}</option>`).join(''); prefixSel.className = 'prefix-tier'; }
+                        if (exceedTd) exceedTd.innerHTML = "-";
                     } else {
-                        if (prefixSel) { 
-                            prefixSel.innerHTML = prefixes.map(p => `<option>${p}</option>`).join(''); 
-                            prefixSel.className = ''; 
-                        }
-                        const exTd = row.cells[3];
-                        if (exTd && exTd.innerText === "-") {
-                            const isExSlot = ['상의', '팔찌', '귀걸이'].includes(slot);
-                            exTd.innerHTML = isExSlot 
-                                ? `<select data-key="${slot}_exceed" data-slot="${slot}" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>`
-                                : '-';
+                        if (prefixSel) { prefixSel.innerHTML = prefixes.map(p => `<option>${p}</option>`).join(''); prefixSel.className = ''; }
+                        const isExSlot = ['상의', '팔찌', '귀걸이'].includes(slot);
+                        if (exceedTd && exceedTd.innerText === "-") {
+                            exceedTd.innerHTML = isExSlot ? `<select data-key="${slot}_exceed" data-slot="${slot}" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-';
                         }
                     }
                 }
@@ -458,14 +462,26 @@
         document.getElementById('skillRunemodal').style.display = 'block';
     }
     function closeRuneModal() { document.getElementById('modalOverlay').style.display = 'none'; document.getElementById('skillRunemodal').style.display = 'none'; }
+    
     function saveRuneData() {
         const body = document.getElementById('runeModalBody');
         const rows = body.querySelectorAll('tr');
         const newRunes = [];
-        rows.forEach(row => { newRunes.push({ name: row.querySelector('.m-rune-name').value, lv: row.querySelector('.m-rune-lv').value, skillLv: row.querySelector('.m-rune-skillLv').value }); });
+        rows.forEach(row => { 
+            newRunes.push({ name: row.querySelector('.m-rune-name').value, lv: row.querySelector('.m-rune-lv').value, skillLv: row.querySelector('.m-rune-skillLv').value }); 
+        });
+        const section = document.getElementById(currentEditingCharId);
+        const charName = section.querySelector('[data-key="info_name"]').value || "이름없음";
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+        changeHistory.unshift({ time: timeStr, charName: charName, slot: "스킬룬", old: "기존 설정", new: "새로운 설정으로 변경됨" });
+        if (changeHistory.length > 10) changeHistory.pop();
         charRuneData[currentEditingCharId] = { runes: newRunes, gakin: [document.getElementById('m-gakin1').value, document.getElementById('m-gakin2').value] };
-        updateRuneSummary(currentEditingCharId); closeRuneModal(); autoSave();
+        updateRuneSummary(currentEditingCharId); 
+        closeRuneModal(); 
+        autoSave();
     }
+
     function updateRuneSummary(charId) {
         const summaryEl = document.getElementById(`${charId}_runeSummary`);
         const data = charRuneData[charId];
@@ -490,15 +506,30 @@
         if (g2) { gakinContent = `<span class="v-line"></span> <span style="color:var(--gakin-2);">${g2}</span>`; }
         summaryEl.innerHTML = runeStr + gakinContent;
     }
-    function resetRuneData(charId) { if(confirm("초기화하시겠습니까?")) { charRuneData[charId] = { runes: Array(20).fill().map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] }; updateRuneSummary(charId); autoSave(); } }
-    function toggleEdit(charId, isLock) {
-        const section = document.getElementById(charId);
-        section.querySelectorAll('input, select, button.btn-action').forEach(el => { if(!el.classList.contains('lock-btn') && !el.classList.contains('unlock-btn')) el.disabled = isLock; });
-        const lBtn = section.querySelector('.lock-btn'); const uBtn = section.querySelector('.unlock-btn');
-        if (isLock) { lBtn.classList.add('btn-active'); uBtn.classList.remove('btn-active'); } 
-        else { uBtn.classList.add('btn-active'); lBtn.classList.remove('btn-active'); }
-        autoSave();
+    
+    function resetRuneData(charId) { 
+        if(confirm("초기화하시겠습니까?")) { 
+            const section = document.getElementById(charId);
+            const charName = section.querySelector('[data-key="info_name"]').value || "이름없음";
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            changeHistory.unshift({ time: timeStr, charName: charName, slot: "스킬룬", old: "기존 설정", new: "데이터 초기화됨" });
+            if (changeHistory.length > 10) changeHistory.pop();
+            charRuneData[charId] = { runes: Array(20).fill().map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] }; 
+            updateRuneSummary(charId); 
+            autoSave(); 
+        } 
     }
+
+    function openHistoryModal() {
+        const listEl = document.getElementById('historyList');
+        if (changeHistory.length === 0) { listEl.innerHTML = "변경 기록이 없습니다."; } 
+        else { listEl.innerHTML = changeHistory.map(h => `<div style="border-bottom:1px solid #333; padding:5px 0;"><span style="color:var(--gold)">[${h.time}]</span> <b>${h.charName}</b> - ${h.slot}: <br>${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)}</div>`).join(''); }
+        document.getElementById('modalOverlay').style.display = 'block';
+        document.getElementById('historyModal').style.display = 'block';
+    }
+    function closeHistoryModal() { document.getElementById('modalOverlay').style.display = 'none'; document.getElementById('historyModal').style.display = 'none'; }
+
     function autoSave() {
         clearTimeout(window.sTime);
         window.sTime = setTimeout(() => {
@@ -512,140 +543,51 @@
             setTimeout(() => document.getElementById('statusMsg').innerText = "", 1000);
         }, 800);
     }
-    function exportToJSON() { const data = localStorage.getItem(STORAGE_KEY); if(!data) return alert("저장된 데이터가 없습니다."); const blob = new Blob([data], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `dnfm_character_equipment_backup.json`; a.click(); }
-    function importFromJSON(input) { 
-        const reader = new FileReader(); 
-        reader.onload = (e) => { try { const data = JSON.parse(e.target.result); document.getElementById('characterContainer').innerHTML = ""; charRuneData = {}; data.forEach(d => createCharacterTable(d)); autoSave(); } catch(err) { alert("올바른 JSON 파일이 아닙니다."); } }; 
-        reader.readAsText(input.files[0]); 
-    }
+    function exportToJSON() { const data = localStorage.getItem(STORAGE_KEY); if(!data) return alert("저장된 데이터가 없습니다."); const blob = new Blob([data], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `dnfm_backup.json`; a.click(); }
+    function importFromJSON(input) { const reader = new FileReader(); reader.onload = (e) => { try { const data = JSON.parse(e.target.result); document.getElementById('characterContainer').innerHTML = ""; charRuneData = {}; data.forEach(d => createCharacterTable(d)); autoSave(); } catch(err) { alert("올바른 JSON 파일이 아닙니다."); } }; reader.readAsText(input.files[0]); }
+    
     window.onload = () => { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); if (saved.length > 0) saved.forEach(d => createCharacterTable(d)); else createCharacterTable(); };
-	
-	// Tab 키 입력 시 아래 칸으로 이동하는 로직
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Tab') {
-        const activeEx = document.activeElement;
-        const key = activeEx.getAttribute('data-key');
-        
-        // data-key가 없는 요소(직업/이름 등)는 기본 동작 유지
-        if (!key) return;
 
-        const section = activeEx.closest('.char-section');
-        const currentSlot = activeEx.getAttribute('data-slot') || key.split('_')[0];
-        const suffix = key.replace(currentSlot, ''); // 예: _itemname, _reinforce
-        
-        // 현재 슬롯의 순서 확인
-        const currentIndex = slots.indexOf(currentSlot);
-        if (currentIndex === -1) return;
-
-        // 이동할 방향 결정 (Tab은 아래로, Shift+Tab은 위로)
-        const nextIndex = e.shiftKey ? currentIndex - 1 : currentIndex + 1;
-        
-        if (nextIndex >= 0 && nextIndex < slots.length) {
-            const nextSlot = slots[nextIndex];
-            // 다음 슬롯에서 같은 suffix를 가진 입력창 찾기
-            const targetInput = section.querySelector(`[data-key="${nextSlot}${suffix}"]`);
-
-            if (targetInput && !targetInput.disabled) {
-                e.preventDefault();
-                targetInput.focus();
-                // 텍스트 전체 선택 (편의성)
-                if (targetInput.select) targetInput.select();
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            const activeEx = document.activeElement;
+            const key = activeEx.getAttribute('data-key');
+            if (!key) return;
+            const section = activeEx.closest('.char-section');
+            const currentSlot = activeEx.getAttribute('data-slot') || key.split('_')[0];
+            const suffix = key.replace(currentSlot, '');
+            const currentIndex = slots.indexOf(currentSlot);
+            const nextIndex = e.shiftKey ? currentIndex - 1 : currentIndex + 1;
+            if (nextIndex >= 0 && nextIndex < slots.length) {
+                const nextSlot = slots[nextIndex];
+                const targetInput = section.querySelector(`[data-key="${nextSlot}${suffix}"]`);
+                if (targetInput && !targetInput.disabled) { e.preventDefault(); targetInput.focus(); if (targetInput.select) targetInput.select(); }
             }
         }
-    }
-});
+    });
 
-let changeHistory = [];
-let lastSnapshot = localStorage.getItem(STORAGE_KEY) ? JSON.parse(localStorage.getItem(STORAGE_KEY)) : [];
-
-// 등급 및 특수 상태별 색상 정의
-const rarityColors = {
-    "에픽": "#fcc419",
-    "유니크": "#ff80ab",
-    "레어": "#b197fc",
-    "언커먼": "#4dabf7",
-    "커먼": "#888",
-    "티어": "#ffffff",
-    // 추가된 익시드 상태 색상
-    "선봉": "#ff5252",
-    "의지": "#448aff",
-    "이상": "#40c057"
-};
-
-// 색상을 적용해주는 헬퍼 함수
-function getSpanWithColor(text) {
-    // 텍스트가 정의된 색상표에 있는지 확인 (없으면 기본색 #ddd)
-    const color = rarityColors[text] || "#ddd"; 
-    return `<span style="color:${color}; font-weight:bold;">${text}</span>`;
-}
-
-// 기록 모달 열기 (수정됨)
-function openHistoryModal() {
-    const listEl = document.getElementById('historyList');
-    if (changeHistory.length === 0) {
-        listEl.innerHTML = "변경 기록이 없습니다.";
-    } else {
-        listEl.innerHTML = changeHistory.map(h => 
-            `<div style="border-bottom:1px solid #333; padding:5px 0;">
-                <span style="color:var(--gold)">[${h.time}]</span> <b>${h.charName}</b> - ${h.slot}: <br>
-                ${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)}
-            </div>`
-        ).join('');
-    }
-    document.getElementById('modalOverlay').style.display = 'block';
-    document.getElementById('historyModal').style.display = 'block';
-}
-
-function closeHistoryModal() {
-    document.getElementById('modalOverlay').style.display = 'none';
-    document.getElementById('historyModal').style.display = 'none';
-}
-
-// 기존 autoSave 로직에 기록 감지 추가를 위해 감시 함수 생성
-document.addEventListener('change', function(e) {
-    const el = e.target;
-    const key = el.getAttribute('data-key');
-
-    // 기록 대상이 아닌 요소는 무시
-    if (!key) return;
-
-    const section = el.closest('.char-section');
-    const charName = section.querySelector('[data-key="info_name"]').value || "이름없음";
-
-    // 슬롯 이름 추출 (예: 무기_itemname -> 무기)
-    const slot = key.split('_')[0];
-    
-    // 이전 스냅샷 데이터에서 해당 키의 이전 값 찾기
-    const prevChar = lastSnapshot.find(c => c.id === section.id);
-    const oldVal = (prevChar && prevChar.inputs && prevChar.inputs[key]) ? prevChar.inputs[key].val : "";
-    const newVal = el.value;
-
-    // 값이 실제로 변했을 때만 기록 생성
-    if (oldVal !== newVal) {
-        const now = new Date();
-        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-        
-        changeHistory.unshift({
-            time: timeStr,
-            charName: charName,
-            slot: slot,
-            old: (oldVal === "" || oldVal === undefined) ? "(빈칸)" : oldVal,
-            new: (newVal === "") ? "(빈칸)" : newVal
-        });
-
-        // 최근 10개만 유지
-        if (changeHistory.length > 10) changeHistory.pop();
-        
-        // 스냅샷 업데이트: 다음 변경을 위해 현재 모든 값을 최신화
-        lastSnapshot = Array.from(document.querySelectorAll('.char-section')).map(sec => {
-            const inputsObj = {};
-            sec.querySelectorAll('input[data-key], select[data-key]').forEach(i => {
-                inputsObj[i.getAttribute('data-key')] = { val: i.value };
+    document.addEventListener('change', function(e) {
+        const el = e.target;
+        const key = el.getAttribute('data-key');
+        if (!key) return;
+        const section = el.closest('.char-section');
+        const charName = section.querySelector('[data-key="info_name"]').value || "이름없음";
+        const slot = key.split('_')[0];
+        const prevChar = lastSnapshot.find(c => c.id === section.id);
+        const oldVal = (prevChar && prevChar.inputs && prevChar.inputs[key]) ? prevChar.inputs[key].val : "";
+        const newVal = el.value;
+        if (oldVal !== newVal) {
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            changeHistory.unshift({ time: timeStr, charName: charName, slot: slot, old: (oldVal === "" ? "(빈칸)" : oldVal), new: (newVal === "" ? "(빈칸)" : newVal) });
+            if (changeHistory.length > 10) changeHistory.pop();
+            lastSnapshot = Array.from(document.querySelectorAll('.char-section')).map(sec => {
+                const inputsObj = {};
+                sec.querySelectorAll('input[data-key], select[data-key]').forEach(i => { inputsObj[i.getAttribute('data-key')] = { val: i.value }; });
+                return { id: sec.id, inputs: inputsObj };
             });
-            return { id: sec.id, inputs: inputsObj };
-        });
-    }
-});
+        }
+    });
 </script>
 </body>
 </html>
