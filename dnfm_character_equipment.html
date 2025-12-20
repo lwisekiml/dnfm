@@ -148,6 +148,7 @@
     <button class="btn-action" onclick="exportToJSON()">📤 JSON 파일 저장</button>
     <button class="btn-action" onclick="document.getElementById('fileInput').click()">📥 JSON 파일 불러오기</button>
     <button class="btn-action btn-add" onclick="createCharacterTable()">➕ 캐릭터 추가</button>
+	<button class="btn-action" style="background:#0ea5e9;" onclick="openHistoryModal()">📜 기록</button>
     <input type="file" id="fileInput" style="display:none" accept=".json" onchange="importFromJSON(this)">
     <span id="statusMsg" class="status-msg"></span>
 </div>
@@ -175,6 +176,14 @@
     <div style="margin-top:15px; display:flex; gap:10px; justify-content:center; padding-bottom: 5px;">
         <button class="btn-action" style="background:#059669;" onclick="saveRuneData()">저장</button>
         <button class="btn-action" style="background:#4b5563;" onclick="closeRuneModal()">취소</button>
+    </div>
+</div>
+
+<div id="historyModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1f; border: 2px solid var(--gold); padding: 15px; z-index: 2000; width: 450px; max-height: 80vh; overflow-y: auto;">
+    <h3 style="color:var(--gold); margin-top:0;">📝 최근 변경 기록 (최근 10개)</h3>
+    <div id="historyList" style="font-size: 11px; color: #ccc; line-height: 1.6;"></div>
+    <div style="margin-top:15px; text-align:center;">
+        <button class="btn-action" style="background:#4b5563;" onclick="closeHistoryModal()">닫기</button>
     </div>
 </div>
 
@@ -543,6 +552,77 @@ document.addEventListener('keydown', function(e) {
                 if (targetInput.select) targetInput.select();
             }
         }
+    }
+});
+
+let changeHistory = [];
+let lastSnapshot = localStorage.getItem(STORAGE_KEY) ? JSON.parse(localStorage.getItem(STORAGE_KEY)) : [];
+
+// 기록 모달 열기
+function openHistoryModal() {
+    const listEl = document.getElementById('historyList');
+    if (changeHistory.length === 0) {
+        listEl.innerHTML = "변경 기록이 없습니다.";
+    } else {
+        listEl.innerHTML = changeHistory.map(h => 
+            `<div style="border-bottom:1px solid #333; padding:5px 0;">
+                <span style="color:var(--gold)">[${h.time}]</span> <b>${h.charName}</b> - ${h.slot}: <br>
+                <span style="color:#ff5252;">${h.old}</span> → <span style="color:#40c057;">${h.new}</span>
+            </div>`
+        ).join('');
+    }
+    document.getElementById('modalOverlay').style.display = 'block';
+    document.getElementById('historyModal').style.display = 'block';
+}
+
+function closeHistoryModal() {
+    document.getElementById('modalOverlay').style.display = 'none';
+    document.getElementById('historyModal').style.display = 'none';
+}
+
+// 기존 autoSave 로직에 기록 감지 추가를 위해 감시 함수 생성
+document.addEventListener('change', function(e) {
+    const el = e.target;
+    const key = el.getAttribute('data-key');
+    
+    // 기록 대상이 아닌 요소는 무시
+    if (!key) return;
+
+    const section = el.closest('.char-section');
+    const charName = section.querySelector('[data-key="info_name"]').value || "이름없음";
+    
+    // 슬롯 이름 추출 (예: 무기_itemname -> 무기)
+    const slot = key.split('_')[0];
+    
+    // 이전 스냅샷 데이터에서 해당 키의 이전 값 찾기
+    const prevChar = lastSnapshot.find(c => c.id === section.id);
+    const oldVal = (prevChar && prevChar.inputs && prevChar.inputs[key]) ? prevChar.inputs[key].val : "";
+    const newVal = el.value;
+
+    // 값이 실제로 변했을 때만 기록 생성
+    if (oldVal !== newVal) {
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+        
+        changeHistory.unshift({
+            time: timeStr,
+            charName: charName,
+            slot: slot,
+            old: (oldVal === "" || oldVal === undefined) ? "(빈칸)" : oldVal,
+            new: (newVal === "") ? "(빈칸)" : newVal
+        });
+
+        // 최근 10개만 유지
+        if (changeHistory.length > 10) changeHistory.pop();
+        
+        // 스냅샷 업데이트: 다음 변경을 위해 현재 모든 값을 최신화
+        lastSnapshot = Array.from(document.querySelectorAll('.char-section')).map(sec => {
+            const inputsObj = {};
+            sec.querySelectorAll('input[data-key], select[data-key]').forEach(i => {
+                inputsObj[i.getAttribute('data-key')] = { val: i.value };
+            });
+            return { id: sec.id, inputs: inputsObj };
+        });
     }
 });
 </script>
