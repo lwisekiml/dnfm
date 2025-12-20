@@ -854,70 +854,65 @@ function updateStyle(el, type, isInitial = false) {
     }
 	
 	
-	function applySealHighlight(charId) {
+function applySealHighlight(charId) {
     const section = document.getElementById(charId);
     if (!section) return;
 
-    // 선택된 힘/지능 및 속강 값 가져오기
     const statType = section.querySelector(`select[data-key="info_stat_type"]`).value; 
     const eleType = section.querySelector(`select[data-key="info_ele_type"]`).value;   
 
     const armorSlots = ["상의", "어깨", "하의", "신발", "벨트"];
     const accSlots = ["목걸이", "팔찌", "반지"];
     const specialSlots = ["보조장비", "귀걸이", "마법석"];
+    // 엠블렘 강조 대상 슬롯 추가
+    const embHighlightSlots = ["보조장비", "귀걸이", "마법석", "칭호"];
 
     slots.forEach(slot => {
         if (slot === "스킬룬" || slot === "크리쳐") return;
 
-        // 해당 슬롯의 행(tr) 찾기
         const row = Array.from(section.querySelectorAll('tr')).find(r => 
             r.querySelector('.col-slot')?.innerText === slot
         );
         if (!row) return;
 
-        const s1 = row.querySelector(`select[data-key="${slot}_seal1"]`); // 고유 옵션
+        // 마법봉인 엘리먼트
+        const s1 = row.querySelector(`select[data-key="${slot}_seal1"]`);
         const v1 = row.querySelector(`input[data-key="${slot}_seal1_val"]`);
-        const s2 = row.querySelector(`select[data-key="${slot}_seal2"]`); // 일반 옵션
+        const s2 = row.querySelector(`select[data-key="${slot}_seal2"]`);
         const v2 = row.querySelector(`input[data-key="${slot}_seal2_val"]`);
 
-        // 초기화: 기존 강조 클래스 모두 제거 (기본 흰색으로 복구)
-        [s1, v1, s2, v2].forEach(el => el?.classList.remove('highlight-yellow'));
+        // 엠블렘 엘리먼트 (emb1은 select인 경우와 input인 경우가 있으므로 둘 다 대응)
+        const emb1 = row.querySelector(`[data-key="${slot}_emb1"]`);
+        const emb2 = row.querySelector(`[data-key="${slot}_emb2"]`);
 
-        if (!s1 || !s2) return;
+        // 초기화: 기존 강조 클래스 제거
+        [s1, v1, s2, v2, emb1, emb2].forEach(el => el?.classList.remove('highlight-yellow'));
 
-        // --- 1. 무기 조건 (고유: 데미지 증가 / 일반: 힘 or 지능) ---
-        if (slot === "무기" && statType !== "") {
-            if (s1.value === "데미지 증가") { 
-                s1.classList.add('highlight-yellow'); 
-                v1.classList.add('highlight-yellow'); 
+        if (!s1 || !s2) {
+            // 마법봉인이 없는 슬롯(칭호 등)이라도 엠블렘 강조 로직은 실행되어야 함
+        } else {
+            // --- 기존 마법봉인 강조 로직 (무기, 방어구, 악세, 특장) ---
+            if (slot === "무기" && statType !== "") {
+                if (s1.value === "데미지 증가") { s1.classList.add('highlight-yellow'); v1.classList.add('highlight-yellow'); }
+                if (s2.value === statType) { s2.classList.add('highlight-yellow'); v2.classList.add('highlight-yellow'); }
             }
-            if (s2.value === statType) { 
-                s2.classList.add('highlight-yellow'); 
-                v2.classList.add('highlight-yellow'); 
+            if ((armorSlots.includes(slot) || specialSlots.includes(slot)) && statType !== "") {
+                if (s1.value === statType) { s1.classList.add('highlight-yellow'); v1.classList.add('highlight-yellow'); }
+                if (s2.value === statType) { s2.classList.add('highlight-yellow'); v2.classList.add('highlight-yellow'); }
+            }
+            if (accSlots.includes(slot) && eleType !== "") {
+                if (s1.value === eleType) { s1.classList.add('highlight-yellow'); v1.classList.add('highlight-yellow'); }
+                if (s2.value === eleType) { s2.classList.add('highlight-yellow'); v2.classList.add('highlight-yellow'); }
             }
         }
 
-        // --- 2. 방어구 및 특수장비 조건 (고유: 힘/지능 / 일반: 힘/지능) ---
-        if ((armorSlots.includes(slot) || specialSlots.includes(slot)) && statType !== "") {
-            if (s1.value === statType) { 
-                s1.classList.add('highlight-yellow'); 
-                v1.classList.add('highlight-yellow'); 
-            }
-            if (s2.value === statType) { 
-                s2.classList.add('highlight-yellow'); 
-                v2.classList.add('highlight-yellow'); 
-            }
-        }
-
-        // --- 3. 악세서리 조건 (고유: 선택 속강 / 일반: 선택 속강) ---
-        if (accSlots.includes(slot) && eleType !== "") {
-            if (s1.value === eleType) { 
-                s1.classList.add('highlight-yellow'); 
-                v1.classList.add('highlight-yellow'); 
-            }
-            if (s2.value === eleType) { 
-                s2.classList.add('highlight-yellow'); 
-                v2.classList.add('highlight-yellow'); 
+        // --- [신규 추가] 엠블렘 속강 강조 로직 ---
+        if (embHighlightSlots.includes(slot) && eleType !== "") {
+            // 엠블렘1(emb1)의 값이 속강 선택지(eleType)와 같을 경우
+            if (emb1 && emb1.value === eleType) {
+                emb1.classList.add('highlight-yellow');
+                // 오른쪽 텍스트 입력란(emb2)도 함께 강조
+                if (emb2) emb2.classList.add('highlight-yellow');
             }
         }
     });
