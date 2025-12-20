@@ -218,14 +218,28 @@ const STORAGE_KEY = 'dnfm_character_equipment_data';
     let lastSnapshot = localStorage.getItem(STORAGE_KEY) ? JSON.parse(localStorage.getItem(STORAGE_KEY)) : [];
 
     const rarityColors = {
-        "에픽": "#fcc419", "유니크": "#ff80ab", "레어": "#b197fc", "언커먼": "#4dabf7", "커먼": "#888", "티어": "#ffffff",
-        "선봉": "#ff5252", "의지": "#448aff", "이상": "#40c057", "데이터 초기화됨": "#ff5252", "새로운 설정으로 변경됨": "#40c057"
-    };
+    // 등급/상태
+    "에픽": "#fcc419", "유니크": "#ff80ab", "레어": "#b197fc", "언커먼": "#4dabf7", "커먼": "#888", "티어": "#ffffff",
+    "선봉": "#ff5252", "의지": "#448aff", "이상": "#40c057", "데이터 초기화됨": "#ff5252", "새로운 설정으로 변경됨": "#40c057",
+    
+    // 접두어 (이름에 포함되거나 선택될 때 적용될 색상)
+    "전격": "#fcc419", "허상": "#fcc419", "작열": "#fcc419", "침식": "#fcc419", 
+    "수호": "#fcc419", "왜곡": "#fcc419", "자상": "#fcc419", "맹독": "#fcc419", 
+    "보호": "#fcc419", "쇄도": "#fcc419", "신속": "#fcc419", "연격": "#fcc419"
+};
 
-    function getSpanWithColor(text) {
-        const color = rarityColors[text] || "#ddd"; 
-        return `<span style="color:${color}; font-weight:bold;">${text}</span>`;
+    // 색상을 적용해주는 헬퍼 함수
+function getSpanWithColor(text) {
+    // 텍스트가 접두어를 포함하거나 일치하는지 확인
+    let color = "#ddd";
+    for (const key in rarityColors) {
+        if (text.includes(key)) {
+            color = rarityColors[key];
+            break;
+        }
     }
+    return `<span style="color:${color}; font-weight:bold;">${text}</span>`;
+}
 
     // [중요] 누락되었던 잠금 함수 추가
     function toggleEdit(charId, isLock) {
