@@ -19,6 +19,7 @@
             --ex-isang: #40c057; 
             --emb-red: #4a1212; --emb-yellow: #4a3f12; --emb-blue: #121d4a; --emb-green: #124a1d; --emb-gray: #2d2d2d;
             --gakin-2: #fff5f5bb; 
+			--ex-itemname-light: #85EFAD; /* ← 연한 초록 (원하면 값만 조절) */
         }
 
         body { background-color: var(--bg); color: var(--text); font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 10px; }
@@ -108,6 +109,10 @@
         .ex-이상 { color: var(--ex-isang) !important; font-weight: bold; }
         .ex-선봉 { color: var(--ex-sunbong) !important; font-weight: bold; }
         .ex-의지 { color: var(--ex-uiji) !important; font-weight: bold; }
+		.ex-itemname-light {
+			color: var(--ex-itemname-light) !important;
+			font-weight: bold;
+		}
         .prefix-selected { color: var(--txt-epic) !important; font-weight: bold; }
         .prefix-tier { color: #ffffff !important; font-weight: bold; }
         
@@ -138,6 +143,11 @@
         .gakin-title { color: var(--gold); font-weight: bold; font-size: 12px; margin-bottom: 5px; text-align: center; }
         .gakin-container { display: flex; gap: 5px; width: 100%; }
         .m-gakin-input-box { flex: 1; }
+		
+		.itemname-color-sync {
+			font-weight: bold;
+		}
+
     </style>
 </head>
 <body>
@@ -341,7 +351,7 @@ function getSpanWithColor(text) {
                     <td class="col-rarity"><select data-key="${slot}_rarity" data-slot="${slot}" onchange="updateStyle(this, 'rarity')" class="rare-에픽">${rarityOptions}</select></td>
                     <td class="col-exceed">${isExSlot ? `<select data-key="${slot}_exceed" data-slot="${slot}" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-'}</td>
                     <td class="col-prefix">${isEq ? `<select data-key="${slot}_prefix" data-slot="${slot}" onchange="updateStyle(this,'prefix')">${prefixes.map(p=>`<option>${p}</option>`).join('')}</select>` : '-'}</td>
-                    <td><input type="text" data-key="${slot}_itemname" oninput="autoSave()"></td>
+                    <td><input type="text" data-key="${slot}_itemname" class="rare-에픽 itemname-color-sync" oninput="autoSave()"></td>
                     <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_reinforce" oninput="autoSave()">` : '-'}</td>
                     <td>${isEq ? `<select data-key="${slot}_seal1" data-slot="${slot}" onchange="handleSealChange(this)">${g.n1.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
                     <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal1_val" oninput="autoSave()">` : '-'}</td>
@@ -370,7 +380,14 @@ function getSpanWithColor(text) {
                 }
             });
             toggleEdit(charId, savedData.locked);
-        } else { toggleEdit(charId, true); }
+        } else { 
+			toggleEdit(charId, true); 
+		}
+		
+		// 이 부분이 추가되어야 합니다!
+        section.querySelectorAll('select[data-key$="_rarity"], select[data-key$="_exceed"]').forEach(sel => {
+            updateStyle(sel, sel.getAttribute('data-key').includes('rarity') ? 'rarity' : 'exceed', true);
+        });
     }
 
     function handleSealChange(el) {
@@ -425,39 +442,119 @@ function getSpanWithColor(text) {
     }
 
     function updateStyle(el, type, isInitial = false) {
-        const row = el.closest('tr');
-        const slot = el.getAttribute('data-slot');
-        el.className = Array.from(el.classList).filter(c => !c.startsWith('rare-') && !c.startsWith('ex-') && !c.startsWith('bg-') && c !== 'prefix-selected' && c !== 'prefix-tier').join(' ');
-        
-        if (el.value) {
-            if (type === 'rarity') {
-                el.classList.add('rare-' + el.value);
-                const tierSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비"];
-                if (tierSlots.includes(slot)) {
-                    const prefixSel = row.querySelector(`select[data-key="${slot}_prefix"]`);
-                    const exceedTd = row.cells[3];
-                    if (el.value === "티어") {
-                        if (prefixSel) { prefixSel.innerHTML = tierPrefixes.map(p => `<option>${p}</option>`).join(''); prefixSel.className = 'prefix-tier'; }
-                        if (exceedTd) exceedTd.innerHTML = "-";
-                    } else {
-                        if (prefixSel) { prefixSel.innerHTML = prefixes.map(p => `<option>${p}</option>`).join(''); prefixSel.className = ''; }
-                        const isExSlot = ['상의', '팔찌', '귀걸이'].includes(slot);
-                        if (exceedTd && exceedTd.innerText === "-") {
-                            exceedTd.innerHTML = isExSlot ? `<select data-key="${slot}_exceed" data-slot="${slot}" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-';
-                        }
+    const row = el.closest('tr');
+    const slot = el.getAttribute('data-slot');
+
+    // 기존 스타일 클래스 정리
+    el.className = Array.from(el.classList)
+        .filter(c =>
+            !c.startsWith('rare-') &&
+            !c.startsWith('ex-') &&
+            !c.startsWith('bg-') &&
+            c !== 'prefix-selected' &&
+            c !== 'prefix-tier'
+        )
+        .join(' ');
+
+    if (el.value) {
+        // ===== 희귀도 =====
+        if (type === 'rarity') {
+            el.classList.add('rare-' + el.value);
+
+            const tierSlots = [
+                "무기","상의","어깨","하의","신발","벨트",
+                "목걸이","팔찌","반지","보조장비"
+            ];
+
+            if (tierSlots.includes(slot)) {
+                const prefixSel = row.querySelector(`select[data-key="${slot}_prefix"]`);
+                const exceedTd = row.cells[3];
+
+                if (el.value === "티어") {
+                    if (prefixSel) {
+                        prefixSel.innerHTML = tierPrefixes.map(p => `<option>${p}</option>`).join('');
+                        prefixSel.className = 'prefix-tier';
+                    }
+                    if (exceedTd) exceedTd.innerHTML = "-";
+                } else {
+                    if (prefixSel) {
+                        prefixSel.innerHTML = prefixes.map(p => `<option>${p}</option>`).join('');
+                        prefixSel.className = '';
+                    }
+                    const isExSlot = ['상의','팔찌','귀걸이'].includes(slot);
+                    if (exceedTd && exceedTd.innerText === "-") {
+                        exceedTd.innerHTML = isExSlot
+                            ? `<select data-key="${slot}_exceed" data-slot="${slot}" onchange="updateStyle(this,'exceed')">
+                                   <option></option><option>이상</option><option>선봉</option><option>의지</option>
+                               </select>`
+                            : '-';
                     }
                 }
             }
-            else if (type === 'exceed') el.classList.add('ex-' + el.value);
-            else if (type === 'prefix') { if (el.value.startsWith('T')) el.classList.add('prefix-tier'); else el.classList.add('prefix-selected'); }
-            else if (type === 'artBg') {
-                el.classList.add('bg-' + el.value);
-                const optSelect = el.parentElement.querySelector('.art-opt-select');
-                if(optSelect) optSelect.className = 'art-opt-select bg-' + el.value;
+        }
+
+        // ===== 익시드 =====
+        else if (type === 'exceed') {
+            el.classList.add('ex-' + el.value);
+        }
+
+        // ===== 접두어 =====
+        else if (type === 'prefix') {
+            if (el.value.startsWith('T')) el.classList.add('prefix-tier');
+            else el.classList.add('prefix-selected');
+        }
+
+        // ===== 크리쳐 아티팩트 배경 =====
+        else if (type === 'artBg') {
+            el.classList.add('bg-' + el.value);
+            const optSelect = el.parentElement.querySelector('.art-opt-select');
+            if (optSelect) optSelect.className = 'art-opt-select bg-' + el.value;
+        }
+    }
+
+    // ======================================================
+    // 아이템 이름 색상 동기화 (지정 슬롯만)
+    // ======================================================
+    const raritySyncSlots = [
+        "무기","상의","어깨","하의","신발","벨트",
+        "목걸이","팔찌","반지","보조장비","귀걸이","마법석"
+    ];
+
+    if (["rarity", "exceed"].includes(type) && raritySyncSlots.includes(slot)) {
+        const nameInput = row.querySelector(`input[data-key="${slot}_itemname"]`);
+        if (nameInput) {
+            // 기존 색상 관련 클래스 제거
+            nameInput.classList.remove(
+                'rare-에픽','rare-유니크','rare-레어','rare-언커먼','rare-커먼','rare-티어',
+                'ex-itemname-light',
+                'itemname-color-sync'
+            );
+
+            const exColorSlots = ["상의","팔찌","귀걸이"];
+            const exSelect = row.querySelector(`select[data-key="${slot}_exceed"]`);
+
+            // [우선] 익시드 있으면 → 연한 초록색
+            if (exColorSlots.includes(slot) && exSelect && exSelect.value) {
+                nameInput.style.color = "";
+                nameInput.classList.add('ex-itemname-light', 'itemname-color-sync');
+            } 
+            // [기본] 희귀도 색상
+            else {
+                nameInput.style.color = "";
+                const raritySel = row.querySelector(`select[data-key="${slot}_rarity"]`);
+                if (raritySel && raritySel.value) {
+                    nameInput.classList.add(
+                        'rare-' + raritySel.value,
+                        'itemname-color-sync'
+                    );
+                }
             }
         }
-        if (!isInitial) autoSave();
     }
+
+    if (!isInitial) autoSave();
+}
+
 
     function openRuneModal(charId) {
         currentEditingCharId = charId;
