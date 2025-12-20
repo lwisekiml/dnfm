@@ -168,11 +168,18 @@
 <div class="modal-overlay" id="modalOverlay" onclick="closeRuneModal()"></div>
 <div id="skillRunemodal">
     <h3 style="color:var(--gold); margin-top:0;">💎 스킬룬 & 각인 설정</h3>
-	<div style="display:flex; gap:5px; margin-bottom:10px;">
-        <select id="m-batch-rune-name" style="flex:1; background:#222; color:#fff; border:1px solid var(--gold); height:30px;">
-            </select>
+	
+	<div style="display:flex; gap:5px; margin-bottom:5px;">
+        <select id="m-batch-rune-name" style="flex:1; background:#222; color:#fff; border:1px solid var(--gold); height:30px;"></select>
         <button class="btn-action" style="background:#7c3aed; flex:1.2;" onclick="setAllRunesBatch()">룬 레벨4로 설정</button>
     </div>
+
+    <div style="display:flex; gap:5px; margin-bottom:10px;">
+        <select id="m-batch-skill-lv" style="flex:1; background:#222; color:#fff; border:1px solid var(--gold); height:30px;">
+            </select>
+        <button class="btn-action" style="background:#2563eb; flex:1.2;" onclick="setAllSkillLevels()">레벨로 설정</button>
+    </div>
+	
     <table style="width:100%; border-collapse: collapse; font-size:12px; border:1px solid #444;">
         <thead>
             <tr style="color:var(--gold);">
@@ -558,16 +565,23 @@ function updateStyle(el, type, isInitial = false) {
     }
 
 
-	function openRuneModal(charId) {
+	// 1. 모달 열릴 때 스킬 레벨 선택지도 함께 채워주기
+    function openRuneModal(charId) {
         currentEditingCharId = charId;
         const body = document.getElementById('runeModalBody');
         body.innerHTML = '';
         const data = charRuneData[charId];
 
-        // [추가] 상단 일괄 설정 드롭다운에 runeNames 채우기
-        const batchSelect = document.getElementById('m-batch-rune-name');
-        if (batchSelect) {
-            batchSelect.innerHTML = runeNames.map(n => n ? `<option>${n}</option>` : '').join('');
+        // 룬 이름 선택지 채우기
+        const batchNameSelect = document.getElementById('m-batch-rune-name');
+        if (batchNameSelect) {
+            batchNameSelect.innerHTML = runeNames.map(n => n ? `<option>${n}</option>` : '').join('');
+        }
+
+        // [추가] 스킬 레벨 선택지 채우기
+        const batchSkillSelect = document.getElementById('m-batch-skill-lv');
+        if (batchSkillSelect) {
+            batchSkillSelect.innerHTML = runeSkillLevels.map(lv => lv ? `<option>${lv}</option>` : '<option value="">(없음)</option>').join('');
         }
 
         for(let i=0; i<20; i++) {
@@ -585,7 +599,7 @@ function updateStyle(el, type, isInitial = false) {
         document.getElementById('skillRunemodal').style.display = 'block';
     }
 
-function setAllRunesBatch() {
+	function setAllRunesBatch() {
         const selectedName = document.getElementById('m-batch-rune-name').value;
         const body = document.getElementById('runeModalBody');
         const rows = body.querySelectorAll('tr');
@@ -600,20 +614,20 @@ function setAllRunesBatch() {
             if (lvSelect) lvSelect.value = "IV";
         });
     }
-
-	// function setAllAwaken4() {
-    //     const body = document.getElementById('runeModalBody');
-    //     const rows = body.querySelectorAll('tr');
-    //
-    //     rows.forEach(row => {
-    //         const nameSelect = row.querySelector('.m-rune-name');
-    //         const lvSelect = row.querySelector('.m-rune-lv');
-    //
-    //         // 이름은 '각성', 레벨은 'IV' (룬 레벨 4단계)로 설정
-    //         if (nameSelect) nameSelect.value = "각성";
-    //         if (lvSelect) lvSelect.value = "IV";
-    //     });
-    // }
+	
+	// 2. [추가] 스킬 레벨만 일괄 변경하는 함수
+    function setAllSkillLevels() {
+        const selectedSkillLv = document.getElementById('m-batch-skill-lv').value;
+        const body = document.getElementById('runeModalBody');
+        const rows = body.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+            const skillLvSelect = row.querySelector('.m-rune-skillLv');
+            if (skillLvSelect) {
+                skillLvSelect.value = selectedSkillLv;
+            }
+        });
+    }
 	
     function closeRuneModal() { document.getElementById('modalOverlay').style.display = 'none'; document.getElementById('skillRunemodal').style.display = 'none'; }
     
