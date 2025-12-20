@@ -130,7 +130,7 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1999; }
         .v-line { border-left: 1px solid #555; height: 12px; margin: 0 8px; display: inline-block; vertical-align: middle; }
         
-        .btn-char-lock { background: #b91c1c; color: white; padding: 4px; cursor: pointer; font-size: 11px; border:none; margin-bottom: 2px;}
+        .btn-char-lock { background: #2563eb; color: white; padding: 4px; cursor: pointer; font-size: 11px; border:none; margin-bottom: 2px;}
         .btn-char-unlock { background: #444; color: white; padding: 4px; cursor: pointer; font-size: 11px; border:none; }
         .btn-active { border: 2px solid white !important; }
 
@@ -327,7 +327,16 @@ function getSpanWithColor(text) {
             const tr = document.createElement('tr');
             if (heavyBorderSlots.includes(slot)) tr.style.borderBottom = "2px solid var(--border-heavy)";
             if (index === 0) {
-                tr.innerHTML += `<td rowspan="${slots.length}" style="background-color: #121216; vertical-align: top;"><div style="display:flex; flex-direction:column; gap:4px; padding:5px;"><input type="text" placeholder="직업" data-key="info_job" oninput="autoSave()"><input type="text" placeholder="이름" data-key="info_name" oninput="autoSave()"><button onclick="toggleEdit('${charId}', true)" class="btn-char-lock lock-btn">잠금</button><button onclick="toggleEdit('${charId}', false)" class="btn-char-unlock unlock-btn">해제</button></div></td>`;
+                // 삭제 버튼이 추가된 캐릭터 정보 열
+                tr.innerHTML += `<td rowspan="${slots.length}" style="background-color: #121216; vertical-align: top;">
+    <div style="display:flex; flex-direction:column; gap:4px; padding:5px;">
+        <input type="text" placeholder="직업" data-key="info_job" oninput="autoSave()">
+        <input type="text" placeholder="이름" data-key="info_name" oninput="autoSave()">
+        <button onclick="toggleEdit('${charId}', true)" class="btn-char-lock lock-btn">잠금</button>
+        <button onclick="toggleEdit('${charId}', false)" class="btn-char-unlock unlock-btn">해제</button>
+        <button onclick="deleteCharacter('${charId}')" class="del-btn" style="background:#ff4d4d; color:white; border:none; padding:4px; cursor:pointer; font-size:11px; border-radius:2px; margin-top:4px;">삭제</button>
+    </div>
+</td>`;
             }
 
             if (slot === "스킬룬") {
@@ -397,10 +406,10 @@ function getSpanWithColor(text) {
             });
             toggleEdit(charId, savedData.locked);
         } else { 
-			toggleEdit(charId, true); 
-		}
-		
-		// 이 부분이 추가되어야 합니다!
+            toggleEdit(charId, true); 
+        }
+
+        // 초기 생성 시 스타일 동기화 (에픽 등 노란색 글씨 보장)
         section.querySelectorAll('select[data-key$="_rarity"], select[data-key$="_exceed"]').forEach(sel => {
             updateStyle(sel, sel.getAttribute('data-key').includes('rarity') ? 'rarity' : 'exceed', true);
         });
@@ -780,6 +789,36 @@ function updateStyle(el, type, isInitial = false) {
             });
         }
     });
+	
+	
+	// ---------------------------------------------------------
+    // 캐릭터 삭제 함수 (중복 제거 및 잠금 체크 통합 버전)
+    // ---------------------------------------------------------
+    function deleteCharacter(charId) {
+        const section = document.getElementById(charId);
+        if (!section) return;
+
+        // 잠금 버튼이 'btn-active' 클래스를 가지고 있는지 확인 (잠금 상태 체크)
+        const lockBtn = section.querySelector('.lock-btn');
+        const isLocked = lockBtn && lockBtn.classList.contains('btn-active');
+
+        if (isLocked) {
+            alert("캐릭터가 잠금 상태입니다. '해제' 버튼을 누른 후 삭제해주세요.");
+            return;
+        }
+
+        if(confirm("정말로 이 캐릭터를 삭제하시겠습니까? 삭제된 데이터는 복구할 수 없습니다.")) {
+            section.remove();
+            delete charRuneData[charId]; // 메모리에서 룬 데이터 삭제
+            autoSave(); // 로컬 스토리지 즉시 갱신
+            
+            const statusMsg = document.getElementById('statusMsg');
+            if (statusMsg) {
+                statusMsg.innerText = "캐릭터가 삭제되었습니다.";
+                setTimeout(() => statusMsg.innerText = "", 2000);
+            }
+        }
+    }
 </script>
 </body>
 </html>
