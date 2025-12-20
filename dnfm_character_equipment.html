@@ -244,6 +244,54 @@ const STORAGE_KEY = 'dnfm_character_equipment_data';
         accessory: { n1: ["", "화속강", "수속강", "명속강", "암속강", "힘", "지능", "체력", "정신력"], n2: ["", "화속강", "수속강", "명속강", "암속강", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "화속성 저항", "수속성 저항", "명속성 저항", "암속성 저항", "적중", "회피"] },
         special: { n1: ["", "물리 공격력", "마법 공격력", "힘", "지능", "물리 크리티컬", "마법 크리티컬", "적중", "회피"], n2: ["", "물리 공격력", "마법 공격력", "물리 크리티컬", "마법 크리티컬", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "적중", "회피"] }
     };
+	
+// 1. 방어구 세트 데이터 정의
+const armorSets = [
+    ["못말리는 말괄량이의 가죽", "어느 말괄량이의 가죽 자켓", "어느 말괄량이의 버블 반바지", "어느 말괄량이의 특수 고글", "어느 말괄량이의 벨트", "어느 말괄량이의 신발"],
+    ["엠프리스 스파이더 상의", "퀸 스파이더 상의", "퀸 스파이더 하의", "퀸 스파이더 머리", "퀸 스파이더 벨트 장식", "퀸 스파이더 신발"],
+    ["거신의 스펙쿨룸 상의", "거인의 스펙쿨룸 상의", "거인의 스펙쿨룸 하의", "거인의 스펙쿨룸 어깨 장식", "거인의 스펙쿨룸 허리띠", "거인의 스펙쿨룸 신발"],
+    ["밤을 쏘아 내리는 자의 상의", "어둠을 쏘아 내리는 자의 상의", "어둠을 쏘아 내리는 자의 하의", "어둠을 쏘아 내리는 자의 어깨 덧댐", "어둠을 쏘아 내리는 자의 허리띠", "어둠을 쏘아 내리는 자의 신발"],
+    ["수호군주의 초합금 상의", "수호자의 초합금 상의", "수호자의 초합금 하의", "수호자의 초합금 어깨", "수호자의 초합금 벨트", "수호자의 초합금 신발"],
+    ["네트 스파이더 상의", "웹 스파이더의 상의", "웹 스파이더의 하의", "웹 스파이더의 어깨", "웹 스파이더의 허리", "웹 스파이더의 신발"],
+    ["강철 용의 스케일 재킷", "강철 용의 가죽 재킷", "강철 용의 가죽 그리브", "강철 용의 뿔 장식", "강철 용의 휴대용 벨트", "강철 용의 가죽 신발"],
+    ["블레이징 기어 플레이트 메일", "버닝 기어 플레이트 메일", "버닝 기어 플레이트 레깅스", "버닝 기어 플레이트 햇", "버닝 기어 플레이트 코일", "버닝 기어 플레이트 사바톤"],
+    ["빛의 수호자의 상의", "빛의 헌신자의 상의", "빛의 헌신자의 하의", "빛의 헌신자의 모자", "빛의 헌신자의 허리장식", "빛의 헌신자의 신발"],
+    ["여명을 밝힌 자의 상의", "여명을 쏘아 올리는 자의 상의", "여명을 쏘아 올리는 자의 바지", "여명을 쏘아 올리는 자의 어깨 덧댐", "여명을 쏘아 올리는 자의 허리띠", "여명을 쏘아 올리는 자의 신발"],
+    ["콰트로 카시테움 아머Mk2", "콰트로 카시테움 아머", "콰트로 카시테움 각반", "콰트로 카시테움 새로운 손", "콰트로 카시테움 코일", "콰트로 카시테움 그리브"],
+    ["그런데 마누스 전투기갑 상의", "그란데 전투기갑 상의", "그란데 전투기갑 하의", "그란데 전투기갑 헤드기어", "그란데 전투기갑 허리", "그란데 전투기갑 신발"],
+    ["레거시: 휘몰아치는 마력의 태풍", "레거시: 마력의 폭풍우", "레거시: 영력의 회오리", "레거시: 마법의 대격변", "레거시: 마나의 소용돌이", "레거시: 정수의 태풍"],
+    ["레거시: 루미너스 오토 상의", "레거시: 라이트니스 오토 상의", "레거시: 파이어니스 오토 하의", "레거시: 블랙니스 오토 어깨", "레거시: 아이니스 오토 벨트", "레거시: 윈드니스 오토 신발"]
+];
+
+// 세트 체크 함수 (조금 더 확실하게 판정하도록 보완)
+function checkArmorSetColor(charId) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    const armorSlots = ["상의", "하의", "어깨", "벨트", "신발"];
+    const currentItems = armorSlots.map(slot => {
+        const el = section.querySelector(`[data-key="${slot}_itemname"]`);
+        return { el, val: el ? el.value.trim() : "" }; // trim() 추가로 공백 제거
+    });
+
+    let isFullSet = false;
+    for (const set of armorSets) {
+        // 5부위 모두 해당 세트 배열(set) 안에 포함되어 있는지 확인
+        const matchCount = currentItems.filter(item => item.val !== "" && set.includes(item.val)).length;
+        if (matchCount === 5) {
+            isFullSet = true;
+            break;
+        }
+    }
+
+    currentItems.forEach(item => {
+        if (item.el) {
+            item.el.style.color = isFullSet ? "#71D2E5" : "";
+            // 만약 선택지(select) 자체의 글자색이 안 변한다면 아래 코드도 추가
+            item.el.style.setProperty('color', isFullSet ? "#71D2E5" : "", 'important');
+        }
+    });
+}
 
     let charRuneData = {}; 
     let currentEditingCharId = null;
@@ -295,6 +343,7 @@ function getSpanWithColor(text) {
         autoSave();
     }
 
+// 3. 메인 테이블 생성 함수
 function createCharacterTable(savedData = null) {
     const charId = savedData && savedData.id ? savedData.id : "char_" + Date.now() + Math.random().toString(16).slice(2);
     const section = document.createElement('div');
@@ -396,7 +445,6 @@ function createCharacterTable(savedData = null) {
             const tierSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비"];
             const rarityOptions = tierSlots.includes(slot) ? `<option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option><option>티어</option>` : `<option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>`;
 
-            // 아이템 이름 선택지 데이터 정의
             const itemOptions = {
                 "상의": ["못말리는 말괄량이의 가죽", "어느 말괄량이의 가죽 자켓", "", "엠프리스 스파이더 상의", "퀸 스파이더 상의", "", "거신의 스펙쿨룸 상의", "거인의 스펙쿨룸 상의", "", "밤을 쏘아 내리는 자의 상의", "어둠을 쏘아 내리는 자의 상의", "", "수호군주의 초합금 상의", "수호자의 초합금 상의", "", "네트 스파이더 상의", "웹 스파이더의 상의", "", "강철 용의 스케일 재킷", "강철 용의 가죽 재킷", "", "블레이징 기어 플레이트 메일", "버닝 기어 플레이트 메일", "", "빛의 수호자의 상의", "빛의 헌신자의 상의", "", "여명을 밝힌 자의 상의", "여명을 쏘아 올리는 자의 상의", "", "콰트로 카시테움 아머Mk2", "콰트로 카시테움 아머", "", "그런데 마누스 전투기갑 상의", "그란데 전투기갑 상의", "", "레거시: 휘몰아치는 마력의 태풍", "레거시: 마력의 폭풍우", "", "레거시: 루미너스 오토 상의", "레거시: 라이트니스 오토 상의"],
                 "하의": ["어느 말괄량이의 버블 반바지", "퀸 스파이더 하의", "거인의 스펙쿨룸 하의", "어둠을 쏘아 내리는 자의 하의", "수호자의 초합금 하의", "웹 스파이더의 하의", "강철 용의 가죽 그리브", "버닝 기어 플레이트 레깅스", "빛의 헌신자의 하의", "여명을 쏘아 올리는 자의 바지", "콰트로 카시테움 각반", "그란데 전투기갑 하의", "레거시: 영력의 회오리", "레거시: 파이어니스 오토 하의"],
@@ -412,8 +460,11 @@ function createCharacterTable(savedData = null) {
             };
 
             let itemNameHTML = '';
+            const armorSlots = ["상의", "하의", "어깨", "벨트", "신발"];
+            const isArmor = armorSlots.includes(slot);
+
             if (itemOptions[slot]) {
-                itemNameHTML = `<select data-key="${slot}_itemname" class="rare-에픽 itemname-color-sync" onchange="autoSave()">
+                itemNameHTML = `<select data-key="${slot}_itemname" class="rare-에픽 itemname-color-sync" onchange="${isArmor ? `checkArmorSetColor('${charId}'); ` : ''}autoSave()">
                     <option value=""></option>
                     ${itemOptions[slot].map(opt => `<option value="${opt}">${opt}</option>`).join('')}
                 </select>`;
@@ -461,6 +512,7 @@ function createCharacterTable(savedData = null) {
         updateStyle(sel, sel.getAttribute('data-key').includes('rarity') ? 'rarity' : 'exceed', true);
     });
     applySealHighlight(charId);
+    checkArmorSetColor(charId); // 초기 로드 시 세트 색상 적용
 }
 
 
