@@ -510,6 +510,41 @@
         reader.readAsText(input.files[0]); 
     }
     window.onload = () => { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); if (saved.length > 0) saved.forEach(d => createCharacterTable(d)); else createCharacterTable(); };
+	
+	// Tab 키 입력 시 아래 칸으로 이동하는 로직
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+        const activeEx = document.activeElement;
+        const key = activeEx.getAttribute('data-key');
+        
+        // data-key가 없는 요소(직업/이름 등)는 기본 동작 유지
+        if (!key) return;
+
+        const section = activeEx.closest('.char-section');
+        const currentSlot = activeEx.getAttribute('data-slot') || key.split('_')[0];
+        const suffix = key.replace(currentSlot, ''); // 예: _itemname, _reinforce
+        
+        // 현재 슬롯의 순서 확인
+        const currentIndex = slots.indexOf(currentSlot);
+        if (currentIndex === -1) return;
+
+        // 이동할 방향 결정 (Tab은 아래로, Shift+Tab은 위로)
+        const nextIndex = e.shiftKey ? currentIndex - 1 : currentIndex + 1;
+        
+        if (nextIndex >= 0 && nextIndex < slots.length) {
+            const nextSlot = slots[nextIndex];
+            // 다음 슬롯에서 같은 suffix를 가진 입력창 찾기
+            const targetInput = section.querySelector(`[data-key="${nextSlot}${suffix}"]`);
+
+            if (targetInput && !targetInput.disabled) {
+                e.preventDefault();
+                targetInput.focus();
+                // 텍스트 전체 선택 (편의성)
+                if (targetInput.select) targetInput.select();
+            }
+        }
+    }
+});
 </script>
 </body>
 </html>
