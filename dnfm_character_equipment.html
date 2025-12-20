@@ -235,13 +235,13 @@ const STORAGE_KEY = 'dnfm_character_equipment_data';
     const artOptions = {
         red: ["힘", "지능", "체력", "정신력", "적중", "회피"],
         blue: ["HP MAX", "MP MAX", "물리 공격력", "마법 공격력", "물리 방어력", "마법 방어력"],
-        green: ["물리 크리티컬", "마법 크리티컬", "공격속도", "캐스팅속도", "이동속도", "화속성 강화", "수속성 강화", "명속성 강화", "암속성 강화", "모든 속성 강화"]
+        green: ["물리 크리티컬", "마법 크리티컬", "공격속도", "캐스팅속도", "이동속도", "화속강", "수속강", "명속강", "암속강", "모든 속성 강화"]
     };
 
     const mData = {
-        weapon: { n1: ["", "데미지 증가", "추가 데미지", "모든 직업 50레벨스킬", "화속성 강화", "수속성 강화", "명속성 강화", "암속성 강화", "힘", "지능", "물리 공격력", "마법 공격력"], n2: ["", "물리 공격력", "마법 공격력", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "적중", "회피"] },
+        weapon: { n1: ["", "데미지 증가", "추가 데미지", "모든 직업 50레벨스킬", "화속강", "수속강", "명속강", "암속강", "힘", "지능", "물리 공격력", "마법 공격력"], n2: ["", "물리 공격력", "마법 공격력", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "적중", "회피"] },
         armor: { n1: ["", "힘", "지능", "체력", "정신력", "물리 크리티컬", "마법 크리티컬"], n2: ["", "물리 크리티컬", "마법 크리티컬", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "적중", "회피"] },
-        accessory: { n1: ["", "화속성 강화", "수속성 강화", "명속성 강화", "암속성 강화", "힘", "지능", "체력", "정신력"], n2: ["", "화속성 강화", "수속성 강화", "명속성 강화", "암속성 강화", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "화속성 저항", "수속성 저항", "명속성 저항", "암속성 저항", "적중", "회피"] },
+        accessory: { n1: ["", "화속강", "수속강", "명속강", "암속강", "힘", "지능", "체력", "정신력"], n2: ["", "화속강", "수속강", "명속강", "암속강", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "화속성 저항", "수속성 저항", "명속성 저항", "암속성 저항", "적중", "회피"] },
         special: { n1: ["", "물리 공격력", "마법 공격력", "힘", "지능", "물리 크리티컬", "마법 크리티컬", "적중", "회피"], n2: ["", "물리 공격력", "마법 공격력", "물리 크리티컬", "마법 크리티컬", "힘", "지능", "체력", "정신력", "공격속도", "캐스팅속도", "이동속도", "최대 HP 증가", "최대 MP 증가", "물리 방어력", "마법 방어력", "적중", "회피"] }
     };
 
@@ -345,10 +345,10 @@ function createCharacterTable(savedData = null) {
                     </select>
                     <select data-key="info_ele_type" onchange="applySealHighlight('${charId}'); autoSave();" style="border:1px solid #444; background:#000; color:#fff; font-size:11px; height:22px;">
                         <option value=""></option>
-                        <option value="화속성 강화">화속성 강화</option>
-                        <option value="수속성 강화">수속성 강화</option>
-                        <option value="명속성 강화">명속성 강화</option>
-                        <option value="암속성 강화">암속성 강화</option>
+                        <option value="화속강">화속강</option>
+                        <option value="수속강">수속강</option>
+                        <option value="명속강">명속강</option>
+                        <option value="암속강">암속강</option>
                     </select>
                     <input type="text" placeholder="직업" data-key="info_job" oninput="autoSave()">
                     <input type="text" placeholder="이름" data-key="info_name" oninput="autoSave()">
@@ -455,13 +455,13 @@ function createCharacterTable(savedData = null) {
         const vIn = row.querySelector(`input[data-key="${slot}_seal1_val"]`);
         if (!vIn) return;
         if (slot === "무기") {
-            const weaponTable = { "데미지 증가": "8", "추가 데미지": "8", "모든 직업 50레벨스킬": "1", "화속성 강화": "10", "수속성 강화": "10", "명속성 강화": "10", "암속성 강화": "10", "힘": "46", "지능": "46", "물리 공격력": "19", "마법 공격력": "19" };
+            const weaponTable = { "데미지 증가": "8", "추가 데미지": "8", "모든 직업 50레벨스킬": "1", "화속강": "10", "수속강": "10", "명속강": "10", "암속강": "10", "힘": "46", "지능": "46", "물리 공격력": "19", "마법 공격력": "19" };
             if (weaponTable[opt]) vIn.value = weaponTable[opt];
         } else if (armors.includes(slot)) {
             const armorTable = { "힘": "46", "지능": "46", "체력": "46", "정신력": "46", "물리 크리티컬": "29", "마법 크리티컬": "29" };
             if (armorTable[opt]) vIn.value = armorTable[opt];
         } else if (accs.includes(slot)) {
-            const accTable = { "화속성 강화": "10", "수속성 강화": "10", "명속성 강화": "10", "암속성 강화": "10", "힘": "46", "지능": "46", "체력": "46", "정신력": "46" };
+            const accTable = { "화속강": "10", "수속강": "10", "명속강": "10", "암속강": "10", "힘": "46", "지능": "46", "체력": "46", "정신력": "46" };
             if (accTable[opt]) vIn.value = accTable[opt];
         } else if (specials.includes(slot)) {
             const specTable = { "물리 공격력": "19", "마법 공격력": "19", "힘": "46", "지능": "46", "물리 크리티컬": "60", "마법 크리티컬": "60", "적중": "75", "회피": "75" };
@@ -480,7 +480,7 @@ function createCharacterTable(savedData = null) {
             if (opt === "물리 크리티컬" || opt === "마법 크리티컬") vIn.value = "30";
             else if (commonValTable[opt]) vIn.value = commonValTable[opt];
         } else if (accs.includes(slot)) {
-            const resTable = { "화속성 저항": "8", "수속성 저항": "8", "명속성 저항": "8", "암속성 저항": "8", "화속성 강화": "8", "수속성 강화": "8", "명속성 강화": "8", "암속성 강화": "8" };
+            const resTable = { "화속성 저항": "8", "수속성 저항": "8", "명속성 저항": "8", "암속성 저항": "8", "화속강": "8", "수속강": "8", "명속강": "8", "암속강": "8" };
             if (resTable[opt]) vIn.value = resTable[opt];
             else if (commonValTable[opt]) vIn.value = commonValTable[opt];
         } else if (specials.includes(slot)) {
