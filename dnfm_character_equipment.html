@@ -558,7 +558,28 @@ document.addEventListener('keydown', function(e) {
 let changeHistory = [];
 let lastSnapshot = localStorage.getItem(STORAGE_KEY) ? JSON.parse(localStorage.getItem(STORAGE_KEY)) : [];
 
-// 기록 모달 열기
+// 등급 및 특수 상태별 색상 정의
+const rarityColors = {
+    "에픽": "#fcc419",
+    "유니크": "#ff80ab",
+    "레어": "#b197fc",
+    "언커먼": "#4dabf7",
+    "커먼": "#888",
+    "티어": "#ffffff",
+    // 추가된 익시드 상태 색상
+    "선봉": "#ff5252",
+    "의지": "#448aff",
+    "이상": "#40c057"
+};
+
+// 색상을 적용해주는 헬퍼 함수
+function getSpanWithColor(text) {
+    // 텍스트가 정의된 색상표에 있는지 확인 (없으면 기본색 #ddd)
+    const color = rarityColors[text] || "#ddd"; 
+    return `<span style="color:${color}; font-weight:bold;">${text}</span>`;
+}
+
+// 기록 모달 열기 (수정됨)
 function openHistoryModal() {
     const listEl = document.getElementById('historyList');
     if (changeHistory.length === 0) {
@@ -567,7 +588,7 @@ function openHistoryModal() {
         listEl.innerHTML = changeHistory.map(h => 
             `<div style="border-bottom:1px solid #333; padding:5px 0;">
                 <span style="color:var(--gold)">[${h.time}]</span> <b>${h.charName}</b> - ${h.slot}: <br>
-                <span style="color:#ff5252;">${h.old}</span> → <span style="color:#40c057;">${h.new}</span>
+                ${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)}
             </div>`
         ).join('');
     }
@@ -584,13 +605,13 @@ function closeHistoryModal() {
 document.addEventListener('change', function(e) {
     const el = e.target;
     const key = el.getAttribute('data-key');
-    
+
     // 기록 대상이 아닌 요소는 무시
     if (!key) return;
 
     const section = el.closest('.char-section');
     const charName = section.querySelector('[data-key="info_name"]').value || "이름없음";
-    
+
     // 슬롯 이름 추출 (예: 무기_itemname -> 무기)
     const slot = key.split('_')[0];
     
