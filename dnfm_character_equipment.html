@@ -171,12 +171,16 @@
 	
 	<div style="display:flex; gap:5px; margin-bottom:5px;">
         <select id="m-batch-rune-name" style="flex:1; background:#222; color:#fff; border:1px solid var(--gold); height:30px;"></select>
-        <button class="btn-action" style="background:#7c3aed; flex:1.2;" onclick="setAllRunesBatch()">룬 레벨4로 설정</button>
+        <button class="btn-action" style="background:#7c3aed; flex:1.2;" onclick="setAllRunesBatch()">룬 설정</button>
+    </div>
+
+    <div style="display:flex; gap:5px; margin-bottom:5px;">
+        <select id="m-batch-rune-lv" style="flex:1; background:#222; color:#fff; border:1px solid var(--gold); height:30px;"></select>
+        <button class="btn-action" style="background:#059669; flex:1.2;" onclick="setAllRuneLevels()">레벨 설정</button>
     </div>
 
     <div style="display:flex; gap:5px; margin-bottom:10px;">
-        <select id="m-batch-skill-lv" style="flex:1; background:#222; color:#fff; border:1px solid var(--gold); height:30px;">
-            </select>
+        <select id="m-batch-skill-lv" style="flex:1; background:#222; color:#fff; border:1px solid var(--gold); height:30px;"></select>
         <button class="btn-action" style="background:#2563eb; flex:1.2;" onclick="setAllSkillLevels()">레벨로 설정</button>
     </div>
 	
@@ -565,25 +569,34 @@ function updateStyle(el, type, isInitial = false) {
     }
 
 
-	// 1. 모달 열릴 때 스킬 레벨 선택지도 함께 채워주기
+	// 1. 모달 열릴 때 모든 일괄 설정 선택지 채우기
     function openRuneModal(charId) {
         currentEditingCharId = charId;
         const body = document.getElementById('runeModalBody');
         body.innerHTML = '';
         const data = charRuneData[charId];
 
-        // 룬 이름 선택지 채우기
+        // 1. 룬 이름 선택지 (공백 옵션 추가)
         const batchNameSelect = document.getElementById('m-batch-rune-name');
         if (batchNameSelect) {
-            batchNameSelect.innerHTML = runeNames.map(n => n ? `<option>${n}</option>` : '').join('');
+            batchNameSelect.innerHTML = '<option value=""></option>' + 
+                runeNames.map(n => n ? `<option>${n}</option>` : '').join('');
         }
 
-        // [추가] 스킬 레벨 선택지 채우기
+        // 2. 룬 레벨 선택지 (기존 동일)
+        const batchRuneLvSelect = document.getElementById('m-batch-rune-lv');
+        if (batchRuneLvSelect) {
+            batchRuneLvSelect.innerHTML = runeLevels.map(lv => `<option>${lv}</option>`).join('');
+        }
+
+        // 3. 스킬 레벨 선택지 (공백 옵션이 이미 있다면 유지, 없다면 명시적 추가)
         const batchSkillSelect = document.getElementById('m-batch-skill-lv');
         if (batchSkillSelect) {
-            batchSkillSelect.innerHTML = runeSkillLevels.map(lv => lv ? `<option>${lv}</option>` : '<option value="">(없음)</option>').join('');
+            batchSkillSelect.innerHTML = '<option value=""></option>' + 
+                runeSkillLevels.filter(lv => lv !== "").map(lv => `<option>${lv}</option>`).join('');
         }
 
+        // 하단 20개 행 생성 로직 (기존 동일)
         for(let i=0; i<20; i++) {
             const r = data.runes[i] || { name: '', lv: '', skillLv: '' };
             const tr = document.createElement('tr');
@@ -606,12 +619,23 @@ function updateStyle(el, type, isInitial = false) {
         
         rows.forEach(row => {
             const nameSelect = row.querySelector('.m-rune-name');
-            const lvSelect = row.querySelector('.m-rune-lv');
             
-            // 이름 변경 (데이터가 있을 때만)
-            if (nameSelect) nameSelect.value = selectedName;
-            // 레벨은 IV(4단계)로 고정
-            if (lvSelect) lvSelect.value = "IV";
+            // 이름만 선택한 것으로 변경 (룬 레벨은 건드리지 않음)
+            if (nameSelect) {
+                nameSelect.value = selectedName;
+            }
+        });
+    }
+	
+	// 2. [추가] 룬 레벨(I~V)만 일괄 변경하는 함수
+    function setAllRuneLevels() {
+        const selectedRuneLv = document.getElementById('m-batch-rune-lv').value;
+        const body = document.getElementById('runeModalBody');
+        const rows = body.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+            const lvSelect = row.querySelector('.m-rune-lv');
+            if (lvSelect) lvSelect.value = selectedRuneLv;
         });
     }
 	
