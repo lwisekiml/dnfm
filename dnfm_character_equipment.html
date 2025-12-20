@@ -148,6 +148,13 @@
 			font-weight: bold;
 		}
 
+        /* 에픽 등급과 동일한 강조 색상 */
+        .highlight-yellow {
+            color: #fcc419 !important; /* 에픽 등급 특유의 밝은 노란색 */
+            font-weight: bold;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.8); /* 가독성을 위한 그림자 */
+        }
+
     </style>
 </head>
 <body>
@@ -288,183 +295,209 @@ function getSpanWithColor(text) {
         autoSave();
     }
 
-    function createCharacterTable(savedData = null) {
-        const charId = savedData && savedData.id ? savedData.id : "char_" + Date.now() + Math.random().toString(16).slice(2);
-        const section = document.createElement('div');
-        section.className = 'char-section';
-        section.id = charId;
-        charRuneData[charId] = (savedData && savedData.runeData) ? savedData.runeData : { runes: Array(20).fill().map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] };
+function createCharacterTable(savedData = null) {
+    const charId = savedData && savedData.id ? savedData.id : "char_" + Date.now() + Math.random().toString(16).slice(2);
+    const section = document.createElement('div');
+    section.className = 'char-section';
+    section.id = charId;
+    charRuneData[charId] = (savedData && savedData.runeData) ? savedData.runeData : { runes: Array(20).fill().map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] };
 
-        section.innerHTML = `
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th rowspan="2" class="col-char-info">직업/이름</th>
-                            <th rowspan="2" class="col-slot v-border-heavy">슬롯</th>
-                            <th rowspan="2" class="col-rarity">희귀도</th>
-                            <th rowspan="2" class="col-exceed">익시드</th>
-                            <th rowspan="2" class="col-prefix">접두어</th>
-                            <th rowspan="2" style="min-width:120px;">아이템이름</th>
-                            <th rowspan="2" class="col-val-short">강화</th>
-                            <th colspan="4" class="group-header">마법봉인</th>
-                            <th colspan="2" class="group-header">엠블렘</th>
-                            <th colspan="2" class="group-header">마법부여</th>
-                            <th rowspan="2" style="min-width:230px;" class="v-border-heavy">설명</th>
-                        </tr>
-                        <tr>
-                            <th>고유 옵션</th><th class="col-val-short">수치</th><th>일반 옵션</th><th class="col-val-short">수치</th>
-                            <th class="col-emblem">엠블렘</th><th class="col-emblem">엠블렘</th>
-                            <th class="col-enchant">마법부여</th><th class="col-val-short">수치</th>
-                        </tr>
-                    </thead>
-                    <tbody class="tbody-content"></tbody>
-                </table>
-            </div>`;
+    section.innerHTML = `
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2" class="col-char-info">직업/이름</th>
+                        <th rowspan="2" class="col-slot v-border-heavy">슬롯</th>
+                        <th rowspan="2" class="col-rarity">희귀도</th>
+                        <th rowspan="2" class="col-exceed">익시드</th>
+                        <th rowspan="2" class="col-prefix">접두어</th>
+                        <th rowspan="2" style="min-width:120px;">아이템이름</th>
+                        <th rowspan="2" class="col-val-short">강화</th>
+                        <th colspan="4" class="group-header">마법봉인</th>
+                        <th colspan="2" class="group-header">엠블렘</th>
+                        <th colspan="2" class="group-header">마법부여</th>
+                        <th rowspan="2" style="min-width:230px;" class="v-border-heavy">설명</th>
+                    </tr>
+                    <tr>
+                        <th>고유 옵션</th><th class="col-val-short">수치</th><th>일반 옵션</th><th class="col-val-short">수치</th>
+                        <th class="col-emblem">엠블렘</th><th class="col-emblem">엠블렘</th>
+                        <th class="col-enchant">마법부여</th><th class="col-val-short">수치</th>
+                    </tr>
+                </thead>
+                <tbody class="tbody-content"></tbody>
+            </table>
+        </div>`;
 
-        const tbody = section.querySelector('.tbody-content');
-        slots.forEach((slot, index) => {
-            const tr = document.createElement('tr');
-            if (heavyBorderSlots.includes(slot)) tr.style.borderBottom = "2px solid var(--border-heavy)";
-            if (index === 0) {
-                // 삭제 버튼이 추가된 캐릭터 정보 열
-                tr.innerHTML += `<td rowspan="${slots.length}" style="background-color: #121216; vertical-align: top;">
-    <div style="display:flex; flex-direction:column; gap:4px; padding:5px;">
-        <input type="text" placeholder="직업" data-key="info_job" oninput="autoSave()">
-        <input type="text" placeholder="이름" data-key="info_name" oninput="autoSave()">
-        <button onclick="toggleEdit('${charId}', true)" class="btn-char-lock lock-btn">잠금</button>
-        <button onclick="toggleEdit('${charId}', false)" class="btn-char-unlock unlock-btn">해제</button>
-        <button onclick="deleteCharacter('${charId}')" class="del-btn" style="background:#ff4d4d; color:white; border:none; padding:4px; cursor:pointer; font-size:11px; border-radius:2px; margin-top:4px;">삭제</button>
-    </div>
-</td>`;
-            }
-
-            if (slot === "스킬룬") {
-                tr.innerHTML += `<td class="col-slot v-border-heavy">스킬룬</td>
-                    <td colspan="3"><button class="btn-action" onclick="openRuneModal('${charId}')" style="background:#059669; padding:2px 8px;">수정</button> <button class="btn-action" onclick="resetRuneData('${charId}')" style="background:#444; padding:2px 8px;">초기화</button></td>
-                    <td colspan="10" id="${charId}_runeSummary" style="text-align:left; padding-left:10px; color:var(--gold); font-size:11px; font-weight:bold;">설정된 룬 없음</td>
-                    <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()"></td>`;
-            } else if (slot === "크리쳐") {
-                tr.innerHTML += `<td class="col-slot v-border-heavy">크리쳐</td>
-                    <td class="col-rarity"><select data-key="${slot}_rarity" onchange="updateStyle(this, 'rarity')" class="rare-에픽"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select></td>
-                    <td colspan="2"><input type="text" data-key="${slot}_name" placeholder="크리쳐 이름" oninput="autoSave()"></td>
-                    <td colspan="10">
-                        <div class="artifact-main-wrapper">
-                            ${['red', 'blue', 'green'].map((color, cIdx) => `
-                                <div class="art-group">
-                                    ${[1, 2].map(num => `<div class="art-item"><select data-key="${slot}_art_${color}_bg_${num}" class="art-color-select bg-에픽" style="width:65px;" onchange="updateStyle(this, 'artBg')"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select><select data-key="${slot}_art_${color}_opt_${num}" class="art-opt-select bg-에픽" style="width:110px;" onchange="autoSave()"><option value="">옵션 선택</option>${artOptions[color].map(o=>`<option>${o}</option>`).join('')}</select></div>`).join('')}
-                                </div>`).join('')}
-                        </div>
-                    </td>
-                    <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()"></td>`;
-            } else {
-                const isEq = index < 12; 
-                const isExSlot = ['상의', '팔찌', '귀걸이'].includes(slot);
-                const hasEmb = !["외형칭호", "오라", "아바타", "크리쳐"].includes(slot);
-                const isElemSlot = ["보조장비", "귀걸이", "마법석", "칭호"].includes(slot);
-                let g = { n1: [], n2: [] };
-                if(slot === "무기") g = mData.weapon;
-                else if(index >= 1 && index <= 5) g = mData.armor; 
-                else if(index >= 6 && index <= 8) g = mData.accessory; 
-                else if(index >= 9 && index <= 11) g = mData.special;
-                let embCls = (["상의", "하의"].includes(slot)) ? "emb-bg-red" : (["어깨", "벨트"].includes(slot)) ? "emb-bg-yellow" : (["신발", "팔찌"].includes(slot)) ? "emb-bg-blue" : (["목걸이", "반지"].includes(slot)) ? "emb-bg-green" : "emb-bg-gray";
-                
-                const tierSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비"];
-                const rarityOptions = tierSlots.includes(slot) ? `<option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option><option>티어</option>` : `<option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>`;
-
-                tr.innerHTML += `<td class="col-slot v-border-heavy">${slot}</td>
-                    <td class="col-rarity"><select data-key="${slot}_rarity" data-slot="${slot}" onchange="updateStyle(this, 'rarity')" class="rare-에픽">${rarityOptions}</select></td>
-                    <td class="col-exceed">${isExSlot ? `<select data-key="${slot}_exceed" data-slot="${slot}" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-'}</td>
-                    <td class="col-prefix">${isEq ? `<select data-key="${slot}_prefix" data-slot="${slot}" onchange="updateStyle(this,'prefix')">${prefixes.map(p=>`<option>${p}</option>`).join('')}</select>` : '-'}</td>
-                    <td><input type="text" data-key="${slot}_itemname" class="rare-에픽 itemname-color-sync" oninput="autoSave()"></td>
-                    <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_reinforce" oninput="autoSave()">` : '-'}</td>
-                    <td>${isEq ? `<select data-key="${slot}_seal1" data-slot="${slot}" onchange="handleSealChange(this)">${g.n1.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
-                    <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal1_val" oninput="autoSave()">` : '-'}</td>
-                    <td>${isEq ? `<select data-key="${slot}_seal2" data-slot="${slot}" onchange="handleSealChange(this)">${g.n2.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
-                    <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal2_val" oninput="autoSave()">` : '-'}</td>
-                    <td class="col-emblem">${hasEmb ? (isElemSlot ? `<select data-key="${slot}_emb1" class="${embCls}" onchange="autoSave()">${elementEmbList.map(e=>`<option>${e}</option>`).join('')}</select>` : `<input type="text" data-key="${slot}_emb1" class="${embCls}" oninput="autoSave()">`) : '-'}</td>
-                    <td class="col-emblem">${hasEmb ? `<input type="text" data-key="${slot}_emb2" class="${embCls}" oninput="autoSave()">` : '-'}</td>
-                    <td class="col-enchant">${index < 12 || slot === "칭호" ? `<input type="text" data-key="${slot}_enchant" oninput="autoSave()">` : '-'}</td>
-                    <td class="col-val-short">${index < 12 || slot === "칭호" ? `<input type="text" data-key="${slot}_enchant_val" oninput="autoSave()">` : '-'}</td>
-                    <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()"></td>`;
-            }
-            tbody.appendChild(tr);
-        });
-
-        document.getElementById('characterContainer').appendChild(section);
-        updateRuneSummary(charId);
-
-        if (savedData) {
-            const inputs = section.querySelectorAll('input[data-key], select[data-key]');
-            inputs.forEach(el => {
-                const key = el.getAttribute('data-key');
-                if (savedData.inputs && savedData.inputs[key]) {
-                    el.value = savedData.inputs[key].val;
-                    el.className = savedData.inputs[key].cls;
-                    if (key.endsWith('_rarity')) updateStyle(el, 'rarity', true);
-                }
-            });
-            toggleEdit(charId, savedData.locked);
-        } else { 
-            toggleEdit(charId, true); 
+    const tbody = section.querySelector('.tbody-content');
+    slots.forEach((slot, index) => {
+        const tr = document.createElement('tr');
+        if (heavyBorderSlots.includes(slot)) tr.style.borderBottom = "2px solid var(--border-heavy)";
+        
+        if (index === 0) {
+            // [여기가 질문하신 부분] 캐릭터 정보 열: 힘지능/속강 선택지 및 기본 정보
+            tr.innerHTML += `<td rowspan="${slots.length}" style="background-color: #121216; vertical-align: top;">
+                <div style="display:flex; flex-direction:column; gap:4px; padding:5px;">
+                    <select data-key="info_stat_type" onchange="applySealHighlight('${charId}'); autoSave();" style="border:1px solid #444; background:#000; color:#fff; font-size:11px; height:22px;">
+                        <option value="">(스탯 선택)</option>
+                        <option value="힘">힘</option>
+                        <option value="지능">지능</option>
+                    </select>
+                    <select data-key="info_ele_type" onchange="applySealHighlight('${charId}'); autoSave();" style="border:1px solid #444; background:#000; color:#fff; font-size:11px; height:22px;">
+                        <option value=""></option>
+                        <option value="화속성 강화">화속성 강화</option>
+                        <option value="수속성 강화">수속성 강화</option>
+                        <option value="명속성 강화">명속성 강화</option>
+                        <option value="암속성 강화">암속성 강화</option>
+                    </select>
+                    <input type="text" placeholder="직업" data-key="info_job" oninput="autoSave()">
+                    <input type="text" placeholder="이름" data-key="info_name" oninput="autoSave()">
+                    <button onclick="toggleEdit('${charId}', true)" class="btn-char-lock lock-btn">잠금</button>
+                    <button onclick="toggleEdit('${charId}', false)" class="btn-char-unlock unlock-btn">해제</button>
+                    <button onclick="deleteCharacter('${charId}')" class="del-btn" style="background:#ff4d4d; color:white; border:none; padding:4px; cursor:pointer; font-size:11px; border-radius:2px; margin-top:4px;">삭제</button>
+                </div>
+            </td>`;
         }
 
-        // 초기 생성 시 스타일 동기화 (에픽 등 노란색 글씨 보장)
-        section.querySelectorAll('select[data-key$="_rarity"], select[data-key$="_exceed"]').forEach(sel => {
-            updateStyle(sel, sel.getAttribute('data-key').includes('rarity') ? 'rarity' : 'exceed', true);
+        // --- 스킬룬 / 크리쳐 로직 생략 (기존과 동일) ---
+        if (slot === "스킬룬") {
+            tr.innerHTML += `<td class="col-slot v-border-heavy">스킬룬</td>
+                <td colspan="3"><button class="btn-action" onclick="openRuneModal('${charId}')" style="background:#059669; padding:2px 8px;">수정</button> <button class="btn-action" onclick="resetRuneData('${charId}')" style="background:#444; padding:2px 8px;">초기화</button></td>
+                <td colspan="10" id="${charId}_runeSummary" style="text-align:left; padding-left:10px; color:var(--gold); font-size:11px; font-weight:bold;">설정된 룬 없음</td>
+                <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()"></td>`;
+        } else if (slot === "크리쳐") {
+            tr.innerHTML += `<td class="col-slot v-border-heavy">크리쳐</td>
+                <td class="col-rarity"><select data-key="${slot}_rarity" onchange="updateStyle(this, 'rarity')" class="rare-에픽"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select></td>
+                <td colspan="2"><input type="text" data-key="${slot}_name" placeholder="크리쳐 이름" oninput="autoSave()"></td>
+                <td colspan="10">
+                    <div class="artifact-main-wrapper">
+                        ${['red', 'blue', 'green'].map((color, cIdx) => `
+                            <div class="art-group">
+                                ${[1, 2].map(num => `<div class="art-item"><select data-key="${slot}_art_${color}_bg_${num}" class="art-color-select bg-에픽" style="width:65px;" onchange="updateStyle(this, 'artBg')"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select><select data-key="${slot}_art_${color}_opt_${num}" class="art-opt-select bg-에픽" style="width:110px;" onchange="autoSave()"><option value="">옵션 선택</option>${artOptions[color].map(o=>`<option>${o}</option>`).join('')}</select></div>`).join('')}
+                            </div>`).join('')}
+                    </div>
+                </td>
+                <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()"></td>`;
+        } else {
+            // --- 일반 장비 슬롯 로직 ---
+            const isEq = index < 12; 
+            const isExSlot = ['상의', '팔찌', '귀걸이'].includes(slot);
+            const hasEmb = !["외형칭호", "오라", "아바타", "크리쳐"].includes(slot);
+            const isElemSlot = ["보조장비", "귀걸이", "마법석", "칭호"].includes(slot);
+            let g = { n1: [], n2: [] };
+            if(slot === "무기") g = mData.weapon;
+            else if(index >= 1 && index <= 5) g = mData.armor; 
+            else if(index >= 6 && index <= 8) g = mData.accessory; 
+            else if(index >= 9 && index <= 11) g = mData.special;
+            
+            let embCls = (["상의", "하의"].includes(slot)) ? "emb-bg-red" : (["어깨", "벨트"].includes(slot)) ? "emb-bg-yellow" : (["신발", "팔찌"].includes(slot)) ? "emb-bg-blue" : (["목걸이", "반지"].includes(slot)) ? "emb-bg-green" : "emb-bg-gray";
+            const tierSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비"];
+            const rarityOptions = tierSlots.includes(slot) ? `<option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option><option>티어</option>` : `<option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>`;
+
+            tr.innerHTML += `<td class="col-slot v-border-heavy">${slot}</td>
+                <td class="col-rarity"><select data-key="${slot}_rarity" data-slot="${slot}" onchange="updateStyle(this, 'rarity')" class="rare-에픽">${rarityOptions}</select></td>
+                <td class="col-exceed">${isExSlot ? `<select data-key="${slot}_exceed" data-slot="${slot}" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-'}</td>
+                <td class="col-prefix">${isEq ? `<select data-key="${slot}_prefix" data-slot="${slot}" onchange="updateStyle(this,'prefix')">${prefixes.map(p=>`<option>${p}</option>`).join('')}</select>` : '-'}</td>
+                <td><input type="text" data-key="${slot}_itemname" class="rare-에픽 itemname-color-sync" oninput="autoSave()"></td>
+                <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_reinforce" oninput="autoSave()">` : '-'}</td>
+                
+                <td>${isEq ? `<select data-key="${slot}_seal1" data-slot="${slot}" onchange="handleSealChange(this)">${g.n1.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
+                <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal1_val" oninput="applySealHighlight('${charId}'); autoSave();">` : '-'}</td>
+                <td>${isEq ? `<select data-key="${slot}_seal2" data-slot="${slot}" onchange="handleSealChange(this)">${g.n2.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
+                <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal2_val" oninput="applySealHighlight('${charId}'); autoSave();">` : '-'}</td>
+                
+                <td class="col-emblem">${hasEmb ? (isElemSlot ? `<select data-key="${slot}_emb1" class="${embCls}" onchange="autoSave()">${elementEmbList.map(e=>`<option>${e}</option>`).join('')}</select>` : `<input type="text" data-key="${slot}_emb1" class="${embCls}" oninput="autoSave()">`) : '-'}</td>
+                <td class="col-emblem">${hasEmb ? `<input type="text" data-key="${slot}_emb2" class="${embCls}" oninput="autoSave()">` : '-'}</td>
+                <td class="col-enchant">${index < 12 || slot === "칭호" ? `<input type="text" data-key="${slot}_enchant" oninput="autoSave()">` : '-'}</td>
+                <td class="col-val-short">${index < 12 || slot === "칭호" ? `<input type="text" data-key="${slot}_enchant_val" oninput="autoSave()">` : '-'}</td>
+                <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()"></td>`;
+        }
+        tbody.appendChild(tr);
+    });
+
+    document.getElementById('characterContainer').appendChild(section);
+    updateRuneSummary(charId);
+
+    if (savedData) {
+        const inputs = section.querySelectorAll('input[data-key], select[data-key]');
+        inputs.forEach(el => {
+            const key = el.getAttribute('data-key');
+            if (savedData.inputs && savedData.inputs[key]) {
+                el.value = savedData.inputs[key].val;
+                if (savedData.inputs[key].cls) el.className = savedData.inputs[key].cls;
+            }
         });
+        toggleEdit(charId, savedData.locked);
+    } else { 
+        toggleEdit(charId, true); 
     }
+
+    // 초기 스타일 적용 및 하이라이트 실행
+    section.querySelectorAll('select[data-key$="_rarity"], select[data-key$="_exceed"]').forEach(sel => {
+        updateStyle(sel, sel.getAttribute('data-key').includes('rarity') ? 'rarity' : 'exceed', true);
+    });
+    applySealHighlight(charId);
+}
+
 
     function handleSealChange(el) {
-        const key = el.getAttribute('data-key');
-        const slot = el.getAttribute('data-slot');
-        const row = el.closest('tr');
-        const opt = el.value;
-        const armors = ["상의", "어깨", "하의", "신발", "벨트"];
-        const accs = ["목걸이", "팔찌", "반지"];
-        const specials = ["보조장비", "귀걸이", "마법석"];
-        const commonValTable = { "힘": "46", "지능": "46", "체력": "46", "정신력": "46", "공격속도": "1.6", "캐스팅속도": "2", "이동속도": "1.6", "최대 HP 증가": "456", "최대 MP 증가": "270", "물리 방어력": "234", "마법 방어력": "178", "적중": "124", "회피": "70" };
+    const key = el.getAttribute('data-key');
+    const slot = el.getAttribute('data-slot');
+    const row = el.closest('tr');
+    const opt = el.value;
+    const armors = ["상의", "어깨", "하의", "신발", "벨트"];
+    const accs = ["목걸이", "팔찌", "반지"];
+    const specials = ["보조장비", "귀걸이", "마법석"];
+    const commonValTable = { "힘": "46", "지능": "46", "체력": "46", "정신력": "46", "공격속도": "1.6", "캐스팅속도": "2", "이동속도": "1.6", "최대 HP 증가": "456", "최대 MP 증가": "270", "물리 방어력": "234", "마법 방어력": "178", "적중": "124", "회피": "70" };
 
-        if (key.includes("_seal1")) {
-            const vIn = row.querySelector(`input[data-key="${slot}_seal1_val"]`);
-            if (!vIn) return;
-            if (slot === "무기") {
-                const weaponTable = { "데미지 증가": "8", "추가 데미지": "8", "모든 직업 50레벨스킬": "1", "화속성 강화": "10", "수속성 강화": "10", "명속성 강화": "10", "암속성 강화": "10", "힘": "46", "지능": "46", "물리 공격력": "19", "마법 공격력": "19" };
-                if (weaponTable[opt]) vIn.value = weaponTable[opt];
-            } else if (armors.includes(slot)) {
-                const armorTable = { "힘": "46", "지능": "46", "체력": "46", "정신력": "46", "물리 크리티컬": "29", "마법 크리티컬": "29" };
-                if (armorTable[opt]) vIn.value = armorTable[opt];
-            } else if (accs.includes(slot)) {
-                const accTable = { "화속성 강화": "10", "수속성 강화": "10", "명속성 강화": "10", "암속성 강화": "10", "힘": "46", "지능": "46", "체력": "46", "정신력": "46" };
-                if (accTable[opt]) vIn.value = accTable[opt];
-            } else if (specials.includes(slot)) {
-                const specTable = { "물리 공격력": "19", "마법 공격력": "19", "힘": "46", "지능": "46", "물리 크리티컬": "60", "마법 크리티컬": "60", "적중": "75", "회피": "75" };
-                if (specTable[opt]) vIn.value = specTable[opt];
-            }
+    // ===== 1. 고유 옵션 (seal1) 수치 자동 입력 =====
+    if (key.includes("_seal1")) {
+        const vIn = row.querySelector(`input[data-key="${slot}_seal1_val"]`);
+        if (!vIn) return;
+        if (slot === "무기") {
+            const weaponTable = { "데미지 증가": "8", "추가 데미지": "8", "모든 직업 50레벨스킬": "1", "화속성 강화": "10", "수속성 강화": "10", "명속성 강화": "10", "암속성 강화": "10", "힘": "46", "지능": "46", "물리 공격력": "19", "마법 공격력": "19" };
+            if (weaponTable[opt]) vIn.value = weaponTable[opt];
+        } else if (armors.includes(slot)) {
+            const armorTable = { "힘": "46", "지능": "46", "체력": "46", "정신력": "46", "물리 크리티컬": "29", "마법 크리티컬": "29" };
+            if (armorTable[opt]) vIn.value = armorTable[opt];
+        } else if (accs.includes(slot)) {
+            const accTable = { "화속성 강화": "10", "수속성 강화": "10", "명속성 강화": "10", "암속성 강화": "10", "힘": "46", "지능": "46", "체력": "46", "정신력": "46" };
+            if (accTable[opt]) vIn.value = accTable[opt];
+        } else if (specials.includes(slot)) {
+            const specTable = { "물리 공격력": "19", "마법 공격력": "19", "힘": "46", "지능": "46", "물리 크리티컬": "60", "마법 크리티컬": "60", "적중": "75", "회피": "75" };
+            if (specTable[opt]) vIn.value = specTable[opt];
         }
-
-        // 일반 옵션 (seal2)
-        if (key.includes("_seal2")) {
-            const vIn = row.querySelector(`input[data-key="${slot}_seal2_val"]`);
-            if (!vIn) return;
-            if (slot === "무기") {
-                if (opt === "물리 공격력" || opt === "마법 공격력") vIn.value = "18";
-                else if (commonValTable[opt]) vIn.value = commonValTable[opt];
-            } else if (armors.includes(slot)) {
-                if (opt === "물리 크리티컬" || opt === "마법 크리티컬") vIn.value = "30";
-                else if (commonValTable[opt]) vIn.value = commonValTable[opt];
-            } else if (accs.includes(slot)) {
-                const resTable = { "화속성 저항": "8", "수속성 저항": "8", "명속성 저항": "8", "암속성 저항": "8", "화속성 강화": "8", "수속성 강화": "8", "명속성 강화": "8", "암속성 강화": "8" };
-                if (resTable[opt]) vIn.value = resTable[opt];
-                else if (commonValTable[opt]) vIn.value = commonValTable[opt];
-            } else if (specials.includes(slot)) {
-                if (opt === "물리 공격력" || opt === "마법 공격력") vIn.value = "18";
-                else if (opt === "물리 크리티컬" || opt === "마법 크리티컬") vIn.value = "30";
-                else if (commonValTable[opt]) vIn.value = commonValTable[opt];
-            }
-        }
-        autoSave();
     }
+
+    // ===== 2. 일반 옵션 (seal2) 수치 자동 입력 =====
+    if (key.includes("_seal2")) {
+        const vIn = row.querySelector(`input[data-key="${slot}_seal2_val"]`);
+        if (!vIn) return;
+        if (slot === "무기") {
+            if (opt === "물리 공격력" || opt === "마법 공격력") vIn.value = "18";
+            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
+        } else if (armors.includes(slot)) {
+            if (opt === "물리 크리티컬" || opt === "마법 크리티컬") vIn.value = "30";
+            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
+        } else if (accs.includes(slot)) {
+            const resTable = { "화속성 저항": "8", "수속성 저항": "8", "명속성 저항": "8", "암속성 저항": "8", "화속성 강화": "8", "수속성 강화": "8", "명속성 강화": "8", "암속성 강화": "8" };
+            if (resTable[opt]) vIn.value = resTable[opt];
+            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
+        } else if (specials.includes(slot)) {
+            if (opt === "물리 공격력" || opt === "마법 공격력") vIn.value = "18";
+            else if (opt === "물리 크리티컬" || opt === "마법 크리티컬") vIn.value = "30";
+            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
+        }
+    }
+
+    // ===== 3. [추가된 부분] 힘지능/속강 선택지에 따른 노란색 강조 실행 =====
+    const charSection = el.closest('.char-section');
+    if (charSection) {
+        applySealHighlight(charSection.id);
+    }
+
+    autoSave();
+}
 
 function updateStyle(el, type, isInitial = false) {
         const row = el.closest('tr');
@@ -819,6 +852,76 @@ function updateStyle(el, type, isInitial = false) {
             }
         }
     }
+	
+	
+	function applySealHighlight(charId) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    // 선택된 힘/지능 및 속강 값 가져오기
+    const statType = section.querySelector(`select[data-key="info_stat_type"]`).value; 
+    const eleType = section.querySelector(`select[data-key="info_ele_type"]`).value;   
+
+    const armorSlots = ["상의", "어깨", "하의", "신발", "벨트"];
+    const accSlots = ["목걸이", "팔찌", "반지"];
+    const specialSlots = ["보조장비", "귀걸이", "마법석"];
+
+    slots.forEach(slot => {
+        if (slot === "스킬룬" || slot === "크리쳐") return;
+
+        // 해당 슬롯의 행(tr) 찾기
+        const row = Array.from(section.querySelectorAll('tr')).find(r => 
+            r.querySelector('.col-slot')?.innerText === slot
+        );
+        if (!row) return;
+
+        const s1 = row.querySelector(`select[data-key="${slot}_seal1"]`); // 고유 옵션
+        const v1 = row.querySelector(`input[data-key="${slot}_seal1_val"]`);
+        const s2 = row.querySelector(`select[data-key="${slot}_seal2"]`); // 일반 옵션
+        const v2 = row.querySelector(`input[data-key="${slot}_seal2_val"]`);
+
+        // 초기화: 기존 강조 클래스 모두 제거 (기본 흰색으로 복구)
+        [s1, v1, s2, v2].forEach(el => el?.classList.remove('highlight-yellow'));
+
+        if (!s1 || !s2) return;
+
+        // --- 1. 무기 조건 (고유: 데미지 증가 / 일반: 힘 or 지능) ---
+        if (slot === "무기" && statType !== "") {
+            if (s1.value === "데미지 증가") { 
+                s1.classList.add('highlight-yellow'); 
+                v1.classList.add('highlight-yellow'); 
+            }
+            if (s2.value === statType) { 
+                s2.classList.add('highlight-yellow'); 
+                v2.classList.add('highlight-yellow'); 
+            }
+        }
+
+        // --- 2. 방어구 및 특수장비 조건 (고유: 힘/지능 / 일반: 힘/지능) ---
+        if ((armorSlots.includes(slot) || specialSlots.includes(slot)) && statType !== "") {
+            if (s1.value === statType) { 
+                s1.classList.add('highlight-yellow'); 
+                v1.classList.add('highlight-yellow'); 
+            }
+            if (s2.value === statType) { 
+                s2.classList.add('highlight-yellow'); 
+                v2.classList.add('highlight-yellow'); 
+            }
+        }
+
+        // --- 3. 악세서리 조건 (고유: 선택 속강 / 일반: 선택 속강) ---
+        if (accSlots.includes(slot) && eleType !== "") {
+            if (s1.value === eleType) { 
+                s1.classList.add('highlight-yellow'); 
+                v1.classList.add('highlight-yellow'); 
+            }
+            if (s2.value === eleType) { 
+                s2.classList.add('highlight-yellow'); 
+                v2.classList.add('highlight-yellow'); 
+            }
+        }
+    });
+}
 </script>
 </body>
 </html>
