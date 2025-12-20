@@ -168,8 +168,10 @@
 <div class="modal-overlay" id="modalOverlay" onclick="closeRuneModal()"></div>
 <div id="skillRunemodal">
     <h3 style="color:var(--gold); margin-top:0;">💎 스킬룬 & 각인 설정</h3>
-	<div style="text-align:center; margin-bottom:10px;">
-        <button class="btn-action" style="background:#7c3aed; width:100%;" onclick="setAllAwaken4()">각성4로 전체 설정</button>
+	<div style="display:flex; gap:5px; margin-bottom:10px;">
+        <select id="m-batch-rune-name" style="flex:1; background:#222; color:#fff; border:1px solid var(--gold); height:30px;">
+            </select>
+        <button class="btn-action" style="background:#7c3aed; flex:1.2;" onclick="setAllRunesBatch()">룬 레벨4로 설정</button>
     </div>
     <table style="width:100%; border-collapse: collapse; font-size:12px; border:1px solid #444;">
         <thead>
@@ -556,15 +558,25 @@ function updateStyle(el, type, isInitial = false) {
     }
 
 
-    function openRuneModal(charId) {
+	function openRuneModal(charId) {
         currentEditingCharId = charId;
         const body = document.getElementById('runeModalBody');
         body.innerHTML = '';
         const data = charRuneData[charId];
+
+        // [추가] 상단 일괄 설정 드롭다운에 runeNames 채우기
+        const batchSelect = document.getElementById('m-batch-rune-name');
+        if (batchSelect) {
+            batchSelect.innerHTML = runeNames.map(n => n ? `<option>${n}</option>` : '').join('');
+        }
+
         for(let i=0; i<20; i++) {
             const r = data.runes[i] || { name: '', lv: '', skillLv: '' };
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="col-m-num">${i+1}</td><td><select class="m-rune-name">${runeNames.map(n=>`<option ${r.name===n?'selected':''}>${n}</option>`).join('')}</select></td><td><select class="m-rune-lv">${runeLevels.map(n=>`<option ${r.lv===n?'selected':''}>${n}</option>`).join('')}</select></td><td><select class="m-rune-skillLv">${runeSkillLevels.map(n=>`<option ${r.skillLv===n?'selected':''}>${n}</option>`).join('')}</select></td>`;
+            tr.innerHTML = `<td class="col-m-num">${i+1}</td>
+                <td><select class="m-rune-name">${runeNames.map(n=>`<option ${r.name===n?'selected':''}>${n}</option>`).join('')}</select></td>
+                <td><select class="m-rune-lv">${runeLevels.map(n=>`<option ${r.lv===n?'selected':''}>${n}</option>`).join('')}</select></td>
+                <td><select class="m-rune-skillLv">${runeSkillLevels.map(n=>`<option ${r.skillLv===n?'selected':''}>${n}</option>`).join('')}</select></td>`;
             body.appendChild(tr);
         }
         document.getElementById('m-gakin1').value = data.gakin[0];
@@ -572,8 +584,9 @@ function updateStyle(el, type, isInitial = false) {
         document.getElementById('modalOverlay').style.display = 'block';
         document.getElementById('skillRunemodal').style.display = 'block';
     }
-	
-	function setAllAwaken4() {
+
+function setAllRunesBatch() {
+        const selectedName = document.getElementById('m-batch-rune-name').value;
         const body = document.getElementById('runeModalBody');
         const rows = body.querySelectorAll('tr');
         
@@ -581,11 +594,26 @@ function updateStyle(el, type, isInitial = false) {
             const nameSelect = row.querySelector('.m-rune-name');
             const lvSelect = row.querySelector('.m-rune-lv');
             
-            // 이름은 '각성', 레벨은 'IV' (룬 레벨 4단계)로 설정
-            if (nameSelect) nameSelect.value = "각성";
+            // 이름 변경 (데이터가 있을 때만)
+            if (nameSelect) nameSelect.value = selectedName;
+            // 레벨은 IV(4단계)로 고정
             if (lvSelect) lvSelect.value = "IV";
         });
     }
+
+	// function setAllAwaken4() {
+    //     const body = document.getElementById('runeModalBody');
+    //     const rows = body.querySelectorAll('tr');
+    //
+    //     rows.forEach(row => {
+    //         const nameSelect = row.querySelector('.m-rune-name');
+    //         const lvSelect = row.querySelector('.m-rune-lv');
+    //
+    //         // 이름은 '각성', 레벨은 'IV' (룬 레벨 4단계)로 설정
+    //         if (nameSelect) nameSelect.value = "각성";
+    //         if (lvSelect) lvSelect.value = "IV";
+    //     });
+    // }
 	
     function closeRuneModal() { document.getElementById('modalOverlay').style.display = 'none'; document.getElementById('skillRunemodal').style.display = 'none'; }
     
