@@ -168,6 +168,9 @@
 <div class="modal-overlay" id="modalOverlay" onclick="closeRuneModal()"></div>
 <div id="skillRunemodal">
     <h3 style="color:var(--gold); margin-top:0;">💎 스킬룬 & 각인 설정</h3>
+	<div style="text-align:center; margin-bottom:10px;">
+        <button class="btn-action" style="background:#7c3aed; width:100%;" onclick="setAllAwaken4()">각성4로 전체 설정</button>
+    </div>
     <table style="width:100%; border-collapse: collapse; font-size:12px; border:1px solid #444;">
         <thead>
             <tr style="color:var(--gold);">
@@ -569,6 +572,21 @@ function updateStyle(el, type, isInitial = false) {
         document.getElementById('modalOverlay').style.display = 'block';
         document.getElementById('skillRunemodal').style.display = 'block';
     }
+	
+	function setAllAwaken4() {
+        const body = document.getElementById('runeModalBody');
+        const rows = body.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+            const nameSelect = row.querySelector('.m-rune-name');
+            const lvSelect = row.querySelector('.m-rune-lv');
+            
+            // 이름은 '각성', 레벨은 'IV' (룬 레벨 4단계)로 설정
+            if (nameSelect) nameSelect.value = "각성";
+            if (lvSelect) lvSelect.value = "IV";
+        });
+    }
+	
     function closeRuneModal() { document.getElementById('modalOverlay').style.display = 'none'; document.getElementById('skillRunemodal').style.display = 'none'; }
     
     function saveRuneData() {
