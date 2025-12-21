@@ -1322,6 +1322,10 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     const oldEl = parentTd.querySelector(`[data-key="${slot}_itemname"]`);
     if (oldEl) oldEl.remove();
 
+    // 현재 캐릭터의 잠금 상태 확인
+    const section = document.getElementById(charId);
+    const isLocked = section?.querySelector('.lock-btn')?.classList.contains('btn-active');
+
     let newEl;
     if (rarity === "에픽") {
         newEl = document.createElement('select');
@@ -1329,16 +1333,25 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
             (itemOptions[slot] || []).map(opt =>
                 `<option value="${opt}">${opt}</option>`
             ).join('');
+        
+        // 잠금 상태라면 select 비활성화
+        if (isLocked) newEl.disabled = true;
     } else {
         newEl = document.createElement('input');
         newEl.type = 'text';
+        
+        // 잠금 상태라면 input 읽기 전용 및 커서 변경
+        if (isLocked) {
+            newEl.readOnly = true;
+            newEl.style.cursor = "default";
+        }
     }
 
     newEl.value = value || "";
     newEl.setAttribute('data-key', `${slot}_itemname`);
     newEl.className = `rare-${rarity} itemname-color-sync`;
 
-    // ✅ 문자열 이벤트 제거
+    // 이벤트 리스너 연결
     newEl.addEventListener('change', () => {
         runSetCheck(slot, charId);
         autoSave();
@@ -1349,6 +1362,9 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     });
 
     parentTd.appendChild(newEl);
+    
+    // 세트 색상 즉시 적용
+    runSetCheck(slot, charId);
 }
 
 function updateLastSnapshot() {
