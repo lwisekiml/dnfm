@@ -799,6 +799,22 @@ function updateStyle(el, type, isInitial = false) {
         if (type === 'rarity') {
             el.classList.add('rare-' + el.value);
 
+            // --- [수정된 부분] 희귀도 '티어' 여부에 따라 tierPrefixes 적용 ---
+            const prefixSel = row.querySelector(`select[data-key="${slot}_prefix"]`);
+            if (prefixSel) {
+                const currentVal = prefixSel.value;
+                if (el.value === "티어") {
+                    // 희귀도가 '티어'일 때 (tierPrefixes 사용)
+                    prefixSel.innerHTML = tierPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
+                } else {
+                    // 그 외 일반 희귀도일 때 (기존 prefixes 사용)
+                    prefixSel.innerHTML = prefixes.map(p => `<option value="${p}">${p}</option>`).join('');
+                }
+                prefixSel.value = currentVal; 
+                if (prefixSel.value !== currentVal) prefixSel.value = "";
+            }
+            // -------------------------------------------------------------------
+
             const nameEl = row.querySelector(`[data-key="${slot}_itemname"]`);
             if (nameEl && itemOptions[slot]) {
                 replaceItemNameField(
@@ -840,7 +856,7 @@ function updateStyle(el, type, isInitial = false) {
     }
 
     /* =========================
-       아이템 이름 색상 동기화
+       아이템 이름 색상 동기화 (이하 동일)
     ========================= */
     const raritySyncSlots = [
         "무기", "상의", "어깨", "하의", "신발", "벨트",
