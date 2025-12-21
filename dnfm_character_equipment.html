@@ -463,25 +463,62 @@ function getSpanWithColor(text) {
 }
 
     // [중요] 누락되었던 잠금 함수 추가
-    function toggleEdit(charId, isLock) {
-        const section = document.getElementById(charId);
-        if (!section) return;
-        section.querySelectorAll('input, select, button.btn-action').forEach(el => { 
-            if(!el.classList.contains('lock-btn') && !el.classList.contains('unlock-btn')) {
-                el.disabled = isLock; 
+function toggleEdit(charId, isLock) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    // 1. 제어할 버튼들
+    const lockBtn = section.querySelector('.lock-btn');
+    const unlockBtn = section.querySelector('.unlock-btn');
+    const actionBtns = section.querySelectorAll('.btn-action'); // 룬 수정/초기화 버튼
+    const delBtn = section.querySelector('.del-btn'); // 삭제 버튼
+
+    // 2. 모든 입력 요소(input, select, textarea) 제어
+    const inputs = section.querySelectorAll('input, select, textarea');
+    
+    inputs.forEach(el => {
+        // 잠금/해제 버튼 자체는 비활성화 대상에서 제외
+        if (el === lockBtn || el === unlockBtn) return;
+
+        if (isLock) {
+            // 잠금 모드: readonly를 사용하여 데이터 값은 그대로 유지하고 수정만 막음
+            // select는 readonly가 없으므로 disabled 처리
+            if (el.tagName === 'SELECT') {
+                el.disabled = true;
+            } else {
+                el.readOnly = true;
             }
-        });
-        const lBtn = section.querySelector('.lock-btn'); 
-        const uBtn = section.querySelector('.unlock-btn');
-        if (isLock) { 
-            lBtn.classList.add('btn-active'); 
-            uBtn.classList.remove('btn-active'); 
-        } else { 
-            uBtn.classList.add('btn-active'); 
-            lBtn.classList.remove('btn-active'); 
+            // 기존 색상 클래스는 건드리지 않고, 커서 모양만 변경
+            el.style.cursor = "default";
+        } else {
+            // 해제 모드
+            el.disabled = false;
+            el.readOnly = false;
+            el.style.cursor = "text";
         }
-        autoSave();
+    });
+
+    // 3. 기능성 버튼 제어 (룬 수정, 삭제 등)
+    [...actionBtns, delBtn].forEach(btn => {
+        if (btn) {
+            btn.disabled = isLock;
+            btn.style.opacity = isLock ? "0.5" : "1";
+            btn.style.pointerEvents = isLock ? "none" : "auto";
+        }
+    });
+
+    // 4. UI 상태 반영
+    if (isLock) {
+        lockBtn?.classList.add('btn-active');
+        unlockBtn?.classList.remove('btn-active');
+    } else {
+        lockBtn?.classList.remove('btn-active');
+        unlockBtn?.classList.add('btn-active');
     }
+
+    // ★ 중요: 잠금 시점에 데이터를 날리지 않도록 autoSave는 상태 값만 저장하도록 주의
+    autoSave();
+}
 
 // 3. 메인 테이블 생성 함수
 function createCharacterTable(savedData = null) {
