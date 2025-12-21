@@ -99,3 +99,10 @@ function autoSave()
 document.addEventListener('change', function(e) {  
 ```
 코드 수정
+
+---
+---
+
+1. 세트 체크 통합 실행 함수 (runSetCheck)
+   코드 내에서 runSetCheck(slot, charId)가 자주 호출되고 있습니다. 이 함수는 방어구 세트와 특수장비 세트 체크를 슬롯에 따라 분기하여 실행해주는 역할을 합니다.
+   ```function runSetCheck(slot, charId) 수정```

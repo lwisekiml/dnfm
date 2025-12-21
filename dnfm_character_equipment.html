@@ -298,11 +298,15 @@ const specialSets = {
 };
 
 function runSetCheck(slot, charId) {
-    if (["상의", "어깨", "하의", "벨트", "신발"].includes(slot)) {
+	const armorSlots = ["상의", "하의", "어깨", "벨트", "신발"];
+	const accSlots = ["팔찌", "목걸이", "반지"];
+    const specialSlots = ["귀걸이", "마법석", "보조장비"];
+
+    if (armorSlots.includes(slot)) {
         checkArmorSetColor(charId);
-    } else if (["팔찌", "목걸이", "반지"].includes(slot)) {
+    } else if (accSlots.includes(slot)) {
         checkAccSetColor(charId);
-    } else if (["귀걸이", "마법석", "보조장비"].includes(slot)) {
+    } else if (specialSlots.includes(slot)) {
         checkSpecialSetColor(charId);
     }
 }
@@ -1071,7 +1075,18 @@ function autoSave() {
     function exportToJSON() { const data = localStorage.getItem(STORAGE_KEY); if(!data) return alert("저장된 데이터가 없습니다."); const blob = new Blob([data], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `dnfm_backup.json`; a.click(); }
     function importFromJSON(input) { const reader = new FileReader(); reader.onload = (e) => { try { const data = JSON.parse(e.target.result); document.getElementById('characterContainer').innerHTML = ""; charRuneData = {}; data.forEach(d => createCharacterTable(d)); autoSave(); } catch(err) { alert("올바른 JSON 파일이 아닙니다."); } }; reader.readAsText(input.files[0]); }
     
-    window.onload = () => { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); if (saved.length > 0) saved.forEach(d => createCharacterTable(d)); else createCharacterTable(); };
+    window.onload = () => { 
+		const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); 
+		
+		if (saved.length > 0) {
+			saved.forEach(d => createCharacterTable(d));
+		} else {
+			createCharacterTable(); 
+		}
+	
+		// [추가된 부분] 페이지 로딩이 끝난 시점의 데이터를 스냅샷으로 저장
+		updateLastSnapshot(); 
+	};
 
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Tab') {
