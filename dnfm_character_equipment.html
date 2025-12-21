@@ -556,7 +556,7 @@ function createCharacterTable(savedData = null) {
             tr.innerHTML += `<td class="col-slot v-border-heavy">스킬룬</td>
                 <td colspan="3"><button class="btn-action" onclick="openRuneModal('${charId}')" style="background:#059669; padding:2px 8px;">수정</button> <button class="btn-action" onclick="resetRuneData('${charId}')" style="background:#444; padding:2px 8px;">초기화</button></td>
                 <td colspan="10" id="${charId}_runeSummary" style="text-align:left; padding-left:10px; color:var(--gold); font-size:11px; font-weight:bold;">설정된 룬 없음</td>
-                <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()"></td>`;
+                <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;"></td>`;
         } else if (slot === "크리쳐") {
             tr.innerHTML += `<td class="col-slot v-border-heavy">크리쳐</td>
                 <td class="col-rarity"><select data-key="${slot}_rarity" onchange="updateStyle(this, 'rarity')" class="rare-에픽"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select></td>
@@ -569,7 +569,7 @@ function createCharacterTable(savedData = null) {
                             </div>`).join('')}
                     </div>
                 </td>
-                <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()"></td>`;
+                <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;"></td>`;
         } else {
             const isEq = index < 12; 
             const isExSlot = ['상의', '팔찌', '귀걸이'].includes(slot);
@@ -598,21 +598,54 @@ function createCharacterTable(savedData = null) {
                 itemNameHTML = `<input type="text" data-key="${slot}_itemname" class="rare-에픽 itemname-color-sync" oninput="autoSave()">`;
             }
 
+            // --- 설명 칸 병합 및 왼쪽 정렬 적용 ---
+            let descTdHTML = '';
+            if (slot === "칭호") {
+                descTdHTML = `
+                    <td rowspan="2" class="v-border-heavy" style="padding: 2px; vertical-align: middle;">
+                        <textarea data-key="칭호_desc"
+                                  oninput="autoSave()"
+                                  style="width: calc(100% - 4px);
+                                         height: calc(100% - 2px);
+                                         min-height: 44px;
+                                         margin: 0 auto;
+                                         background: #000;
+                                         color: #fff;
+                                         border: 1px solid #444;
+                                         outline: none;
+                                         padding: 4px 6px; /* 좌측 여백을 살짝 늘려 왼쪽 정렬 가독성 확보 */
+                                         resize: none;
+                                         display: block;
+                                         font-family: inherit;
+                                         font-size: 11px;
+                                         box-sizing: border-box;
+                                         text-align: left; /* 왼쪽 정렬 명시 */"></textarea>
+                    </td>`;
+            } else if (slot === "외형칭호") {
+                descTdHTML = '';
+            } else {
+                // 일반 설명 칸도 왼쪽 정렬 확인 (이미 기본값이 왼쪽이지만 스타일 보정)
+                descTdHTML = `<td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;"></td>`;
+            }
+
+            // 외형칭호 행의 입력 요소들에 Tab이 걸리지 않도록 처리
+            const tabAttr = (slot === "외형칭호") ? 'tabindex="-1"' : '';
+
             tr.innerHTML += `<td class="col-slot v-border-heavy">${slot}</td>
-                <td class="col-rarity"><select data-key="${slot}_rarity" data-slot="${slot}" onchange="updateStyle(this, 'rarity')" class="rare-에픽">${rarityOptions}</select></td>
-                <td class="col-exceed">${isExSlot ? `<select data-key="${slot}_exceed" data-slot="${slot}" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-'}</td>
-                <td class="col-prefix">${isEq ? `<select data-key="${slot}_prefix" data-slot="${slot}" onchange="updateStyle(this,'prefix')">${prefixes.map(p=>`<option>${p}</option>`).join('')}</select>` : '-'}</td>
-                <td>${itemNameHTML}</td>
-                <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_reinforce" oninput="autoSave()">` : '-'}</td>
-                <td>${isEq ? `<select data-key="${slot}_seal1" data-slot="${slot}" onchange="handleSealChange(this)">${g.n1.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
-                <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal1_val" oninput="applySealHighlight('${charId}'); autoSave();">` : '-'}</td>
-                <td>${isEq ? `<select data-key="${slot}_seal2" data-slot="${slot}" onchange="handleSealChange(this)">${g.n2.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
-                <td class="col-val-short">${isEq ? `<input type="text" data-key="${slot}_seal2_val" oninput="applySealHighlight('${charId}'); autoSave();">` : '-'}</td>
-                <td class="col-emblem">${hasEmb ? (isElemSlot ? `<select data-key="${slot}_emb1" class="${embCls}" onchange="autoSave()">${elementEmbList.map(e=>`<option>${e}</option>`).join('')}</select>` : `<input type="text" data-key="${slot}_emb1" class="${embCls}" oninput="autoSave()">`) : '-'}</td>
-                <td class="col-emblem">${hasEmb ? `<input type="text" data-key="${slot}_emb2" class="${embCls}" oninput="autoSave()">` : '-'}</td>
-                <td class="col-enchant">${index < 12 || slot === "칭호" ? `<input type="text" data-key="${slot}_enchant" oninput="autoSave()">` : '-'}</td>
-                <td class="col-val-short">${index < 12 || slot === "칭호" ? `<input type="text" data-key="${slot}_enchant_val" oninput="autoSave()">` : '-'}</td>
-                <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()"></td>`;
+                <td class="col-rarity"><select ${tabAttr} data-key="${slot}_rarity" data-slot="${slot}" onchange="updateStyle(this, 'rarity')" class="rare-에픽">${rarityOptions}</select></td>
+                <td class="col-exceed">${isExSlot ? `<select ${tabAttr} data-key="${slot}_exceed" data-slot="${slot}" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-'}</td>
+                <td class="col-prefix">${isEq ? `<select ${tabAttr} data-key="${slot}_prefix" data-slot="${slot}" onchange="updateStyle(this,'prefix')">${prefixes.map(p=>`<option>${p}</option>`).join('')}</select>` : '-'}</td>
+                <td>${itemNameHTML.replace('<select ', '<select ' + tabAttr + ' ').replace('<input ', '<input ' + tabAttr + ' ')}</td>
+                <td class="col-val-short">${isEq ? `<input ${tabAttr} type="text" data-key="${slot}_reinforce" oninput="autoSave()">` : '-'}</td>
+                <td>${isEq ? `<select ${tabAttr} data-key="${slot}_seal1" data-slot="${slot}" onchange="handleSealChange(this)">${g.n1.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
+                <td class="col-val-short">${isEq ? `<input ${tabAttr} type="text" data-key="${slot}_seal1_val" oninput="applySealHighlight('${charId}'); autoSave();">` : '-'}</td>
+                <td>${isEq ? `<select ${tabAttr} data-key="${slot}_seal2" data-slot="${slot}" onchange="handleSealChange(this)">${g.n2.map(o=>`<option>${o}</option>`).join('')}</select>` : '-'}</td>
+                <td class="col-val-short">${isEq ? `<input ${tabAttr} type="text" data-key="${slot}_seal2_val" oninput="applySealHighlight('${charId}'); autoSave();">` : '-'}</td>
+                <td class="col-emblem">${hasEmb ? (isElemSlot ? `<select ${tabAttr} data-key="${slot}_emb1" class="${embCls}" onchange="autoSave()">${elementEmbList.map(e=>`<option>${e}</option>`).join('')}</select>` : `<input ${tabAttr} type="text" data-key="${slot}_emb1" class="${embCls}" oninput="autoSave()">`) : '-'}</td>
+                <td class="col-emblem">${hasEmb ? `<input ${tabAttr} type="text" data-key="${slot}_emb2" class="${embCls}" oninput="autoSave()">` : '-'}</td>
+                <td class="col-enchant">${index < 12 || slot === "칭호" ? `<input ${tabAttr} type="text" data-key="${slot}_enchant" oninput="autoSave()">` : '-'}</td>
+                <td class="col-val-short">${index < 12 || slot === "칭호" ? `<input ${tabAttr} type="text" data-key="${slot}_enchant_val" oninput="autoSave()">` : '-'}</td>
+                ${descTdHTML}`;
         }
         tbody.appendChild(tr);
     });
@@ -638,7 +671,7 @@ function createCharacterTable(savedData = null) {
         updateStyle(sel, sel.getAttribute('data-key').includes('rarity') ? 'rarity' : 'exceed', true);
     });
     applySealHighlight(charId);
-    checkArmorSetColor(charId); // 초기 로드 시 세트 색상 적용
+    checkArmorSetColor(charId);
 }
 
 
@@ -974,23 +1007,47 @@ function updateStyle(el, type, isInitial = false) {
     
     window.onload = () => { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); if (saved.length > 0) saved.forEach(d => createCharacterTable(d)); else createCharacterTable(); };
 
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Tab') {
-            const activeEx = document.activeElement;
-            const key = activeEx.getAttribute('data-key');
-            if (!key) return;
-            const section = activeEx.closest('.char-section');
-            const currentSlot = activeEx.getAttribute('data-slot') || key.split('_')[0];
-            const suffix = key.replace(currentSlot, '');
-            const currentIndex = slots.indexOf(currentSlot);
-            const nextIndex = e.shiftKey ? currentIndex - 1 : currentIndex + 1;
-            if (nextIndex >= 0 && nextIndex < slots.length) {
-                const nextSlot = slots[nextIndex];
-                const targetInput = section.querySelector(`[data-key="${nextSlot}${suffix}"]`);
-                if (targetInput && !targetInput.disabled) { e.preventDefault(); targetInput.focus(); if (targetInput.select) targetInput.select(); }
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+        const activeEx = document.activeElement;
+        const key = activeEx.getAttribute('data-key') || "";
+        const section = activeEx.closest('.char-section');
+        if (!section) return;
+
+        e.preventDefault(); // 기본 가로 이동 방지 (세로 이동 유지)
+
+        // 1. [설명 칸 전용 로직] 칭호 textarea 포함
+        if (activeEx.tagName === 'TEXTAREA' || key.endsWith('_desc')) {
+            const descFields = Array.from(section.querySelectorAll('input[data-key$="_desc"], textarea[data-key$="_desc"]'));
+            const currentIndex = descFields.indexOf(activeEx);
+
+            if (e.shiftKey) { // 위로 이동
+                if (currentIndex > 0) descFields[currentIndex - 1].focus();
+            } else { // 아래로 이동
+                if (currentIndex < descFields.length - 1) descFields[currentIndex + 1].focus();
+            }
+            return;
+        }
+
+        // 2. [일반 칸 전용 로직] 희귀도, 아이템이름, 강화 등 모든 일반 칸
+        const currentSlot = activeEx.getAttribute('data-slot') || key.split('_')[0];
+        const suffix = key.replace(currentSlot, '');
+        const currentIndex = slots.indexOf(currentSlot);
+        
+        let nextIndex = e.shiftKey ? currentIndex - 1 : currentIndex + 1;
+
+        if (nextIndex >= 0 && nextIndex < slots.length) {
+            const nextSlot = slots[nextIndex];
+            const targetInput = section.querySelector(`[data-key="${nextSlot}${suffix}"]`);
+            
+            // 타겟 칸이 존재하면 이동 (외형칭호의 일반 칸들도 이제 정상적으로 포함됨)
+            if (targetInput && !targetInput.disabled) {
+                targetInput.focus();
+                if (targetInput.select) targetInput.select();
             }
         }
-    });
+    }
+});
 
     document.addEventListener('change', function(e) {
         const el = e.target;
