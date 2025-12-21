@@ -988,30 +988,43 @@ function updateStyle(el, type, isInitial = false) {
         autoSave();
     }
 
-    function updateRuneSummary(charId) {
-        const summaryEl = document.getElementById(`${charId}_runeSummary`);
-        const data = charRuneData[charId];
-        const activeRunes = data.runes.filter(r => r.name !== '');
-        let runeStr = "설정된 룬 없음";
-        if(activeRunes.length > 0) {
-            const runeMap = new Map();
-            activeRunes.forEach(r => {
-                const effectiveSkillLv = noSkillLvRunes.includes(r.name) ? "" : r.skillLv;
-                const key = `${r.name}|${r.lv}|${effectiveSkillLv}`;
-                if(runeMap.has(key)) runeMap.get(key).count += 1; else runeMap.set(key, { ...r, count: 1 });
-            });
-            const summaryArray = [];
-            runeMap.forEach((val) => {
-                const skillLv = (noSkillLvRunes.includes(val.name) || !val.skillLv) ? "" : `[${val.skillLv}]`;
-                summaryArray.push(`${val.name}${val.lv}${skillLv} ${val.count}개`);
-            });
-            runeStr = summaryArray.join(' / ');
-        }
-        let gakinContent = "";
-        const g2 = data.gakin[1] || "";
-        if (g2) { gakinContent = `<span class="v-line"></span> <span style="color:var(--gakin-2);">${g2}</span>`; }
-        summaryEl.innerHTML = runeStr + gakinContent;
+// updateRuneSummary 함수 내부에 적용
+function updateRuneSummary(charId) {
+    const summaryEl = document.getElementById(`${charId}_runeSummary`);
+    const data = charRuneData[charId];
+    const activeRunes = data.runes.filter(r => r.name !== '');
+
+    let runeStr = "설정된 룬 없음";
+    if(activeRunes.length > 0) {
+        const runeMap = new Map();
+        activeRunes.forEach(r => {
+            const effectiveSkillLv = noSkillLvRunes.includes(r.name) ? "" : r.skillLv;
+            const key = `${r.name}|${r.lv}|${effectiveSkillLv}`;
+            if(runeMap.has(key)) runeMap.get(key).count += 1; else runeMap.set(key, { ...r, count: 1 });
+        });
+
+        const summaryArray = [];
+        runeMap.forEach((val) => {
+            const skillLv = (noSkillLvRunes.includes(val.name) || !val.skillLv) ? "" : `[${val.skillLv}]`;
+
+            // --- 가독성 향상 적용 부분 ---
+            let lvColor = "#ddd"; // 기본 색상
+            if (val.lv === 'V') lvColor = "#ffb444"; // 5레벨은 금색
+            else if (val.lv === 'IV') lvColor = "#a29bfe"; // 4레벨은 보라색
+
+            summaryArray.push(`<span style="color:${lvColor}">${val.name}${val.lv}</span>${skillLv} <span style="color:#888;">${val.count}개</span>`);
+            // ---------------------------
+        });
+        runeStr = summaryArray.join(' <span style="color:#444; margin:0 4px;">|</span> ');
     }
+
+    let gakinContent = "";
+    const g2 = data.gakin[1] || "";
+    if (g2) {
+        gakinContent = `<span class="v-line"></span> <span style="color:var(--gakin-2);">${g2}</span>`;
+    }
+    summaryEl.innerHTML = runeStr + gakinContent;
+}
     
     function resetRuneData(charId) { 
         if(confirm("초기화하시겠습니까?")) { 
@@ -1036,7 +1049,8 @@ function updateStyle(el, type, isInitial = false) {
     }
     function closeHistoryModal() { document.getElementById('modalOverlay').style.display = 'none'; document.getElementById('historyModal').style.display = 'none'; }
 
-    function autoSave() {
+// 1. autoSave 함수 수정: 스냅샷 업데이트 로직을 제거하고 '저장'에만 집중합니다.
+function autoSave() {
     clearTimeout(window.sTime);
     window.sTime = setTimeout(() => {
         const allData = Array.from(document.querySelectorAll('.char-section')).map(sec => {
@@ -1056,7 +1070,7 @@ function updateStyle(el, type, isInitial = false) {
         });
 
         localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
-        updateLastSnapshot(); // ✅ 여기
+        // updateLastSnapshot(); // <--- 여기서 제거 (중복 기록 원인)
 
         const msg = document.getElementById('statusMsg');
         if (msg) {
@@ -1113,28 +1127,38 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-    document.addEventListener('change', function(e) {
-        const el = e.target;
-        const key = el.getAttribute('data-key');
-        if (!key) return;
-        const section = el.closest('.char-section');
-        const charName = section.querySelector('[data-key="info_name"]').value || "이름없음";
-        const slot = key.split('_')[0];
-        const prevChar = lastSnapshot.find(c => c.id === section.id);
-        const oldVal = (prevChar && prevChar.inputs && prevChar.inputs[key]) ? prevChar.inputs[key].val : "";
-        const newVal = el.value;
-        if (oldVal !== newVal) {
-            const now = new Date();
-            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-            changeHistory.unshift({ time: timeStr, charName: charName, slot: slot, old: (oldVal === "" ? "(빈칸)" : oldVal), new: (newVal === "" ? "(빈칸)" : newVal) });
-            if (changeHistory.length > 10) changeHistory.pop();
-            lastSnapshot = Array.from(document.querySelectorAll('.char-section')).map(sec => {
-                const inputsObj = {};
-                sec.querySelectorAll('input[data-key], select[data-key]').forEach(i => { inputsObj[i.getAttribute('data-key')] = { val: i.value }; });
-                return { id: sec.id, inputs: inputsObj };
-            });
-        }
-    });
+// 2. change 이벤트 리스너 수정: 기록 직후 스냅샷을 즉시 갱신하여 시차를 없앱니다.
+document.addEventListener('change', function(e) {
+    const el = e.target;
+    const key = el.getAttribute('data-key');
+    if (!key) return;
+
+    const section = el.closest('.char-section');
+    const charName = section.querySelector('[data-key="info_name"]').value || "이름없음";
+    const slot = key.split('_')[0];
+
+    // 이전 값 찾기
+    const prevChar = lastSnapshot.find(c => c.id === section.id);
+    const oldVal = (prevChar && prevChar.inputs && prevChar.inputs[key]) ? prevChar.inputs[key].val : "";
+    const newVal = el.value;
+
+    if (oldVal !== newVal) {
+        // 기록 추가
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+        changeHistory.unshift({
+            time: timeStr,
+            charName: charName,
+            slot: slot,
+            old: (oldVal === "" ? "(빈칸)" : oldVal),
+            new: (newVal === "" ? "(빈칸)" : newVal)
+        });
+        if (changeHistory.length > 10) changeHistory.pop();
+
+        // [중요] 변경이 감지된 즉시 스냅샷을 현재 상태로 동기화 (autoSave를 기다리지 않음)
+        updateLastSnapshot();
+    }
+});
 	
 	
 	// ---------------------------------------------------------

@@ -67,3 +67,35 @@ updateStyle에서 희귀도 변경 시:
 |3|	세트 체크 로직 공통화 (⚠️ 기존 3함수 유지)|
 |4|	lastSnapshot 갱신 타이밍 안정화|
 |6|	반복 querySelector 캐싱|
+
+
+
+---
+---
+
+###2. 코드 보완 및 주의사항
+   ① lastSnapshot 초기화 문제  
+   현재 changeHistory를 기록할 때 lastSnapshot 변수를 참조하고 있습니다.  
+   페이지가 처음 로드될 때 이 변수가 비어있으면 첫 번째 변경 사항이 기록되지 않을 수 있습니다.    
+   window.onload 끝에 updateLastSnapshot();을 추가하는 것이 좋습니다.
+
+```
+window.onload = () => {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    if (saved.length > 0) saved.forEach(d => createCharacterTable(d));
+    else createCharacterTable();
+
+    updateLastSnapshot(); // 초기 스냅샷 생성
+};
+```
+
+###③ autoSave와 changeHistory 충돌 방지
+autoSave 내부에서 updateLastSnapshot을 호출하고 있는데, change 이벤트와 autoSave(800ms 디바운스) 사이의 시차 때문에 기록이 누락되거나 중복될 가능성이 있습니다. 현재 구조는 무난하지만, 데이터가 많아질 경우 기록 시점을 명확히 분리하는 것이 안전합니다.
+
+---> 해결방안
+```
+function autoSave()  
+
+document.addEventListener('change', function(e) {  
+```
+코드 수정
