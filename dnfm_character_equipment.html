@@ -312,46 +312,34 @@ function checkArmorSetColor(charId) {
     if (!section) return;
 
     const armorSlots = ["상의", "어깨", "하의", "벨트", "신발"];
-    let equippedItems = [];
-    let isAllEpic = true;
+    const armorData = [];
 
-    // 1. 현재 착용 정보 수집 (희귀도와 아이템명)
+    // 1. 방어구 5부위의 이름과 엘리먼트를 수집
     armorSlots.forEach(slot => {
-        const raritySel = section.querySelector(`select[data-key="${slot}_rarity"]`);
-        const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
-        
-        const rarity = raritySel ? raritySel.value : "";
-        const name = nameEl ? nameEl.value.trim() : ""; // 공백 제거
-
-        if (rarity !== "에픽") isAllEpic = false;
-        if (name) equippedItems.push(name);
+        const el = section.querySelector(`[data-key="${slot}_itemname"]`);
+        if (el) {
+            // 이름의 첫 단어를 세트 명칭으로 가정 (예: "초중력의 점퍼" -> "초중력의")
+            const setName = el.value ? el.value.split(' ')[0] : "";
+            armorData.push({ el, setName, slot });
+        }
     });
 
-    // 2. 세트 완성 여부 확인
-    let isSetComplete = false;
-    if (isAllEpic && equippedItems.length >= 5) {
-        // armorSets 객체의 각 세트 리스트를 순회
-        for (const setName in armorSets) {
-            const setList = armorSets[setName];
-            // 현재 착용한 5부위 중 세트 리스트에 포함된 것의 개수
-            const matchCount = equippedItems.filter(item => setList.includes(item)).length;
-            
-            if (matchCount >= 5) {
-                isSetComplete = true;
-                break; 
-            }
+    // 2. 세트 명칭별로 개수를 카운트
+    const setCounts = {};
+    armorData.forEach(item => {
+        if (item.setName) {
+            setCounts[item.setName] = (setCounts[item.setName] || 0) + 1;
         }
-    }
+    });
 
-    // 3. 색상 적용 (#71D2E5 또는 기본값)
-    armorSlots.forEach(slot => {
-        const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
-        if (nameEl) {
-            if (isSetComplete) {
-                nameEl.style.setProperty('color', '#71D2E5', 'important');
-            } else {
-                nameEl.style.color = ""; // 인라인 스타일 제거 -> CSS 기본 노란색 복구
-            }
+    // 3. 개별 부위 체크: 해당 세트가 3개 이상이면 색상 적용
+    armorData.forEach(item => {
+        if (item.setName && setCounts[item.setName] >= 3) {
+            // 3개 이상 모인 세트 아이템인 경우
+            item.el.style.setProperty('color', '#71D2E5', 'important');
+        } else {
+            // 조건 미충족 시 스타일 초기화 (클래스 기반 색상이 나오도록)
+            item.el.style.color = "";
         }
     });
 }
