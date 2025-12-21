@@ -297,6 +297,16 @@ const specialSets = {
     "부정한 빛의 우상": ["콰트로 마누스의 기억", "콰트로 마누스의 태엽 장식", "콰트로 마누스의 두뇌", "콰트로 마누스의 에너지 코어"]
 };
 
+function runSetCheck(slot, charId) {
+    if (["상의", "어깨", "하의", "벨트", "신발"].includes(slot)) {
+        checkArmorSetColor(charId);
+    } else if (["팔찌", "목걸이", "반지"].includes(slot)) {
+        checkAccSetColor(charId);
+    } else if (["귀걸이", "마법석", "보조장비"].includes(slot)) {
+        checkSpecialSetColor(charId);
+    }
+}
+
 function checkArmorSetColor(charId) {
     const section = document.getElementById(charId);
     if (!section) return;
@@ -778,74 +788,56 @@ function updateStyle(el, type, isInitial = false) {
     const section = el.closest('.char-section');
     const charId = section.id;
 
+    // 기존 스타일 초기화
     el.className = Array.from(el.classList)
-        .filter(c => !c.startsWith('rare-') && !c.startsWith('ex-') && !c.startsWith('bg-') && c !== 'prefix-selected' && c !== 'prefix-tier')
-        .join(' ');
+        .filter(c =>
+            !c.startsWith('rare-') &&
+            !c.startsWith('ex-') &&
+            !c.startsWith('bg-') &&
+            c !== 'prefix-selected' &&
+            c !== 'prefix-tier'
+        ).join(' ');
 
     if (el.value) {
+        /* =========================
+           희귀도
+        ========================= */
         if (type === 'rarity') {
             el.classList.add('rare-' + el.value);
 
-            const oldNameEl = row.querySelector(`[data-key="${slot}_itemname"]`);
-            if (oldNameEl && itemOptions[slot]) {
-                const currentNameVal = oldNameEl.value || "";
-                const parentTd = oldNameEl.parentElement;
-
-                // 세트 체크 함수 결정
-                const isArmor = ["상의", "어깨", "하의", "벨트", "신발"].includes(slot);
-                const isAcc = ["팔찌", "목걸이", "반지"].includes(slot);
-                const isSpec = ["귀걸이", "마법석", "보조장비"].includes(slot);
-                
-                let checkFunc = "";
-                if (isArmor) checkFunc = `checkArmorSetColor('${charId}')`;
-                else if (isAcc) checkFunc = `checkAccSetColor('${charId}')`;
-                else if (isSpec) checkFunc = `checkSpecialSetColor('${charId}')`;
-
-                if (el.value === "에픽") {
-                    parentTd.innerHTML = `
-                        <select data-key="${slot}_itemname" class="rare-에픽 itemname-color-sync" 
-                                onchange="${checkFunc}; autoSave()">
-                            <option value=""></option>
-                            ${itemOptions[slot].map(opt => `<option value="${opt}" ${opt === currentNameVal ? 'selected' : ''}>${opt}</option>`).join('')}
-                        </select>`;
-                } else {
-                    parentTd.innerHTML = `
-                        <input type="text" data-key="${slot}_itemname" class="rare-${el.value} itemname-color-sync" 
-                               value="${currentNameVal}" oninput="${checkFunc}; autoSave()">`;
-                }
+            const nameEl = row.querySelector(`[data-key="${slot}_itemname"]`);
+            if (nameEl && itemOptions[slot]) {
+                replaceItemNameField(
+                    nameEl.parentElement,
+                    slot,
+                    el.value,
+                    nameEl.value,
+                    charId
+                );
             }
 
-            // 티어 등급 로직
-            const tierSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비"];
-            if (tierSlots.includes(slot)) {
-                const prefixSel = row.querySelector(`select[data-key="${slot}_prefix"]`);
-                const exceedTd = row.cells[3];
-                if (el.value === "티어") {
-                    if (prefixSel) { prefixSel.innerHTML = tierPrefixes.map(p => `<option>${p}</option>`).join(''); prefixSel.className = 'prefix-tier'; }
-                    if (exceedTd) exceedTd.innerHTML = "-";
-                } else {
-                    if (prefixSel) { prefixSel.innerHTML = prefixes.map(p => `<option>${p}</option>`).join(''); prefixSel.className = ''; }
-                    const isExSlot = ['상의', '팔찌', '귀걸이'].includes(slot);
-                    if (exceedTd && (exceedTd.innerText === "-" || exceedTd.innerHTML === "-")) {
-                        exceedTd.innerHTML = isExSlot ? `<select data-key="${slot}_exceed" data-slot="${slot}" onchange="updateStyle(this,'exceed')"><option></option><option>이상</option><option>선봉</option><option>의지</option></select>` : '-';
-                    }
-                }
-            }
-
-            // 희귀도 변경 시 세트 점검 실행
-            if (["상의", "어깨", "하의", "신발", "벨트"].includes(slot)) checkArmorSetColor(charId);
-            if (["팔찌", "목걸이", "반지"].includes(slot)) checkAccSetColor(charId);
-            if (["귀걸이", "마법석", "보조장비"].includes(slot)) checkSpecialSetColor(charId);
+            runSetCheck(slot, charId);
         }
+
+        /* =========================
+           익시드
+        ========================= */
         else if (type === 'exceed') {
             el.classList.add('ex-' + el.value);
-            if (slot === "상의") checkArmorSetColor(charId);
-            if (slot === "팔찌") checkAccSetColor(charId);
-            if (slot === "귀걸이") checkSpecialSetColor(charId);
+            runSetCheck(slot, charId);
         }
+
+        /* =========================
+           접두어
+        ========================= */
         else if (type === 'prefix') {
-            if (el.value.startsWith('T')) el.classList.add('prefix-tier'); else el.classList.add('prefix-selected');
+            if (el.value.startsWith('T')) el.classList.add('prefix-tier');
+            else el.classList.add('prefix-selected');
         }
+
+        /* =========================
+           크리쳐 아티팩트 배경
+        ========================= */
         else if (type === 'artBg') {
             el.classList.add('bg-' + el.value);
             const optSelect = el.parentElement.querySelector('.art-opt-select');
@@ -853,24 +845,42 @@ function updateStyle(el, type, isInitial = false) {
         }
     }
 
-    // 아이템 이름 클래스 동기화
-    const raritySyncSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호", "외형칭호", "오라", "아바타"];
+    /* =========================
+       아이템 이름 색상 동기화
+    ========================= */
+    const raritySyncSlots = [
+        "무기", "상의", "어깨", "하의", "신발", "벨트",
+        "목걸이", "팔찌", "반지",
+        "보조장비", "귀걸이", "마법석",
+        "칭호", "외형칭호", "오라", "아바타"
+    ];
+
     if (["rarity", "exceed"].includes(type) && raritySyncSlots.includes(slot)) {
         const nameEl = row.querySelector(`[data-key="${slot}_itemname"]`);
         if (nameEl) {
-            nameEl.classList.remove('rare-에픽', 'rare-유니크', 'rare-레어', 'rare-언커먼', 'rare-커먼', 'rare-티어', 'ex-itemname-light', 'itemname-color-sync');
-            const exColorSlots = ["상의", "팔찌", "귀걸이"];
-            const exSelect = row.querySelector(`select[data-key="${slot}_exceed"]`);
-            if (exColorSlots.includes(slot) && exSelect && exSelect.value) {
+            nameEl.classList.remove(
+                'rare-에픽', 'rare-유니크', 'rare-레어',
+                'rare-언커먼', 'rare-커먼', 'rare-티어',
+                'ex-itemname-light', 'itemname-color-sync'
+            );
+
+            const exSlots = ["상의", "팔찌", "귀걸이"];
+            const exSel = row.querySelector(`select[data-key="${slot}_exceed"]`);
+
+            if (exSlots.includes(slot) && exSel && exSel.value) {
                 nameEl.classList.add('ex-itemname-light', 'itemname-color-sync');
             } else {
-                const raritySel = row.querySelector(`select[data-key="${slot}_rarity"]`);
-                if (raritySel && raritySel.value) nameEl.classList.add('rare-' + raritySel.value, 'itemname-color-sync');
+                const rSel = row.querySelector(`select[data-key="${slot}_rarity"]`);
+                if (rSel && rSel.value) {
+                    nameEl.classList.add('rare-' + rSel.value, 'itemname-color-sync');
+                }
             }
         }
     }
+
     if (!isInitial) autoSave();
 }
+
 
 
 	// 1. 모달 열릴 때 모든 일괄 설정 선택지 채우기
@@ -1027,18 +1037,35 @@ function updateStyle(el, type, isInitial = false) {
     function closeHistoryModal() { document.getElementById('modalOverlay').style.display = 'none'; document.getElementById('historyModal').style.display = 'none'; }
 
     function autoSave() {
-        clearTimeout(window.sTime);
-        window.sTime = setTimeout(() => {
-            const allData = Array.from(document.querySelectorAll('.char-section')).map(sec => {
-                const inputsObj = {};
-                sec.querySelectorAll('input[data-key], select[data-key]').forEach(el => { inputsObj[el.getAttribute('data-key')] = { val: el.value, cls: el.className }; });
-                return { id: sec.id, locked: sec.querySelector('.lock-btn').classList.contains('btn-active'), inputs: inputsObj, runeData: charRuneData[sec.id] };
+    clearTimeout(window.sTime);
+    window.sTime = setTimeout(() => {
+        const allData = Array.from(document.querySelectorAll('.char-section')).map(sec => {
+            const inputsObj = {};
+            sec.querySelectorAll('input[data-key], select[data-key]').forEach(el => {
+                inputsObj[el.getAttribute('data-key')] = {
+                    val: el.value,
+                    cls: el.className
+                };
             });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
-            document.getElementById('statusMsg').innerText = "💾 저장됨";
-            setTimeout(() => document.getElementById('statusMsg').innerText = "", 1000);
-        }, 800);
-    }
+            return {
+                id: sec.id,
+                locked: sec.querySelector('.lock-btn')?.classList.contains('btn-active'),
+                inputs: inputsObj,
+                runeData: charRuneData[sec.id]
+            };
+        });
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+        updateLastSnapshot(); // ✅ 여기
+
+        const msg = document.getElementById('statusMsg');
+        if (msg) {
+            msg.innerText = "💾 저장됨";
+            setTimeout(() => msg.innerText = "", 1000);
+        }
+    }, 800);
+}
+
     function exportToJSON() { const data = localStorage.getItem(STORAGE_KEY); if(!data) return alert("저장된 데이터가 없습니다."); const blob = new Blob([data], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `dnfm_backup.json`; a.click(); }
     function importFromJSON(input) { const reader = new FileReader(); reader.onload = (e) => { try { const data = JSON.parse(e.target.result); document.getElementById('characterContainer').innerHTML = ""; charRuneData = {}; data.forEach(d => createCharacterTable(d)); autoSave(); } catch(err) { alert("올바른 JSON 파일이 아닙니다."); } }; reader.readAsText(input.files[0]); }
     
@@ -1144,65 +1171,131 @@ function applySealHighlight(charId) {
     const section = document.getElementById(charId);
     if (!section) return;
 
-    const statType = section.querySelector(`select[data-key="info_stat_type"]`).value; 
-    const eleType = section.querySelector(`select[data-key="info_ele_type"]`).value;   
+    const statType = section.querySelector(`select[data-key="info_stat_type"]`)?.value || "";
+    const eleType  = section.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
 
-    const armorSlots = ["상의", "어깨", "하의", "신발", "벨트"];
-    const accSlots = ["목걸이", "팔찌", "반지"];
+    const armorSlots   = ["상의", "어깨", "하의", "신발", "벨트"];
+    const accSlots     = ["목걸이", "팔찌", "반지"];
     const specialSlots = ["보조장비", "귀걸이", "마법석"];
-    // 엠블렘 강조 대상 슬롯 추가
     const embHighlightSlots = ["보조장비", "귀걸이", "마법석", "칭호"];
+
+    /* =========================
+       tr 캐싱
+    ========================= */
+    const rows = Array.from(section.querySelectorAll('tr'));
+    const rowMap = {};
+    rows.forEach(r => {
+        const slotName = r.querySelector('.col-slot')?.innerText;
+        if (slotName) rowMap[slotName] = r;
+    });
 
     slots.forEach(slot => {
         if (slot === "스킬룬" || slot === "크리쳐") return;
-
-        const row = Array.from(section.querySelectorAll('tr')).find(r => 
-            r.querySelector('.col-slot')?.innerText === slot
-        );
+        const row = rowMap[slot];
         if (!row) return;
 
-        // 마법봉인 엘리먼트
         const s1 = row.querySelector(`select[data-key="${slot}_seal1"]`);
         const v1 = row.querySelector(`input[data-key="${slot}_seal1_val"]`);
         const s2 = row.querySelector(`select[data-key="${slot}_seal2"]`);
         const v2 = row.querySelector(`input[data-key="${slot}_seal2_val"]`);
-
-        // 엠블렘 엘리먼트 (emb1은 select인 경우와 input인 경우가 있으므로 둘 다 대응)
         const emb1 = row.querySelector(`[data-key="${slot}_emb1"]`);
         const emb2 = row.querySelector(`[data-key="${slot}_emb2"]`);
 
-        // 초기화: 기존 강조 클래스 제거
-        [s1, v1, s2, v2, emb1, emb2].forEach(el => el?.classList.remove('highlight-yellow'));
+        [s1, v1, s2, v2, emb1, emb2].forEach(el =>
+            el?.classList.remove('highlight-yellow')
+        );
 
-        if (!s1 || !s2) {
-            // 마법봉인이 없는 슬롯(칭호 등)이라도 엠블렘 강조 로직은 실행되어야 함
-        } else {
-            // --- 기존 마법봉인 강조 로직 (무기, 방어구, 악세, 특장) ---
-            if (slot === "무기" && statType !== "") {
-                if (s1.value === "데미지 증가") { s1.classList.add('highlight-yellow'); v1.classList.add('highlight-yellow'); }
-                if (s2.value === statType) { s2.classList.add('highlight-yellow'); v2.classList.add('highlight-yellow'); }
+        if (s1 && s2) {
+            if (slot === "무기" && statType) {
+                if (s1.value === "데미지 증가") {
+                    s1.classList.add('highlight-yellow');
+                    v1?.classList.add('highlight-yellow');
+                }
+                if (s2.value === statType) {
+                    s2.classList.add('highlight-yellow');
+                    v2?.classList.add('highlight-yellow');
+                }
             }
-            if ((armorSlots.includes(slot) || specialSlots.includes(slot)) && statType !== "") {
-                if (s1.value === statType) { s1.classList.add('highlight-yellow'); v1.classList.add('highlight-yellow'); }
-                if (s2.value === statType) { s2.classList.add('highlight-yellow'); v2.classList.add('highlight-yellow'); }
+
+            if ((armorSlots.includes(slot) || specialSlots.includes(slot)) && statType) {
+                if (s1.value === statType) {
+                    s1.classList.add('highlight-yellow');
+                    v1?.classList.add('highlight-yellow');
+                }
+                if (s2.value === statType) {
+                    s2.classList.add('highlight-yellow');
+                    v2?.classList.add('highlight-yellow');
+                }
             }
-            if (accSlots.includes(slot) && eleType !== "") {
-                if (s1.value === eleType) { s1.classList.add('highlight-yellow'); v1.classList.add('highlight-yellow'); }
-                if (s2.value === eleType) { s2.classList.add('highlight-yellow'); v2.classList.add('highlight-yellow'); }
+
+            if (accSlots.includes(slot) && eleType) {
+                if (s1.value === eleType) {
+                    s1.classList.add('highlight-yellow');
+                    v1?.classList.add('highlight-yellow');
+                }
+                if (s2.value === eleType) {
+                    s2.classList.add('highlight-yellow');
+                    v2?.classList.add('highlight-yellow');
+                }
             }
         }
 
-        // --- [신규 추가] 엠블렘 속강 강조 로직 ---
-        if (embHighlightSlots.includes(slot) && eleType !== "") {
-            // 엠블렘1(emb1)의 값이 속강 선택지(eleType)와 같을 경우 또는 모속강일 경우
-            if (emb1 && emb1.value === eleType || emb1.value === "모속강") {
+        /* =========================
+           엠블렘 속강 강조
+        ========================= */
+        if (embHighlightSlots.includes(slot) && eleType) {
+            if (emb1 && (emb1.value === eleType || emb1.value === "모속강")) {
                 emb1.classList.add('highlight-yellow');
-                // 오른쪽 텍스트 입력란(emb2)도 함께 강조
-                if (emb2) emb2.classList.add('highlight-yellow');
+                emb2?.classList.add('highlight-yellow');
             }
         }
     });
 }
+
+
+function replaceItemNameField(parentTd, slot, rarity, value, charId) {
+    const oldEl = parentTd.querySelector(`[data-key="${slot}_itemname"]`);
+    if (oldEl) oldEl.remove();
+
+    let newEl;
+    if (rarity === "에픽") {
+        newEl = document.createElement('select');
+        newEl.innerHTML = `<option value=""></option>` +
+            (itemOptions[slot] || []).map(opt =>
+                `<option value="${opt}">${opt}</option>`
+            ).join('');
+    } else {
+        newEl = document.createElement('input');
+        newEl.type = 'text';
+    }
+
+    newEl.value = value || "";
+    newEl.setAttribute('data-key', `${slot}_itemname`);
+    newEl.className = `rare-${rarity} itemname-color-sync`;
+
+    // ✅ 문자열 이벤트 제거
+    newEl.addEventListener('change', () => {
+        runSetCheck(slot, charId);
+        autoSave();
+    });
+    newEl.addEventListener('input', () => {
+        runSetCheck(slot, charId);
+        autoSave();
+    });
+
+    parentTd.appendChild(newEl);
+}
+
+function updateLastSnapshot() {
+    lastSnapshot = Array.from(document.querySelectorAll('.char-section')).map(sec => {
+        const inputsObj = {};
+        sec.querySelectorAll('input[data-key], select[data-key]').forEach(el => {
+            inputsObj[el.getAttribute('data-key')] = { val: el.value };
+        });
+        return { id: sec.id, inputs: inputsObj };
+    });
+}
+
 </script>
 </body>
 </html>
