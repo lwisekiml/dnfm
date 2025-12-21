@@ -477,26 +477,28 @@ function toggleEdit(charId, isLock) {
 
     // 2. 모든 입력 요소(input, select, textarea) 제어
     const inputs = section.querySelectorAll('input, select, textarea');
-    
+
     inputs.forEach(el => {
-        // 잠금/해제 버튼 자체는 비활성화 대상에서 제외
         if (el === lockBtn || el === unlockBtn) return;
 
         if (isLock) {
-            // 잠금 모드: readonly를 사용하여 데이터 값은 그대로 유지하고 수정만 막음
-            // select는 readonly가 없으므로 disabled 처리
             if (el.tagName === 'SELECT') {
                 el.disabled = true;
             } else {
                 el.readOnly = true;
             }
-            // 기존 색상 클래스는 건드리지 않고, 커서 모양만 변경
+            // 잠금 상태일 때는 모두 기본 화살표 모양으로
             el.style.cursor = "default";
         } else {
-            // 해제 모드
             el.disabled = false;
             el.readOnly = false;
-            el.style.cursor = "text";
+
+            // [수정 포인트] 요소의 종류에 따라 커서 모양을 다르게 설정
+            if (el.tagName === 'SELECT' || el.type === 'button') {
+                el.style.cursor = "pointer"; // 선택창은 '손모양'
+            } else {
+                el.style.cursor = "text";    // 입력창은 'I자 모양'
+            }
         }
     });
 
