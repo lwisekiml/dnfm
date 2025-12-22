@@ -891,6 +891,14 @@ function updateStyle(el, type, isInitial = false) {
         }
 
         /* =========================
+           익시드
+        ========================= */
+        else if (type === 'exceed') {
+            el.classList.add('ex-' + el.value);
+            runSetCheck(slot, charId);
+        }
+
+        /* =========================
            접두어 (Prefix) 처리
         ========================= */
         else if (type === 'prefix') {
@@ -898,7 +906,15 @@ function updateStyle(el, type, isInitial = false) {
             else if (el.value !== "") el.classList.add('prefix-selected');
         }
 
-        // ... 익시드(exceed) 및 아티팩트(artBg) 로직 생략 (기존과 동일)
+        /* =========================
+           크리쳐 아티팩트 배경
+        ========================= */
+        else if (type === 'artBg') {
+            el.classList.add('bg-' + el.value);
+            const optSelect = el.parentElement.querySelector('.art-opt-select');
+            if (optSelect) optSelect.className = 'art-opt-select bg-' + el.value;
+        }
+
     }
 
     if (!isInitial) autoSave();
