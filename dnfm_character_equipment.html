@@ -722,22 +722,21 @@ function createCharacterTable(savedData = null) {
         });
 
         // 2. 나머지 모든 값 입력
-        const inputs = section.querySelectorAll('input[data-key], select[data-key]');
-        inputs.forEach(el => {
-            const key = el.getAttribute('data-key');
-            if (savedData.inputs && savedData.inputs[key]) {
-                const data = savedData.inputs[key];
-                if (key.endsWith('_rarity')) return;
+        const inputs = section.querySelectorAll('input[data-key], select[data-key], textarea[data-key]');
+    inputs.forEach(el => {
+        const key = el.getAttribute('data-key');
+        if (savedData.inputs && savedData.inputs[key]) {
+            const data = savedData.inputs[key];
+            if (key.endsWith('_rarity')) return;
 
-                el.value = data.val;
-                // [핵심] 저장된 클래스(색상 정보)를 우선 복구
-                if (data.cls) el.className = data.cls;
-                
-                if (key.endsWith('_prefix')) {
-                    updateStyle(el, 'prefix', true);
-                }
+            el.value = data.val;
+            if (data.cls) el.className = data.cls;
+            
+            if (key.endsWith('_prefix')) {
+                updateStyle(el, 'prefix', true);
             }
-        });
+        }
+    });
 
         // 3. [최종 해결책] 모든 데이터가 들어간 직후, 브라우저가 DOM을 안정화할 시간을 아주 잠깐(0ms) 주고 함수 호출
         setTimeout(() => {
@@ -760,6 +759,8 @@ function createCharacterTable(savedData = null) {
     } else { 
         toggleEdit(charId, true); 
     }
+	
+	toggleEdit(charId, !!savedData.locked);
 }
 
 
@@ -1071,7 +1072,8 @@ function autoSave() {
     window.sTime = setTimeout(() => {
         const allData = Array.from(document.querySelectorAll('.char-section')).map(sec => {
             const inputsObj = {};
-            sec.querySelectorAll('input[data-key], select[data-key]').forEach(el => {
+            // [수정] textarea[data-key]를 추가하여 설명 칸 데이터를 포함시킵니다.
+            sec.querySelectorAll('input[data-key], select[data-key], textarea[data-key]').forEach(el => {
                 inputsObj[el.getAttribute('data-key')] = {
                     val: el.value,
                     cls: el.className
@@ -1086,7 +1088,6 @@ function autoSave() {
         });
 
         localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
-        // updateLastSnapshot(); // <--- 여기서 제거 (중복 기록 원인)
 
         const msg = document.getElementById('statusMsg');
         if (msg) {
