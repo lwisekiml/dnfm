@@ -680,7 +680,12 @@ function createCharacterTable(savedData = null) {
                 : `<input type="text" data-key="${slot}_itemname" class="rare-에픽 itemname-color-sync" oninput="autoSave()">`;
 
             let descTdHTML = (slot === "칭호") 
-                ? `<td rowspan="2" class="v-border-heavy" style="padding: 2px; vertical-align: middle;"><textarea data-key="칭호_desc" oninput="autoSave()" style="width:calc(100% - 4px); height:calc(100% - 2px); min-height:44px; background:#000; color:#fff; border:1px solid #444; padding:4px 6px; resize:none; font-size:11px; box-sizing:border-box; text-align:left;"></textarea></td>`
+                ? `<td rowspan="2" class="v-border-heavy" style="padding: 2px; vertical-align: middle;">
+    <textarea data-key="칭호_desc" oninput="autoSave()" 
+    style="width:calc(100% - 4px); height:calc(100% - 2px); min-height:44px; background:#000; color:#fff; border:1px solid #444; padding:4px 6px; resize:none; 
+    font-family: sans-serif; font-size: 11px; box-sizing:border-box; text-align:left;">
+    </textarea>
+</td>`
                 : (slot === "외형칭호") ? '' : `<td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;"></td>`;
 
             const tabAttr = (slot === "외형칭호") ? 'tabindex="-1"' : '';
