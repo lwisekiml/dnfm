@@ -850,7 +850,21 @@ function updateStyle(el, type, isInitial = false) {
            희귀도 (Rarity) 처리
         ========================= */
         if (type === 'rarity') {
-            el.classList.add('rare-' + el.value);
+            const rarityClass = 'rare-' + el.value;
+            el.classList.add(rarityClass);
+
+            // [수정 포인트] 칭호, 외형칭호, 오라, 아바타는 아이템이름 색상을 희귀도와 일치시킴
+            const colorSyncSlots = ["칭호", "외형칭호", "오라", "아바타"];
+            const nameEl = row.querySelector(`[data-key="${slot}_itemname"]`);
+
+            if (nameEl) {
+                // 기존 색상 클래스 모두 제거
+                nameEl.className = Array.from(nameEl.classList)
+                    .filter(c => !c.startsWith('rare-')).join(' ');
+                // 새로운 희귀도 클래스 추가
+                nameEl.classList.add(rarityClass);
+                nameEl.classList.add('itemname-color-sync');
+            }
         
             const prefixSel = row.querySelector(`select[data-key="${slot}_prefix"]`);
             if (prefixSel) {
@@ -883,7 +897,7 @@ function updateStyle(el, type, isInitial = false) {
                 updateStyle(prefixSel, 'prefix', isInitial);
             }
 
-            const nameEl = row.querySelector(`[data-key="${slot}_itemname"]`);
+            // 에픽/일반 필드 교체 로직 (색상 유지 포함)
             if (nameEl && itemOptions[slot]) {
                 replaceItemNameField(nameEl.parentElement, slot, el.value, nameEl.value, charId);
             }
