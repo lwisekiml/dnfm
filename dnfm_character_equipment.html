@@ -165,6 +165,7 @@
     <button class="btn-action" onclick="exportToJSON()">📤 JSON 파일 저장</button>
     <button class="btn-action" onclick="document.getElementById('fileInput').click()">📥 JSON 파일 불러오기</button>
     <button class="btn-action btn-add" onclick="createCharacterTable()">➕ 캐릭터 추가</button>
+	<button onclick="lockAllCharacters()" class="btn-all-lock" style="background-color: #4b5563; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; margin-left: 8px;">전체 잠금</button>
 	<button class="btn-action" style="background:#0ea5e9;" onclick="openHistoryModal()">📜 기록</button>
     <input type="file" id="fileInput" style="display:none" accept=".json" onchange="importFromJSON(this)">
     <span id="statusMsg" class="status-msg"></span>
@@ -1384,10 +1385,28 @@ window.onload = () => {
     }
 };
 
-// 키보드 이벤트 리스너 등 기타 설정
-document.addEventListener('keydown', function(e) {
-    // (기존 Tab 키 로직이 있다면 여기에 위치)
-});
+// 모든 캐릭터를 한 번에 잠그는 함수
+function lockAllCharacters() {
+    // 화면에 있는 모든 캐릭터 섹션을 찾음
+    const allSections = document.querySelectorAll('.char-section');
+    
+    if (allSections.length === 0) return;
+
+    if (confirm("모든 캐릭터를 잠금 상태로 변경하시겠습니까?")) {
+        allSections.forEach(section => {
+            const charId = section.id;
+            // 기존에 작성된 toggleEdit 함수를 호출하여 '잠금(true)' 상태로 만듦
+            toggleEdit(charId, true);
+        });
+        
+        // 상태 저장 알림 (선택 사항)
+        const statusMsg = document.getElementById('statusMsg');
+        if (statusMsg) {
+            statusMsg.innerText = "🔒 모든 캐릭터가 잠겼습니다.";
+            setTimeout(() => statusMsg.innerText = "", 2000);
+        }
+    }
+}
 
 </script>
 </body>
