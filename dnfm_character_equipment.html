@@ -297,6 +297,24 @@ const specialSets = {
     "부정한 빛의 우상": ["콰트로 마누스의 기억", "콰트로 마누스의 태엽 장식", "콰트로 마누스의 두뇌", "콰트로 마누스의 에너지 코어"]
 };
 
+    let charRuneData = {}; 
+    let currentEditingCharId = null;
+    let changeHistory = [];
+    let lastSnapshot = localStorage.getItem(STORAGE_KEY) ? JSON.parse(localStorage.getItem(STORAGE_KEY)) : [];
+
+    const rarityColors = {
+    // 등급/상태
+    "에픽": "#fcc419", "유니크": "#ff80ab", "레어": "#b197fc", "언커먼": "#4dabf7", "커먼": "#888", "티어": "#ffffff",
+    "선봉": "#ff5252", "의지": "#448aff", "이상": "#40c057", "데이터 초기화됨": "#ff5252", "새로운 설정으로 변경됨": "#40c057",
+    
+    // 접두어 (이름에 포함되거나 선택될 때 적용될 색상)
+    "전격": "#fcc419", "허상": "#fcc419", "작열": "#fcc419", "침식": "#fcc419", 
+    "수호": "#fcc419", "왜곡": "#fcc419", "자상": "#fcc419", "맹독": "#fcc419", 
+    "보호": "#fcc419", "쇄도": "#fcc419", "신속": "#fcc419", "연격": "#fcc419"
+};
+const accPrefixes = ["", "견고", "혈독", "초석", "각오", "가속", "조화"];
+const specPrefixes = ["", "불굴", "숙련", "결의", "격변", "촉진", "질주"];
+
 function runSetCheck(slot, charId) {
 	const armorSlots = ["상의", "하의", "어깨", "벨트", "신발"];
 	const accSlots = ["팔찌", "목걸이", "반지"];
@@ -455,21 +473,7 @@ function checkSpecialSetColor(charId) {
 }
 
 
-    let charRuneData = {}; 
-    let currentEditingCharId = null;
-    let changeHistory = [];
-    let lastSnapshot = localStorage.getItem(STORAGE_KEY) ? JSON.parse(localStorage.getItem(STORAGE_KEY)) : [];
 
-    const rarityColors = {
-    // 등급/상태
-    "에픽": "#fcc419", "유니크": "#ff80ab", "레어": "#b197fc", "언커먼": "#4dabf7", "커먼": "#888", "티어": "#ffffff",
-    "선봉": "#ff5252", "의지": "#448aff", "이상": "#40c057", "데이터 초기화됨": "#ff5252", "새로운 설정으로 변경됨": "#40c057",
-    
-    // 접두어 (이름에 포함되거나 선택될 때 적용될 색상)
-    "전격": "#fcc419", "허상": "#fcc419", "작열": "#fcc419", "침식": "#fcc419", 
-    "수호": "#fcc419", "왜곡": "#fcc419", "자상": "#fcc419", "맹독": "#fcc419", 
-    "보호": "#fcc419", "쇄도": "#fcc419", "신속": "#fcc419", "연격": "#fcc419"
-};
 
     // 색상을 적용해주는 헬퍼 함수
 function getSpanWithColor(text) {
@@ -701,48 +705,57 @@ function createCharacterTable(savedData = null) {
     document.getElementById('characterContainer').appendChild(section);
     updateRuneSummary(charId);
 
-    // 6) 저장된 데이터 복구 로직 (순서 교정 버전)
+    // 6) 저장된 데이터 복구 로직
     if (savedData) {
-        // 1. 먼저 모든 '희귀도(Rarity)'를 먼저 설정하여 접두어 옵션 목록(HTML)을 생성합니다.
+        // 1. 희귀도(Rarity) 먼저 설정 (접두어 옵션 생성)
         section.querySelectorAll('select[data-key$="_rarity"]').forEach(sel => {
             const slot = sel.getAttribute('data-slot');
             const savedRarity = (savedData.inputs && savedData.inputs[`${slot}_rarity`]) ? savedData.inputs[`${slot}_rarity`].val : "";
-            
             if (savedRarity) {
                 sel.value = savedRarity;
-                // 이 함수 호출이 접두어(Prefix)의 <option> 태그들을 부위별로 생성합니다.
                 updateStyle(sel, 'rarity', true); 
             }
         });
 
-        // 2. 이제 옵션들이 생성되었으므로, 접두어를 포함한 나머지 모든 값을 입력합니다.
+        // 2. 나머지 모든 값 입력
         const inputs = section.querySelectorAll('input[data-key], select[data-key]');
         inputs.forEach(el => {
             const key = el.getAttribute('data-key');
             if (savedData.inputs && savedData.inputs[key]) {
                 const data = savedData.inputs[key];
-                
-                // 희귀도는 위에서 이미 처리했으므로 건너뜁니다.
                 if (key.endsWith('_rarity')) return;
 
-                // 이제 옵션이 존재하므로 값이 정상적으로 할당됩니다.
                 el.value = data.val;
+                // [핵심] 저장된 클래스(색상 정보)를 우선 복구
                 if (data.cls) el.className = data.cls;
                 
-                // 접두어 스타일(색상) 적용
                 if (key.endsWith('_prefix')) {
                     updateStyle(el, 'prefix', true);
                 }
             }
         });
 
+        // 3. [최종 해결책] 모든 데이터가 들어간 직후, 브라우저가 DOM을 안정화할 시간을 아주 잠깐(0ms) 주고 함수 호출
+        setTimeout(() => {
+            // 방어구 세트 체크
+            if (typeof checkArmorSetColor === "function") {
+                checkArmorSetColor(charId);
+            }
+            // 악세서리 및 특수장비 세트 체크
+            const setTargetSlots = ["목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석"];
+            setTargetSlots.forEach(slot => {
+                if (typeof runSetCheck === "function") {
+                    runSetCheck(slot, charId);
+                }
+            });
+            // 하이라이트 재적용
+            applySealHighlight(charId);
+        }, 0);
+
         toggleEdit(charId, !!savedData.locked);
     } else { 
         toggleEdit(charId, true); 
     }
-
-    applySealHighlight(charId);
-    checkArmorSetColor(charId);
 }
 
 
@@ -841,11 +854,9 @@ function updateStyle(el, type, isInitial = false) {
                 let optionsHTML = "";
                 if (el.value === "티어") {
                     optionsHTML = tierPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
-                } else if (accSlots.includes(slot)) {
-                    const accPrefixes = ["", "견고", "혈독", "초석", "각오", "가속", "조화"];
+                } else if (accSlots.includes(slot)) {                    
                     optionsHTML = accPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
-                } else if (specialSlots.includes(slot)) {
-                    const specPrefixes = ["", "불굴", "숙련", "결의", "격변", "촉진", "질주"];
+                } else if (specialSlots.includes(slot)) {                    
                     optionsHTML = specPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
                 } else {
                     optionsHTML = prefixes.map(p => `<option value="${p}">${p}</option>`).join('');
