@@ -1077,9 +1077,10 @@ function updateRuneSummary(charId) {
             const skillLv = (noSkillLvRunes.includes(val.name) || !val.skillLv) ? "" : `[${val.skillLv}]`;
 
             // --- 가독성 향상 적용 부분 ---
-            let lvColor = "#ddd"; // 기본 색상
-            if (val.lv === 'V') lvColor = "#ffb444"; // 5레벨은 금색
-            else if (val.lv === 'IV') lvColor = "#a29bfe"; // 4레벨은 보라색
+            // let lvColor = "#ddd"; // 기본 색상
+            // if (val.lv === 'V') lvColor = "#ffb444"; // 5레벨은 금색
+            // else
+            if (val.lv === 'IV') lvColor = "#888"; // 4레벨은 보라색
 
             summaryArray.push(`<span style="color:${lvColor}">${val.name}${val.lv}</span>${skillLv} <span style="color:#888;">${val.count}개</span>`);
             // ---------------------------
