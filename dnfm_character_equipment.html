@@ -1526,6 +1526,61 @@ function moveCharacter(charId, direction) {
     setTimeout(() => section.style.boxShadow = "", 500);
 }
 
+
+function exportToJSON() { 
+    const data = localStorage.getItem(STORAGE_KEY); 
+    if(!data) return alert("저장된 데이터가 없습니다."); 
+
+    // --- 기록 추가 로직 ---
+    const now = new Date();
+    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+    changeHistory.unshift({ 
+        time: timeStr, 
+        charName: "시스템", 
+        slot: "데이터 백업", 
+        old: "현재 데이터", 
+        new: "JSON 파일로 내보내기 완료" 
+    });
+    if (changeHistory.length > 10) changeHistory.pop();
+    // ----------------------
+
+    const blob = new Blob([data], { type: "application/json" }); 
+    const a = document.createElement("a"); 
+    a.href = URL.createObjectURL(blob); 
+    a.download = `dnfm_backup.json`; 
+    a.click(); 
+}
+
+function importFromJSON(input) { 
+    const reader = new FileReader(); 
+    reader.onload = (e) => { 
+        try { 
+            const data = JSON.parse(e.target.result); 
+            document.getElementById('characterContainer').innerHTML = ""; 
+            charRuneData = {}; 
+            data.forEach(d => createCharacterTable(d)); 
+
+            // --- 기록 추가 로직 ---
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            changeHistory.unshift({ 
+                time: timeStr, 
+                charName: "시스템", 
+                slot: "데이터 복구", 
+                old: "기존 데이터", 
+                new: "외부 JSON 파일로부터 복원됨" 
+            });
+            if (changeHistory.length > 10) changeHistory.pop();
+            // ----------------------
+
+            autoSave(); 
+        } catch(err) { 
+            alert("올바른 JSON 파일이 아닙니다."); 
+        } 
+    }; 
+    reader.readAsText(input.files[0]); 
+}
+
 </script>
 </body>
 </html>
