@@ -623,6 +623,7 @@ function createCharacterTable(savedData = null) {
                     <div style="border-bottom: 2px solid var(--gold); margin: 4px 0;"></div>
                     <input type="text" placeholder="직업" data-key="info_job" oninput="autoSave()">
                     <input type="text" placeholder="이름" data-key="info_name" oninput="autoSave()">
+					<input type="text" placeholder="항마력" data-key="info_power" oninput="autoSave()">
                     <div style="border-bottom: 2px solid var(--gold); margin: 8px 0;"></div>
                     <button onclick="toggleEdit('${charId}', true)" class="btn-char-lock lock-btn">잠금</button>
                     <button onclick="toggleEdit('${charId}', false)" class="btn-char-unlock unlock-btn">해제</button>
