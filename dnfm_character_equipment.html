@@ -711,8 +711,23 @@ function createCharacterTable(savedData = null) {
     });
 
     // 5) 문서에 테이블 삽입 및 초기화
-    document.getElementById('characterContainer').appendChild(section);
-    updateRuneSummary(charId);
+document.getElementById('characterContainer').appendChild(section);
+updateRuneSummary(charId);
+
+// [수정 포인트] 신규 추가 시에도 접두어 리스트를 부위에 맞게 즉시 갱신
+section.querySelectorAll('select[data-key$="_prefix"]').forEach(sel => {
+    const slot = sel.getAttribute('data-slot');
+    const raritySel = section.querySelector(`select[data-key="${slot}_rarity"]`);
+    const rarity = raritySel ? raritySel.value : "에픽"; // 기본값 에픽 기준
+
+    // updateStyle을 호출하여 부위별(악세/특수/티어) 접두어 목록을 즉시 생성
+    updateStyle(sel, 'prefix', true); 
+    
+    // rarity에 따른 목록 동기화가 필요하므로 raritySel을 기준으로 스타일 업데이트 1회 실행
+    if (raritySel) {
+        updateStyle(raritySel, 'rarity', true);
+    }
+});
 
     // 6) 저장된 데이터 복구 로직
     if (savedData) {
