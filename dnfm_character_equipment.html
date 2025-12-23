@@ -628,6 +628,10 @@ function createCharacterTable(savedData = null) {
                     <button onclick="toggleEdit('${charId}', true)" class="btn-char-lock lock-btn">잠금</button>
                     <button onclick="toggleEdit('${charId}', false)" class="btn-char-unlock unlock-btn">해제</button>
                     <div style="border-bottom: 2px solid var(--gold); margin: 10px 0;"></div>
+					<div style="display:flex; gap:2px; margin-bottom: 4px;">
+						<button onclick="moveCharacter('${charId}', 'up')" class="btn-action" style="flex:1; background:#444; padding:2px;">▲</button>
+						<button onclick="moveCharacter('${charId}', 'down')" class="btn-action" style="flex:1; background:#444; padding:2px;">▼</button>
+					</div>
                     <button onclick="deleteCharacter('${charId}')" class="del-btn" style="background:#ff4d4d; color:white; border:none; padding:4px; cursor:pointer; font-size:11px; border-radius:2px;">삭제</button>
                 </div>
             </td>`;
@@ -1495,6 +1499,31 @@ function lockAllCharacters() {
             setTimeout(() => statusMsg.innerText = "", 2000);
         }
     }
+}
+
+function moveCharacter(charId, direction) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    if (direction === 'up') {
+        const prev = section.previousElementSibling;
+        if (prev && prev.classList.contains('char-section')) {
+            section.parentNode.insertBefore(section, prev);
+        }
+    } else {
+        const next = section.nextElementSibling;
+        if (next && next.classList.contains('char-section')) {
+            section.parentNode.insertBefore(next, section);
+        }
+    }
+
+    // 순서가 바뀌었으므로 스냅샷 갱신 및 로컬스토리지 저장
+    updateLastSnapshot(); 
+    autoSave();
+    
+    // 시각적 피드백 (선택사항)
+    section.style.boxShadow = "0 0 10px var(--gold)";
+    setTimeout(() => section.style.boxShadow = "", 500);
 }
 
 </script>
