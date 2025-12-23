@@ -159,6 +159,12 @@
     📂 CSV 불러오기
     <input type="file" id="csvFile" accept=".csv">
   </label>
+  
+  <button class="action-btn" style="background: linear-gradient(135deg, #6a5acd, #483d8b);" onclick="exportJSON()">💎 JSON 저장 (백업)</button>
+  <label class="file-label" style="background: #2c3e50;">
+    📥 JSON 불러오기
+    <input type="file" id="jsonFile" accept=".json" onchange="importJSON(event)">
+  </label>
 </div>
 
 <button class="action-btn" onclick="showRecentUpdates()">🌟 최근 장비 업데이트 (TOP 10)</button>
@@ -1368,6 +1374,65 @@ function showRecentUpdates() {
     document.getElementById("setList").innerHTML="";
     document.getElementById("panel").innerHTML="";
   }
+  
+  function exportJSON() {
+    const dataStr = JSON.stringify({
+        version: "1.0",
+        lastUpdated: new Date().toISOString(),
+        characters: characters,
+        weapons: [] // 향후 확장될 무기 데이터 공간
+    }, null, 2); // 보기 좋게 들여쓰기 포함
+
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    
+    const now = new Date();
+    const timestamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    
+    a.href = url;
+    a.download = `dnfm_data_backup_${timestamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function importJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            
+            // 데이터 구조 확인
+            if (importedData.characters && Array.isArray(importedData.characters)) {
+                if (confirm("기존 데이터를 덮어쓰고 JSON 데이터를 불러오시겠습니까?")) {
+                    // 데이터 교체
+                    characters.length = 0;
+                    characters.push(...importedData.characters);
+                    
+                    // 로컬 스토리지 저장 및 UI 갱신
+                    saveLocalData();
+                    renderCharacterList();
+                    document.getElementById("setList").innerHTML = "";
+                    document.getElementById("panel").innerHTML = "";
+                    
+                    alert("JSON 데이터를 성공적으로 불러왔습니다.");
+                }
+            } else {
+                alert("유효한 JSON 구조가 아닙니다.");
+            }
+        } catch (err) {
+            alert("파일을 읽는 중 오류가 발생했습니다: " + err.message);
+        }
+    };
+    reader.readAsText(file);
+    // 같은 파일을 다시 선택할 수 있도록 input 초기화
+    event.target.value = '';
+}
 </script>
 
 </body>
