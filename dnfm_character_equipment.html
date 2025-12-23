@@ -831,7 +831,14 @@ function createCharacterTable(savedData = null) {
 
 function updateStyle(el, type, isInitial = false) {
     const row = el.closest('tr');
-    const slot = el.getAttribute('data-slot');
+    let slot = el.getAttribute('data-slot');
+
+    // [추가] data-slot이 없는 크리쳐 대응
+    if (!slot) {
+        const slotCell = el.closest('tr')?.querySelector('.col-slot');
+        if (slotCell) slot = slotCell.innerText.trim();
+    }
+
     const section = el.closest('.char-section');
     const charId = section.id;
 
@@ -856,6 +863,16 @@ function updateStyle(el, type, isInitial = false) {
             // [수정 포인트] 칭호, 외형칭호, 오라, 아바타는 아이템이름 색상을 희귀도와 일치시킴
             const colorSyncSlots = ["칭호", "외형칭호", "오라", "아바타"];
             const nameEl = row.querySelector(`[data-key="${slot}_itemname"]`);
+
+            // [크리쳐 전용] 이름 색상을 희귀도와 동기화
+            if (type === 'rarity' && slot === "크리쳐") {
+                const creatureNameEl = row.querySelector('[data-key="크리쳐_name"]');
+                if (creatureNameEl) {
+                    creatureNameEl.className = Array.from(creatureNameEl.classList)
+                        .filter(c => !c.startsWith('rare-')).join(' ');
+                    creatureNameEl.classList.add('rare-' + el.value);
+                }
+            }
 
             if (nameEl) {
                 // 기존 색상 클래스 모두 제거
