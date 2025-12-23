@@ -640,24 +640,25 @@ function createCharacterTable(savedData = null) {
                 <td colspan="10" id="${charId}_runeSummary" style="text-align:left; padding-left:10px; color:var(--gold); font-size:11px; font-weight:bold;">설정된 룬 없음</td>
                 <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;"></td>`;
         } else if (slot === "크리쳐") {
-            tr.innerHTML += `
-                <td class="col-slot v-border-heavy">크리쳐</td>
-                <td class="col-rarity"><select data-key="${slot}_rarity" onchange="updateStyle(this, 'rarity')" class="rare-에픽"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select></td>
-                <td colspan="2"><input type="text" data-key="${slot}_name" placeholder="크리쳐 이름" oninput="autoSave()"></td>
-                <td colspan="10">
-                    <div class="artifact-main-wrapper">
-                        ${['red', 'blue', 'green'].map((color) => `
-                            <div class="art-group">
-                                ${[1, 2].map(num => `
-                                    <div class="art-item">
-                                        <select data-key="${slot}_art_${color}_bg_${num}" class="art-color-select bg-에픽" style="width:65px;" onchange="updateStyle(this, 'artBg')"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select>
-                                        <select data-key="${slot}_art_${color}_opt_${num}" class="art-opt-select bg-에픽" style="width:110px;" onchange="autoSave()"><option value="">옵션 선택</option>${artOptions[color].map(o=>`<option>${o}</option>`).join('')}</select>
-                                    </div>`).join('')}
+            // [수정 포인트] input 태그에 class="rare-에픽"을 추가하여 생성 즉시 색상 적용
+    tr.innerHTML += `
+        <td class="col-slot v-border-heavy">크리쳐</td>
+        <td class="col-rarity"><select data-key="${slot}_rarity" onchange="updateStyle(this, 'rarity')" class="rare-에픽"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select></td>
+        <td colspan="2"><input type="text" data-key="${slot}_name" placeholder="크리쳐 이름" class="rare-에픽" oninput="autoSave()"></td>
+        <td colspan="10">
+            <div class="artifact-main-wrapper">
+                ${['red', 'blue', 'green'].map((color) => `
+                    <div class="art-group">
+                        ${[1, 2].map(num => `
+                            <div class="art-item">
+                                <select data-key="${slot}_art_${color}_bg_${num}" class="art-color-select bg-에픽" style="width:65px;" onchange="updateStyle(this, 'artBg')"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select>
+                                <select data-key="${slot}_art_${color}_opt_${num}" class="art-opt-select bg-에픽" style="width:110px;" onchange="autoSave()"><option value="">옵션 선택</option>${artOptions[color].map(o=>`<option>${o}</option>`).join('')}</select>
                             </div>`).join('')}
-                    </div>
-                </td>
-                <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;"></td>`;
-        } else {
+                    </div>`).join('')}
+            </div>
+        </td>
+        <td class="v-border-heavy"><input type="text" data-key="${slot}_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;"></td>`;
+} else {
             // 일반 장비 슬롯 로직
             const isEq = index < 12; 
             const isExSlot = ['상의', '팔찌', '귀걸이'].includes(slot);
