@@ -1207,10 +1207,6 @@ function autoSave() {
     }, 800);
 }
 
-    function exportToJSON() { const data = localStorage.getItem(STORAGE_KEY); if(!data) return alert("저장된 데이터가 없습니다."); const blob = new Blob([data], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `dnfm_backup.json`; a.click(); }
-    function importFromJSON(input) { const reader = new FileReader(); reader.onload = (e) => { try { const data = JSON.parse(e.target.result); document.getElementById('characterContainer').innerHTML = ""; charRuneData = {}; data.forEach(d => createCharacterTable(d)); autoSave(); } catch(err) { alert("올바른 JSON 파일이 아닙니다."); } }; reader.readAsText(input.files[0]); }
-   
-
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Tab') {
         const activeEx = document.activeElement;
@@ -1547,23 +1543,39 @@ function moveCharacter(charId, direction) {
 }
 
 
+// 캐릭터 데이터와 변경 이력을 날짜를 포함한 파일명으로 저장하는 통합 함수
 function exportToJSON() { 
     const charData = localStorage.getItem(STORAGE_KEY); 
     const historyData = localStorage.getItem(STORAGE_KEY + "_history"); 
     
     if(!charData) return alert("저장된 데이터가 없습니다."); 
 
-    // 두 데이터를 하나의 객체로 통합
+    // 1. 날짜 및 시간 데이터 생성 (년-월-일_시-분)
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    
+    // 파일명 구성: dnfm_character_equipment_backup_2024-05-20_14-30.json
+    const fileName = `dnfm_character_equipment_backup_${year}-${month}-${day}_${hours}-${minutes}.json`;
+
+    // 2. 통합 백업 객체 생성
     const backup = {
         characters: JSON.parse(charData),
         history: historyData ? JSON.parse(historyData) : []
     };
 
+    // 3. 파일 다운로드 처리
     const blob = new Blob([JSON.stringify(backup)], { type: "application/json" }); 
     const a = document.createElement("a"); 
     a.href = URL.createObjectURL(blob); 
-    a.download = `dnfm_character_equipment_backup.json`; 
+    a.download = fileName; // 요청하신 날짜 포함 파일명 적용
     a.click(); 
+
+    // 메모리 정리
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
 function importFromJSON(input) { 
