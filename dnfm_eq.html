@@ -187,7 +187,9 @@
     <button class="char-btn" onclick="selectWeaponJob('귀검사')">귀검사</button>
     <button class="char-btn" onclick="selectWeaponJob('격투가')">격투가</button>
     <button class="char-btn" onclick="selectWeaponJob('거너')">거너</button>
+	<button class="char-btn" onclick="selectWeaponJob('마법사')">마법사</button>
     <button class="char-btn" onclick="selectWeaponJob('프리스트')">프리스트</button>
+	<button class="char-btn" onclick="selectWeaponJob('워리어')">워리어</button>
     <button class="char-btn" onclick="selectWeaponJob('마창사')">마창사</button>
     <button class="char-btn" onclick="selectWeaponJob('도적')">도적</button>
   </div>
@@ -353,12 +355,33 @@ const WEAPON_DATA_GUNNER = {
     "보우건": ["대서사의 탄생 - 보우건", "데스 리뷰저", "제너럴 보우건"]
 };
 
+const WEAPON_DATA_MAGE = {
+    "창": ["대서사의 탄생 - 창", "쥬빌런스 혼", "전장의 여신의 창"],
+    "봉": ["대서사의 탄생 - 봉", "케세라세라 : 해피 ~!", "요정왕의 비밀"],
+    "로드": ["대서사의 탄생 - 로드", "히어로 오브 더 문", "양치기의 로드"],
+    "스태프": ["대서사의 탄생 - 스태프", "웨리 : 리미트 브레이커", "창마화의 연"],
+    "빗자루": ["대서사의 탄생 - 빗자루", "보배 - 파초선", "스노우 프린세스"]
+};
+
 const WEAPON_DATA_PRIEST = {
     "십자가": ["대서사의 탄생 - 십자가", "헤이렐 - 교만의 빛", "저주 받은 십자가 : 토루아"],
     "염주": ["대서사의 탄생 - 염주", "음양사천", "명인의 수"],
     "토템": ["대서사의 탄생 - 토템", "씰 더 리바이어던", "풍운뇌우"],
     "낫": ["대서사의 탄생 - 낫", "소울 디바우링", "선고 : 사신의 낫"],
     "배틀엑스": ["대서사의 탄생 - 배틀엑스", "행성파괴자", "오만의 끝"]
+};
+
+const WEAPON_DATA_WARRIOR = {
+    "락소드": [
+        "대서사의 탄생 - 락소드", 
+        "우주적 기운의 락소드", 
+        "라이프 파인더"
+    ],
+    "윙블레이드": [
+        "대서사의 탄생 - 윙블레이드", 
+        "프로스트 윙 블레이드", 
+        "코카트리스"
+    ]
 };
 
 const WEAPON_DATA_LANCER = {
@@ -1152,7 +1175,9 @@ function showRecentUpdates() {
         ...WEAPON_DATA_SLAYER, 
         ...WEAPON_DATA_FIGHTER, 
         ...WEAPON_DATA_GUNNER,
+		...WEAPON_DATA_MAGE,
         ...WEAPON_DATA_PRIEST,
+		...WEAPON_DATA_WARRIOR,
         ...WEAPON_DATA_LANCER,
         ...WEAPON_DATA_THIEF
     };
@@ -1553,7 +1578,9 @@ function selectWeaponJob(jobName) {
     if (jobName === '귀검사') currentData = WEAPON_DATA_SLAYER;
     else if (jobName === '격투가') currentData = WEAPON_DATA_FIGHTER;
     else if (jobName === '거너') currentData = WEAPON_DATA_GUNNER;
+	else if (jobName === '마법사') currentData = WEAPON_DATA_MAGE;
     else if (jobName === '프리스트') currentData = WEAPON_DATA_PRIEST;
+	else if (jobName === '워리어') currentData = WEAPON_DATA_WARRIOR;
     else if (jobName === '마창사') currentData = WEAPON_DATA_LANCER;
     else if (jobName === '도적') currentData = WEAPON_DATA_THIEF;
 
