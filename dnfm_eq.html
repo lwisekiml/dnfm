@@ -234,33 +234,24 @@
   // =======================================================
 
   // 로컬 스토리지에서 데이터를 불러와서 characters 배열을 초기화합니다.
-  function loadLocalData() {
-    try {
-      const data = localStorage.getItem('dnfm_eq_Data');
-      if (data) {
-        const loadedChars = JSON.parse(data);
-        characters.length = 0; // 배열 비우기
-        // 💡 updateTimes 필드가 없을 경우 빈 객체로 초기화
-        loadedChars.forEach(char => {
-          if (!char.updateTimes) {
-            char.updateTimes = {};
-          }
-        });
-        characters.push(...loadedChars); // 새 데이터로 채우기
-      }
-    } catch (e) {
-      console.error("로컬 데이터를 불러오는 중 오류 발생:", e);
+function loadLocalData() {
+    const data = localStorage.getItem('dfo_characters');
+    if (data) {
+        const parsed = JSON.parse(data);
+        // 불러온 데이터에 weaponCounts가 없는 옛날 데이터일 경우를 대비해 보정
+        characters = parsed.map(char => ({
+            ...char,
+            armorCounts: char.armorCounts || {},
+            weaponCounts: char.weaponCounts || {},
+            updateTimes: char.updateTimes || {}
+        }));
     }
-  }
+}
 
   // 현재 characters 배열을 로컬 스토리지에 저장합니다.
   function saveLocalData() {
-    try {
-      localStorage.setItem('dnfm_eq_Data', JSON.stringify(characters));
-    } catch (e) {
-      console.error("로컬 데이터를 저장하는 중 오류 발생:", e);
-    }
-  }
+    localStorage.setItem('dfo_characters', JSON.stringify(characters));
+}
 
   // ===== 세트 정의 =====
   const ARMOR_SETS = {
@@ -392,7 +383,7 @@ const WEAPON_PREFIXES = [
 
 
   // ===== 캐릭터 배열 =====
-  const characters = [
+  let characters = [
     {id:"c1", job:"검귀", name:"강의", armorCounts:{
         "어느 말괄량이의 탐사복 상의":1,
         "어느 말괄량이의 탐사복 하의":1,
@@ -1430,23 +1421,18 @@ function showRecentUpdates() {
     document.getElementById("panel").innerHTML="";
   }
   
-  function exportJSON() {
-    const dataStr = JSON.stringify({
-        version: "1.0",
-        lastUpdated: new Date().toISOString(),
-        characters: characters,
-        weapons: [] // 향후 확장될 무기 데이터 공간
-    }, null, 2); // 보기 좋게 들여쓰기 포함
-
+  
+  
+ function exportJSON() {
+    // characters 배열에 이미 weaponCounts가 포함되어 있으므로 
+    // 통째로 stringify 하면 무기 데이터도 함께 저장됩니다.
+    const dataStr = JSON.stringify(characters, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
+    
     const a = document.createElement("a");
-    
-    const now = new Date();
-    const timestamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-    
     a.href = url;
-    a.download = `dnfm_data_backup_${timestamp}.json`;
+    a.download = `dfo_data.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1460,33 +1446,60 @@ function importJSON(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            const importedData = JSON.parse(e.target.result);
-            
-            // 데이터 구조 확인
-            if (importedData.characters && Array.isArray(importedData.characters)) {
-                if (confirm("기존 데이터를 덮어쓰고 JSON 데이터를 불러오시겠습니까?")) {
-                    // 데이터 교체
-                    characters.length = 0;
-                    characters.push(...importedData.characters);
-                    
-                    // 로컬 스토리지 저장 및 UI 갱신
-                    saveLocalData();
-                    renderCharacterList();
-                    document.getElementById("setList").innerHTML = "";
-                    document.getElementById("panel").innerHTML = "";
-                    
-                    alert("JSON 데이터를 성공적으로 불러왔습니다.");
-                }
-            } else {
-                alert("유효한 JSON 구조가 아닙니다.");
+            const imported = JSON.parse(e.target.result);
+
+            if (!Array.isArray(imported)) {
+                alert("올바른 JSON 형식이 아닙니다.");
+                return;
             }
+
+            // 1. 데이터 보정 및 할당
+            characters = imported.map(char => ({
+                id: char.id || Date.now().toString() + Math.random(),
+                name: char.name || "Unknown",
+                job: char.job || "귀검사",
+                armorCounts: char.armorCounts || {},
+                weaponCounts: char.weaponCounts || {}, 
+                updateTimes: char.updateTimes || {}
+            }));
+
+            // 2. 로컬 스토리지 저장
+            saveLocalData();
+            
+            // 3. [핵심] 화면 즉시 갱신 로직
+            
+            // 메인 캐릭터 카드 목록 다시 그리기
+            if (typeof renderCharacterCards === "function") {
+                renderCharacterCards();
+            }
+            
+            // 현재 섹션이 'character-list'가 아니라면 강제로 이동
+            if (typeof showSection === "function") {
+                showSection('character-list');
+            }
+
+            // 만약 무기 관리 창이 열려있었다면, 선택된 직업의 데이터를 다시 로드
+            const activeWeaponBtn = document.querySelector("#weaponJobButtons .char-btn.active");
+            if (activeWeaponBtn && typeof selectWeaponJob === "function") {
+                selectWeaponJob(activeWeaponBtn.textContent);
+            }
+
+            // 만약 방어구 상세 페이지가 열려있었다면, 해당 캐릭터 데이터를 다시 로드
+            if (typeof currentCharacterId !== 'undefined' && currentCharacterId) {
+                if (typeof showDetail === "function") {
+                    showDetail(currentCharacterId);
+                }
+            }
+
+            alert(`데이터 복구 완료! 총 ${characters.length}명의 데이터를 불러왔습니다.`);
+            event.target.value = '';
+
         } catch (err) {
-            alert("파일을 읽는 중 오류가 발생했습니다: " + err.message);
+            console.error(err);
+            alert("파일 읽기 중 오류 발생: " + err.message);
         }
     };
     reader.readAsText(file);
-    // 같은 파일을 다시 선택할 수 있도록 input 초기화
-    event.target.value = '';
 }
 
 // 무기 전용 숫자 버튼 생성 함수 (기존 makeNumberButton 복사 및 수정)
@@ -1500,22 +1513,28 @@ function makeWeaponNumberButton(charId, key, val, jobName) {
 // 무기 전용 증가 함수
 function incrementWeapon(charId, key, jobName) {
     const char = characters.find(c => c.id === charId);
+    if (!char) return;
     if (!char.weaponCounts) char.weaponCounts = {};
+    
     char.weaponCounts[key] = (char.weaponCounts[key] || 0) + 1;
-    char.updateTimes[key] = Date.now();
-    saveLocalData();
-    selectWeaponJob(jobName); // 현재 보고 있는 직업 무기창 유지
+    char.updateTimes[key] = Date.now(); // 업데이트 시간 기록
+    
+    saveLocalData();    // 🔥 여기서 로컬 스토리지에 저장!
+    selectWeaponJob(jobName); // 화면 갱신
 }
 
 // 무기 전용 감소 함수
 function decrementWeapon(charId, key, jobName) {
     const char = characters.find(c => c.id === charId);
+    if (!char) return;
     if (!char.weaponCounts) char.weaponCounts = {};
+    
     const cur = char.weaponCounts[key] || 0;
     char.weaponCounts[key] = Math.max(0, cur - 1);
     char.updateTimes[key] = Date.now();
-    saveLocalData();
-    selectWeaponJob(jobName); // 현재 보고 있는 직업 무기창 유지
+    
+    saveLocalData();    // 🔥 여기서 로컬 스토리지에 저장!
+    selectWeaponJob(jobName); // 화면 갱신
 }
 
 function selectWeaponJob(jobName) {
