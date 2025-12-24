@@ -348,6 +348,41 @@ const WEAPON_DATA_SLAYER = {
     "광검": ["대서사의 탄생 - 광검", "아마 겟 돈", "뇌검 : 고룬"]
 };
 
+const WEAPON_DATA_FIGHTER = {
+    "너클": ["대서사의 탄생 - 너클", "라오 데솔", "베르세르크"],
+    "건틀릿": ["대서사의 탄생 - 건틀릿", "반격의 서막", "룰렛러시안"],
+    "클로": ["대서사의 탄생 - 클로", "흑월랑아", "악마의 갈퀴 : 이그노어"],
+    "권투글러브": ["대서사의 탄생 - 권투글러브", "티쥬 엠플리파이어", "파울 키드니블로"],
+    "통파": ["대서사의 탄생 - 통파", "킬 아르니스 렵곡", "습격의 드라우프니르"]
+};
+
+const WEAPON_DATA_GUNNER = {
+    "리볼버": ["대서사의 탄생 - 리볼버", "이스 미 터너", "실버 불렛"],
+    "자동권총": ["대서사의 탄생 - 자동권총", "이온 리필서", "마이스터의 분노"],
+    "머스켓": ["대서사의 탄생 - 머스켓", "Code N : 오라클", "블라인드 스팟"],
+    "핸드캐넌": ["대서사의 탄생 - 핸드캐넌", "거포 우르반", "해를 먹는 자"],
+    "보우건": ["대서사의 탄생 - 보우건", "데스 리뷰저", "제너럴 보우건"]
+};
+
+const WEAPON_DATA_PRIEST = {
+    "십자가": ["대서사의 탄생 - 십자가", "헤이렐 - 교만의 빛", "저주 받은 십자가 : 토루아"],
+    "염주": ["대서사의 탄생 - 염주", "음양사천", "명인의 수"],
+    "토템": ["대서사의 탄생 - 토템", "씰 더 리바이어던", "풍운뇌우"],
+    "낫": ["대서사의 탄생 - 낫", "소울 디바우링", "선고 : 사신의 낫"],
+    "배틀엑스": ["대서사의 탄생 - 배틀엑스", "행성파괴자", "오만의 끝"]
+};
+
+const WEAPON_DATA_LANCER = {
+    "미늘창": ["대서사의 탄생 - 미늘창", "크림슨 로드", "광염의 극"],
+    "투창": ["대서사의 탄생 - 투창", "헬 오브 데빌로드", "미라클 런치"]
+};
+
+const WEAPON_DATA_THIEF = {
+    "단검": ["대서사의 탄생 - 단검", "실버 스피릿", "월광검"],
+    "쌍검": ["대서사의 탄생 - 쌍검", "흑미쌍검", "히게-히자키리"],
+    "차크라웨펀": ["대서사의 탄생 - 차크라웨펀", "크리드 오브 닌자", "무염화"]
+};
+
 const WEAPON_PREFIXES = [
     { tag: "[광채]", color: "#3399cc" }, // 파란색
     { tag: "[분쇄]", color: "#ff4d4f" }, // 빨간색
@@ -1124,38 +1159,33 @@ function calculateSlotCountByFilter(char, setName, slot, filter) {
 
 function showRecentUpdates() {
     const allUpdates = [];
+    const ALL_WEAPON_CATEGORIES = { 
+        ...WEAPON_DATA_SLAYER, 
+        ...WEAPON_DATA_FIGHTER, 
+        ...WEAPON_DATA_GUNNER,
+        ...WEAPON_DATA_PRIEST,
+        ...WEAPON_DATA_LANCER,
+        ...WEAPON_DATA_THIEF
+    };
 
     characters.forEach(char => {
-        // 1. 방어구/악세/특장 업데이트 수집
+        // 1. 방어구/악세/특장 업데이트 수집 (기존 로직 유지)
         Object.entries(char.updateTimes).forEach(([fullKey, timestamp]) => {
             if (timestamp > 0) {
                 const parts = fullKey.split(' ');
-                const slot = parts.pop();
+                const slot = parts.pop(); 
                 const itemName = parts.join(' ');
-                
-                // 무기 태그([광채] 등)가 포함된 키는 무기 로직에서 처리하므로 제외
                 const isWeaponTag = WEAPON_PREFIXES.some(p => itemName.includes(p.tag));
                 
                 if (!isWeaponTag && char.armorCounts[fullKey] !== undefined) {
-                    let baseSetName = itemName;
-                    if (itemName.includes(':')) {
-                        const prefixParts = itemName.match(/(\[.*?\])?\s*(.*)/);
-                        if (prefixParts) baseSetName = prefixParts[2];
-                    }
-                    
-                    const setType = getSetType(baseSetName.split(':').pop().trim());
                     let category = "방어구";
+                    const setType = getSetType(itemName.split(':').pop().trim());
                     if (setType === "ACCESSORY") category = "악세";
                     else if (setType === "SPECIAL") category = "특장";
 
                     allUpdates.push({
-                        name: char.name,
-                        job: char.job,
-                        itemName: itemName, 
-                        category: category,
-                        slot: slot,
-                        count: char.armorCounts[fullKey] || 0,
-                        timestamp: timestamp
+                        name: char.name, job: char.job, itemName: itemName,
+                        category: category, slot: slot, count: char.armorCounts[fullKey], timestamp: timestamp
                     });
                 }
             }
@@ -1166,24 +1196,16 @@ function showRecentUpdates() {
             Object.entries(char.weaponCounts).forEach(([weaponKey, count]) => {
                 const timestamp = char.updateTimes[weaponKey];
                 if (timestamp > 0) {
-                    // 무기 이름에서 종류(소검, 대검 등)를 찾기 위한 로직
                     let weaponSubCategory = "-";
-                    for (const [catName, list] of Object.entries(WEAPON_DATA_SLAYER)) {
-                        // 무기 이름(weaponKey)에 해당 무기 리스트의 이름이 포함되어 있는지 확인
+                    for (const [catName, list] of Object.entries(ALL_WEAPON_CATEGORIES)) {
                         if (list.some(name => weaponKey.includes(name))) {
                             weaponSubCategory = catName;
                             break;
                         }
                     }
-
                     allUpdates.push({
-                        name: char.name,
-                        job: char.job,
-                        itemName: weaponKey,
-                        category: "무기",
-                        slot: weaponSubCategory, // "-" 대신 "소검", "대검" 등이 들어감
-                        count: count,
-                        timestamp: timestamp
+                        name: char.name, job: char.job, itemName: weaponKey,
+                        category: "무기", slot: weaponSubCategory, count: count, timestamp: timestamp
                     });
                 }
             });
@@ -1468,46 +1490,55 @@ function importJSON(event) {
 }
 
 // 무기 전용 숫자 버튼 생성 함수 (기존 makeNumberButton 복사 및 수정)
-function makeWeaponNumberButton(charId, key, val) {
+function makeWeaponNumberButton(charId, key, val, jobName) {
     const extraClass = val > 0 ? " positive" : "";
     return `<button class="num-btn${extraClass}"
-      oncontextmenu="decrementWeapon('${charId}','${key}'); return false;"
-      onclick="incrementWeapon('${charId}','${key}')">${val}</button>`;
+      oncontextmenu="decrementWeapon('${charId}','${key}', '${jobName}'); return false;"
+      onclick="incrementWeapon('${charId}','${key}', '${jobName}')">${val}</button>`;
 }
 
 // 무기 전용 증가 함수
-function incrementWeapon(charId, key) {
+function incrementWeapon(charId, key, jobName) {
     const char = characters.find(c => c.id === charId);
-    if (!char.weaponCounts) char.weaponCounts = {}; // 방어구와 분리된 저장소
+    if (!char.weaponCounts) char.weaponCounts = {};
     char.weaponCounts[key] = (char.weaponCounts[key] || 0) + 1;
     char.updateTimes[key] = Date.now();
     saveLocalData();
-    selectWeaponJob('귀검사'); // 무기 테이블 새로고침
+    selectWeaponJob(jobName); // 현재 보고 있는 직업 무기창 유지
 }
 
 // 무기 전용 감소 함수
-function decrementWeapon(charId, key) {
+function decrementWeapon(charId, key, jobName) {
     const char = characters.find(c => c.id === charId);
     if (!char.weaponCounts) char.weaponCounts = {};
     const cur = char.weaponCounts[key] || 0;
     char.weaponCounts[key] = Math.max(0, cur - 1);
     char.updateTimes[key] = Date.now();
     saveLocalData();
-    selectWeaponJob('귀검사'); // 무기 테이블 새로고침
+    selectWeaponJob(jobName); // 현재 보고 있는 직업 무기창 유지
 }
 
 function selectWeaponJob(jobName) {
-    // 1. 버튼 활성화 스타일 처리
     document.querySelectorAll("#weaponJobButtons .char-btn").forEach(btn => btn.classList.remove("active"));
     const btnList = document.querySelectorAll("#weaponJobButtons .char-btn");
     btnList.forEach(b => { if(b.textContent === jobName) b.classList.add("active"); });
 
     const weaponPanel = document.getElementById("weaponPanel");
-    if (jobName !== '귀검사') {
+    
+    let currentData = null;
+    if (jobName === '귀검사') currentData = WEAPON_DATA_SLAYER;
+    else if (jobName === '격투가') currentData = WEAPON_DATA_FIGHTER;
+    else if (jobName === '거너') currentData = WEAPON_DATA_GUNNER;
+    else if (jobName === '프리스트') currentData = WEAPON_DATA_PRIEST;
+    else if (jobName === '마창사') currentData = WEAPON_DATA_LANCER;
+    else if (jobName === '도적') currentData = WEAPON_DATA_THIEF;
+
+    if (!currentData) {
         weaponPanel.innerHTML = `<h3 style="margin-top:20px;">${jobName} 데이터는 준비 중입니다.</h3>`;
         return;
     }
 
+    // 테이블 생성 로직 (기존과 동일하되 currentData를 사용)
     let html = `<div style="overflow-x: auto; margin-top: 20px; border: 1px solid #2a3158;">`;
     html += `<table style="table-layout: auto; border-collapse: collapse; width: max-content;">`;
     html += `<thead><tr style="background: #181c33;">`;
@@ -1515,48 +1546,32 @@ function selectWeaponJob(jobName) {
     html += `<th style="padding: 12px; border: 1px solid #2a3158; white-space: nowrap;">무기 이름</th>`;
 
     characters.forEach(char => {
-        html += `<th style="padding: 12px; border: 1px solid #2a3158; white-space: nowrap;">${char.job}<br>(${char.name})</th>`;
+        html += `<th style="padding: 12px; border: 1px solid #2a3158; white-space: nowrap;">${char.job} / ${char.name}</th>`;
     });
     html += `</tr></thead><tbody>`;
 
-    const categories = Object.keys(WEAPON_DATA_SLAYER);
-    categories.forEach((category) => {
-        const weaponList = WEAPON_DATA_SLAYER[category];
-        
-        // rowspan 계산: (무기 개수 * 4가지 속성) + (무기 사이 공백행 개수)
+    for (const [category, weaponList] of Object.entries(currentData)) {
         const rowSpanCount = weaponList.length * 5;
-
         weaponList.forEach((weaponName, wIdx) => {
             WEAPON_PREFIXES.forEach((pref, pIdx) => {
                 html += `<tr>`;
                 if (wIdx === 0 && pIdx === 0) {
                     html += `<td rowspan="${rowSpanCount}" style="background:#181c33; font-weight:bold; white-space: nowrap; border: 1px solid #2a3158; text-align:center; padding: 10px;">${category}</td>`;
                 }
-
                 const styledName = `<span style="color:${pref.color}; font-weight:bold;">${pref.tag}</span>&nbsp;${weaponName}`;
                 html += `<td style="text-align:left; padding: 8px 15px; white-space: nowrap; border: 1px solid #2a3158;">${styledName}</td>`;
-
                 characters.forEach(char => {
                     if (!char.weaponCounts) char.weaponCounts = {}; 
                     const weaponKey = `${pref.tag} ${weaponName}`;
                     const val = char.weaponCounts[weaponKey] || 0;
-                    html += `<td style="padding: 5px; border: 1px solid #2a3158; text-align:center;">${makeWeaponNumberButton(char.id, weaponKey, val)}</td>`;
+                    html += `<td style="padding: 5px; border: 1px solid #2a3158; text-align:center;">${makeWeaponNumberButton(char.id, weaponKey, val, jobName)}</td>`;
                 });
                 html += `</tr>`;
             });
-
-            // 각 무기 아이템([강타]) 하단 공백 행
-            html += `<tr style="height:20px;">`;
-            html += `<td colspan="${characters.length + 1}" style="border: 1px solid #2a3158; background: rgba(255,255,255,0.05);"></td>`;
-            html += `</tr>`;
+            html += `<tr style="height:20px;"><td colspan="${characters.length + 1}" style="border: 1px solid #2a3158; background: rgba(255,255,255,0.05);"></td></tr>`;
         });
-
-        // 🔥 [수정] 종류(분류)가 끝날 때 텍스트 없는 순수 공백 행 추가
-        html += `<tr style="height:40px; background: #0f1222;">`; 
-        html += `<td colspan="${characters.length + 2}" style="border: 1px solid #2a3158;"></td>`;
-        html += `</tr>`;
-    });
-
+        html += `<tr style="height:40px; background: #0f1222;"><td colspan="${characters.length + 2}" style="border: 1px solid #2a3158;"></td></tr>`;
+    }
     html += `</tbody></table></div>`;
     weaponPanel.innerHTML = html;
 }
