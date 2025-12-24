@@ -1458,7 +1458,7 @@ function importJSON(event) {
                 return;
             }
 
-            // 1. 데이터 보정 및 할당
+            // 1. 전역 데이터 교체 및 보정
             characters = imported.map(char => ({
                 id: char.id || Date.now().toString() + Math.random(),
                 name: char.name || "Unknown",
@@ -1468,35 +1468,35 @@ function importJSON(event) {
                 updateTimes: char.updateTimes || {}
             }));
 
-            // 2. 로컬 스토리지 저장
+            // 2. 새로운 키(dnfm_eq)로 로컬 스토리지 즉시 저장
             saveLocalData();
-            
-            // 3. [핵심] 화면 즉시 갱신 로직
-            
-            // 메인 캐릭터 카드 목록 다시 그리기
-            if (typeof renderCharacterCards === "function") {
-                renderCharacterCards();
-            }
-            
-            // 현재 섹션이 'character-list'가 아니라면 강제로 이동
-            if (typeof showSection === "function") {
-                showSection('character-list');
-            }
 
-            // 만약 무기 관리 창이 열려있었다면, 선택된 직업의 데이터를 다시 로드
+            // 3. [핵심] 화면 상태에 따른 즉시 갱신 로직
+            
+            // A. 메인 캐릭터 리스트 갱신
+            if (typeof renderCharacterList === "function") renderCharacterList();
+            
+            // B. 무기 관리 화면인 경우: 현재 선택된 직업 버튼을 찾아서 다시 클릭한 효과를 줌
             const activeWeaponBtn = document.querySelector("#weaponJobButtons .char-btn.active");
             if (activeWeaponBtn && typeof selectWeaponJob === "function") {
                 selectWeaponJob(activeWeaponBtn.textContent);
             }
 
-            // 만약 방어구 상세 페이지가 열려있었다면, 해당 캐릭터 데이터를 다시 로드
-            if (typeof currentCharacterId !== 'undefined' && currentCharacterId) {
-                if (typeof showDetail === "function") {
-                    showDetail(currentCharacterId);
+            // C. 방어구 세트 상세 화면인 경우: 현재 열려있는 세트를 다시 열기
+            if (currentSetName && currentChar) {
+                // 데이터가 교체되었으므로 새로운 데이터 객체에서 현재 캐릭터를 다시 찾음
+                const updatedChar = characters.find(c => c.id === currentChar.id);
+                if (updatedChar) {
+                    openSet(currentSetName, updatedChar);
                 }
             }
 
-            alert(`데이터 복구 완료! 총 ${characters.length}명의 데이터를 불러왔습니다.`);
+            // D. 캐릭터 상세 정보(Summary) 화면인 경우: 강제 리렌더링
+            if (typeof currentCharacterId !== 'undefined' && currentCharacterId) {
+                if (typeof showDetail === "function") showDetail(currentCharacterId);
+            }
+
+            alert(`데이터 복구 완료! 총 ${characters.length}명의 데이터가 즉시 적용되었습니다.`);
             event.target.value = '';
 
         } catch (err) {
