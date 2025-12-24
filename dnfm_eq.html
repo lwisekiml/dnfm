@@ -233,24 +233,22 @@
   // [로컬 스토리지] 데이터 영속성 함수
   // =======================================================
 
-  // 로컬 스토리지에서 데이터를 불러와서 characters 배열을 초기화합니다.
-function loadLocalData() {
-    const data = localStorage.getItem('dfo_characters');
-    if (data) {
-        const parsed = JSON.parse(data);
-        // 불러온 데이터에 weaponCounts가 없는 옛날 데이터일 경우를 대비해 보정
-        characters = parsed.map(char => ({
-            ...char,
-            armorCounts: char.armorCounts || {},
-            weaponCounts: char.weaponCounts || {},
-            updateTimes: char.updateTimes || {}
-        }));
-    }
+// 데이터 저장 시
+function saveLocalData() {
+    localStorage.setItem("dnfm_eq", JSON.stringify(characters));
 }
 
-  // 현재 characters 배열을 로컬 스토리지에 저장합니다.
-  function saveLocalData() {
-    localStorage.setItem('dfo_characters', JSON.stringify(characters));
+// 데이터 로드 시 (초기화 로직 포함)
+function loadLocalData() {
+    const saved = localStorage.getItem("dnfm_eq");
+    if (saved) {
+        try {
+            characters = JSON.parse(saved);
+        } catch (e) {
+            console.error("데이터 로드 실패", e);
+            characters = [];
+        }
+    }
 }
 
   // ===== 세트 정의 =====
@@ -1422,17 +1420,24 @@ function showRecentUpdates() {
   }
   
   
-  
- function exportJSON() {
-    // characters 배열에 이미 weaponCounts가 포함되어 있으므로 
-    // 통째로 stringify 하면 무기 데이터도 함께 저장됩니다.
+function exportJSON() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    // 변경된 파일명 형식: dnfm_eq_YYYY-MM-DD_HH-MM.json
+    const fileName = `dnfm_eq_${year}-${month}-${day}_${hours}-${minutes}.json`;
+
     const dataStr = JSON.stringify(characters, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     
     const a = document.createElement("a");
     a.href = url;
-    a.download = `dfo_data.json`;
+    a.download = fileName; 
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
