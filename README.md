@@ -106,3 +106,35 @@ document.addEventListener('change', function(e) {
 1. 세트 체크 통합 실행 함수 (runSetCheck)
    코드 내에서 runSetCheck(slot, charId)가 자주 호출되고 있습니다. 이 함수는 방어구 세트와 특수장비 세트 체크를 슬롯에 따라 분기하여 실행해주는 역할을 합니다.
    ```function runSetCheck(slot, charId) 수정```
+   
+
+
+
+
+==============================================================
+
+해당 오류는 createCharacterTable 함수 마지막 부분에서 savedData가 없는 상태(신규 캐릭터 추가 시)인데도 속성에 접근하려고 해서 발생하는 전형적인 자바스크립트 에러입니다.
+
+코드의 마지막 줄을 보면 다음과 같이 되어 있을 것입니다.
+
+```
+// 오류 발생 지점
+toggleEdit(charId, !!savedData.locked);
+```
+**1. 원인 분석**
+  - **신규 추가 시**: createCharacterTable()을 매개변수 없이 호출하면 savedData는 null이 됩니다.
+  - **접근 오류**: null.locked를 읽으려고 하니 "null의 속성을 읽을 수 없다"는 에러가 발생합니다.
+  - **실행 영향**: 이 줄이 함수의 가장 마지막에 있기 때문에, 테이블 생성은 이미 끝난 상태라 겉보기에는 문제가 없어 보이지만, 이후에 실행되어야 할 다른 스크립트가 있다면 중단될 위험이 있습니다.
+
+**2. 해결 방법**  
+savedData가 존재할 때만 해당 값을 참조하도록 **옵셔널 체이닝(?.)**을 사용하거나 단락 평가를 추가해야 합니다.
+
+**[수정 전]**  
+```toggleEdit(charId, !!savedData.locked);```  
+**[수정 후 (추천)]**  
+```
+// savedData가 있으면 locked 값을 쓰고, 없으면 false(잠금 해제)를 기본값으로 사용
+toggleEdit(charId, savedData ? !!savedData.locked : false);
+```
+또는 더 깔끔하게 옵셔널 체이닝을 사용할 수 있습니다.  
+```toggleEdit(charId, !!savedData?.locked);```  

@@ -807,11 +807,10 @@ section.querySelectorAll('select[data-key$="_prefix"]').forEach(sel => {
         }, 0);
 
         toggleEdit(charId, !!savedData.locked);
-    } else { 
-        toggleEdit(charId, true); 
     }
-	
-	toggleEdit(charId, !!savedData.locked);
+
+    // 데이터가 있으면 저장된 상태대로, 없으면 해제(false) 상태로 시작
+    toggleEdit(charId, savedData ? !!savedData.locked : false);
 }
 
 
