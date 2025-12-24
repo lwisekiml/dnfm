@@ -1636,8 +1636,9 @@ function selectWeaponJob(jobName) {
     html += `<th style="padding: 12px; border: 1px solid #2a3158; white-space: nowrap;">무기 이름</th>`;
 
     characters.forEach(char => {
-        html += `<th style="padding: 12px; border: 1px solid #2a3158; white-space: nowrap;">${char.job} / ${char.name}</th>`;
-    });
+    // 💡 / 대신 <br>을 넣어 줄바꿈을 적용하고, 텍스트 정렬을 중앙으로 설정합니다.
+    html += `<th style="padding: 12px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">${char.job}<br>${char.name}</th>`;
+});
     html += `</tr></thead><tbody>`;
 
     for (const [category, weaponList] of Object.entries(currentData)) {
