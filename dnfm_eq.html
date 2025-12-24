@@ -1251,45 +1251,57 @@ function showRecentUpdates() {
     `;
     const tbody = table.querySelector("tbody");
 
-    allUpdates.slice(0, 15).forEach(item => {
-        const date = new Date(item.timestamp);
-        const formatTime = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+    allUpdates.slice(0, 10).forEach(item => { // TOP 10으로 슬라이스
+    const date = new Date(item.timestamp);
+    const formatTime = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
 
-        let styledItemName = item.itemName;
-        const tagMatch = styledItemName.match(/^(\[.*?\])\s*(.*)/);
-        if (tagMatch) {
-            const tag = tagMatch[1];
-            const restName = tagMatch[2];
-            let color = '#25c2a0';
+    let styledItemName = item.itemName;
+    
+    // 1. 먼저 [익시드] 태그와 나머지 이름 분리
+    const tagMatch = styledItemName.match(/^(\[.*?\])\s*(.*)/);
+    if (tagMatch) {
+        const tag = tagMatch[1];
+        const restName = tagMatch[2];
+        let tagColor = '#25c2a0'; // 기본 초록
 
-            if (tag === '[선봉]') color = '#ff4d4f';
-            else if (tag === '[의지]') color = '#3399cc';
-            else if (tag === '[이상]') color = '#25c2a0';
-            else if (tag === '[광채]') color = '#3399cc';
-            else if (tag === '[분쇄]') color = '#ff4d4f';
-            else if (tag === '[선명]') color = '#25c2a0';
-            else if (tag === '[강타]') color = '#ffd700';
+        if (tag === '[선봉]') tagColor = '#ff4d4f';
+        else if (tag === '[의지]') tagColor = '#3399cc';
+        else if (tag === '[이상]') tagColor = '#25c2a0';
+        else if (tag === '[광채]') tagColor = '#3399cc';
+        else if (tag === '[분쇄]') tagColor = '#ff4d4f';
+        else if (tag === '[선명]') tagColor = '#25c2a0';
+        else if (tag === '[강타]') tagColor = '#ffd700';
 
-            styledItemName = `<span style="color:${color}; font-weight:bold;">${tag}</span> ${restName}`;
-            
-            if (restName.includes(':')) {
-                const prefixMatch = restName.match(/(.+?):\s*(.+)/);
-                if (prefixMatch) {
-                    styledItemName = `<span style="color:${color}; font-weight:bold;">${tag}</span> <span style="color:#e6b800; font-weight:bold;">${prefixMatch[1]}</span>: ${prefixMatch[2]}`;
-                }
+        // 2. 나머지 이름(restName)에서 접두어(:)가 있는지 확인하여 노란색 적용
+        let baseNamePart = restName;
+        if (restName.includes(':')) {
+            const prefixMatch = restName.match(/(.+?):\s*(.+)/);
+            if (prefixMatch) {
+                // 접두어 부분을 #e6b800 (노란색)으로 설정
+                baseNamePart = `<span style="color:#e6b800; font-weight:bold;">${prefixMatch[1]}</span>: ${prefixMatch[2]}`;
             }
         }
+        styledItemName = `<span style="color:${tagColor}; font-weight:bold;">${tag}</span> ${baseNamePart}`;
+    } else {
+        // [익시드] 태그가 없는 일반 접두어 아이템 처리
+        if (styledItemName.includes(':')) {
+            const prefixMatch = styledItemName.match(/(.+?):\s*(.+)/);
+            if (prefixMatch) {
+                styledItemName = `<span style="color:#e6b800; font-weight:bold;">${prefixMatch[1]}</span>: ${prefixMatch[2]}`;
+            }
+        }
+    }
 
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td style="white-space:nowrap;">${item.job} / ${item.name}</td>
-            <td>[${item.category}] ${item.slot}</td>
-            <td style="text-align:left;">${styledItemName}</td>
-            <td style="font-weight:bold; color:${item.count > 0 ? '#ffcc00' : '#888'};">${item.count}</td>
-            <td style="font-size:0.9em;">${formatTime}</td>
-        `;
-        tbody.appendChild(tr);
-    });
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+        <td style="white-space:nowrap;">${item.job} / ${item.name}</td>
+        <td>[${item.category}] ${item.slot}</td>
+        <td style="text-align:left;">${styledItemName}</td>
+        <td style="font-weight:bold; color:${item.count > 0 ? '#ffcc00' : '#888'};">${item.count}</td>
+        <td style="font-size:0.9em;">${formatTime}</td>
+    `;
+    tbody.appendChild(tr);
+});
 
     modalContent.innerHTML = "";
     modalContent.appendChild(table);
