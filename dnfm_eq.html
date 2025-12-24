@@ -1571,7 +1571,7 @@ function decrementWeapon(charId, key, jobName) {
 function selectWeaponJob(jobName) {
     // 1. 버튼 활성화 상태 표시
     const container = document.getElementById("weaponJobButtons");
-    container.innerHTML = ""; // 버튼 영역 비우기
+    container.innerHTML = ""; 
 
     const jobs = ['귀검사', '격투가', '거너', '마법사', '프리스트', '워리어', '마창사', '도적'];
     
@@ -1579,7 +1579,7 @@ function selectWeaponJob(jobName) {
         let totalCount = 0;
         let jobData = null;
 
-        // 직업별 데이터 매칭
+        // 기존의 if-else 로직 유지 (버튼이 다시 나타나게 함)
         if (j === '귀검사') jobData = WEAPON_DATA_SLAYER;
         else if (j === '격투가') jobData = WEAPON_DATA_FIGHTER;
         else if (j === '거너') jobData = WEAPON_DATA_GUNNER;
@@ -1589,7 +1589,6 @@ function selectWeaponJob(jobName) {
         else if (j === '마창사') jobData = WEAPON_DATA_LANCER;
         else if (j === '도적') jobData = WEAPON_DATA_THIEF;
 
-        // 모든 캐릭터의 해당 직업 무기 개수 합산
         if (jobData) {
             characters.forEach(char => {
                 if (char.weaponCounts) {
@@ -1607,12 +1606,12 @@ function selectWeaponJob(jobName) {
 
         const btn = document.createElement("button");
         btn.className = "char-btn" + (j === jobName ? " active" : "");
-        btn.textContent = `${j} (${totalCount})`; // 💡 여기에 숫자 표시
+        btn.textContent = `${j} (${totalCount})`;
         btn.onclick = () => selectWeaponJob(j);
         container.appendChild(btn);
     });
 
-    // 2. 하단 무기 상세 테이블 생성 (기존 로직 유지)
+    // 2. 하단 무기 상세 테이블 생성
     const weaponPanel = document.getElementById("weaponPanel");
     let currentData = null;
     if (jobName === '귀검사') currentData = WEAPON_DATA_SLAYER;
@@ -1630,15 +1629,16 @@ function selectWeaponJob(jobName) {
     }
 
     let html = `<div style="overflow-x: auto; margin-top: 20px; border: 1px solid #2a3158;">`;
-    html += `<table style="table-layout: auto; border-collapse: collapse; width: max-content;">`;
+    html += `<table id="weaponDetailTable" style="table-layout: auto; border-collapse: collapse; width: max-content;">`;
     html += `<thead><tr style="background: #181c33;">`;
     html += `<th style="padding: 12px; border: 1px solid #2a3158; white-space: nowrap;">종류</th>`;
     html += `<th style="padding: 12px; border: 1px solid #2a3158; white-space: nowrap;">무기 이름</th>`;
 
-    characters.forEach(char => {
-    // 💡 / 대신 <br>을 넣어 줄바꿈을 적용하고, 텍스트 정렬을 중앙으로 설정합니다.
-    html += `<th style="padding: 12px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">${char.job}<br>${char.name}</th>`;
-});
+    // 💡 캐릭터 헤더 클릭 이벤트 추가
+    characters.forEach((char, idx) => {
+        const colIdx = idx + 2; 
+        html += `<th onclick="toggleColumnHighlight(${colIdx})" style="padding: 12px; border: 1px solid #2a3158; white-space: nowrap; text-align: center; cursor: pointer; user-select: none;">${char.job}<br>${char.name}</th>`;
+    });
     html += `</tr></thead><tbody>`;
 
     for (const [category, weaponList] of Object.entries(currentData)) {
@@ -1664,6 +1664,9 @@ function selectWeaponJob(jobName) {
     }
     html += `</tbody></table></div>`;
     weaponPanel.innerHTML = html;
+
+    // 강조 복원
+    applyStoredHighlights();
 }
 
 // 1. 초기 렌더링 및 캐릭터 추가/데이터 로드 시 버튼을 다시 그리기 위한 함수화
@@ -1714,6 +1717,50 @@ function renderWeaponJobButtons() {
         btn.onclick = () => selectWeaponJob(jobName);
         container.appendChild(btn);
     });
+}
+
+// 💡 강조 상태를 관리하기 위한 전역 변수
+let highlightedColumnIndices = new Set();
+
+// 💡 강조 상태를 관리하기 위한 전역 변수 (기존 Set에서 단일 변수로 변경)
+let highlightedColumnIndex = null; 
+
+function toggleColumnHighlight(colIdx) {
+    // 💡 이미 선택된 열을 다시 누르면 해제, 아니면 해당 열 번호 저장
+    if (highlightedColumnIndex === colIdx) {
+        highlightedColumnIndex = null;
+    } else {
+        highlightedColumnIndex = colIdx;
+    }
+    applyStoredHighlights();
+}
+
+function applyStoredHighlights() {
+    const table = document.getElementById("weaponDetailTable");
+    if (!table) return;
+
+    const rows = table.rows;
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].cells;
+        
+        // 종류/무기이름 셀을 제외한 실제 캐릭터 데이터 셀들의 시작 위치 계산
+        const charStartIdx = cells.length - characters.length;
+        
+        characters.forEach((_, charIdx) => {
+            const currentCellIdx = charStartIdx + charIdx;
+            const absoluteColIdx = charIdx + 2; // 캐릭터의 고유 순번(2번부터 시작)
+
+            if (cells[currentCellIdx]) {
+                // 💡 현재 순번이 저장된 단일 선택 인덱스와 일치할 때만 강조
+                if (highlightedColumnIndex === absoluteColIdx) {
+                    cells[currentCellIdx].style.backgroundColor = "rgba(255, 255, 200, 0.15)";
+                } else {
+                    // 강조되지 않은 셀은 원래 색상으로 복구
+                    cells[currentCellIdx].style.backgroundColor = i === 0 ? "#181c33" : "";
+                }
+            }
+        });
+    }
 }
 
 selectWeaponJob('귀검사');
