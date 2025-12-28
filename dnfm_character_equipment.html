@@ -154,6 +154,18 @@
             font-weight: bold;
             text-shadow: 0 0 2px rgba(0, 0, 0, 0.8); /* 가독성을 위한 그림자 */
         }
+		
+		/* 접두어 전용 색상 */
+		.p-blue { color: #3b82f6 !important; }   /* 광채: 파랑 */
+		.p-red { color: #ef4444 !important; }    /* 분쇄: 빨강 */
+		.p-green { color: #22c55e !important; }  /* 선명: 초록 */
+		.p-yellow { color: #facc15 !important; } /* 강타: 노랑 */
+		
+		/* select 박스 내의 글자색 유지를 위해 */
+		select.prefix-selected.p-blue { color: #3b82f6; }
+		select.prefix-selected.p-red { color: #ef4444; }
+		select.prefix-selected.p-green { color: #22c55e; }
+		select.prefix-selected.p-yellow { color: #facc15; }
 
     </style>
 </head>
@@ -927,35 +939,32 @@ function updateStyle(el, type, isInitial = false) {
                 nameEl.classList.add(rarityClass);
                 nameEl.classList.add('itemname-color-sync');
             }
-        
+
             const prefixSel = row.querySelector(`select[data-key="${slot}_prefix"]`);
             if (prefixSel) {
-                // 저장된 값 잠시 보관
                 const savedPrefixValue = prefixSel.getAttribute('data-saved-value') || prefixSel.value;
-                
+
                 const accSlots = ["목걸이", "팔찌", "반지"];
                 const specialSlots = ["보조장비", "귀걸이", "마법석"];
 
-                // 1. 부위 및 등급에 따른 옵션 생성
+                // [수정 부분] 무기이면서 에픽 등급일 때 전용 접두어 설정
                 let optionsHTML = "";
-                if (el.value === "티어") {
+                if (slot === "무기" && el.value === "에픽") {
+                    const weaponEpicPrefixes = ["", "광채", "분쇄", "선명", "강타"];
+                    optionsHTML = weaponEpicPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
+                } else if (el.value === "티어") {
                     optionsHTML = tierPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
-                } else if (accSlots.includes(slot)) {                    
+                } else if (accSlots.includes(slot)) {
                     optionsHTML = accPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
-                } else if (specialSlots.includes(slot)) {                    
+                } else if (specialSlots.includes(slot)) {
                     optionsHTML = specPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
                 } else {
                     optionsHTML = prefixes.map(p => `<option value="${p}">${p}</option>`).join('');
                 }
-                
+
                 prefixSel.innerHTML = optionsHTML;
-                
-                // 2. 저장되어 있던 값 복구 (중요)
-                if (savedPrefixValue) {
-                    prefixSel.value = savedPrefixValue;
-                }
-                
-                // 접두어 선택 상태에 따른 색상 업데이트도 함께 호출
+                if (savedPrefixValue) prefixSel.value = savedPrefixValue;
+
                 updateStyle(prefixSel, 'prefix', isInitial);
             }
 
@@ -977,9 +986,24 @@ function updateStyle(el, type, isInitial = false) {
         /* =========================
            접두어 (Prefix) 처리
         ========================= */
+        // 접두어 선택 시 색상 클래스 부여 부분 수정
         else if (type === 'prefix') {
-            if (el.value.startsWith('T')) el.classList.add('prefix-tier');
-            else if (el.value !== "") el.classList.add('prefix-selected');
+            // 기존 색상 클래스 초기화
+            el.classList.remove('p-blue', 'p-red', 'p-green', 'p-yellow');
+
+            if (el.value.startsWith('T')) {
+                el.classList.add('prefix-tier');
+            } else if (el.value !== "") {
+                el.classList.add('prefix-selected');
+
+                // [추가] 무기 전용 접두어 색상 클래스 매칭
+                if (slot === "무기") {
+                    if (el.value === "광채") el.classList.add('p-blue');
+                    if (el.value === "분쇄") el.classList.add('p-red');
+                    if (el.value === "선명") el.classList.add('p-green');
+                    if (el.value === "강타") el.classList.add('p-yellow');
+                }
+            }
         }
 
         /* =========================
