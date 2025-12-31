@@ -1287,10 +1287,11 @@ document.addEventListener('change', function(e) {
     if (!key) return;
 
     const section = el.closest('.char-section');
+    if (!section) return; // 섹션이 없으면 중단
+
+    // 1. 기존 데이터 변경 및 히스토리 로직 (유지)
     const charName = section.querySelector('[data-key="info_name"]').value || "이름없음";
     const slot = key.split('_')[0];
-
-    // 이전 값 찾기
     const prevChar = lastSnapshot.find(c => c.id === section.id);
     const oldVal = (prevChar && prevChar.inputs && prevChar.inputs[key]) ? prevChar.inputs[key].val : "";
     const newVal = el.value;
@@ -1298,7 +1299,7 @@ document.addEventListener('change', function(e) {
     if (oldVal !== newVal) {
         const now = new Date();
         const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-        
+
         changeHistory.unshift({
             time: timeStr,
             charName: charName,
@@ -1308,10 +1309,21 @@ document.addEventListener('change', function(e) {
         });
         if (changeHistory.length > 10) changeHistory.pop();
 
-        // [저장 추가]
         saveHistory();
-
         updateLastSnapshot();
+
+        // --- [핵심 수정 부분] ---
+        // 1. 상단 속성/스탯 선택지가 바뀔 때
+        // 2. 혹은 슬롯의 엠블렘(_emb)이나 봉인석(_seal) 선택지가 바뀔 때
+        // 아래 조건문을 통해 무조건 강조 함수를 다시 실행시킵니다.
+        if (key.includes('info_stat_type') ||
+            key.includes('info_ele_type') ||
+            key.includes('_emb') ||
+            key.includes('_seal')) {
+
+            applySealHighlight(section.id);
+        }
+        // -----------------------
     }
 });
 	
