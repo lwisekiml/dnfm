@@ -986,8 +986,21 @@ function updateStyle(el, type, isInitial = false) {
            익시드
         ========================= */
         else if (type === 'exceed') {
-            el.classList.add('ex-' + el.value);
-            runSetCheck(slot, charId);
+            // 1. 선택지 본인 클래스 유지 (기존 로직)
+            el.classList.remove('ex-이상', 'ex-선봉', 'ex-의지');
+            if (el.value) el.classList.add('ex-' + el.value);
+
+            // 2. [수정] 아이템 이름 칸에 .ex-itemname-light 입히기
+            const nameEl = row.querySelector(`[data-key="${slot}_itemname"]`);
+            if (nameEl) {
+                if (el.value !== "") {
+                    nameEl.classList.add('ex-itemname-light'); // 연한 녹색 적용
+                } else {
+                    nameEl.classList.remove('ex-itemname-light'); // 원래 색상으로
+                }
+            }
+
+            if (typeof runSetCheck === "function") runSetCheck(slot, charId);
         }
 
         /* =========================
@@ -1491,6 +1504,11 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     
     // 세트 색상 즉시 적용
     runSetCheck(slot, charId);
+
+    const exceedSel = parentTd.closest('tr').querySelector(`select[data-key="${slot}_exceed"]`);
+    if (exceedSel && exceedSel.value !== "") {
+        newEl.classList.add('ex-itemname-light'); // 새로 만든 칸에 연한 녹색 입히기
+    }
 }
 
 function updateLastSnapshot() {
