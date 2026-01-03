@@ -1806,6 +1806,23 @@ function applyStoredHighlights() {
     }
 }
 
+// ===== 팝업 창 외부 클릭/터치 시 닫기 처리 =====
+window.onclick = function(event) {
+    const modal = document.getElementById("updateModal");
+    // 클릭된 대상이 모달 배경(딤드 처리된 부분) 자체일 경우 닫기
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+};
+
+// 모바일 환경을 위한 터치 이벤트 대응
+window.ontouchstart = function(event) {
+    const modal = document.getElementById("updateModal");
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+};
+
 selectWeaponJob('귀검사');
 </script>
 
