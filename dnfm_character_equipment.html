@@ -338,6 +338,19 @@ function saveHistory() {
 const accPrefixes = ["", "견고", "혈독", "초석", "각오", "가속", "조화"];
 const specPrefixes = ["", "불굴", "숙련", "결의", "격변", "촉진", "질주"];
 
+// 날짜와 시간을 "YYYY-MM-DD HH:mm:ss" 형식으로 반환하는 함수
+function getCurrentDateTime() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 function runSetCheck(slot, charId) {
 	const armorSlots = ["상의", "하의", "어깨", "벨트", "신발"];
 	const accSlots = ["팔찌", "목걸이", "반지"];
@@ -1188,9 +1201,10 @@ function updateRuneSummary(charId) {
     if(confirm("초기화하시겠습니까?")) { 
         const section = document.getElementById(charId);
         const charName = section.querySelector('[data-key="info_name"]').value || "이름없음";
-        const now = new Date();
-        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-        
+
+        // [수정된 부분] 날짜 형식 변경
+        const timeStr = getCurrentDateTime();
+
         // 기록 추가
         changeHistory.unshift({ time: timeStr, charName: charName, slot: "스킬룬", old: "기존 설정", new: "데이터 초기화됨" });
         if (changeHistory.length > 10) changeHistory.pop();
@@ -1206,7 +1220,7 @@ function updateRuneSummary(charId) {
 
     function openHistoryModal() {
         const listEl = document.getElementById('historyList');
-        if (changeHistory.length === 0) { listEl.innerHTML = "변경 기록이 없습니다."; } 
+        if (changeHistory.length === 0) { listEl.innerHTML = "변경 기록이 없습니다."; }
         else { listEl.innerHTML = changeHistory.map(h => `<div style="border-bottom:1px solid #333; padding:5px 0;"><span style="color:var(--gold)">[${h.time}]</span> <b>${h.charName}</b> - ${h.slot}: <br>${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)}</div>`).join(''); }
         document.getElementById('modalOverlay').style.display = 'block';
         document.getElementById('historyModal').style.display = 'block';
@@ -1303,8 +1317,8 @@ document.addEventListener('change', function(e) {
     const newVal = el.value;
 
     if (oldVal !== newVal) {
-        const now = new Date();
-        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+        // [수정된 부분] 날짜 형식 변경
+        const timeStr = getCurrentDateTime();
 
         changeHistory.unshift({
             time: timeStr,
@@ -1661,9 +1675,8 @@ function importFromJSON(input) {
             // 3. 기록 복구 (기존 기록 교체)
             changeHistory = historyToRestore;
 
-            // 4. 복구 완료 로그 추가
-            const now = new Date();
-            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            // 4. 복구 완료 로그 추가 [수정된 부분]
+            const timeStr = getCurrentDateTime();
             changeHistory.unshift({ 
                 time: timeStr, 
                 charName: "시스템", 
