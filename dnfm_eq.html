@@ -982,13 +982,16 @@ function openSet(setName, char){
     filterContainer.style.marginBottom = "20px";
     filterContainer.style.marginTop = "10px";
 
-    // 필터 버튼 정의
-    const filters = [
-        { id: 'ALL', text: '모두' },
-        { id: 'BASE', text: '일반' },
-        { id: 'PREFIX', text: '접두어' },
-        { id: 'EXCEED', text: '익시드' }
-    ];
+  // openSet 함수 내 필터 버튼 정의 부분 (수정/추가)
+  const filters = [
+    { id: 'ALL', text: '모두' },
+    { id: 'BASE', text: '일반' },
+    { id: 'PREFIX', text: '접두어' },
+    { id: 'EXCEED', text: '익시드' },
+    { id: 'BASE_CHAR', text: '일반(캐릭)' },
+    { id: 'PREFIX_CHAR', text: '접두어(캐릭)' }, // 추가
+    { id: 'EXCEED_CHAR', text: '익시드(캐릭)' }  // 추가
+  ];
 
     filters.forEach(filter => {
         const btn = document.createElement("button");
@@ -1038,21 +1041,80 @@ function showSetSlotSummary(setName){
     
     const slots = ALL_SETS[setName] || [];
     const table = document.createElement("table");
+    const prefixes = ALL_PREFIX[setName] || [];
 
-    // 필터에 따라 헤더 내용과 세트 달성 열 표시 여부 결정
-    const isFiltered = currentFilter !== 'ALL';
-    let headerHtml = `<tr><th>캐릭터</th><th>직업</th>${slots.map(s=>`<th>${s}</th>`).join("")}`;
-    if (!isFiltered) {
-        headerHtml += `<th>세트 달성</th></tr>`;
-    } else {
-        headerHtml += `</tr>`;
+    // --- [캐릭터 상세 모드: 일반(캐릭), 접두어(캐릭), 익시드(캐릭)] ---
+    if (currentFilter === 'BASE_CHAR' || currentFilter === 'PREFIX_CHAR' || currentFilter === 'EXCEED_CHAR') {
+      table.innerHTML = `<thead><tr><th style="width:250px;">세트 이름</th>${slots.map(s => `<th>${s}</th>`).join("")}</tr></thead><tbody></tbody>`;
+      const tbody = table.querySelector("tbody");
+
+      let targetGroupNames = [];
+      if (currentFilter === 'BASE_CHAR') {
+        targetGroupNames = [setName];
+      } else if (currentFilter === 'PREFIX_CHAR') {
+        targetGroupNames = prefixes.map(p => `${p}: ${setName}`);
+      } else if (currentFilter === 'EXCEED_CHAR') {
+        prefixes.forEach(p => {
+          EXCEED_TAGS.forEach(tag => targetGroupNames.push(`[${tag}] ${p}: ${setName}`));
+        });
+      }
+
+      targetGroupNames.forEach(groupName => {
+        // 💡 1. 세트 이름 스타일링 (색상 적용)
+        let styledName = groupName;
+
+        // 익시드 태그 색상 처리
+        const exceedMatch = styledName.match(/^(\[.*?\])\s*(.*)/);
+        if (exceedMatch) {
+          const tag = exceedMatch[1];
+          const rest = exceedMatch[2];
+          let tagColor = '#25c2a0'; // 기본 초록
+          if (tag === '[선봉]') tagColor = '#ff4d4f';
+          else if (tag === '[의지]') tagColor = '#3399cc';
+          else if (tag === '[이상]') tagColor = '#25c2a0';
+
+          // 나머지 부분에서 접두어 색상 처리
+          let restStyled = rest;
+          if (rest.includes(':')) {
+            const pMatch = rest.match(/(.+?):\s*(.+)/);
+            if (pMatch) restStyled = `<span style="color:#e6b800; font-weight:bold;">${pMatch[1]}</span>: ${pMatch[2]}`;
+          }
+          styledName = `<span style="color:${tagColor}; font-weight:bold;">${tag}</span> ${restStyled}`;
+        } else if (styledName.includes(':')) {
+          // 일반 접두어 색상 처리
+          const pMatch = styledName.match(/(.+?):\s*(.+)/);
+          if (pMatch) styledName = `<span style="color:#e6b800; font-weight:bold;">${pMatch[1]}</span>: ${pMatch[2]}`;
+        }
+
+        const tr = document.createElement("tr");
+        let rowHtml = `<td style="text-align:left; font-weight:bold;">${styledName}</td>`;
+
+        slots.forEach(slot => {
+          const holders = [];
+          characters.forEach(char => {
+            const count = char.armorCounts[`${groupName} ${slot}`] || 0;
+            if (count > 0) {
+              holders.push(`${char.job}(${char.name}) <span style="color: #ffcc00; font-weight: bold;">[${count}]</span>`);
+            }
+          });
+          rowHtml += `<td style="font-size:0.85em; text-align:left;">${holders.length > 0 ? holders.join("<br>") : "0"}</td>`;
+        });
+
+        // 💡 2. 데이터 유무와 상관없이 행을 추가 (rowHasData 체크 제거)
+        tr.innerHTML = rowHtml;
+        tbody.appendChild(tr);
+      });
+
+      tableContainer.appendChild(table);
+      return;
     }
-    
+
+    // --- [기존 요약 모드 (ALL, BASE, PREFIX, EXCEED) - 코드 동일] ---
+    const isFiltered = currentFilter !== 'ALL';
+    let headerHtml = `<tr><th>캐릭터</th><th>직업</th>${slots.map(s => `<th>${s}</th>`).join("")}`;
+    headerHtml += !isFiltered ? `<th>세트 달성</th></tr>` : `</tr>`;
     table.innerHTML = `<thead>${headerHtml}</thead><tbody></tbody>`;
     const tbody = table.querySelector("tbody");
-
-    const prefixes = ALL_PREFIX[setName] || [];
-    const setType = getSetType(setName);
 
     characters.forEach(char => {
         let hasAny = false;
@@ -1074,6 +1136,7 @@ function showSetSlotSummary(setName){
             const totalDistinct = calcTotalDistinctParts(char, setName);
 
             let status = "-";
+			const setType = getSetType(setName);
             if(setType === "ARMOR"){
                 if(totalDistinct === slots.length) status = "5세트 달성";
                 else if(totalDistinct >= 3) status = "3세트 달성";
@@ -1089,6 +1152,7 @@ function showSetSlotSummary(setName){
         // '모두' 필터일 경우에만 시각 강조 (총 고유 부위 개수 기준)
         if (!isFiltered) {
             const totalDistinct = calcTotalDistinctParts(char, setName);
+			const setType = getSetType(setName);
             if(setType === "ARMOR"){
                 if(totalDistinct === slots.length) tr.className = "set5";
                 else if(totalDistinct >= 3) tr.className = "set3";
@@ -1577,7 +1641,7 @@ function incrementWeapon(charId, key, jobName) {
     char.updateTimes[key] = Date.now(); // 업데이트 시간 기록
     
     saveLocalData();    // 🔥 여기서 로컬 스토리지에 저장!
-    selectWeaponJob(jobName); // 화면 갱신
+    selectWeaponJob(jobName, true); // 화면 갱신
 }
 
 // 무기 전용 감소 함수
@@ -1591,19 +1655,19 @@ function decrementWeapon(charId, key, jobName) {
     char.updateTimes[key] = Date.now();
     
     saveLocalData();    // 🔥 여기서 로컬 스토리지에 저장!
-    selectWeaponJob(jobName); // 화면 갱신
+    selectWeaponJob(jobName, true); // 화면 갱신
 }
 
 // ===== 무기 직업 선택 및 버튼 갱신 (수정됨) =====
-  function selectWeaponJob(jobName) {
+  function selectWeaponJob(jobName, keepOpen = false) {
     const weaponPanel = document.getElementById("weaponPanel");
     const container = document.getElementById("weaponJobButtons");
 
-    // 1. [토글 로직] 이미 열려있는 직업을 다시 누르면 닫기
-    if (activeWeaponJob === jobName) {
-      activeWeaponJob = null; // 선택 해제
-      weaponPanel.innerHTML = ""; // 상세 테이블 삭제
-      // 버튼들의 숫자 합산과 노란색(active) 해제를 위해 자기 자신을 다시 호출
+    // [토글 로직 수정]
+    // 이미 열려있고, 강제 유지(keepOpen) 모드가 아닐 때만 닫기 작동
+    if (!keepOpen && activeWeaponJob === jobName) {
+      activeWeaponJob = null;
+      weaponPanel.innerHTML = "";
       selectWeaponJob(null);
       return;
     }
