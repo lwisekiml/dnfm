@@ -1700,6 +1700,22 @@ function importFromJSON(input) {
     reader.readAsText(input.files[0]); 
 }
 
+// 페이지 로드 시 배경 클릭 이벤트 리스너 등록
+document.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('modalOverlay');
+    
+    if (overlay) {
+        overlay.addEventListener('click', () => {
+            // 열려 있을 수 있는 모든 모달을 닫음
+            if (typeof closeHistoryModal === "function") closeHistoryModal();
+            if (typeof closeRuneModal === "function") closeRuneModal();
+            
+            // 공통으로 사용되는 다른 모달이 있다면 여기에 추가
+            // 예: document.getElementById('historyModal').style.display = 'none';
+        });
+    }
+});
+
 </script>
 </body>
 </html>
