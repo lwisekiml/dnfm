@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>캐릭터 장비 관리 + CSV</title>
+  <title>캐릭터 장비 관리</title>
   <style>
     body { font-family:sans-serif; background:#0f1222; color:#e6e9ff; }
     h1 { margin-bottom:10px; }
@@ -154,13 +154,9 @@
 
 <h1>캐릭터 장비 관리</h1>
 <div class="toolbar">
-  <button class="action-btn" onclick="exportCSV()">💾 CSV 저장</button>
-  <label class="file-label">
-    📂 CSV 불러오기
-    <input type="file" id="csvFile" accept=".csv">
-  </label>
-  <button class="action-btn" style="background: linear-gradient(135deg, #6a5acd, #483d8b);" onclick="exportJSON()">💎 JSON 저장 (백업)</button>
-  
+  <button class="action-btn" style="background: linear-gradient(135deg, #6a5acd, #483d8b);" onclick="exportJSON()">
+    💎 JSON 저장 (백업)
+  </button>
   <label class="file-label" style="background: #2c3e50;">
     📥 JSON 불러오기
     <input type="file" id="jsonFile" accept=".json" onchange="importJSON(event)">
@@ -1394,154 +1390,6 @@ function showRecentUpdates() {
 }
 
 
-  // ===== CSV 저장 (생략 없음) =====
-  function exportCSV(){
-    // 💡 헤더에 "업데이트 시간" 추가
-    const headers = ["이름","직업","카테고리","세트명","슬롯","접두어","보유개수","업데이트 시간"];
-    const rows = [headers];
-    const CATS = [
-      {cat:"방어구", sets:ARMOR_SETS, pref:ARMOR_PREFIX},
-      {cat:"악세", sets:ACCESSORY_SETS, pref:ACCESSORY_PREFIX},
-      {cat:"특장", sets:SPECIAL_SETS, pref:SPECIAL_PREFIX}
-    ];
-
-    // 💡 시간 포맷팅 함수
-    const formatUpdateTime = (timestamp) => {
-      if (!timestamp) return "";
-      const date = new Date(timestamp);
-      const pad = n => String(n).padStart(2, "0");
-      return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
-    };
-
-    characters.forEach(char=>{
-      CATS.forEach(({cat, sets, pref})=>{
-        Object.keys(sets).forEach(setName=>{
-          const slots = sets[setName];
-          const pfxs = pref[setName] || [];
-          const groups = [setName, ...pfxs.map(p=>`${p}: ${setName}`)];
-          groups.forEach(group=>{
-            slots.forEach(slot=>{
-              const key = `${group} ${slot}`;
-              const count = char.armorCounts[key] || 0;
-              const updateTime = formatUpdateTime(char.updateTimes[key]); // 💡 시간 포맷팅
-
-              // 💡 로우에 updateTime 필드 추가
-              rows.push([char.name, char.job, cat, setName, slot,
-                group.includes(": ")?group.split(": ")[0]:"", count, updateTime]);
-
-              const exceedNeeded =
-                      (cat==="방어구" && slot==="상의") ||
-                      (cat==="악세" && slot==="팔찌") ||
-                      (cat==="특장" && slot==="귀걸이");
-              if (exceedNeeded && pfxs.length>0) {
-                EXCEED_TAGS.forEach(tag=>{
-                  const exceedGroup = `[${tag}] ${group}`;
-                  const exceedKey = `${exceedGroup} ${slot}`; // 💡 익시드 키
-                  const countEx = char.armorCounts[exceedKey] || 0;
-                  const updateTimeEx = formatUpdateTime(char.updateTimes[exceedKey]); // 💡 익시드 시간 포맷팅
-
-                  // 💡 익시드 로우에 updateTimeEx 필드 추가
-                  rows.push([
-                    char.name,
-                    char.job,
-                    cat,
-                    setName,
-                    slot,
-                    `${group.includes(": ")?group.split(": ")[0]:""} (익시드:${tag})`,
-                    countEx,
-                    updateTimeEx
-                  ]);
-                });
-              }
-            });
-          });
-        });
-      });
-    });
-
-    const escape = v => String(v).replace(/"/g,'""');
-    const csvContent = "\uFEFF" + rows.map(r=>r.map(escape).map(v=>`"${v}"`).join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-
-    // --- 여기서 파일명에 년월일시 추가 ---
-    const now = new Date();
-    const pad = n => String(n).padStart(2, "0");
-    const filename = `sets_characters_${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}.csv`;
-    a.download = filename;
-
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
-  // ===== CSV 읽기 =====
-  document.getElementById("csvFile").addEventListener("change", function(e){
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(evt){
-      const text = evt.target.result;
-      displayCSV(text);
-    };
-    reader.readAsText(file, "utf-8");
-  });
-
-  function displayCSV(csvText){
-    const lines = csvText.trim().split("\n");
-    const headers = lines[0].split(",").map(h=>h.replace(/^"|"$/g,""));
-    const data = lines.slice(1).map(line=>{
-      const cells = line.split(",").map(c=>c.replace(/^"|"$/g,""));
-      const obj = {};
-      headers.forEach((h,i)=>obj[h]=cells[i]);
-      return obj;
-    });
-
-    characters.length = 0;
-    const grouped = {};
-    data.forEach(row=>{
-      const key = row["이름"]+"_"+row["직업"];
-      if(!grouped[key]){
-        // CSV에서 읽은 캐릭터에 임시 ID 부여 및 updateTimes 초기화
-        grouped[key] = {id:"c_imp_"+Date.now()+"_"+Math.random(), name:row["이름"], job:row["직업"], armorCounts:{}, updateTimes: {}};
-        characters.push(grouped[key]);
-      }
-      const char = grouped[key];
-      let groupName;
-      if(row["접두어"] && row["접두어"].includes("(익시드:")){
-        const basePrefix = row["접두어"].split(" ")[0];
-        const tag = row["접두어"].match(/\(익시드:(.+)\)/)[1];
-        groupName = `[${tag}] ${basePrefix}: ${row["세트명"]}`;
-      } else if(row["접두어"]){
-        groupName = `${row["접두어"]}: ${row["세트명"]}`;
-      } else {
-        groupName = row["세트명"];
-      }
-      const slot = row["슬롯"];
-      const fullKey = `${groupName} ${slot}`;
-      char.armorCounts[fullKey] = parseInt(row["보유개수"],10);
-
-      // 💡 업데이트 시간 처리
-      if (row["업데이트 시간"]) {
-        // CSV에서 읽은 시간 문자열을 Date 객체로 변환하여 timestamp 저장
-        const date = new Date(row["업데이트 시간"]);
-        if (!isNaN(date.getTime())) { // 유효한 날짜인지 확인
-          char.updateTimes[fullKey] = date.getTime();
-        }
-      }
-    });
-
-    saveLocalData(); // [로컬 스토리지] CSV 가져오기 성공 시 로컬에 저장
-
-    renderCharacterList();
-    document.getElementById("setList").innerHTML="";
-    document.getElementById("panel").innerHTML="";
-  }
-  
-  
 function exportJSON() {
     const now = new Date();
     const year = now.getFullYear();
