@@ -148,6 +148,29 @@
     .modal-reset-btn:hover { background: #2a6f9e; }
     .modal-cancel-btn { background: #4a3f7a; color: #fff; }
     .modal-cancel-btn:hover { background: #5a4f8a; }
+
+    /* 설정 버튼 스타일 */
+    .settings-btn {
+      background: #4a3f7a;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 8px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-left: 5px;
+      transition: background 0.2s;
+    }
+
+    .settings-btn:hover {
+      background: #6254a8;
+    }
+
+    /* 정보 수정 전용 버튼 스타일 */
+    .modal-edit-btn {
+      background: #25c2a0 !important;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -521,10 +544,104 @@ const WEAPON_PREFIXES = [
     document.getElementById("actionModal").style.display = 'none';
   }
 
-  function openActionModal(charId, charName, charJob) {
+  function openActionModal(charId, name, job) {
+    // 1. 현재 작업 대상 ID를 전역 변수에 저장 (삭제/초기화 시 참조용)
     currentActionCharId = charId;
-    document.getElementById("modalCharName").textContent = `${charJob} (${charName}) 에 대한 작업 선택`;
-    document.getElementById("actionModal").style.display = 'flex';
+
+    const modal = document.getElementById("actionModal");
+    const content = modal.querySelector(".modal-content");
+
+    // 2. 모달 내부 UI 생성
+    content.innerHTML = `
+        <h2 style="margin-bottom:25px;">캐릭터 설정 수정</h2>
+
+        <div style="margin-bottom:15px; display:flex; align-items:center;">
+            <label style="width:60px; font-weight:bold; color:#ccc;">이름 :</label>
+            <input type="text" id="edit-charName" value="${name}"
+                   style="flex:1; padding:8px; background:#181c33; color:#fff; border:1px solid #2a3158; border-radius:4px;">
+        </div>
+
+        <div style="margin-bottom:25px; display:flex; align-items:center;">
+            <label style="width:60px; font-weight:bold; color:#ccc;">직업 :</label>
+            <input type="text" id="edit-charJob" value="${job}"
+                   style="flex:1; padding:8px; background:#181c33; color:#fff; border:1px solid #2a3158; border-radius:4px;">
+        </div>
+
+        <div class="modal-options" style="display:flex; flex-direction:column; gap:10px;">
+            <button type="button" class="modal-btn" style="background:#25c2a0; font-weight:bold;"
+                    onclick="updateCharacterInfo('${charId}')">정보 수정 완료</button>
+            <div style="display:flex; gap:8px;">
+                <button type="button" class="modal-btn" style="flex:1; background:#f39c12; font-size:0.9em;"
+                        onclick="resetCharacterStatsConfirmed()">수치 초기화</button>
+                <button type="button" class="modal-btn" style="flex:1; background:#e74c3c; font-size:0.9em;"
+                        onclick="deleteCharacterConfirmed()">캐릭터 삭제</button>
+            </div>
+            <button type="button" class="modal-btn" style="background:#444;" onclick="closeActionModal()">취소</button>
+        </div>
+    `;
+    modal.style.display = "flex";
+  }
+
+  // 인자 순서가 중요합니다: (캐릭터ID, 수정된이름, 수정된직업)
+  function updateCharacterInfo(charId) {
+    // 🚨 787번 줄 수정: charName 대신 edit-charName을 찾습니다.
+    const nameInput = document.getElementById("edit-charName");
+    const jobInput = document.getElementById("edit-charJob");
+
+    // 요소가 존재하는지 확인하여 null 에러 방지
+    if (!nameInput || !jobInput) {
+      alert("수정 입력창을 찾을 수 없습니다.");
+      return;
+    }
+
+    const newName = nameInput.value.trim();
+    const newJob = jobInput.value.trim();
+
+    if (!newName || !newJob) {
+      alert("이름과 직업을 모두 입력해 주세요.");
+      return;
+    }
+
+    const char = characters.find(c => c.id === charId);
+    if (char) {
+      char.name = newName;
+      char.job = newJob;
+
+      saveLocalData();
+      renderCharacterList(); // 리스트 갱신
+      closeActionModal();    // 모달 닫기
+      alert("정보가 수정되었습니다.");
+    }
+  }
+
+  // 모달 닫기 함수가 없다면 아래를 추가하세요.
+  function closeActionModal() {
+    const modal = document.getElementById("actionModal");
+    if (modal) modal.style.display = "none";
+  }
+
+  // 기존의 복잡한 로직을 대신할 새로운 삭제 함수
+  function deleteCharacter(charId) {
+    // 1. 사용자에게 마지막으로 물어봅니다 (실수 방지)
+    if (confirm("정말 이 캐릭터를 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.")) {
+
+      // 2. 캐릭터 배열에서 해당 ID를 가진 캐릭터만 제외시킵니다.
+      // characters는 현재 메모리에 떠있는 캐릭터 목록 배열입니다.
+      characters = characters.filter(function(char) {
+        return char.id !== charId;
+      });
+
+      // 3. 바뀐 데이터를 로컬 스토리지에 저장합니다. (새로고침해도 유지되게 함)
+      saveLocalData();
+
+      // 4. 화면의 리스트를 다시 그립니다. (삭제된 캐릭터가 즉시 사라짐)
+      renderCharacterList();
+
+      // 5. 열려있던 설정 모달 창을 닫습니다.
+      closeActionModal();
+
+      alert("삭제가 완료되었습니다.");
+    }
   }
 
   // 2차 모달 (최종 확인) 제어
@@ -572,8 +689,8 @@ const WEAPON_PREFIXES = [
 
   // 2차 모달에서 '확인' 버튼 클릭 시 (실제 작업 수행)
   function handleConfirmedAction() {
-    const charId = currentActionCharId;
-    const action = pendingActionType;
+    const charId = currentActionCharId; // openActionModal에서 저장했던 ID 사용
+    const action = pendingActionType;   // 'delete' 또는 'reset'
 
     closeConfirmModal(); // 2차 확인 모달 닫기
 
@@ -583,40 +700,47 @@ const WEAPON_PREFIXES = [
       return;
     }
 
-    const char = characters.find(c => c.id === charId);
+    const charIndex = characters.findIndex(c => c.id === charId);
+    const char = characters[charIndex];
 
     if (action === 'delete') {
-      // 실제 캐릭터 삭제 로직
-      const index = characters.findIndex(c => c.id === charId);
-      if (index !== -1) {
-        characters.splice(index, 1);
+      // [캐릭터 삭제 로직]
+      if (charIndex !== -1) {
+        characters.splice(charIndex, 1); // 배열에서 제거
         saveLocalData();
         renderCharacterList();
+
+        // 삭제 후 화면 초기화
         document.getElementById("setList").innerHTML = "";
         document.getElementById("panel").innerHTML = "";
+        activeCharacterId = null;
+        alert("캐릭터가 삭제되었습니다.");
       }
-    } else if (action === 'reset') {
-      // 실제 수치 초기화 로직
+    }
+    else if (action === 'reset') {
+      // [수치 초기화 로직]
       if (char) {
-        char.armorCounts = {}; // 수치 초기화
-        char.updateTimes = {}; // 업데이트 시간도 초기화
+        char.armorCounts = {}; // 모든 장비 수치 0
+        char.updateTimes = {}; // 업데이트 시간 기록 삭제
+        // 무기 수치도 초기화하고 싶다면 아래 주석 해제
+        // if (char.weaponCounts) char.weaponCounts = {};
+
         saveLocalData();
-
-        // UI 업데이트
         renderCharacterList();
-        showSetButtons(char);
 
-        // 현재 캐릭터가 선택되어 있었다면 UI 리셋
-        if (currentChar && currentChar.id === charId) {
-          document.getElementById("setList").innerHTML = "";
-          document.getElementById("panel").innerHTML = "";
-        }
+        // 초기화 후 상세 화면 갱신을 위해 비움
+        document.getElementById("setList").innerHTML = "";
+        document.getElementById("panel").innerHTML = "";
+        activeCharacterId = null;
+
+        alert(`${char.name} 캐릭터의 모든 수치가 초기화되었습니다.`);
       }
     }
 
-    // 작업 완료 후 ID 초기화
+    // 작업 완료 후 전역 상태 초기화
     currentActionCharId = null;
     pendingActionType = null;
+    closeActionModal(); // 1차 설정 모달도 함께 닫기
   }
 
 
@@ -627,30 +751,27 @@ const WEAPON_PREFIXES = [
 
     characters.forEach((c) => {
       const wrapper = document.createElement("div");
-      wrapper.className = "character-wrapper";  // 👉 CSS에서 inline-block 처리
+      wrapper.className = "character-wrapper";
 
-      // 삭제 버튼
-      const delBtn = document.createElement("button");
-      delBtn.textContent = "－";
-      delBtn.className = "delete-btn";   // 👉 페이지 스타일에 맞춘 삭제 버튼
-      delBtn.onclick = () => {
-        openActionModal(c.id, c.name, c.job); // 1차 선택 모달 호출
+      // ⚙️ 설정(톱니바퀴) 버튼 (기존 삭제 버튼 대체)
+      const settingsBtn = document.createElement("button");
+      settingsBtn.textContent = "⚙️"; // 톱니바퀴로 변경
+      settingsBtn.className = "settings-btn";
+      settingsBtn.onclick = () => {
+        // 수정 모드로 모달 호출
+        openActionModal(c.id, c.name, c.job);
       };
 
       // 캐릭터 버튼
       const btn = document.createElement("button");
-      // 🚨 [수정된 부분] activeCharacterId와 일치할 때만 active 클래스 추가
       btn.className = "char-btn" + (c.id === activeCharacterId ? " active" : "");
       btn.textContent = `${c.job} (${c.name})`;
       btn.onclick = () => {
         showSetButtons(c);
       };
 
-      // wrapper에 버튼들 추가
-      wrapper.appendChild(delBtn);
+      wrapper.appendChild(settingsBtn); // 설정 버튼 먼저 추가
       wrapper.appendChild(btn);
-
-      // 전체 목록에 wrapper 추가
       listEl.appendChild(wrapper);
     });
   }
