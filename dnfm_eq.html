@@ -539,11 +539,6 @@ const WEAPON_PREFIXES = [
   let currentActionCharId = null;
   let pendingActionType = null; // 현재 2차 확인 대기 중인 작업: 'delete' 또는 'reset'
 
-  // 1차 모달 (작업 선택) 제어
-  function closeActionModal() {
-    document.getElementById("actionModal").style.display = 'none';
-  }
-
   function openActionModal(charId, name, job) {
     // 1. 현재 작업 대상 ID를 전역 변수에 저장 (삭제/초기화 시 참조용)
     currentActionCharId = charId;
@@ -618,30 +613,6 @@ const WEAPON_PREFIXES = [
   function closeActionModal() {
     const modal = document.getElementById("actionModal");
     if (modal) modal.style.display = "none";
-  }
-
-  // 기존의 복잡한 로직을 대신할 새로운 삭제 함수
-  function deleteCharacter(charId) {
-    // 1. 사용자에게 마지막으로 물어봅니다 (실수 방지)
-    if (confirm("정말 이 캐릭터를 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.")) {
-
-      // 2. 캐릭터 배열에서 해당 ID를 가진 캐릭터만 제외시킵니다.
-      // characters는 현재 메모리에 떠있는 캐릭터 목록 배열입니다.
-      characters = characters.filter(function(char) {
-        return char.id !== charId;
-      });
-
-      // 3. 바뀐 데이터를 로컬 스토리지에 저장합니다. (새로고침해도 유지되게 함)
-      saveLocalData();
-
-      // 4. 화면의 리스트를 다시 그립니다. (삭제된 캐릭터가 즉시 사라짐)
-      renderCharacterList();
-
-      // 5. 열려있던 설정 모달 창을 닫습니다.
-      closeActionModal();
-
-      alert("삭제가 완료되었습니다.");
-    }
   }
 
   // 2차 모달 (최종 확인) 제어
@@ -1751,59 +1722,6 @@ function decrementWeapon(charId, key, jobName) {
       applyStoredHighlights();
     }
   }
-
-// 1. 초기 렌더링 및 캐릭터 추가/데이터 로드 시 버튼을 다시 그리기 위한 함수화
-function renderWeaponJobButtons() {
-    const jobs = ['귀검사', '격투가', '거너', '마법사', '프리스트', '워리어', '마창사', '도적'];
-    const container = document.getElementById("weaponJobButtons");
-    
-    // 현재 활성화된 버튼 이름 기억
-    const activeBtn = container.querySelector(".char-btn.active");
-    const activeJobName = activeBtn ? activeBtn.textContent.split(' (')[0] : null;
-
-    container.innerHTML = "";
-
-    jobs.forEach(jobName => {
-        let totalCount = 0;
-        let jobData = null;
-
-        // 해당 직업군 데이터 매칭
-        if (jobName === '귀검사') jobData = WEAPON_DATA_SLAYER;
-        else if (jobName === '격투가') jobData = WEAPON_DATA_FIGHTER;
-        else if (jobName === '거너') jobData = WEAPON_DATA_GUNNER;
-        else if (jobName === '마법사') jobData = WEAPON_DATA_MAGE;
-        else if (jobName === '프리스트') jobData = WEAPON_DATA_PRIEST;
-        else if (jobName === '워리어') jobData = WEAPON_DATA_WARRIOR;
-        else if (jobName === '마창사') jobData = WEAPON_DATA_LANCER;
-        else if (jobName === '도적') jobData = WEAPON_DATA_THIEF;
-
-        // 모든 캐릭터를 돌며 해당 직업군 무기 개수 합산
-        if (jobData) {
-            characters.forEach(char => {
-                if (char.weaponCounts) {
-                    for (const [category, weaponList] of Object.entries(jobData)) {
-                        weaponList.forEach(weaponName => {
-                            WEAPON_PREFIXES.forEach(pref => {
-                                const weaponKey = `${pref.tag} ${weaponName}`;
-                                totalCount += (char.weaponCounts[weaponKey] || 0);
-                            });
-                        });
-                    }
-                }
-            });
-        }
-
-        const btn = document.createElement("button");
-        btn.className = "char-btn";
-        if (jobName === activeJobName) btn.classList.add("active");
-        btn.textContent = `${jobName} (${totalCount})`; // 개수 표시
-        btn.onclick = () => selectWeaponJob(jobName);
-        container.appendChild(btn);
-    });
-}
-
-// 💡 강조 상태를 관리하기 위한 전역 변수
-let highlightedColumnIndices = new Set();
 
 // 💡 강조 상태를 관리하기 위한 전역 변수 (기존 Set에서 단일 변수로 변경)
 let highlightedColumnIndex = null; 
