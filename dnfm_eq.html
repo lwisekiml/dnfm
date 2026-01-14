@@ -1946,33 +1946,43 @@ function closePrefixFullModal() {
     }
   }
 
-  // 💡 화면 탭 전환 함수
+  // 💡 화면 탭 전환 함수 (상단 버튼 테두리/색상 강조 보정)
   function switchTo(view) {
     const charView = document.getElementById("section-character-view");
     const weaponView = document.getElementById("section-weapon-view");
     const charBtn = document.getElementById("tab-char");
     const weaponBtn = document.getElementById("tab-weapon");
 
-    // 요소가 존재하는지 확인 (방어적 코드)
-    if (!charView || !weaponView) return;
+    // 요소가 존재하는지 확인
+    if (!charView || !weaponView || !charBtn || !weaponBtn) return;
 
     if (view === 'char') {
-      // 캐릭터 관리 화면 활성화
+      // 1. 화면 전환
       charView.style.display = "block";
       weaponView.style.display = "none";
-      charBtn.style.background = "#4a33cc";
-      weaponBtn.style.background = "#2a3158";
 
-      // 캐릭터 목록 다시 그리기
+      // 2. 버튼 스타일 전환 (캐릭터 관리 강조)
+      charBtn.style.background = "#4a33cc"; // 강조색
+      charBtn.style.border = "2px solid #fff"; // 흰색 테두리 추가
+
+      weaponBtn.style.background = "#2a3158"; // 기본색
+      weaponBtn.style.border = "2px solid transparent"; // 테두리 제거
+
+      // 3. 캐릭터 목록 다시 그리기
       if (typeof renderCharacterList === "function") renderCharacterList();
     } else {
-      // 무기 관리 화면 활성화
+      // 1. 화면 전환
       charView.style.display = "none";
       weaponView.style.display = "block";
-      weaponBtn.style.background = "#4a33cc";
-      charBtn.style.background = "#2a3158";
 
-      // 무기 화면 진입 시 귀검사 데이터 기본 로드
+      // 2. 버튼 스타일 전환 (무기 관리 강조)
+      weaponBtn.style.background = "#4a33cc"; // 강조색
+      weaponBtn.style.border = "2px solid #fff"; // 흰색 테두리 추가
+
+      charBtn.style.background = "#2a3158"; // 기본색
+      charBtn.style.border = "2px solid transparent"; // 테두리 제거
+
+      // 3. 무기 화면 진입 시 귀검사 데이터 기본 로드
       if (typeof selectWeaponJob === "function") selectWeaponJob('귀검사', true);
     }
 
