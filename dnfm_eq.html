@@ -176,83 +176,72 @@
 <body>
 
 <h1>캐릭터 장비 관리</h1>
-<div class="toolbar">
+
+<div class="toolbar" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 0;">
   <button class="action-btn" style="background: linear-gradient(135deg, #6a5acd, #483d8b);" onclick="exportJSON()">
     💎 JSON 저장 (백업)
   </button>
-  <label class="file-label" style="background: #2c3e50;">
+  <label class="file-label" style="background: #2c3e50; margin: 0; cursor: pointer;">
     📥 JSON 불러오기
-    <input type="file" id="jsonFile" accept=".json" onchange="importJSON(event)">
+    <input type="file" id="jsonFile" accept=".json" onchange="importJSON(event)" style="display:none;">
   </label>
 
-  <span style="display: inline-block; width: 1px; height: 30px; background: rgba(255,255,255,0.3); margin: 0 20px; vertical-align: middle;"></span>
+  <span style="display: inline-block; width: 1px; height: 30px; background: rgba(255,255,255,0.3); margin: 0 10px;"></span>
 
   <button class="action-btn" style="background: linear-gradient(135deg, #2ecc71, #27ae60);" onclick="showFullStatus('NORMAL')">🔍 일반장비</button>
   <button class="action-btn" style="background: linear-gradient(135deg, #e67e22, #d35400);" onclick="showFullStatus('PREFIX')">🔍 접두어장비</button>
   <button class="action-btn" style="background: linear-gradient(135deg, #e74c3c, #c0392b);" onclick="showFullStatus('EXCEED')">🔍 익시드장비</button>
+
+  <div style="width: 1px; height: 25px; background: #444; margin: 0 5px;"></div>
+
+  <button id="tab-char" class="modal-btn" style="background: #4a33cc; color: #ffffff; border: 1px solid #fff; font-weight: bold;" onclick="switchTo('char')">캐릭터 관리</button>
+  <button id="tab-weapon" class="modal-btn" style="background: #2a3158; color: #ffffff; border: 1px solid transparent;" onclick="switchTo('weapon')">무기 관리</button>
 </div>
 
-<button class="action-btn" onclick="showRecentUpdates()">🌟 최근 장비 업데이트 (TOP 10)</button>
+<button class="action-btn" onclick="showRecentUpdates()">🌟 최근 업데이트</button>
 
-<h2>[캐릭터]</h2>
-<div class="form-box">
-  <input type="text" id="newCharName" placeholder="이름 입력">
-  <input type="text" id="newCharJob" placeholder="직업 입력">
-  <button class="add-btn" onclick="addCharacter()">➕ 추가</button>
+<div id="updateModal" class="modal-overlay">
+  <div class="modal-content" style="min-width: 90vw; max-height: 85vh; overflow-y: auto;">
+    <h3>🌟 최근 장비 업데이트 (TOP 10)</h3>
+
+    <div id="updateModalContent"></div>
+
+    <div class="modal-options" style="margin-top: 30px;">
+      <button class="modal-btn modal-cancel-btn" onclick="closeUpdateModal()">닫기</button>
+    </div>
+  </div>
 </div>
-<div id="characterList"></div>
 
-<div id="setList"></div>
-<div id="panel"></div>
+<hr style="border: 0; height: 1px; background: #2a3158; margin-bottom: 20px;">
 
+<div id="section-character-view">
+  <h2>[캐릭터]</h2>
+  <div class="form-box">
+    <input type="text" id="newCharName" placeholder="이름 입력">
+    <input type="text" id="newCharJob" placeholder="직업 입력">
+    <button class="add-btn" onclick="addCharacter()">➕ 추가</button>
+  </div>
 
-<div id="weaponSection" style="margin-top: 40px; border-top: 1px dashed #2a3158; padding-top: 20px;">
+  <div id="characterList" class="char-grid"></div>
+  <div id="characterDetail" class="detail-container" style="display:none;"></div>
+
+  <div id="setList"></div>
+  <div id="panel"></div>
+</div>
+
+<div id="section-weapon-view" style="display: none; padding-top: 0;">
   <h2>[무기]</h2>
   <div class="toolbar" id="weaponJobButtons">
     <button class="char-btn" onclick="selectWeaponJob('귀검사')">귀검사</button>
     <button class="char-btn" onclick="selectWeaponJob('격투가')">격투가</button>
     <button class="char-btn" onclick="selectWeaponJob('거너')">거너</button>
-	<button class="char-btn" onclick="selectWeaponJob('마법사')">마법사</button>
+    <button class="char-btn" onclick="selectWeaponJob('마법사')">마법사</button>
     <button class="char-btn" onclick="selectWeaponJob('프리스트')">프리스트</button>
-	<button class="char-btn" onclick="selectWeaponJob('워리어')">워리어</button>
+    <button class="char-btn" onclick="selectWeaponJob('워리어')">워리어</button>
     <button class="char-btn" onclick="selectWeaponJob('마창사')">마창사</button>
     <button class="char-btn" onclick="selectWeaponJob('도적')">도적</button>
   </div>
   <div id="weaponPanel"></div>
-</div>
-
-
-<div id="actionModal" class="modal-overlay">
-  <div class="modal-content">
-    <h3 id="modalCharName"></h3>
-    <p>원하는 작업을 선택해 주세요.</p>
-    <div class="modal-options">
-      <button class="modal-btn modal-delete-btn" onclick="deleteCharacterConfirmed()">캐릭터 삭제</button>
-      <button class="modal-btn modal-reset-btn" onclick="resetCharacterStatsConfirmed()">수치 초기화</button>
-      <button class="modal-btn modal-cancel-btn" onclick="closeActionModal()">취소</button>
-    </div>
-  </div>
-</div>
-
-<div id="confirmModal" class="modal-overlay">
-  <div class="modal-content">
-    <h3 id="confirmTitle"></h3>
-    <p id="confirmMessage"></p>
-    <div class="modal-options">
-      <button class="modal-btn modal-delete-btn" id="confirmYes" onclick="handleConfirmedAction()">확인</button>
-      <button class="modal-btn modal-cancel-btn" onclick="closeConfirmModal()">취소</button>
-    </div>
-  </div>
-</div>
-
-<div id="updateModal" class="modal-overlay">
-  <div class="modal-content" style="min-width: 90vw;">
-    <h3>🌟 최근 장비 업데이트 (TOP 10)</h3>
-    <div id="updateModalContent"></div>
-    <div class="modal-options" style="margin-top: 30px;">
-      <button class="modal-btn modal-cancel-btn" onclick="closeUpdateModal()">닫기</button>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -1868,6 +1857,40 @@ function closePrefixFullModal() {
       scrollBox.scrollTop = 0;  // 스크롤 위치 초기화
       scrollBox.scrollTo(0, 0); // 일부 브라우저 호환성을 위해 추가
     }
+  }
+
+  // 💡 화면 탭 전환 함수
+  function switchTo(view) {
+    const charView = document.getElementById("section-character-view");
+    const weaponView = document.getElementById("section-weapon-view");
+    const charBtn = document.getElementById("tab-char");
+    const weaponBtn = document.getElementById("tab-weapon");
+
+    // 요소가 존재하는지 확인 (방어적 코드)
+    if (!charView || !weaponView) return;
+
+    if (view === 'char') {
+      // 캐릭터 관리 화면 활성화
+      charView.style.display = "block";
+      weaponView.style.display = "none";
+      charBtn.style.background = "#4a33cc";
+      weaponBtn.style.background = "#2a3158";
+
+      // 캐릭터 목록 다시 그리기
+      if (typeof renderCharacterList === "function") renderCharacterList();
+    } else {
+      // 무기 관리 화면 활성화
+      charView.style.display = "none";
+      weaponView.style.display = "block";
+      weaponBtn.style.background = "#4a33cc";
+      charBtn.style.background = "#2a3158";
+
+      // 무기 화면 진입 시 귀검사 데이터 기본 로드
+      if (typeof selectWeaponJob === "function") selectWeaponJob('귀검사', true);
+    }
+
+    // 탭 전환 시 화면 맨 위로 스크롤
+    window.scrollTo(0, 0);
   }
 </script>
 
