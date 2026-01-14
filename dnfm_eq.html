@@ -1776,7 +1776,7 @@ function closePrefixFullModal() {
     const content = document.getElementById("prefixFullContent");
     const mainTitle = modal.querySelector("h2");
 
-    // 1. 타이틀 설정 (매핑 처리)
+    // 1. 타이틀 설정
     const TITLE_MAP = {
       'NORMAL': "🌟 일반 장비 캐릭터별 슬롯 현황 (전체)",
       'PREFIX': "🌟 접두어 장비 캐릭터별 슬롯 현황 (전체)",
@@ -1784,21 +1784,20 @@ function closePrefixFullModal() {
     };
     mainTitle.textContent = TITLE_MAP[mode] || "🌟 장비 현황";
 
-    // 2. 카테고리 설정 (방어구, 악세, 특장 데이터 통합 관리)
+    // 2. 카테고리 설정
     const CATEGORIES = [
       { name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX },
       { name: "악세", sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX },
       { name: "특장", sets: SPECIAL_SETS, prefix: SPECIAL_PREFIX }
     ];
 
-    let fullHtml = ""; // HTML을 한 번에 조립하기 위한 변수
+    let fullHtml = "";
 
     CATEGORIES.forEach(cat => {
       Object.keys(cat.sets).forEach(baseSetName => {
         const prefixes = cat.prefix[baseSetName] || [];
         const slots = cat.sets[baseSetName];
 
-        // 3. 현재 모드에 해당하는 그룹 추출 로직 최적화
         let targetGroups = [];
         if (mode === 'NORMAL') {
           targetGroups.push({ display: baseSetName, full: baseSetName, isPrefix: false });
@@ -1812,10 +1811,8 @@ function closePrefixFullModal() {
           });
         }
 
-        // 표시할 데이터가 없으면 해당 세트는 건너뜀
         if (targetGroups.length === 0) return;
 
-        // 4. 테이블 생성 (문자열 조립 방식)
         fullHtml += `<h3 style="margin: 40px 0 15px 0; color: #fff; text-align: left;">[${baseSetName} 세트 캐릭터별 슬롯 현황]</h3>`;
         fullHtml += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
                 <thead style="background:#181c33;">
@@ -1829,7 +1826,6 @@ function closePrefixFullModal() {
         targetGroups.forEach(group => {
           let styledName = group.full;
 
-          // 이름 스타일링 (색상 코드 최적화)
           if (group.isPrefix) {
             const prefixPart = `<span style="color:#ffd700;">${group.display}</span>`;
             if (mode === 'EXCEED' && group.tag) {
@@ -1855,13 +1851,23 @@ function closePrefixFullModal() {
           });
           fullHtml += `</tr>`;
         });
-
         fullHtml += `</tbody></table>`;
       });
     });
 
+    // 💡 핵심 수정 부분: 순서 변경 및 타겟 명확화
     content.innerHTML = fullHtml || "<p style='color:#888; text-align:center;'>표시할 데이터가 없습니다.</p>";
+
+    // 1. 모달을 먼저 보여줍니다.
     modal.style.display = "flex";
+
+    // 2. 모달이 보여진 직후에 스크롤을 맨 위로 올립니다.
+    // #prefixFullModal 바로 아래에 있는 .modal-content를 정확히 지목합니다.
+    const scrollBox = modal.querySelector(".modal-content");
+    if (scrollBox) {
+      scrollBox.scrollTop = 0;  // 스크롤 위치 초기화
+      scrollBox.scrollTo(0, 0); // 일부 브라우저 호환성을 위해 추가
+    }
   }
 </script>
 
