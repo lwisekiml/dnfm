@@ -543,40 +543,45 @@ const WEAPON_PREFIXES = [
   let pendingActionType = null; // 현재 2차 확인 대기 중인 작업: 'delete' 또는 'reset'
 
   function openActionModal(charId, name, job) {
-    // 1. 현재 작업 대상 ID를 전역 변수에 저장 (삭제/초기화 시 참조용)
+    // 1. 현재 작업 대상 ID를 전역 변수에 저장
     currentActionCharId = charId;
 
     const modal = document.getElementById("actionModal");
+    // 💡 수정 포인트: modal 자체가 null인지 확인하고, 내부 content 영역을 안전하게 참조합니다.
+    if (!modal) return;
+
+    // 사용자님의 HTML 구조에 맞춰 클래스명이 modal-content인 요소를 찾습니다.
     const content = modal.querySelector(".modal-content");
+    if (!content) return;
 
-    // 2. 모달 내부 UI 생성
+    // 2. 모달 내부 UI 생성 (사용자님 코드 유지 + 오타 방지)
     content.innerHTML = `
-        <h2 style="margin-bottom:25px;">캐릭터 설정 수정</h2>
+      <h2 style="margin-bottom:25px; color:#fff;">캐릭터 설정 수정</h2>
 
-        <div style="margin-bottom:15px; display:flex; align-items:center;">
-            <label style="width:60px; font-weight:bold; color:#ccc;">이름 :</label>
-            <input type="text" id="edit-charName" value="${name}"
-                   style="flex:1; padding:8px; background:#181c33; color:#fff; border:1px solid #2a3158; border-radius:4px;">
-        </div>
+      <div style="margin-bottom:15px; display:flex; align-items:center;">
+          <label style="width:60px; font-weight:bold; color:#ccc;">이름 :</label>
+          <input type="text" id="edit-charName" value="${name}"
+                 style="flex:1; padding:8px; background:#181c33; color:#fff; border:1px solid #2a3158; border-radius:4px;">
+      </div>
 
-        <div style="margin-bottom:25px; display:flex; align-items:center;">
-            <label style="width:60px; font-weight:bold; color:#ccc;">직업 :</label>
-            <input type="text" id="edit-charJob" value="${job}"
-                   style="flex:1; padding:8px; background:#181c33; color:#fff; border:1px solid #2a3158; border-radius:4px;">
-        </div>
+      <div style="margin-bottom:25px; display:flex; align-items:center;">
+          <label style="width:60px; font-weight:bold; color:#ccc;">직업 :</label>
+          <input type="text" id="edit-charJob" value="${job}"
+                 style="flex:1; padding:8px; background:#181c33; color:#fff; border:1px solid #2a3158; border-radius:4px;">
+      </div>
 
-        <div class="modal-options" style="display:flex; flex-direction:column; gap:10px;">
-            <button type="button" class="modal-btn" style="background:#25c2a0; font-weight:bold;"
-                    onclick="updateCharacterInfo('${charId}')">정보 수정 완료</button>
-            <div style="display:flex; gap:8px;">
-                <button type="button" class="modal-btn" style="flex:1; background:#f39c12; font-size:0.9em;"
-                        onclick="resetCharacterStatsConfirmed()">수치 초기화</button>
-                <button type="button" class="modal-btn" style="flex:1; background:#e74c3c; font-size:0.9em;"
-                        onclick="deleteCharacterConfirmed()">캐릭터 삭제</button>
-            </div>
-            <button type="button" class="modal-btn" style="background:#444;" onclick="closeActionModal()">취소</button>
-        </div>
-    `;
+      <div class="modal-options" style="display:flex; flex-direction:column; gap:10px;">
+          <button type="button" class="modal-btn" style="background:#25c2a0; font-weight:bold; color:#fff;"
+                  onclick="updateCharacterInfo('${charId}')">정보 수정 완료</button>
+          <div style="display:flex; gap:8px;">
+              <button type="button" class="modal-btn" style="flex:1; background:#f39c12; font-size:0.9em; color:#fff;"
+                      onclick="resetCharacterStatsConfirmed()">수치 초기화</button>
+              <button type="button" class="modal-btn" style="flex:1; background:#e74c3c; font-size:0.9em; color:#fff;"
+                      onclick="deleteCharacterConfirmed()">캐릭터 삭제</button>
+          </div>
+          <button type="button" class="modal-btn" style="background:#444; color:#fff;" onclick="closeActionModal()">취소</button>
+      </div>
+  `;
     modal.style.display = "flex";
   }
 
@@ -618,19 +623,33 @@ const WEAPON_PREFIXES = [
     if (modal) modal.style.display = "none";
   }
 
-  // 2차 모달 (최종 확인) 제어
+  // 모달 닫기 (기존 코드와 동일)
   function closeConfirmModal() {
-    document.getElementById("confirmModal").style.display = 'none';
+    const modal = document.getElementById("confirmModal");
+    if (modal) modal.style.display = 'none';
   }
 
-  function openConfirmModal(title, message, actionType) {
-    // 1차 모달이 열려 있을 경우 닫음
-    closeActionModal();
+  // 2. 확인 모달 열기 함수 (에러 방지용 보완)
+  function openConfirmModal(title, message, onConfirm) {
+    const modal = document.getElementById("confirmModal");
+    const titleEl = document.getElementById("confirmTitle");
+    const messageEl = document.getElementById("confirmMessage");
+    const confirmBtn = document.getElementById("confirmYes");
 
-    pendingActionType = actionType;
-    document.getElementById("confirmTitle").textContent = title;
-    document.getElementById("confirmMessage").textContent = message;
-    document.getElementById("confirmModal").style.display = 'flex';
+    if (!modal || !titleEl || !messageEl || !confirmBtn) return;
+
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+
+    // 💡 핵심 수정: onclick에 함수를 직접 할당합니다.
+    confirmBtn.onclick = function() {
+      if (typeof onConfirm === "function") {
+        onConfirm(); // 여기서 전달받은 함수를 실행합니다.
+      }
+      closeConfirmModal();
+    };
+
+    modal.style.display = 'flex';
   }
 
   // 💡 새로 추가: 업데이트 모달 닫기 함수
@@ -639,25 +658,79 @@ const WEAPON_PREFIXES = [
   }
 
 
-  // 1차 모달에서 '캐릭터 삭제' 선택 시 (2차 모달 호출)
   function deleteCharacterConfirmed() {
-    if (!currentActionCharId) return;
-
     openConfirmModal(
-            "캐릭터 삭제 확인",
-            "캐릭터를 정말 삭제하시겠습니까? 해당 캐릭터의 모든 데이터가 영구적으로 지워집니다.",
-            'delete'
+            "캐릭터 삭제",
+            "정말로 이 캐릭터를 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.",
+            function() {
+              // 1. 전역 배열에서 해당 캐릭터 제외 (필터링)
+              characters = characters.filter(c => String(c.id) !== String(currentActionCharId));
+
+              // 2. 💡 수정 포인트: saveData 대신 실제 존재하는 saveLocalData 호출
+              saveLocalData();
+
+              // 3. 화면 UI 갱신 (리스트 다시 그리기)
+              renderCharacterList();
+
+              // 4. 삭제한 캐릭터가 현재 선택된 캐릭터였다면 상세 화면도 비우기
+              if (activeCharacterId === currentActionCharId) {
+                const setListEl = document.getElementById("setList");
+                const panelEl = document.getElementById("panel");
+                if (setListEl) setListEl.innerHTML = "";
+                if (panelEl) panelEl.innerHTML = "";
+                activeCharacterId = null;
+              }
+
+              // 5. 마무리
+              closeActionModal();
+              alert("삭제되었습니다.");
+            }
     );
   }
 
-  // 1차 모달에서 '수치 초기화' 선택 시 (2차 모달 호출)
   function resetCharacterStatsConfirmed() {
-    if (!currentActionCharId) return;
+    const targetId = currentActionCharId;
+
+    if (!targetId) {
+      alert("대상 캐릭터를 선택할 수 없습니다.");
+      return;
+    }
 
     openConfirmModal(
-            "수치 초기화 확인",
-            "장비 수치를 정말 초기화하시겠습니까? 현재 장착된 모든 장비 수치가 0이 됩니다.",
-            'reset'
+            "수치 초기화",
+            "이 캐릭터의 모든 장비 보유 현황 및 업데이트 기록을 초기화하시겠습니까?",
+            function() {
+              // 1. 캐릭터 데이터 찾기
+              const char = characters.find(c => String(c.id) === String(targetId));
+
+              if (char) {
+                // 2. 💡 핵심: 사용자님의 데이터 필드명(armorCounts, updateTimes)을 초기화합니다.
+                char.armorCounts = {};
+                char.updateTimes = {};
+
+                // 무기 정보가 있다면 함께 초기화
+                if (char.weaponCounts) char.weaponCounts = {};
+
+                // 3. 로컬 스토리지에 즉시 저장
+                saveLocalData();
+
+                // 4. 화면 UI 갱신
+                if (typeof renderCharacterList === "function") renderCharacterList();
+
+                // 5. 상세 보기 영역 비우기 (초기화되었으므로 이전 정보를 지웁니다)
+                const setListEl = document.getElementById("setList");
+                const panelEl = document.getElementById("panel");
+                if (setListEl) setListEl.innerHTML = "";
+                if (panelEl) panelEl.innerHTML = "";
+
+                activeCharacterId = null; // 선택 상태 해제
+
+                alert("모든 수치가 초기화되었습니다.");
+                closeActionModal(); // 설정 창 닫기
+              } else {
+                alert("캐릭터 데이터를 찾을 수 없습니다.");
+              }
+            }
     );
   }
 
@@ -718,33 +791,39 @@ const WEAPON_PREFIXES = [
   }
 
 
-  // ===== 캐릭터 버튼 렌더 =====
   function renderCharacterList(){
     const listEl = document.getElementById("characterList");
+    if (!listEl) return; // 요소가 없으면 중단
+
     listEl.innerHTML = "";
 
     characters.forEach((c) => {
       const wrapper = document.createElement("div");
       wrapper.className = "character-wrapper";
+      wrapper.style.display = "inline-flex"; // 버튼들이 나란히 붙도록 설정
+      wrapper.style.alignItems = "center";
+      wrapper.style.marginRight = "10px";
+      wrapper.style.marginBottom = "10px";
 
-      // ⚙️ 설정(톱니바퀴) 버튼 (기존 삭제 버튼 대체)
+      // ⚙️ 설정(톱니바퀴) 버튼
       const settingsBtn = document.createElement("button");
-      settingsBtn.textContent = "⚙️"; // 톱니바퀴로 변경
+      settingsBtn.textContent = "⚙️";
       settingsBtn.className = "settings-btn";
-      settingsBtn.onclick = () => {
-        // 수정 모드로 모달 호출
+      settingsBtn.style.cursor = "pointer";
+      settingsBtn.onclick = (e) => {
+        e.stopPropagation(); // 부모 클릭 이벤트 전파 방지
         openActionModal(c.id, c.name, c.job);
       };
 
       // 캐릭터 버튼
       const btn = document.createElement("button");
-      btn.className = "char-btn" + (c.id === activeCharacterId ? " active" : "");
+      btn.className = "char-btn" + (c.id === (typeof activeCharacterId !== 'undefined' ? activeCharacterId : null) ? " active" : "");
       btn.textContent = `${c.job} (${c.name})`;
       btn.onclick = () => {
-        showSetButtons(c);
+        if (typeof showSetButtons === "function") showSetButtons(c);
       };
 
-      wrapper.appendChild(settingsBtn); // 설정 버튼 먼저 추가
+      wrapper.appendChild(settingsBtn);
       wrapper.appendChild(btn);
       listEl.appendChild(wrapper);
     });
@@ -1897,6 +1976,22 @@ function closePrefixFullModal() {
 </div>
 </div>
 
+<div id="actionModal" class="modal-overlay" style="display:none;">
+  <div class="modal-content"></div>
+</div>
+
+<div id="confirmModal" class="modal-overlay" style="display:none;">
+  <div class="modal-content" style="min-width: 300px; text-align: center;">
+    <h3 id="confirmTitle" style="color: #fff; margin-bottom: 15px;"></h3>
+    <p id="confirmMessage" style="color: #ccc; margin-bottom: 25px;"></p>
+
+    <div class="modal-options" style="display: flex; gap: 10px; justify-content: center;">
+      <button id="confirmYes" class="modal-btn" style="background: #e74c3c; flex: 1; color: #fff;">확인</button>
+      <button class="modal-btn" style="background: #444; flex: 1; color: #fff;" onclick="closeConfirmModal()">취소</button>
+    </div>
+  </div>
+</div>
+
 <div id="prefixFullModal" class="modal-overlay">
   <div class="modal-content" style="min-width: 95vw; max-height: 90vh; overflow-y: auto; background: #0f1222; position: relative; text-align: left;">
     <button onclick="closePrefixFullModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 35px; cursor: pointer; line-height: 1; z-index: 10;">&times;</button>
@@ -1909,8 +2004,5 @@ function closePrefixFullModal() {
     </div>
   </div>
 </div>
-
-</body> </html>
-
 </body>
 </html>
