@@ -192,6 +192,11 @@
   <button class="action-btn" style="background: linear-gradient(135deg, #e67e22, #d35400);" onclick="showFullStatus('PREFIX')">🔍 접두어장비</button>
   <button class="action-btn" style="background: linear-gradient(135deg, #e74c3c, #c0392b);" onclick="showFullStatus('EXCEED')">🔍 익시드장비</button>
 
+  <button class="modal-btn" style="background: #6c5ce7; color: #fff;" onclick="showDetailedStatus('ALL')">모두</button>
+  <button class="modal-btn" style="background: #2ecc71; color: #fff;" onclick="showDetailedStatus('NORMAL')">일반</button>
+  <button class="modal-btn" style="background: #f1c40f; color: #fff;" onclick="showDetailedStatus('PREFIX')">접두어</button>
+  <button class="modal-btn" style="background: #e74c3c; color: #fff;" onclick="showDetailedStatus('EXCEED')">익시드</button>
+
   <div style="width: 1px; height: 25px; background: #444; margin: 0 5px;"></div>
 
   <button id="tab-char" class="modal-btn" style="background: #4a33cc; color: #ffffff; border: 1px solid #fff; font-weight: bold;" onclick="switchTo('char')">캐릭터 관리</button>
@@ -1847,6 +1852,149 @@ function closePrefixFullModal() {
     document.getElementById("prefixFullModal").style.display = 'none';
 }
 
+  function showDetailedStatus(mode) {
+    const modal = document.getElementById("prefixFullModal");
+    const content = document.getElementById("prefixFullContent");
+    const mainTitle = modal.querySelector("h2");
+
+    const TITLE_MAP = {
+      'ALL': "🌟 모든 장비 캐릭터별 슬롯 현황",
+      'NORMAL': "🌟 일반 장비 캐릭터별 슬롯 현황",
+      'PREFIX': "🌟 접두어 장비 캐릭터별 슬롯 현황",
+      'EXCEED': "🌟 익시드 장비 캐릭터별 슬롯 현황"
+    };
+    mainTitle.textContent = TITLE_MAP[mode] || "🌟 장비 현황";
+
+    const modalContent = modal.querySelector(".modal-content");
+    if (modalContent) {
+      modalContent.style.width = "max-content";
+      modalContent.style.maxWidth = "95vw";
+      modalContent.style.minWidth = "600px";
+      modalContent.style.margin = "50px auto";
+    }
+
+    const CATEGORIES = [
+      { name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX },
+      { name: "악세", sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX },
+      { name: "특장", sets: SPECIAL_SETS, prefix: SPECIAL_PREFIX }
+    ];
+
+    let fullHtml = "";
+
+    CATEGORIES.forEach(cat => {
+      Object.keys(cat.sets).forEach(baseSetName => {
+        const prefixes = cat.prefix[baseSetName] || [];
+        const slots = cat.sets[baseSetName];
+
+        let targetGroupKeys = [];
+        if (mode === 'NORMAL' || mode === 'ALL') {
+          targetGroupKeys.push({ full: baseSetName, display: "일반", type: 'NORMAL' });
+        }
+        if (mode === 'PREFIX' || mode === 'ALL') {
+          prefixes.forEach(p => targetGroupKeys.push({ full: `${p}: ${baseSetName}`, display: p, type: 'PREFIX' }));
+        }
+        if (mode === 'EXCEED' || mode === 'ALL') {
+          prefixes.forEach(p => {
+            EXCEED_TAGS.forEach(tag => {
+              targetGroupKeys.push({ full: `[${tag}] ${p}: ${baseSetName}`, display: p, tag: tag, type: 'EXCEED' });
+            });
+          });
+        }
+
+        if (targetGroupKeys.length === 0) return;
+
+        fullHtml += `<h3 style="margin: 40px 0 15px 0; color: #fff; text-align: left;">[${baseSetName} 세트 캐릭터별 슬롯 현황]</h3>`;
+
+        let headerHtml = `<thead style="background:#181c33;"><tr>
+          <th style="padding:12px; border:1px solid #2a3158; text-align:center;">직업</th>
+          <th style="padding:12px; border:1px solid #2a3158; text-align:center;">캐릭터</th>`;
+
+        if (mode === 'ALL' || mode === 'EXCEED') {
+          headerHtml += `<th style="padding:12px; border:1px solid #2a3158; text-align:center;">익시드</th>
+                       <th style="padding:12px; border:1px solid #2a3158; text-align:center;">접두어</th>`;
+        } else if (mode === 'PREFIX') {
+          headerHtml += `<th style="padding:12px; border:1px solid #2a3158; text-align:center;">접두어</th>`;
+        }
+
+        slots.forEach(s => { headerHtml += `<th style="padding:12px; border:1px solid #2a3158; text-align:center;">${s}</th>`; });
+        headerHtml += `<th style="padding:12px; border:1px solid #2a3158; text-align:center;">세트달성</th></tr></thead>`;
+
+        fullHtml += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #2a3158;">
+              ${headerHtml}
+              <tbody>`;
+
+        // 💡 직업 구분을 위한 변수 초기화
+        let currentJobInTable = "";
+
+        characters.forEach((char) => {
+          // 이 캐릭터가 가진 장비 행들을 미리 계산
+          let charRows = [];
+          targetGroupKeys.forEach(group => {
+            let hasAny = false;
+            slots.forEach(slot => {
+              if ((char.armorCounts?.[`${group.full} ${slot}`] || 0) > 0) hasAny = true;
+            });
+            if (hasAny) charRows.push(group);
+          });
+
+          // 💡 캐릭터가 장비를 하나라도 가지고 있을 때만 처리
+          charRows.forEach((group, idx) => {
+            // 직업이 바뀌었는지 판단:
+            // 1. 테이블에 표시된 마지막 직업과 현재 캐릭터의 직업이 다르고
+            // 2. 이 캐릭터의 첫 번째 장비 행(idx === 0)일 때만 선을 긋는다.
+            const isNewJobBlock = (currentJobInTable !== "" && currentJobInTable !== char.job && idx === 0);
+
+            if (idx === 0) currentJobInTable = char.job; // 현재 직업 업데이트
+
+            const borderStyle = isNewJobBlock ? "border-top: 2px solid #5560a0;" : ""; // #2a3158: 지금 테두리보다 약간만 밝은 색
+
+            let rowSlotsHtml = "";
+            let setTotal = 0;
+            slots.forEach(slot => {
+              const count = (char.armorCounts?.[`${group.full} ${slot}`] || 0);
+              if (count > 0) {
+                setTotal++;
+                rowSlotsHtml += `<td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; color:#ffd700; font-weight:bold;">${count}</td>`;
+              } else {
+                rowSlotsHtml += `<td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; color:#444;">0</td>`;
+              }
+            });
+
+            let rowInfoHtml = "";
+            if (mode === 'ALL' || mode === 'EXCEED') {
+              if (group.type === 'NORMAL') {
+                rowInfoHtml = `<td style="border:1px solid #2a3158; ${borderStyle}"></td><td style="border:1px solid #2a3158; ${borderStyle}"></td>`;
+              } else if (group.type === 'PREFIX') {
+                rowInfoHtml = `<td style="border:1px solid #2a3158; ${borderStyle}"></td>
+                             <td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; color:#ffd700; font-weight:bold; background:#181c33;">${group.display}</td>`;
+              } else if (group.type === 'EXCEED') {
+                const TAG_COLORS = { "이상": "#2ecc71", "선봉": "#ff4d4d", "의지": "#4d94ff" };
+                const tagColor = TAG_COLORS[group.tag] || "#ffd700";
+                rowInfoHtml = `<td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; color:${tagColor}; font-weight:bold; background:#181c33;">[${group.tag}]</td>
+                             <td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; color:#ffd700; font-weight:bold; background:#181c33;">${group.display}</td>`;
+              }
+            } else if (mode === 'PREFIX') {
+              rowInfoHtml = `<td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; color:#ffd700; font-weight:bold; background:#181c33;">${group.display}</td>`;
+            }
+
+            fullHtml += `<tr>
+                    <td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; background:#181c33; color:#ccc; font-size:0.9em; white-space:nowrap;">${char.job}</td>
+                    <td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; background:#181c33; color:#fff; white-space:nowrap;">${char.name}</td>
+                    ${rowInfoHtml}
+                    ${rowSlotsHtml}
+                    <td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; font-weight:bold; color:${setTotal >= 5 ? '#2ecc71' : '#fff'};">${setTotal}</td>
+                  </tr>`;
+          });
+        });
+        fullHtml += `</tbody></table>`;
+      });
+    });
+
+    content.innerHTML = fullHtml || "<p style='color:#888; text-align:center; padding:50px;'>표시할 데이터가 없습니다.</p>";
+    modal.style.display = "flex";
+    if (modalContent) modalContent.scrollTop = 0;
+  }
+
   function showFullStatus(mode) {
     const modal = document.getElementById("prefixFullModal");
     const content = document.getElementById("prefixFullContent");
@@ -1989,6 +2137,29 @@ function closePrefixFullModal() {
     // 탭 전환 시 화면 맨 위로 스크롤
     window.scrollTo(0, 0);
   }
+
+  // 팝업 창 바깥 클릭 시 닫기 기능
+  window.onclick = function(event) {
+    // 열려있는 모든 모달 ID를 배열로 넣으세요 (필요시 추가)
+    const modals = [
+      document.getElementById("prefixFullModal"),
+      // 만약 다른 캐릭터 상세 모달 등이 있다면 여기에 ID 추가
+    ];
+
+    modals.forEach(modal => {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+  };
+
+  // 모바일 터치 대응 (터치 시작 시 닫기)
+  window.ontouchstart = function(event) {
+    const modal = document.getElementById("prefixFullModal");
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  };
 </script>
 
 </div>
