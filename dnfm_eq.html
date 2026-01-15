@@ -1923,11 +1923,9 @@ function closePrefixFullModal() {
               ${headerHtml}
               <tbody>`;
 
-        // 💡 직업 구분을 위한 변수 초기화
         let currentJobInTable = "";
 
         characters.forEach((char) => {
-          // 이 캐릭터가 가진 장비 행들을 미리 계산
           let charRows = [];
           targetGroupKeys.forEach(group => {
             let hasAny = false;
@@ -1937,16 +1935,11 @@ function closePrefixFullModal() {
             if (hasAny) charRows.push(group);
           });
 
-          // 💡 캐릭터가 장비를 하나라도 가지고 있을 때만 처리
           charRows.forEach((group, idx) => {
-            // 직업이 바뀌었는지 판단:
-            // 1. 테이블에 표시된 마지막 직업과 현재 캐릭터의 직업이 다르고
-            // 2. 이 캐릭터의 첫 번째 장비 행(idx === 0)일 때만 선을 긋는다.
             const isNewJobBlock = (currentJobInTable !== "" && currentJobInTable !== char.job && idx === 0);
+            if (idx === 0) currentJobInTable = char.job;
 
-            if (idx === 0) currentJobInTable = char.job; // 현재 직업 업데이트
-
-            const borderStyle = isNewJobBlock ? "border-top: 2px solid #5560a0;" : ""; // #2a3158: 지금 테두리보다 약간만 밝은 색
+            const borderStyle = isNewJobBlock ? "border-top: 2px solid #5560a0;" : "";
 
             let rowSlotsHtml = "";
             let setTotal = 0;
@@ -1954,7 +1947,8 @@ function closePrefixFullModal() {
               const count = (char.armorCounts?.[`${group.full} ${slot}`] || 0);
               if (count > 0) {
                 setTotal++;
-                rowSlotsHtml += `<td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; color:#ffd700; font-weight:bold;">${count}</td>`;
+                // 💡 부위별 보유 숫자를 흰색(#fff)으로 변경
+                rowSlotsHtml += `<td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; color:#fff; font-weight:bold;">${count}</td>`;
               } else {
                 rowSlotsHtml += `<td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; color:#444;">0</td>`;
               }
@@ -1977,12 +1971,22 @@ function closePrefixFullModal() {
               rowInfoHtml = `<td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; color:#ffd700; font-weight:bold; background:#181c33;">${group.display}</td>`;
             }
 
+            // 💡 세트달성 색상 규칙 적용
+            let setTotalColor = '#fff'; // 기본 흰색
+            if (setTotal === 5) {
+              setTotalColor = '#ffd700'; // 5세트: 노란색
+            } else if (setTotal >= 3) {
+              setTotalColor = '#2ecc71'; // 3, 4세트: 초록색
+            }
+
             fullHtml += `<tr>
-                    <td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; background:#181c33; color:#ccc; font-size:0.9em; white-space:nowrap;">${char.job}</td>
-                    <td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; background:#181c33; color:#fff; white-space:nowrap;">${char.name}</td>
+                    <td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; background:#181c33; color:#fff; font-size:15px; font-weight:800; font-family:'Malgun Gothic', sans-serif; white-space:nowrap;">${char.job}</td>
+
+                    <td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; background:#181c33; color:#ccc; font-size:12px; font-family:'Malgun Gothic', sans-serif; white-space:nowrap;">${char.name}</td>
+
                     ${rowInfoHtml}
                     ${rowSlotsHtml}
-                    <td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; font-weight:bold; color:${setTotal >= 5 ? '#2ecc71' : '#fff'};">${setTotal}</td>
+                    <td style="padding:10px; border:1px solid #2a3158; ${borderStyle} text-align:center; font-weight:bold; color:${setTotalColor};">${setTotal}</td>
                   </tr>`;
           });
         });
