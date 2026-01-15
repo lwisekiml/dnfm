@@ -1154,57 +1154,59 @@ function openSet(setName, char){
       cell.style.width = globalSlotWidth + "px";
     });
 
+
+    // [캐릭터별 슬롯 현황]
     // ✅ 요약 패널 영역에 필터 버튼 추가
-    const summaryHeader = document.createElement("div");
-    summaryHeader.innerHTML = `<h2>[${setName} 세트 캐릭터별 슬롯 현황]</h2>`;
-    
-    const filterContainer = document.createElement("div");
-    filterContainer.className = "toolbar"; // 기존 toolbar 스타일 재활용
-    filterContainer.style.marginBottom = "20px";
-    filterContainer.style.marginTop = "10px";
-
-  // openSet 함수 내 필터 버튼 정의 부분 (수정/추가)
-  const filters = [
-    { id: 'ALL', text: '모두' },
-    { id: 'BASE', text: '일반' },
-    { id: 'PREFIX', text: '접두어' },
-    { id: 'EXCEED', text: '익시드' },
-    { id: 'BASE_CHAR', text: '일반(캐릭)' },
-    { id: 'PREFIX_CHAR', text: '접두어(캐릭)' }, // 추가
-    { id: 'EXCEED_CHAR', text: '익시드(캐릭)' }  // 추가
-  ];
-
-    filters.forEach(filter => {
-        const btn = document.createElement("button");
-        btn.textContent = filter.text;
-        btn.className = "action-btn set-btn"; // set-btn 스타일을 재활용하여 버튼 모양 생성
-        btn.style.minWidth = 'unset'; // 너비 제한 해제
-        btn.style.background = '#4a3f7a'; // 배경색 통일 (file-label 색상 재활용)
-        // btn.style.borderColor = 'transparent'; // 기본 테두리 제거
-
-        // 현재 필터와 일치하면 'selected' 클래스 추가 (흰색 테두리)
-        if (currentFilter === filter.id) {
-            btn.classList.add('selected');
-        }
-
-        btn.onclick = () => {
-            currentFilter = filter.id;
-            // 모든 버튼에서 selected 제거
-            filterContainer.querySelectorAll('.set-btn').forEach(b => b.classList.remove('selected'));
-            // 현재 클릭된 버튼에 selected 추가
-            btn.classList.add('selected');
-            
-            // 필터링된 내용을 다시 렌더링
-            showSetSlotSummary(setName);
-        };
-        filterContainer.appendChild(btn);
-    });
-    
-    panel.appendChild(summaryHeader);
-    panel.appendChild(filterContainer);
-    
-    // ✅ 필터에 맞게 요약 패널 렌더링
-    showSetSlotSummary(setName);
+  //   const summaryHeader = document.createElement("div");
+  //   summaryHeader.innerHTML = `<h2>[${setName} 세트 캐릭터별 슬롯 현황]</h2>`;
+  //
+  //   const filterContainer = document.createElement("div");
+  //   filterContainer.className = "toolbar"; // 기존 toolbar 스타일 재활용
+  //   filterContainer.style.marginBottom = "20px";
+  //   filterContainer.style.marginTop = "10px";
+  //
+  // // openSet 함수 내 필터 버튼 정의 부분 (수정/추가)
+  // const filters = [
+  //   { id: 'ALL', text: '모두' },
+  //   { id: 'BASE', text: '일반' },
+  //   { id: 'PREFIX', text: '접두어' },
+  //   { id: 'EXCEED', text: '익시드' },
+  //   { id: 'BASE_CHAR', text: '일반(캐릭)' },
+  //   { id: 'PREFIX_CHAR', text: '접두어(캐릭)' }, // 추가
+  //   { id: 'EXCEED_CHAR', text: '익시드(캐릭)' }  // 추가
+  // ];
+  //
+  //   filters.forEach(filter => {
+  //       const btn = document.createElement("button");
+  //       btn.textContent = filter.text;
+  //       btn.className = "action-btn set-btn"; // set-btn 스타일을 재활용하여 버튼 모양 생성
+  //       btn.style.minWidth = 'unset'; // 너비 제한 해제
+  //       btn.style.background = '#4a3f7a'; // 배경색 통일 (file-label 색상 재활용)
+  //       // btn.style.borderColor = 'transparent'; // 기본 테두리 제거
+  //
+  //       // 현재 필터와 일치하면 'selected' 클래스 추가 (흰색 테두리)
+  //       if (currentFilter === filter.id) {
+  //           btn.classList.add('selected');
+  //       }
+  //
+  //       btn.onclick = () => {
+  //           currentFilter = filter.id;
+  //           // 모든 버튼에서 selected 제거
+  //           filterContainer.querySelectorAll('.set-btn').forEach(b => b.classList.remove('selected'));
+  //           // 현재 클릭된 버튼에 selected 추가
+  //           btn.classList.add('selected');
+  //
+  //           // 필터링된 내용을 다시 렌더링
+  //           showSetSlotSummary(setName);
+  //       };
+  //       filterContainer.appendChild(btn);
+  //   });
+  //
+  //   panel.appendChild(summaryHeader);
+  //   panel.appendChild(filterContainer);
+  //
+  //   // ✅ 필터에 맞게 요약 패널 렌더링
+  //   showSetSlotSummary(setName);
 }
 
 // ===== 캐릭터별 슬롯 요약 (수정됨) =====
