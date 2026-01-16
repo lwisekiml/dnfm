@@ -41,21 +41,21 @@
     /* 세트 버튼 */
     .set-btn {
       margin:5px; padding:8px 14px; min-width:180px;
-      background:#181c33; 
+      background:#181c33;
       /* 🚨 이 부분을 수정했습니다: 1px -> 3px solid transparent로 변경하여 공간 확보 */
-      border:3px solid transparent; 
+      border:3px solid transparent;
       border-radius:6px;
       color:#e6e9ff; font-weight:bold; cursor:pointer; transition:0.2s;
       text-align:center; white-space:nowrap;
     }
-    .set-btn:hover { 
-        background:#2a3158; 
-        /* 호버 시 테두리 색상만 살짝 변경 (움직임 방지) */
-        border-color: #3a4270; 
+    .set-btn:hover {
+      background:#2a3158;
+      /* 호버 시 테두리 색상만 살짝 변경 (움직임 방지) */
+      border-color: #3a4270;
     }
     .set-btn.set3 { background-color:#25c2a0; color:#fff; }
     .set-btn.set5 { background-color:#ffd700; color:#000; }
-    
+
     /* 세트 버튼 선택 시 */
     .set-btn.selected {
       /* 3px 두께가 유지되므로 움직임 없음 */
@@ -113,15 +113,15 @@
     .set-btn .count-3 { color: #000000; /* 밝은 파란색 */ font-weight: bold; }
     .set-btn .count-5 { color: #ff4d4f; /* 밝은 빨간색 */ font-weight: bold; }
 
-	/* CSS 섹션에 추가 (선택 사항) */
-.exceed-tag {
-    color: #25c2a0; /* 초록색 */
-    font-weight: bold;
-}
-.prefix-tag {
-    color: #e6b800; /* 연한 노란색 */
-    font-weight: bold;
-}
+    /* CSS 섹션에 추가 (선택 사항) */
+    .exceed-tag {
+      color: #25c2a0; /* 초록색 */
+      font-weight: bold;
+    }
+    .prefix-tag {
+      color: #e6b800; /* 연한 노란색 */
+      font-weight: bold;
+    }
 
     /* ========================= */
     /* 모달 스타일 */
@@ -171,6 +171,15 @@
       background: #25c2a0 !important;
       color: white;
     }
+
+    /* 무기 관리 버튼의 활성화 상태와 동일하게 설정 */
+    .char-btn.active {
+      border-color: #ffd700 !important;
+      color: #ffd700 !important;
+      background: rgba(255, 215, 0, 0.1) !important; /* 살짝 노란 배경광 */
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); /* 외부 광채 */
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -207,21 +216,18 @@
 <button class="action-btn" onclick="showRecentUpdates()">🌟 최근 업데이트</button>
 
 <div id="section-equipment-view" style="display:none; padding: 20px;">
-  <div class="toolbar" style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px;">
-    <button class="action-btn" onclick="renderEquipmentTab('ALL')">모두(캐릭)</button>
-    <button class="action-btn" onclick="renderEquipmentTab('NORMAL')">일반장비(캐릭)</button>
-    <button class="action-btn" onclick="renderEquipmentTab('PREFIX')">접두어장비(캐릭)</button>
-    <button class="action-btn" onclick="renderEquipmentTab('EXCEED')">익시드장비(캐릭)</button>
+  <div class="toolbar" style="margin-bottom: 20px; display: flex; flex-direction: row; flex-wrap: nowrap; gap: 8px; overflow-x: auto; padding-bottom: 10px;">
+    <button class="char-btn active" style="flex: 1; white-space: nowrap;" onclick="renderEquipmentTab('ALL'); setActiveEquipmentButton(this)">모두</button>
+    <button class="char-btn" style="flex: 1; white-space: nowrap;" onclick="renderEquipmentTab('NORMAL'); setActiveEquipmentButton(this)">일반장비</button>
+    <button class="char-btn" style="flex: 1; white-space: nowrap;" onclick="renderEquipmentTab('PREFIX'); setActiveEquipmentButton(this)">접두어장비</button>
+    <button class="char-btn" style="flex: 1; white-space: nowrap;" onclick="renderEquipmentTab('EXCEED'); setActiveEquipmentButton(this)">익시드장비</button>
 
-    <div style="width:100%; height:1px; background:#333; margin: 5px 0;"></div>
-
-    <button class="action-btn" onclick="renderFullEquipmentTab('NORMAL')">일반(전체)</button>
-    <button class="action-btn" onclick="renderFullEquipmentTab('PREFIX')">접두어(전체)</button>
-    <button class="action-btn" onclick="renderFullEquipmentTab('EXCEED')">익시드(전체)</button>
+    <button class="char-btn" style="flex: 1; white-space: nowrap; border-color: #ffd700;" onclick="renderFullEquipmentTab('NORMAL'); setActiveEquipmentButton(this)">일반</button>
+    <button class="char-btn" style="flex: 1; white-space: nowrap; border-color: #ffd700;" onclick="renderFullEquipmentTab('PREFIX'); setActiveEquipmentButton(this)">접두어</button>
+    <button class="char-btn" style="flex: 1; white-space: nowrap; border-color: #ffd700;" onclick="renderFullEquipmentTab('EXCEED'); setActiveEquipmentButton(this)">익시드</button>
   </div>
 
-  <div id="equipment-display-area" style="overflow-x: auto; background: #0f1222; padding: 15px; border-radius: 8px;">
-    <p style="color: #888; text-align: center;">버튼을 클릭하면 현황표가 여기에 표시됩니다.</p>
+  <div id="equipment-display-area" style="overflow-x: auto; background: #0f1222; padding: 15px; border-radius: 8px; border: 1px solid #2a3158;">
   </div>
 </div>
 
@@ -416,13 +422,13 @@ const WEAPON_DATA_PRIEST = {
 
 const WEAPON_DATA_WARRIOR = {
     "락소드": [
-        "대서사의 탄생 - 락소드", 
-        "우주적 기운의 락소드", 
+        "대서사의 탄생 - 락소드",
+        "우주적 기운의 락소드",
         "라이프 파인더"
     ],
     "윙블레이드": [
-        "대서사의 탄생 - 윙블레이드", 
-        "프로스트 윙 블레이드", 
+        "대서사의 탄생 - 윙블레이드",
+        "프로스트 윙 블레이드",
         "코카트리스"
     ]
 };
@@ -895,10 +901,10 @@ const WEAPON_PREFIXES = [
       renderCharacterList(); // 선택 표시(노란불) 해제
       return;
     }
-    
+
     // 캐릭터 선택 상태 업데이트 및 노란색 불 켜기
-    activeCharacterId = char.id; 
-    renderCharacterList(); 
+    activeCharacterId = char.id;
+    renderCharacterList();
 
     setList.innerHTML = "";
 
@@ -1012,7 +1018,7 @@ function makeSetButton(setName, char){
     // 배경색 적용
     if(final_count5 > 0) btn.classList.add("set5");
     else if(final_count3 > 0) btn.classList.add("set3");
-    
+
     // [선택 상태 유지 로직 추가]: 현재 선택된 세트와 이름이 같으면 selected 클래스 유지
     if (currentSetName === setName && currentChar && currentChar.id === char.id) {
         btn.classList.add("selected");
@@ -1030,10 +1036,10 @@ function makeSetButton(setName, char){
         document.querySelectorAll(".set-btn").forEach(b => b.classList.remove("selected"));
         // [선택 로직 추가]: 현재 클릭된 버튼에 'selected' 클래스 추가
         event.currentTarget.classList.add("selected");
-        
+
         openSet(setName, char);
     };
-    
+
     return btn;
 }
 
@@ -1076,7 +1082,7 @@ function makeRow(name, setName, char){
     // =========================================================
     let itemName = name;
     let finalHtmlName = itemName;
-    
+
     // 1. 익시드 태그 ([Tag]) 처리 (태그 제거 및 스타일링된 태그 생성)
     const exceedMatch = itemName.match(/^(\[.*?\])\s*(.*)/);
     let exceedTagHtml = '';
@@ -1094,24 +1100,24 @@ function makeRow(name, setName, char){
         } else if (tag === '[의지]') {
             color = '#3399cc'; // 파란색
         }
-        
+
         exceedTagHtml = `<span style="color:${color}; font-weight:bold;">${tag}</span> `;
     }
-    
+
     // 2. 접두어 (Prefix:) 처리 (노란색 적용)
     let baseNameHtml = nameWithoutTag; // 익시드 태그가 있었든 없었든, 나머지 이름
-    
+
     const prefixMatch = nameWithoutTag.match(/(.+?):\s*(.+)/);
-    
+
     if (prefixMatch) {
         const prefix = prefixMatch[1]; // 예: 전격
         const baseSet = prefixMatch[2]; // 예: 어느 말괄량이의 탐사복
-        
+
         const styledPrefix = `<span style="color:#e6b800; font-weight:bold;">${prefix}</span>`;
-        
+
         baseNameHtml = `${styledPrefix}: ${baseSet}`;
     }
-    
+
     // 3. 최종 HTML 문자열 조립
     finalHtmlName = exceedTagHtml + baseNameHtml;
     // =========================================================
@@ -1119,7 +1125,7 @@ function makeRow(name, setName, char){
     // =========================================================
 
     let html = `<td style="text-align:left;">${finalHtmlName}</td>`; // 최종 HTML을 삽입
-    
+
     slots.forEach(slot => {
       let key = `${name} ${slot}`;
       const val = char.armorCounts[key] || 0;
@@ -1146,9 +1152,9 @@ let currentFilter = 'ALL'; // 💡 현재 선택된 필터 ('ALL', 'BASE', 'PREF
 function openSet(setName, char){
     // 세트가 변경될 때마다 기본 필터를 'ALL'로 초기화하고 UI 업데이트
     if (currentSetName !== setName || currentChar?.id !== char.id) {
-         currentFilter = 'ALL'; 
+         currentFilter = 'ALL';
     }
-    
+
     currentSetName = setName;
     currentChar = char;
 
@@ -1249,7 +1255,7 @@ function showSetSlotSummary(setName){
         document.getElementById("panel").appendChild(tableContainer);
     }
     tableContainer.innerHTML = '';
-    
+
     const slots = ALL_SETS[setName] || [];
     const table = document.createElement("table");
     const prefixes = ALL_PREFIX[setName] || [];
@@ -1334,7 +1340,7 @@ function showSetSlotSummary(setName){
         // 슬롯별 합계 계산 (현재 필터에 맞게)
         slots.forEach(slot => {
             let total = calculateSlotCountByFilter(char, setName, slot, currentFilter);
-            
+
             if(total > 0) hasAny = true;
             html += `<td>${total}</td>`;
         });
@@ -1359,7 +1365,7 @@ function showSetSlotSummary(setName){
         }
 
         const tr = document.createElement("tr");
-        
+
         // '모두' 필터일 경우에만 시각 강조 (총 고유 부위 개수 기준)
         if (!isFiltered) {
             const totalDistinct = calcTotalDistinctParts(char, setName);
@@ -1383,18 +1389,18 @@ function showSetSlotSummary(setName){
 // ===== [신규 함수] 필터별 슬롯 개수 계산 =====
 function calculateSlotCountByFilter(char, setName, slot, filter) {
     const prefixes = ALL_PREFIX[setName] || [];
-    
+
     let total = 0;
-    
+
     // 검색 대상 그룹 목록 정의
     const baseGroup = setName;
     const prefixedGroups = prefixes.map(p => `${p}: ${setName}`);
-    const exceedGroups = prefixes.flatMap(p => 
+    const exceedGroups = prefixes.flatMap(p =>
         EXCEED_TAGS.map(tag => `[${tag}] ${p}: ${setName}`)
     );
 
     let groupsToSearch = [];
-    
+
     if (filter === 'ALL') {
         // '모두': 일반, 접두어, 익시드 모두 합산
         groupsToSearch = [baseGroup, ...prefixedGroups, ...exceedGroups];
@@ -1585,10 +1591,10 @@ function exportJSON() {
     const dataStr = JSON.stringify(characters, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    
+
     const a = document.createElement("a");
     a.href = url;
-    a.download = fileName; 
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1663,10 +1669,10 @@ function incrementWeapon(charId, key, jobName) {
     const char = characters.find(c => c.id === charId);
     if (!char) return;
     if (!char.weaponCounts) char.weaponCounts = {};
-    
+
     char.weaponCounts[key] = (char.weaponCounts[key] || 0) + 1;
     char.updateTimes[key] = Date.now(); // 업데이트 시간 기록
-    
+
     saveLocalData();    // 🔥 여기서 로컬 스토리지에 저장!
     selectWeaponJob(jobName, true); // 화면 갱신
 }
@@ -1676,11 +1682,11 @@ function decrementWeapon(charId, key, jobName) {
     const char = characters.find(c => c.id === charId);
     if (!char) return;
     if (!char.weaponCounts) char.weaponCounts = {};
-    
+
     const cur = char.weaponCounts[key] || 0;
     char.weaponCounts[key] = Math.max(0, cur - 1);
     char.updateTimes[key] = Date.now();
-    
+
     saveLocalData();    // 🔥 여기서 로컬 스토리지에 저장!
     selectWeaponJob(jobName, true); // 화면 갱신
 }
@@ -1794,7 +1800,7 @@ function decrementWeapon(charId, key, jobName) {
   }
 
 // 💡 강조 상태를 관리하기 위한 전역 변수 (기존 Set에서 단일 변수로 변경)
-let highlightedColumnIndex = null; 
+let highlightedColumnIndex = null;
 
 function toggleColumnHighlight(colIdx) {
     // 💡 이미 선택된 열을 다시 누르면 해제, 아니면 해당 열 번호 저장
@@ -1813,10 +1819,10 @@ function applyStoredHighlights() {
     const rows = table.rows;
     for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].cells;
-        
+
         // 종류/무기이름 셀을 제외한 실제 캐릭터 데이터 셀들의 시작 위치 계산
         const charStartIdx = cells.length - characters.length;
-        
+
         characters.forEach((_, charIdx) => {
             const currentCellIdx = charStartIdx + charIdx;
             const absoluteColIdx = charIdx + 2; // 캐릭터의 고유 순번(2번부터 시작)
@@ -2127,7 +2133,17 @@ function closePrefixFullModal() {
     // 탭별 초기 데이터 로드
     if (view === 'char') renderCharacterList();
     if (view === 'weapon') selectWeaponJob('귀검사', true);
-    if (view === 'equipment') renderEquipmentTab('ALL'); // 기본값: 모두(캐릭)
+    if (view === 'equipment') {
+      renderEquipmentTab('ALL');
+
+      // 장비 관리 툴바의 첫 번째 버튼을 찾아서 active 클래스 부여
+      const equipmentToolbar = document.querySelector("#section-equipment-view .toolbar");
+      const firstBtn = equipmentToolbar.querySelector(".char-btn");
+
+      // 모든 장비 버튼 초기화 후 첫 번째 버튼만 켬
+      equipmentToolbar.querySelectorAll(".char-btn").forEach(b => b.classList.remove("active"));
+      if (firstBtn) firstBtn.classList.add("active");
+    }
 
     window.scrollTo(0, 0);
   }
@@ -2332,6 +2348,17 @@ function closePrefixFullModal() {
       else confirmModal.style.display = 'none';
     }
   };
+
+  // 장비 관리 버튼 활성화 로직 (무기 관리 방식 참조)
+  function setActiveEquipmentButton(clickedBtn) {
+    // 1. 장비 관리 툴바 내의 모든 char-btn에서 active 클래스 제거
+    const toolbar = clickedBtn.parentElement;
+    const buttons = toolbar.querySelectorAll('.char-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    // 2. 클릭된 버튼에만 active 클래스 추가 (노란 불빛 발생)
+    clickedBtn.classList.add('active');
+  }
 </script>
 
 </div>
@@ -2356,10 +2383,10 @@ function closePrefixFullModal() {
 <div id="prefixFullModal" class="modal-overlay">
   <div class="modal-content" style="min-width: 95vw; max-height: 90vh; overflow-y: auto; background: #0f1222; position: relative; text-align: left;">
     <button onclick="closePrefixFullModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 35px; cursor: pointer; line-height: 1; z-index: 10;">&times;</button>
-    
+
     <h2 style="color: #fff; margin-bottom: 20px; text-align: left;">🌟 접두어 세트 캐릭터별 슬롯 현황 (전체)</h2>
     <div id="prefixFullContent"></div>
-    
+
     <div class="modal-options" style="margin-top: 30px; text-align: center;">
       <button class="modal-btn modal-cancel-btn" onclick="closePrefixFullModal()">닫기</button>
     </div>
