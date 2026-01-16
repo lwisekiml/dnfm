@@ -201,8 +201,10 @@
 
   <button id="tab-char" class="modal-btn" style="background: #4a33cc; color: #ffffff; border: 1px solid #fff; font-weight: bold;" onclick="switchTo('char')">캐릭터 관리</button>
   <button id="tab-weapon" class="modal-btn" style="background: #2a3158; color: #ffffff; border: 1px solid transparent;" onclick="switchTo('weapon')">무기 관리</button>
-  <button id="tab-equipment" onclick="switchTo('equipment')">장비 관리</button>
+  <button id="tab-equipment" class="modal-btn" style="background: #2a3158; color: #ffffff; border: 1px solid transparent;" onclick="switchTo('equipment')">장비 관리</button>
 </div>
+
+<button class="action-btn" onclick="showRecentUpdates()">🌟 최근 업데이트</button>
 
 <div id="section-equipment-view" style="display:none; padding: 20px;">
   <div class="toolbar" style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px;">
@@ -223,7 +225,6 @@
   </div>
 </div>
 
-<button class="action-btn" onclick="showRecentUpdates()">🌟 최근 업데이트</button>
 
 <div id="updateModal" class="modal-overlay">
   <div class="modal-content" style="min-width: 90vw; max-height: 85vh; overflow-y: auto;">
