@@ -188,37 +188,37 @@
 
   <span style="display: inline-block; width: 1px; height: 30px; background: rgba(255,255,255,0.3); margin: 0 10px;"></span>
 
-  <button class="action-btn" style="background: linear-gradient(135deg, #2ecc71, #27ae60);" onclick="showFullStatus('NORMAL')">🔍 일반장비</button>
-  <button class="action-btn" style="background: linear-gradient(135deg, #e67e22, #d35400);" onclick="showFullStatus('PREFIX')">🔍 접두어장비</button>
-  <button class="action-btn" style="background: linear-gradient(135deg, #e74c3c, #c0392b);" onclick="showFullStatus('EXCEED')">🔍 익시드장비</button>
+  <button class="action-btn" style="background: linear-gradient(135deg, #2ecc71, #27ae60);" onclick="showEquipmentSummary('NORMAL')">🔍 일반장비</button>
+  <button class="action-btn" style="background: linear-gradient(135deg, #e67e22, #d35400);" onclick="showEquipmentSummary('PREFIX')">🔍 접두어장비</button>
+  <button class="action-btn" style="background: linear-gradient(135deg, #e74c3c, #c0392b);" onclick="showEquipmentSummary('EXCEED')">🔍 익시드장비</button>
 
-  <button class="modal-btn" style="background: #6c5ce7; color: #fff;" onclick="showDetailedStatus('ALL')">모두</button>
-  <button class="modal-btn" style="background: #2ecc71; color: #fff;" onclick="showDetailedStatus('NORMAL')">일반</button>
-  <button class="modal-btn" style="background: #f1c40f; color: #fff;" onclick="showDetailedStatus('PREFIX')">접두어</button>
-  <button class="modal-btn" style="background: #e74c3c; color: #fff;" onclick="showDetailedStatus('EXCEED')">익시드</button>
+  <button class="modal-btn" style="background: #6c5ce7; color: #fff;" onclick="showEquipmentDetail('ALL')">모두</button>
+  <button class="modal-btn" style="background: #2ecc71; color: #fff;" onclick="showEquipmentDetail('NORMAL')">일반</button>
+  <button class="modal-btn" style="background: #f1c40f; color: #fff;" onclick="showEquipmentDetail('PREFIX')">접두어</button>
+  <button class="modal-btn" style="background: #e74c3c; color: #fff;" onclick="showEquipmentDetail('EXCEED')">익시드</button>
 
   <div style="width: 1px; height: 25px; background: #444; margin: 0 5px;"></div>
 
   <button id="tab-char" class="modal-btn" style="background: #4a33cc; color: #ffffff; border: 1px solid #fff; font-weight: bold;" onclick="switchTo('char')">캐릭터 관리</button>
   <button id="tab-weapon" class="modal-btn" style="background: #2a3158; color: #ffffff; border: 1px solid transparent;" onclick="switchTo('weapon')">무기 관리</button>
-  <button id="tab-status" onclick="switchTo('status')">장비 관리</button>
+  <button id="tab-equipment" onclick="switchTo('equipment')">장비 관리</button>
 </div>
 
-<div id="section-status-view" style="display:none; padding: 20px;">
+<div id="section-equipment-view" style="display:none; padding: 20px;">
   <div class="toolbar" style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px;">
-    <button class="action-btn" onclick="renderStatusTab('ALL')">모두(캐릭)</button>
-    <button class="action-btn" onclick="renderStatusTab('NORMAL')">일반장비(캐릭)</button>
-    <button class="action-btn" onclick="renderStatusTab('PREFIX')">접두어장비(캐릭)</button>
-    <button class="action-btn" onclick="renderStatusTab('EXCEED')">익시드장비(캐릭)</button>
+    <button class="action-btn" onclick="renderEquipmentTab('ALL')">모두(캐릭)</button>
+    <button class="action-btn" onclick="renderEquipmentTab('NORMAL')">일반장비(캐릭)</button>
+    <button class="action-btn" onclick="renderEquipmentTab('PREFIX')">접두어장비(캐릭)</button>
+    <button class="action-btn" onclick="renderEquipmentTab('EXCEED')">익시드장비(캐릭)</button>
 
     <div style="width:100%; height:1px; background:#333; margin: 5px 0;"></div>
 
-    <button class="action-btn" onclick="renderFullStatusTab('NORMAL')">일반(전체)</button>
-    <button class="action-btn" onclick="renderFullStatusTab('PREFIX')">접두어(전체)</button>
-    <button class="action-btn" onclick="renderFullStatusTab('EXCEED')">익시드(전체)</button>
+    <button class="action-btn" onclick="renderFullEquipmentTab('NORMAL')">일반(전체)</button>
+    <button class="action-btn" onclick="renderFullEquipmentTab('PREFIX')">접두어(전체)</button>
+    <button class="action-btn" onclick="renderFullEquipmentTab('EXCEED')">익시드(전체)</button>
   </div>
 
-  <div id="status-display-area" style="overflow-x: auto; background: #0f1222; padding: 15px; border-radius: 8px;">
+  <div id="equipment-display-area" style="overflow-x: auto; background: #0f1222; padding: 15px; border-radius: 8px;">
     <p style="color: #888; text-align: center;">버튼을 클릭하면 현황표가 여기에 표시됩니다.</p>
   </div>
 </div>
@@ -1881,7 +1881,7 @@ function closePrefixFullModal() {
     document.getElementById("prefixFullModal").style.display = 'none';
 }
 
-  function showDetailedStatus(mode) {
+  function showEquipmentDetail(mode) {
     const modal = document.getElementById("prefixFullModal");
     const content = document.getElementById("prefixFullContent");
     const mainTitle = modal.querySelector("h2");
@@ -2028,7 +2028,7 @@ function closePrefixFullModal() {
     if (modalContent) modalContent.scrollTop = 0;
   }
 
-  function showFullStatus(mode) {
+  function showEquipmentSummary(mode) {
     const modal = document.getElementById("prefixFullModal");
     const content = document.getElementById("prefixFullContent");
     const mainTitle = modal.querySelector("h2");
@@ -2132,12 +2132,12 @@ function closePrefixFullModal() {
     const sections = {
       'char': document.getElementById("section-character-view"),
       'weapon': document.getElementById("section-weapon-view"),
-      'status': document.getElementById("section-status-view")
+      'equipment': document.getElementById("section-equipment-view")
     };
     const buttons = {
       'char': document.getElementById("tab-char"),
       'weapon': document.getElementById("tab-weapon"),
-      'status': document.getElementById("tab-status")
+      'equipment': document.getElementById("tab-equipment")
     };
 
     // 모든 섹션 숨기고 버튼 스타일 초기화
@@ -2159,14 +2159,14 @@ function closePrefixFullModal() {
     // 탭별 초기 데이터 로드
     if (view === 'char') renderCharacterList();
     if (view === 'weapon') selectWeaponJob('귀검사', true);
-    if (view === 'status') renderStatusTab('ALL'); // 기본값: 모두(캐릭)
+    if (view === 'equipment') renderEquipmentTab('ALL'); // 기본값: 모두(캐릭)
 
     window.scrollTo(0, 0);
   }
 
   // 1. 캐릭터별 현황 렌더링 (익시드 색상 적용)
-  function renderStatusTab(mode) {
-    const displayArea = document.getElementById("status-display-area");
+  function renderEquipmentTab(mode) {
+    const displayArea = document.getElementById("equipment-display-area");
     const CATEGORIES = [
       { name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX },
       { name: "악세", sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX },
@@ -2240,8 +2240,8 @@ function closePrefixFullModal() {
   }
 
   // 2. 전체 현황 렌더링 (이름 열 너비 고정 및 색상 적용)
-  function renderFullStatusTab(mode) {
-    const displayArea = document.getElementById("status-display-area");
+  function renderFullEquipmentTab(mode) {
+    const displayArea = document.getElementById("equipment-display-area");
     const CATEGORIES = [
       { name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX },
       { name: "악세", sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX },
