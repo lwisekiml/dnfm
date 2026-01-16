@@ -201,6 +201,26 @@
 
   <button id="tab-char" class="modal-btn" style="background: #4a33cc; color: #ffffff; border: 1px solid #fff; font-weight: bold;" onclick="switchTo('char')">캐릭터 관리</button>
   <button id="tab-weapon" class="modal-btn" style="background: #2a3158; color: #ffffff; border: 1px solid transparent;" onclick="switchTo('weapon')">무기 관리</button>
+  <button id="tab-status" onclick="switchTo('status')">장비 관리</button>
+</div>
+
+<div id="section-status-view" style="display:none; padding: 20px;">
+  <div class="toolbar" style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px;">
+    <button class="action-btn" onclick="renderStatusTab('ALL')">모두(캐릭)</button>
+    <button class="action-btn" onclick="renderStatusTab('NORMAL')">일반장비(캐릭)</button>
+    <button class="action-btn" onclick="renderStatusTab('PREFIX')">접두어장비(캐릭)</button>
+    <button class="action-btn" onclick="renderStatusTab('EXCEED')">익시드장비(캐릭)</button>
+
+    <div style="width:100%; height:1px; background:#333; margin: 5px 0;"></div>
+
+    <button class="action-btn" onclick="renderFullStatusTab('NORMAL')">일반(전체)</button>
+    <button class="action-btn" onclick="renderFullStatusTab('PREFIX')">접두어(전체)</button>
+    <button class="action-btn" onclick="renderFullStatusTab('EXCEED')">익시드(전체)</button>
+  </div>
+
+  <div id="status-display-area" style="overflow-x: auto; background: #0f1222; padding: 15px; border-radius: 8px;">
+    <p style="color: #888; text-align: center;">버튼을 클릭하면 현황표가 여기에 표시됩니다.</p>
+  </div>
 </div>
 
 <button class="action-btn" onclick="showRecentUpdates()">🌟 최근 업데이트</button>
@@ -438,6 +458,13 @@ const WEAPON_PREFIXES = [
 
   // 관리 중인 직업 목록 배열
   const JOB_LIST = Object.keys(WEAPON_DATA_MAP);
+
+  // 익시드 태그별 색상 정의
+  const EXCEED_COLOR_MAP = {
+    "선봉": "#ff4d4d",
+    "의지": "#4d94ff",
+    "이상": "#2ecc71"
+  };
 
   // ===== 캐릭터 배열 =====
   let characters = [
@@ -2100,48 +2127,179 @@ function closePrefixFullModal() {
     }
   }
 
-  // 💡 화면 탭 전환 함수 (상단 버튼 테두리/색상 강조 보정)
+  // 3-1. 화면 전환 함수 수정
   function switchTo(view) {
-    const charView = document.getElementById("section-character-view");
-    const weaponView = document.getElementById("section-weapon-view");
-    const charBtn = document.getElementById("tab-char");
-    const weaponBtn = document.getElementById("tab-weapon");
+    const sections = {
+      'char': document.getElementById("section-character-view"),
+      'weapon': document.getElementById("section-weapon-view"),
+      'status': document.getElementById("section-status-view")
+    };
+    const buttons = {
+      'char': document.getElementById("tab-char"),
+      'weapon': document.getElementById("tab-weapon"),
+      'status': document.getElementById("tab-status")
+    };
 
-    // 요소가 존재하는지 확인
-    if (!charView || !weaponView || !charBtn || !weaponBtn) return;
+    // 모든 섹션 숨기고 버튼 스타일 초기화
+    Object.keys(sections).forEach(k => {
+      if (sections[k]) sections[k].style.display = "none";
+      if (buttons[k]) {
+        buttons[k].style.background = "#2a3158";
+        buttons[k].style.border = "2px solid transparent";
+      }
+    });
 
-    if (view === 'char') {
-      // 1. 화면 전환
-      charView.style.display = "block";
-      weaponView.style.display = "none";
-
-      // 2. 버튼 스타일 전환 (캐릭터 관리 강조)
-      charBtn.style.background = "#4a33cc"; // 강조색
-      charBtn.style.border = "2px solid #fff"; // 흰색 테두리 추가
-
-      weaponBtn.style.background = "#2a3158"; // 기본색
-      weaponBtn.style.border = "2px solid transparent"; // 테두리 제거
-
-      // 3. 캐릭터 목록 다시 그리기
-      if (typeof renderCharacterList === "function") renderCharacterList();
-    } else {
-      // 1. 화면 전환
-      charView.style.display = "none";
-      weaponView.style.display = "block";
-
-      // 2. 버튼 스타일 전환 (무기 관리 강조)
-      weaponBtn.style.background = "#4a33cc"; // 강조색
-      weaponBtn.style.border = "2px solid #fff"; // 흰색 테두리 추가
-
-      charBtn.style.background = "#2a3158"; // 기본색
-      charBtn.style.border = "2px solid transparent"; // 테두리 제거
-
-      // 3. 무기 화면 진입 시 귀검사 데이터 기본 로드
-      if (typeof selectWeaponJob === "function") selectWeaponJob('귀검사', true);
+    // 선택된 섹션 보이기 및 버튼 강조
+    if (sections[view]) sections[view].style.display = "block";
+    if (buttons[view]) {
+      buttons[view].style.background = "#4a33cc";
+      buttons[view].style.border = "2px solid #fff";
     }
 
-    // 탭 전환 시 화면 맨 위로 스크롤
+    // 탭별 초기 데이터 로드
+    if (view === 'char') renderCharacterList();
+    if (view === 'weapon') selectWeaponJob('귀검사', true);
+    if (view === 'status') renderStatusTab('ALL'); // 기본값: 모두(캐릭)
+
     window.scrollTo(0, 0);
+  }
+
+  // 1. 캐릭터별 현황 렌더링 (익시드 색상 적용)
+  function renderStatusTab(mode) {
+    const displayArea = document.getElementById("status-display-area");
+    const CATEGORIES = [
+      { name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX },
+      { name: "악세", sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX },
+      { name: "특장", sets: SPECIAL_SETS, prefix: SPECIAL_PREFIX }
+    ];
+
+    let fullHtml = `<h2 style="color:#ffd700; margin-bottom:20px;">📊 캐릭터별 상세 현황 (${mode})</h2>`;
+
+    CATEGORIES.forEach(cat => {
+      Object.keys(cat.sets).forEach(baseSetName => {
+        const prefixes = cat.prefix[baseSetName] || [];
+        const slots = cat.sets[baseSetName];
+        let targetGroupKeys = [];
+
+        if (mode === 'NORMAL' || mode === 'ALL') targetGroupKeys.push({ full: baseSetName, display: "일반", type: 'NORMAL' });
+        if (mode === 'PREFIX' || mode === 'ALL') prefixes.forEach(p => targetGroupKeys.push({ full: `${p}: ${baseSetName}`, display: p, type: 'PREFIX' }));
+        if (mode === 'EXCEED' || mode === 'ALL') {
+          prefixes.forEach(p => {
+            EXCEED_TAGS.forEach(tag => targetGroupKeys.push({ full: `[${tag}] ${p}: ${baseSetName}`, display: p, tag: tag, type: 'EXCEED' }));
+          });
+        }
+
+        if (targetGroupKeys.length === 0) return;
+
+        fullHtml += `<h3 style="color:#fff; margin-top:30px;">[${baseSetName} 세트]</h3>`;
+        fullHtml += `<table style="width:max-content; border-collapse:collapse; margin-bottom:20px; border:1px solid #2a3158;">
+                <thead style="background:#181c33;"><tr>
+                    <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">직업</th>
+                    <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">이름</th>
+                    ${(mode==='ALL'||mode==='EXCEED')?'<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">익시드</th>':''}
+                    <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">접두어</th>
+                    ${slots.map(s => `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">${s}</th>`).join('')}
+                    <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">달성</th>
+                </tr></thead><tbody>`;
+
+        characters.forEach(char => {
+          targetGroupKeys.forEach(group => {
+            let hasAny = slots.some(s => (char.armorCounts?.[`${group.full} ${s}`] || 0) > 0);
+            if (!hasAny) return;
+
+            let setTotal = 0;
+            let slotsHtml = slots.map(s => {
+              const count = char.armorCounts?.[`${group.full} ${s}`] || 0;
+              if(count > 0) setTotal++;
+              return `<td style="padding:10px; border:1px solid #2a3158; text-align:center; color:${count>0?'#fff':'#444'}; font-weight:bold;">${count}</td>`;
+            }).join('');
+
+            let rowInfo = "";
+            const tagColor = EXCEED_COLOR_MAP[group.tag] || "#ffd700"; // 익시드 색상 추출
+
+            if(mode==='ALL'||mode==='EXCEED'){
+              const tagCol = group.tag ? `<td style="padding:10px; border:1px solid #2a3158; color:${tagColor}; font-weight:bold; white-space:nowrap;">[${group.tag}]</td>` : `<td style="border:1px solid #2a3158;"></td>`;
+              rowInfo = tagCol + `<td style="padding:10px; border:1px solid #2a3158; color:#ffd700; font-weight:bold; white-space:nowrap;">${group.display}</td>`;
+            } else {
+              rowInfo = `<td style="padding:10px; border:1px solid #2a3158; color:#ffd700; font-weight:bold; white-space:nowrap;">${group.display}</td>`;
+            }
+
+            fullHtml += `<tr>
+                        <td style="padding:10px; border:1px solid #2a3158; background:#181c33; white-space:nowrap;">${char.job}</td>
+                        <td style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">${char.name}</td>
+                        ${rowInfo}${slotsHtml}
+                        <td style="padding:10px; border:1px solid #2a3158; font-weight:bold; text-align:center; color:${setTotal>=5?'#ffd700':(setTotal>=3?'#2ecc71':'#fff')};">${setTotal}</td>
+                    </tr>`;
+          });
+        });
+        fullHtml += `</tbody></table>`;
+      });
+    });
+
+    displayArea.innerHTML = fullHtml;
+  }
+
+  // 2. 전체 현황 렌더링 (이름 열 너비 고정 및 색상 적용)
+  function renderFullStatusTab(mode) {
+    const displayArea = document.getElementById("status-display-area");
+    const CATEGORIES = [
+      { name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX },
+      { name: "악세", sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX },
+      { name: "특장", sets: SPECIAL_SETS, prefix: SPECIAL_PREFIX }
+    ];
+
+    let fullHtml = `<h2 style="color:#ffd700; margin-bottom:20px;">🌎 아이템별 전체 현황 (${mode})</h2>`;
+
+    CATEGORIES.forEach(cat => {
+      Object.keys(cat.sets).forEach(baseSetName => {
+        const prefixes = cat.prefix[baseSetName] || [];
+        const slots = cat.sets[baseSetName];
+        let targetGroups = [];
+
+        if (mode === 'NORMAL') targetGroups.push({ display: baseSetName, full: baseSetName });
+        else if (mode === 'PREFIX') prefixes.forEach(p => targetGroups.push({ display: p, full: `${p}: ${baseSetName}`, type: 'PREFIX' }));
+        else if (mode === 'EXCEED') {
+          prefixes.forEach(p => {
+            EXCEED_TAGS.forEach(tag => targetGroups.push({ display: p, full: `${p}: ${baseSetName}`, tag: tag, type: 'EXCEED' }));
+          });
+        }
+
+        if (targetGroups.length === 0) return;
+
+        fullHtml += `<h3 style="color:#fff; margin-top:30px;">[${baseSetName} 세트]</h3>`;
+        fullHtml += `<table style="width:max-content; border-collapse:collapse; margin-bottom:20px; border:1px solid #2a3158;">
+                <thead style="background:#181c33;"><tr>
+                    <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap; min-width:200px;">아이템 세트 이름</th>
+                    ${slots.map(s => `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap; min-width:80px;">${s}</th>`).join('')}
+                </tr></thead><tbody>`;
+
+        targetGroups.forEach(group => {
+          let displayName = group.full;
+          if (group.type === 'EXCEED') {
+            const tagColor = EXCEED_COLOR_MAP[group.tag] || "#ffd700";
+            displayName = `<span style="color:${tagColor}; font-weight:bold;">[${group.tag}]</span> <span style="color:#ffd700;">${group.display}</span>: ${baseSetName}`;
+          } else if (group.type === 'PREFIX') {
+            displayName = `<span style="color:#ffd700; font-weight:bold;">${group.display}</span>: ${baseSetName}`;
+          }
+
+          // white-space: nowrap 덕분에 이름이 길어도 줄바꿈 없이 가로로 확장됩니다.
+          fullHtml += `<tr><td style="padding:12px; border:1px solid #2a3158; background:#181c33; white-space:nowrap; color:#fff;">${displayName}</td>`;
+
+          slots.forEach(slot => {
+            const searchKey = group.tag ? `[${group.tag}] ${group.full}` : group.full;
+            const key = `${searchKey} ${slot}`;
+            const owners = characters.filter(c => (c.armorCounts?.[key]||0) > 0)
+                    .map(c => `<span style="color:#ccc;">${c.job}</span>(<span style="color:#fff;">${c.name}</span>) <span style="color:#ffd700; font-weight:bold;">[${c.armorCounts[key]}]</span>`);
+
+            fullHtml += `<td style="padding:10px; border:1px solid #2a3158; font-size:12px; line-height:1.6; vertical-align:top;">${owners.length>0 ? owners.join('<br>') : '<span style="color:#444;">0</span>'}</td>`;
+          });
+          fullHtml += `</tr>`;
+        });
+        fullHtml += `</tbody></table>`;
+      });
+    });
+
+    displayArea.innerHTML = fullHtml;
   }
 
   // 팝업 창 바깥 클릭 시 닫기 기능
