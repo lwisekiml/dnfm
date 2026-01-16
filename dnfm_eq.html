@@ -1461,60 +1461,48 @@ function calculateSlotCountByFilter(char, setName, slot, filter) {
     const allUpdates = [];
 
     characters.forEach(char => {
-      // 1. 방어구/악세/특장 업데이트 수집
+      // 1 & 2 통합 수집 로직
       Object.entries(char.updateTimes).forEach(([fullKey, timestamp]) => {
-        if (timestamp > 0) {
+        if (!timestamp || timestamp <= 0) return;
+
+        // 방어구/악세/특장 체크
+        if (char.armorCounts && char.armorCounts[fullKey] !== undefined) {
           const parts = fullKey.split(' ');
           const slot = parts.pop();
           const itemName = parts.join(' ');
 
-          // 무기 태그 포함 여부 확인 (무기는 아래 2번에서 따로 처리)
-          const isWeaponTag = WEAPON_PREFIXES.some(p => itemName.includes(p.tag));
+          let category = "방어구";
+          const baseName = itemName.split(':').pop().trim();
+          const setType = getSetType(baseName);
+          if (setType === "ACCESSORY") category = "악세";
+          else if (setType === "SPECIAL") category = "특장";
 
-          if (!isWeaponTag && char.armorCounts[fullKey] !== undefined) {
-            let category = "방어구";
-            const baseName = itemName.split(':').pop().trim();
-            const setType = getSetType(baseName);
-
-            if (setType === "ACCESSORY") category = "악세";
-            else if (setType === "SPECIAL") category = "특장";
-
-            allUpdates.push({
-              name: char.name, job: char.job, itemName: itemName,
-              category: category, slot: slot, count: char.armorCounts[fullKey], timestamp: timestamp
-            });
-          }
+          allUpdates.push({
+            name: char.name, job: char.job, itemName: itemName,
+            category: category, slot: slot, count: char.armorCounts[fullKey], timestamp: timestamp
+          });
         }
-      });
-
-      // 2. 무기 업데이트 수집 (WEAPON_DATA_MAP 활용)
-      if (char.weaponCounts) {
-        Object.entries(char.weaponCounts).forEach(([weaponKey, count]) => {
-          const timestamp = char.updateTimes[weaponKey];
-          if (timestamp > 0) {
-            let weaponSubCategory = "-";
-
-            // 매핑 객체를 순회하며 해당 무기가 어느 카테고리(소검, 도 등)에 속하는지 검색
-            outerLoop:
-                    for (const jobData of Object.values(WEAPON_DATA_MAP)) {
-                      for (const [catName, list] of Object.entries(jobData)) {
-                        if (list.some(name => weaponKey.includes(name))) {
-                          weaponSubCategory = catName;
-                          break outerLoop; // 찾으면 모든 루프 탈출
-                        }
+        // 무기 체크
+        else if (char.weaponCounts && char.weaponCounts[fullKey] !== undefined) {
+          let weaponSubCategory = "-";
+          outerLoop:
+                  for (const jobData of Object.values(WEAPON_DATA_MAP)) {
+                    for (const [catName, list] of Object.entries(jobData)) {
+                      // fullKey에 무기 이름이 포함되어 있는지 확인
+                      if (list.some(name => fullKey.includes(name))) {
+                        weaponSubCategory = catName;
+                        break outerLoop;
                       }
                     }
-
-            allUpdates.push({
-              name: char.name, job: char.job, itemName: weaponKey,
-              category: "무기", slot: weaponSubCategory, count: count, timestamp: timestamp
-            });
-          }
-        });
-      }
+                  }
+          allUpdates.push({
+            name: char.name, job: char.job, itemName: fullKey,
+            category: "무기", slot: weaponSubCategory, count: char.weaponCounts[fullKey], timestamp: timestamp
+          });
+        }
+      });
     });
 
-    // 시간순 정렬 및 테이블 생성 로직 (이하 동일)
     allUpdates.sort((a, b) => b.timestamp - a.timestamp);
 
     const modalContent = document.getElementById("updateModalContent");
@@ -1526,37 +1514,33 @@ function calculateSlotCountByFilter(char, setName, slot, filter) {
 
     const table = document.createElement("table");
     table.style.width = '100%';
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th style="width:20%;">직업 / 이름</th>
-                <th style="width:15%;">종류 (부위)</th>
-                <th style="width:35%;">아이템</th>
-                <th style="width:10%;">보유 개수</th>
-                <th style="width:20%;">업데이트 시간</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    `;
+    table.innerHTML = `<thead><tr>
+        <th style="width:20%;">직업 / 이름</th>
+        <th style="width:15%;">종류 (부위)</th>
+        <th style="width:35%;">아이템</th>
+        <th style="width:10%;">보유 개수</th>
+        <th style="width:20%;">업데이트 시간</th>
+    </tr></thead><tbody></tbody>`;
+
     const tbody = table.querySelector("tbody");
 
     allUpdates.slice(0, 10).forEach(item => {
       const date = new Date(item.timestamp);
       const formatTime = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
 
-      // 아이템 이름 스타일링 (사용자님 원본 로직 유지)
+      // 💡 강화된 스타일링 로직
       let styledItemName = item.itemName;
       const tagMatch = styledItemName.match(/^(\[.*?\])\s*(.*)/);
 
       if (tagMatch) {
         const tag = tagMatch[1];
         const restName = tagMatch[2];
-        let tagColor = '#25c2a0';
-        if (tag === '[선봉]') tagColor = '#ff4d4f';
-        else if (tag === '[의지]') tagColor = '#3399cc';
-        else if (tag === '[광채]') tagColor = '#3399cc';
-        else if (tag === '[분쇄]') tagColor = '#ff4d4f';
-        else if (tag === '[강타]') tagColor = '#ffd700';
+        // EXCEED_COLOR_MAP 또는 커스텀 맵 활용
+        let tagColor = '#ffd700';
+        if (tag.includes('선봉') || tag.includes('분쇄')) tagColor = '#ff4d4f';
+        else if (tag.includes('의지') || tag.includes('광채')) tagColor = '#3399cc';
+        else if (tag.includes('이상')) tagColor = '#25c2a0';
+        else if (tag.includes('강타')) tagColor = '#ffd700';
 
         let baseNamePart = restName;
         if (restName.includes(':')) {
@@ -1610,68 +1594,60 @@ function exportJSON() {
     URL.revokeObjectURL(url);
 }
 
-function importJSON(event) {
+  function importJSON(event) {
     const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = function(e) {
-        try {
-            const imported = JSON.parse(e.target.result);
+      try {
+        const imported = JSON.parse(e.target.result);
 
-            if (!Array.isArray(imported)) {
-                alert("올바른 JSON 형식이 아닙니다.");
-                return;
-            }
-
-            // 1. 전역 데이터 교체 및 보정
-            characters = imported.map(char => ({
-                id: char.id || Date.now().toString() + Math.random(),
-                name: char.name || "Unknown",
-                job: char.job || "귀검사",
-                armorCounts: char.armorCounts || {},
-                weaponCounts: char.weaponCounts || {}, 
-                updateTimes: char.updateTimes || {}
-            }));
-
-            // 2. 새로운 키(dnfm_eq)로 로컬 스토리지 즉시 저장
-            saveLocalData();
-
-            // 3. [핵심] 화면 상태에 따른 즉시 갱신 로직
-            
-            // A. 메인 캐릭터 리스트 갱신
-            if (typeof renderCharacterList === "function") renderCharacterList();
-            
-            // B. 무기 관리 화면인 경우: 현재 선택된 직업 버튼을 찾아서 다시 클릭한 효과를 줌
-            const activeWeaponBtn = document.querySelector("#weaponJobButtons .char-btn.active");
-            if (activeWeaponBtn && typeof selectWeaponJob === "function") {
-                selectWeaponJob(activeWeaponBtn.textContent);
-            }
-
-            // C. 방어구 세트 상세 화면인 경우: 현재 열려있는 세트를 다시 열기
-            if (currentSetName && currentChar) {
-                // 데이터가 교체되었으므로 새로운 데이터 객체에서 현재 캐릭터를 다시 찾음
-                const updatedChar = characters.find(c => c.id === currentChar.id);
-                if (updatedChar) {
-                    openSet(currentSetName, updatedChar);
-                }
-            }
-
-            // D. 캐릭터 상세 정보(Summary) 화면인 경우: 강제 리렌더링
-            if (typeof currentCharacterId !== 'undefined' && currentCharacterId) {
-                if (typeof showDetail === "function") showDetail(currentCharacterId);
-            }
-
-            alert(`데이터 복구 완료! 총 ${characters.length}명의 데이터가 즉시 적용되었습니다.`);
-            event.target.value = '';
-
-        } catch (err) {
-            console.error(err);
-            alert("파일 읽기 중 오류 발생: " + err.message);
+        if (!Array.isArray(imported)) {
+          throw new Error("데이터가 배열 형식이 아닙니다.");
         }
+
+        // 1. 전역 데이터 교체 및 필수 필드 보정
+        characters = imported.map(char => {
+          if (!char.name || !char.job) throw new Error("캐릭터 이름 또는 직업 정보가 누락된 항목이 있습니다.");
+          return {
+            id: char.id || "c" + Date.now() + Math.random().toString(36).substr(2, 5),
+            name: char.name,
+            job: char.job,
+            armorCounts: char.armorCounts || {},
+            weaponCounts: char.weaponCounts || {},
+            updateTimes: char.updateTimes || {}
+          };
+        });
+
+        // 2. 상태 초기화 (UI 꼬임 방지)
+        activeCharacterId = null;
+        currentSetName = null;
+        currentChar = null;
+
+        // 3. 로컬 저장 및 화면 갱신
+        saveLocalData();
+
+        // 4. 현재 뷰에 따른 리렌더링
+        renderCharacterList();
+        document.getElementById("setList").innerHTML = "";
+        document.getElementById("panel").innerHTML = "";
+
+        // 만약 무기 탭이 열려있다면 갱신
+        if (document.getElementById("section-weapon-view").style.display !== "none") {
+          selectWeaponJob(activeWeaponJob || '귀검사', true);
+        }
+
+        alert(`데이터 복구 완료! 총 ${characters.length}명의 데이터가 적용되었습니다.`);
+        event.target.value = '';
+
+      } catch (err) {
+        console.error(err);
+        alert("파일 읽기 중 오류 발생: " + err.message);
+      }
     };
     reader.readAsText(file);
-}
+  }
 
 // 무기 전용 숫자 버튼 생성 함수 (기존 makeNumberButton 복사 및 수정)
 function makeWeaponNumberButton(charId, key, val, jobName) {
@@ -1856,15 +1832,6 @@ function applyStoredHighlights() {
         });
     }
 }
-
-// ===== 팝업 창 외부 클릭/터치 시 닫기 처리 =====
-window.onclick = function(event) {
-    const modal = document.getElementById("updateModal");
-    // 클릭된 대상이 모달 배경(딤드 처리된 부분) 자체일 경우 닫기
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-};
 
 // 모바일 환경을 위한 터치 이벤트 대응
 window.ontouchstart = function(event) {
@@ -2179,6 +2146,7 @@ function closePrefixFullModal() {
       Object.keys(cat.sets).forEach(baseSetName => {
         const prefixes = cat.prefix[baseSetName] || [];
         const slots = cat.sets[baseSetName];
+        const setType = getSetType(baseSetName);
         let targetGroupKeys = [];
 
         if (mode === 'NORMAL' || mode === 'ALL') targetGroupKeys.push({ full: baseSetName, display: "일반", type: 'NORMAL' });
@@ -2191,26 +2159,28 @@ function closePrefixFullModal() {
 
         if (targetGroupKeys.length === 0) return;
 
+        // 해당 세트의 전체 달성 상태를 미리 계산하기 위해 calcTotalDistinctParts 활용 준비
         fullHtml += `<h3 style="color:#fff; margin-top:30px;">[${baseSetName} 세트]</h3>`;
         fullHtml += `<table style="width:max-content; border-collapse:collapse; margin-bottom:20px; border:1px solid #2a3158;">
-                <thead style="background:#181c33;"><tr>
-                    <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">직업</th>
-                    <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">이름</th>
-                    ${(mode==='ALL'||mode==='EXCEED')?'<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">익시드</th>':''}
-                    <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">접두어</th>
-                    ${slots.map(s => `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">${s}</th>`).join('')}
-                    <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">달성</th>
-                </tr></thead><tbody>`;
+                    <thead style="background:#181c33;"><tr>
+                        <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">직업</th>
+                        <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">이름</th>
+                        ${(mode==='ALL'||mode==='EXCEED')?'<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">익시드</th>':''}
+                        <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">접두어</th>
+                        ${slots.map(s => `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">${s}</th>`).join('')}
+                        <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">달성</th>
+                    </tr></thead><tbody>`;
 
         characters.forEach(char => {
+          // 💡 수정: 해당 캐릭터의 '전체 고유 부위'를 먼저 계산 (접두어/익시드 무관하게 합쳐서 판정할 때 사용)
+          const totalDistinct = calcTotalDistinctParts(char, baseSetName);
+
           targetGroupKeys.forEach(group => {
             let hasAny = slots.some(s => (char.armorCounts?.[`${group.full} ${s}`] || 0) > 0);
             if (!hasAny) return;
 
-            let setTotal = 0;
             let slotsHtml = slots.map(s => {
               const count = char.armorCounts?.[`${group.full} ${s}`] || 0;
-              if(count > 0) setTotal++;
               return `<td style="padding:10px; border:1px solid #2a3158; text-align:center; color:${count>0?'#fff':'#444'}; font-weight:bold;">${count}</td>`;
             }).join('');
 
@@ -2224,12 +2194,21 @@ function closePrefixFullModal() {
               rowInfo = `<td style="padding:10px; border:1px solid #2a3158; color:#ffd700; font-weight:bold; white-space:nowrap;">${group.display}</td>`;
             }
 
+            // 💡 수정: 달성 색상 판정 로직을 공통 규칙(3세트/5세트)에 맞게 적용
+            let statusColor = "#fff";
+            if (setType === "ARMOR") {
+              if (totalDistinct === 5) statusColor = "#ffd700";
+              else if (totalDistinct >= 3) statusColor = "#2ecc71";
+            } else {
+              if (totalDistinct === 3) statusColor = "#2ecc71";
+            }
+
             fullHtml += `<tr>
-                        <td style="padding:10px; border:1px solid #2a3158; background:#181c33; white-space:nowrap;">${char.job}</td>
-                        <td style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">${char.name}</td>
-                        ${rowInfo}${slotsHtml}
-                        <td style="padding:10px; border:1px solid #2a3158; font-weight:bold; text-align:center; color:${setTotal>=5?'#ffd700':(setTotal>=3?'#2ecc71':'#fff')};">${setTotal}</td>
-                    </tr>`;
+                            <td style="padding:10px; border:1px solid #2a3158; background:#181c33; white-space:nowrap;">${char.job}</td>
+                            <td style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">${char.name}</td>
+                            ${rowInfo}${slotsHtml}
+                            <td style="padding:10px; border:1px solid #2a3158; font-weight:bold; text-align:center; color:${statusColor};">${totalDistinct}</td>
+                        </tr>`;
           });
         });
         fullHtml += `</tbody></table>`;
@@ -2302,26 +2281,54 @@ function closePrefixFullModal() {
     displayArea.innerHTML = fullHtml;
   }
 
-  // 팝업 창 바깥 클릭 시 닫기 기능
-  window.onclick = function(event) {
-    // 열려있는 모든 모달 ID를 배열로 넣으세요 (필요시 추가)
-    const modals = [
-      document.getElementById("prefixFullModal"),
-      // 만약 다른 캐릭터 상세 모달 등이 있다면 여기에 ID 추가
-    ];
-
-    modals.forEach(modal => {
-      if (event.target === modal) {
-        modal.style.display = "none";
-      }
-    });
-  };
-
   // 모바일 터치 대응 (터치 시작 시 닫기)
   window.ontouchstart = function(event) {
     const modal = document.getElementById("prefixFullModal");
     if (event.target === modal) {
       modal.style.display = "none";
+    }
+  };
+
+
+  // 모든 팝업창 외부 클릭 시 닫기 처리 (통합 버전)
+  window.onclick = function(event) {
+    const updateModal = document.getElementById("updateModal");
+    const prefixModal = document.getElementById("prefixFullModal");
+    const actionModal = document.getElementById("actionModal");
+    const confirmModal = document.getElementById("confirmModal");
+
+    // 1. 최근 업데이트 내역 모달
+    if (event.target === updateModal) {
+      updateModal.style.display = 'none';
+    }
+    // 2. 전체 장비 현황 모달
+    if (event.target === prefixModal) {
+      prefixModal.style.display = 'none';
+    }
+    // 3. 캐릭터 액션(수정/삭제 등) 모달
+    if (event.target === actionModal) {
+      actionModal.style.display = 'none';
+    }
+    // 4. 확인(Confirm) 모달
+    if (event.target === confirmModal) {
+      if (typeof closeConfirmModal === "function") closeConfirmModal();
+      else confirmModal.style.display = 'none';
+    }
+  };
+
+  // 모바일 환경 터치 대응 통합
+  window.ontouchstart = function(event) {
+    const prefixModal = document.getElementById("prefixFullModal");
+    const updateModal = document.getElementById("updateModal");
+    const actionModal = document.getElementById("actionModal");
+    const confirmModal = document.getElementById("confirmModal");
+
+    if (event.target === prefixModal) prefixModal.style.display = 'none';
+    if (event.target === updateModal) updateModal.style.display = 'none';
+    if (event.target === actionModal) actionModal.style.display = 'none';
+    if (event.target === confirmModal) {
+      if (typeof closeConfirmModal === "function") closeConfirmModal();
+      else confirmModal.style.display = 'none';
     }
   };
 </script>
