@@ -2267,13 +2267,15 @@ function closePrefixFullModal() {
         if (targetGroups.length === 0) return;
 
         fullHtml += `<h3 style="color:#fff; margin-top:30px;">[${baseSetName} 세트]</h3>`;
-        fullHtml += `<table style="width:max-content; border-collapse:collapse; margin-bottom:20px; border:1px solid #2a3158;">
-                    <thead style="background:#181c33;"><tr>
-                        <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap; min-width:200px;">아이템 세트 이름</th>
-                        ${slots.map(s => `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap; min-width:80px;">${s}</th>`).join('')}
-                    </tr></thead><tbody>`;
 
         targetGroups.forEach(group => {
+          const searchKeyBase = group.tag ? `[${group.tag}] ${group.full}` : group.full;
+          let relevantOwners = characters.filter(c => {
+            return slots.some(slot => (c.armorCounts?.[`${searchKeyBase} ${slot}`] || 0) > 0);
+          });
+
+          if (relevantOwners.length === 0) return;
+
           let displayName = group.full;
           if (group.type === 'EXCEED') {
             const tagColor = EXCEED_COLOR_MAP[group.tag] || "#ffd700";
@@ -2282,25 +2284,50 @@ function closePrefixFullModal() {
             displayName = `<span style="color:#ffd700; font-weight:bold;">${group.display}</span>: ${baseSetName}`;
           }
 
-          fullHtml += `<tr><td style="padding:12px; border:1px solid #2a3158; background:#181c33; white-space:nowrap; color:#fff; font-weight:bold;">${displayName}</td>`;
+          fullHtml += `<table style="width:max-content; border-collapse:collapse; margin-bottom:20px; border:1px solid #2a3158;">
+                    <thead style="background:#181c33;"><tr>
+                        <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap; min-width:200px; text-align:center;">아이템 세트 이름</th>
+                        ${slots.map(s => `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap; min-width:120px; text-align:center;">${s}</th>`).join('')}
+                    </tr></thead><tbody>`;
+
+          fullHtml += `<tr>
+                    <td style="padding:12px; border:1px solid #2a3158; background:#181c33; color:#fff; font-weight:bold; vertical-align:middle; text-align:center;">${displayName}</td>`;
 
           slots.forEach(slot => {
-            const searchKey = group.tag ? `[${group.tag}] ${group.full}` : group.full;
-            const key = `${searchKey} ${slot}`;
+            // 세로 정렬(vertical-align: middle)과 가로 정렬(text-align: center) 적용
+            fullHtml += `<td style="padding:0; border:1px solid #2a3158; vertical-align:middle; text-align:center; background:#0f1222;">`;
 
-            // 💡 수정된 부분: 아이템 세트 이름 폰트 스타일과 동일하게 owners 스타일 적용
-            const owners = characters.filter(c => (c.armorCounts?.[key]||0) > 0)
-                    .map(c => `<span style="color:#aaa; font-size:13px;">${c.job}</span>
-                               <span style="color:#fff; font-weight:bold; font-size:14px;">${c.name}</span>
-                               <span style="color:#ffd700; font-weight:bold;">[${c.armorCounts[key]}]</span>`);
-                    // 직업 폰트 <--> 캐릭터 이름 폰트
-                    // .map(c => `<span style="color:#fff; font-weight:bold; font-size:14px;">${c.job}</span> <span style="color:#aaa; font-size:13px;">${c.name}</span> <span style="color:#ffd700; font-weight:bold;">[${c.armorCounts[key]}]</span>`);
+            relevantOwners.forEach(owner => {
+              const count = owner.armorCounts?.[`${searchKeyBase} ${slot}`] || 0;
 
-            fullHtml += `<td style="padding:10px; border:1px solid #2a3158; line-height:1.8; vertical-align:top;">${owners.length>0 ? owners.join('<br>') : '<span style="color:#444;">0</span>'}</td>`;
+              if (mode === 'EXCEED') {
+                if (count > 0) {
+                  // 익시드: 가로/세로 가운데 정렬
+                  fullHtml += `<div style="padding:6px 8px; white-space:nowrap; display:flex; justify-content:center; align-items:center; gap:5px;">
+                                    <span style="color:#aaa; font-size:12px;">${owner.job}</span>
+                                    <span style="color:#fff; font-weight:bold; font-size:13px;">${owner.name}</span>
+                                    <span style="color:#ffd700; font-weight:bold;">[${count}]</span>
+                                </div>`;
+                }
+              } else {
+                // 일반/접두어: 고정 높이 라인 안에서 가로/세로 가운데 정렬
+                fullHtml += `<div style="height:28px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; justify-content:center; align-items:center; gap:5px; white-space:nowrap;">`;
+                if (count > 0) {
+                  fullHtml += `<span style="color:#aaa; font-size:12px;">${owner.job}</span>
+                                             <span style="color:#fff; font-weight:bold; font-size:13px;">${owner.name}</span>
+                                             <span style="color:#ffd700; font-weight:bold;">[${count}]</span>`;
+                } else {
+                  fullHtml += `<span style="color:#333;">-</span>`;
+                }
+                fullHtml += `</div>`;
+              }
+            });
+
+            fullHtml += `</td>`;
           });
-          fullHtml += `</tr>`;
+
+          fullHtml += `</tr></tbody></table>`;
         });
-        fullHtml += `</tbody></table>`;
       });
     });
 
