@@ -216,15 +216,20 @@
 <button class="action-btn" onclick="showRecentUpdates()">🌟 최근 업데이트</button>
 
 <div id="section-equipment-view" style="display:none; padding: 20px;">
-  <div class="toolbar" style="margin-bottom: 20px; display: flex; flex-direction: row; flex-wrap: nowrap; gap: 8px; overflow-x: auto; padding-bottom: 10px;">
-    <button class="char-btn active" style="flex: 1; white-space: nowrap;" onclick="renderEquipmentTab('ALL'); setActiveEquipmentButton(this)">모두</button>
-    <button class="char-btn" style="flex: 1; white-space: nowrap;" onclick="renderEquipmentTab('NORMAL'); setActiveEquipmentButton(this)">일반장비</button>
-    <button class="char-btn" style="flex: 1; white-space: nowrap;" onclick="renderEquipmentTab('PREFIX'); setActiveEquipmentButton(this)">접두어장비</button>
-    <button class="char-btn" style="flex: 1; white-space: nowrap;" onclick="renderEquipmentTab('EXCEED'); setActiveEquipmentButton(this)">익시드장비</button>
+  <div class="toolbar" style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
 
-    <button class="char-btn" style="flex: 1; white-space: nowrap; border-color: #ffd700;" onclick="renderFullEquipmentTab('NORMAL'); setActiveEquipmentButton(this)">일반</button>
-    <button class="char-btn" style="flex: 1; white-space: nowrap; border-color: #ffd700;" onclick="renderFullEquipmentTab('PREFIX'); setActiveEquipmentButton(this)">접두어</button>
-    <button class="char-btn" style="flex: 1; white-space: nowrap; border-color: #ffd700;" onclick="renderFullEquipmentTab('EXCEED'); setActiveEquipmentButton(this)">익시드</button>
+    <div class="equipment-button-row" style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 8px; overflow-x: auto; width: 100%;">
+      <button class="char-btn active" style="white-space: nowrap; min-width: 100px;" onclick="renderEquipmentTab('ALL'); setActiveEquipmentButton(this)">모두</button>
+      <button class="char-btn" style="white-space: nowrap; min-width: 100px;" onclick="renderEquipmentTab('NORMAL'); setActiveEquipmentButton(this)">일반장비</button>
+      <button class="char-btn" style="white-space: nowrap; min-width: 100px;" onclick="renderEquipmentTab('PREFIX'); setActiveEquipmentButton(this)">접두어장비</button>
+      <button class="char-btn" style="white-space: nowrap; min-width: 100px;" onclick="renderEquipmentTab('EXCEED'); setActiveEquipmentButton(this)">익시드장비</button>
+    </div>
+
+    <div class="equipment-button-row" style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 8px; overflow-x: auto; width: 100%;">
+      <button class="char-btn" style="white-space: nowrap; min-width: 100px; border-color: #ffd700;" onclick="renderFullEquipmentTab('NORMAL'); setActiveEquipmentButton(this)">일반</button>
+      <button class="char-btn" style="white-space: nowrap; min-width: 100px; border-color: #ffd700;" onclick="renderFullEquipmentTab('PREFIX'); setActiveEquipmentButton(this)">접두어</button>
+      <button class="char-btn" style="white-space: nowrap; min-width: 100px; border-color: #ffd700;" onclick="renderFullEquipmentTab('EXCEED'); setActiveEquipmentButton(this)">익시드</button>
+    </div>
   </div>
 
   <div id="equipment-display-area" style="overflow-x: auto; background: #0f1222; padding: 15px; border-radius: 8px; border: 1px solid #2a3158;">
@@ -2350,13 +2355,16 @@ function closePrefixFullModal() {
 
   // 장비 관리 버튼 활성화 로직 (무기 관리 방식 참조)
   function setActiveEquipmentButton(clickedBtn) {
-    // 1. 장비 관리 툴바 내의 모든 char-btn에서 active 클래스 제거
-    const toolbar = clickedBtn.parentElement;
-    const buttons = toolbar.querySelectorAll('.char-btn');
-    buttons.forEach(btn => btn.classList.remove('active'));
+    // 1. 장비 관리 섹션(#section-equipment-view) 전체에서 모든 char-btn을 찾음
+    const allEquipmentButtons = document.querySelectorAll("#section-equipment-view .char-btn");
 
-    // 2. 클릭된 버튼에만 active 클래스 추가 (노란 불빛 발생)
-    clickedBtn.classList.add('active');
+    // 2. 모든 버튼에서 active 클래스 제거 (불빛 끄기)
+    allEquipmentButtons.forEach(btn => btn.classList.remove('active'));
+
+    // 3. 현재 클릭한 버튼에만 active 클래스 추가 (불빛 켜기)
+    if (clickedBtn) {
+      clickedBtn.classList.add('active');
+    }
   }
 </script>
 
