@@ -2426,20 +2426,18 @@
 
                 if (targetGroupKeys.length === 0) return;
 
-                // 해당 세트의 전체 달성 상태를 미리 계산하기 위해 calcTotalDistinctParts 활용 준비
                 fullHtml += `<h3 style="color:#fff; margin-top:30px;">[${baseSetName} 세트]</h3>`;
                 fullHtml += `<table style="width:max-content; border-collapse:collapse; margin-bottom:20px; border:1px solid #2a3158;">
-                    <thead style="background:#181c33;"><tr>
-                        <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">직업</th>
-                        <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">이름</th>
-                        ${(mode === 'ALL' || mode === 'EXCEED') ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">익시드</th>' : ''}
-                        <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">접두어</th>
-                        ${slots.map(s => `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">${s}</th>`).join('')}
-                        <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">달성</th>
-                    </tr></thead><tbody>`;
+                <thead style="background:#181c33;"><tr>
+                    <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">직업</th>
+                    <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">이름</th>
+                    ${(mode === 'ALL' || mode === 'EXCEED') ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">익시드</th>' : ''}
+                    ${/* 💡 일반 모드일 때는 접두어 헤더를 숨김 */ mode !== 'NORMAL' ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">접두어</th>' : ''}
+                    ${slots.map(s => `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">${s}</th>`).join('')}
+                    <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">달성</th>
+                </tr></thead><tbody>`;
 
                 characters.forEach(char => {
-                    // 💡 수정: 해당 캐릭터의 '전체 고유 부위'를 먼저 계산 (접두어/익시드 무관하게 합쳐서 판정할 때 사용)
                     const totalDistinct = calcTotalDistinctParts(char, baseSetName);
 
                     targetGroupKeys.forEach(group => {
@@ -2452,16 +2450,19 @@
                         }).join('');
 
                         let rowInfo = "";
-                        const tagColor = EXCEED_COLOR_MAP[group.tag] || "#ffd700"; // 익시드 색상 추출
+                        const tagColor = EXCEED_COLOR_MAP[group.tag] || "#ffd700";
 
+                        // 💡 일반 모드가 아닐 때만 접두어(display) 셀을 생성
                         if (mode === 'ALL' || mode === 'EXCEED') {
                             const tagCol = group.tag ? `<td style="padding:10px; border:1px solid #2a3158; color:${tagColor}; font-weight:bold; white-space:nowrap;">[${group.tag}]</td>` : `<td style="border:1px solid #2a3158;"></td>`;
                             rowInfo = tagCol + `<td style="padding:10px; border:1px solid #2a3158; color:#ffd700; font-weight:bold; white-space:nowrap;">${group.display}</td>`;
-                        } else {
+                        } else if (mode === 'PREFIX') {
                             rowInfo = `<td style="padding:10px; border:1px solid #2a3158; color:#ffd700; font-weight:bold; white-space:nowrap;">${group.display}</td>`;
+                        } else {
+                            // NORMAL 모드일 때는 rowInfo를 빈 값으로 두어 열을 생성하지 않음
+                            rowInfo = "";
                         }
 
-                        // 💡 수정: 달성 색상 판정 로직을 공통 규칙(3세트/5세트)에 맞게 적용
                         let statusColor = "#fff";
                         if (setType === "ARMOR") {
                             if (totalDistinct === 5) statusColor = "#ffd700";
@@ -2471,11 +2472,11 @@
                         }
 
                         fullHtml += `<tr>
-                            <td style="padding:10px; border:1px solid #2a3158; background:#181c33; white-space:nowrap;">${char.job}</td>
-                            <td style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">${char.name}</td>
-                            ${rowInfo}${slotsHtml}
-                            <td style="padding:10px; border:1px solid #2a3158; font-weight:bold; text-align:center; color:${statusColor};">${totalDistinct}</td>
-                        </tr>`;
+                        <td style="padding:10px; border:1px solid #2a3158; background:#181c33; white-space:nowrap;">${char.job}</td>
+                        <td style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">${char.name}</td>
+                        ${rowInfo}${slotsHtml}
+                        <td style="padding:10px; border:1px solid #2a3158; font-weight:bold; text-align:center; color:${statusColor};">${totalDistinct}</td>
+                    </tr>`;
                     });
                 });
                 fullHtml += `</tbody></table>`;
