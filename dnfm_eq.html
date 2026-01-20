@@ -1881,6 +1881,64 @@
       onclick="incrementWeapon('${charId}','${key}', '${jobName}')">${val}</button>`;
     }
 
+    // 💡 무기 버튼만 업데이트하는 헬퍼 함수 (전체 테이블 재렌더링 방지)
+    function updateWeaponButton(charId, key, newValue) {
+        // 해당 버튼을 찾아서 내용과 스타일만 업데이트
+        const table = document.getElementById("weaponDetailTable");
+        if (!table) return;
+
+        const buttons = table.querySelectorAll('.num-btn');
+        buttons.forEach(btn => {
+            // onclick 속성에서 charId와 key가 일치하는 버튼 찾기
+            const onclickStr = btn.getAttribute('onclick') || '';
+            if (onclickStr.includes(`'${charId}'`) && onclickStr.includes(`'${key}'`)) {
+                btn.textContent = newValue;
+                // positive 클래스 토글
+                if (newValue > 0) {
+                    btn.classList.add('positive');
+                } else {
+                    btn.classList.remove('positive');
+                }
+            }
+        });
+
+        // 상단 직업 버튼의 총 개수도 업데이트
+        updateWeaponJobTotals();
+    }
+
+    // 💡 직업별 총 개수만 업데이트하는 함수
+    function updateWeaponJobTotals() {
+        const container = document.getElementById("weaponJobButtons");
+        if (!container) return;
+
+        JOB_LIST.forEach(j => {
+            let totalCount = 0;
+            const jobData = WEAPON_DATA_MAP[j];
+            if (jobData) {
+                characters.forEach(char => {
+                    if (char.weaponCounts) {
+                        Object.values(jobData).forEach(weaponList => {
+                            weaponList.forEach(weaponName => {
+                                WEAPON_PREFIXES.forEach(pref => {
+                                    const weaponKey = `${pref.tag} ${weaponName}`;
+                                    totalCount += (char.weaponCounts[weaponKey] || 0);
+                                });
+                            });
+                        });
+                    }
+                });
+            }
+
+            // 해당 직업 버튼 찾아서 텍스트만 업데이트
+            const buttons = container.querySelectorAll('.char-btn');
+            buttons.forEach(btn => {
+                if (btn.textContent.startsWith(j)) {
+                    btn.textContent = `${j} (${totalCount})`;
+                }
+            });
+        });
+    }
+
     // 무기 전용 증가 함수
     function incrementWeapon(charId, key, jobName) {
         const char = characters.find(c => c.id === charId);
@@ -1888,10 +1946,12 @@
         if (!char.weaponCounts) char.weaponCounts = {};
 
         char.weaponCounts[key] = (char.weaponCounts[key] || 0) + 1;
-        char.updateTimes[key] = Date.now(); // 업데이트 시간 기록
+        char.updateTimes[key] = Date.now();
 
-        saveLocalData();    // 🔥 여기서 로컬 스토리지에 저장!
-        selectWeaponJob(jobName, true); // 화면 갱신
+        saveLocalData();
+
+        // 💡 전체 테이블 재렌더링 대신 해당 버튼만 업데이트
+        updateWeaponButton(charId, key, char.weaponCounts[key]);
     }
 
     // 무기 전용 감소 함수
@@ -1904,8 +1964,10 @@
         char.weaponCounts[key] = Math.max(0, cur - 1);
         char.updateTimes[key] = Date.now();
 
-        saveLocalData();    // 🔥 여기서 로컬 스토리지에 저장!
-        selectWeaponJob(jobName, true); // 화면 갱신
+        saveLocalData();
+
+        // 💡 전체 테이블 재렌더링 대신 해당 버튼만 업데이트
+        updateWeaponButton(charId, key, char.weaponCounts[key]);
     }
 
     // ===== 무기 직업 선택 및 버튼 갱신 (종류 열 너비 고정 및 정중앙 정렬) =====
