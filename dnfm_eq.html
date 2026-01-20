@@ -2354,6 +2354,15 @@
                 <tbody>`;
 
                 targetGroups.forEach(group => {
+                    // 💡 접두어 모드이거나 접두어 데이터인 경우에만 완성 여부 체크 (EXCEED 모드일 때는 접두어여도 무시)
+                    // mode === 'PREFIX'일 때만 작동하게 하려면 (mode === 'PREFIX' && group.isPrefix) 조건을 사용합니다.
+                    const isFullPrefixSet = group.isPrefix && (mode !== 'EXCEED') && slots.every(slot =>
+                        characters.some(char => (char.armorCounts?.[`${group.full} ${slot}`] || 0) > 0)
+                    );
+
+                    const rowBg = isFullPrefixSet ? "#5c4d00" : "transparent";
+                    const labelBg = isFullPrefixSet ? "#7a6700" : "#181c33";
+
                     let styledName = group.full;
 
                     if (group.isPrefix) {
@@ -2367,8 +2376,8 @@
                         }
                     }
 
-                    fullHtml += `<tr>
-                    <td style="font-weight:bold; background:#181c33; padding:10px; border:1px solid #2a3158; color:#fff; text-align:left;">${styledName}</td>`;
+                    fullHtml += `<tr style="background:${rowBg};">
+                <td style="font-weight:bold; background:${labelBg}; padding:10px; border:1px solid #2a3158; color:#fff; text-align:left;">${styledName}</td>`;
 
                     slots.forEach(slot => {
                         const fullKey = `${group.full} ${slot}`;
@@ -2566,7 +2575,7 @@
                 let targetGroups = [];
 
                 if (mode === 'NORMAL') {
-                    targetGroups.push({display: baseSetName, full: baseSetName});
+                    targetGroups.push({display: baseSetName, full: baseSetName, type: 'NORMAL'});
                 } else if (mode === 'PREFIX') {
                     prefixes.forEach(p => targetGroups.push({
                         display: p,
@@ -2606,7 +2615,14 @@
                 targetGroups.forEach(group => {
                     const searchKeyBase = group.tag ? `[${group.tag}] ${group.full}` : group.full;
 
-                    // 일반/접두어 모드에서만 사용할 '전체 캐릭터' 리스트 (익시드는 각 칸마다 따로 추출)
+                    // 💡 접두어 장비일 때만 모든 슬롯 보유 여부를 체크
+                    const isFullPrefixSet = (group.type === 'PREFIX') && slots.every(slot =>
+                        characters.some(c => (c.armorCounts?.[`${searchKeyBase} ${slot}`] || 0) > 0)
+                    );
+
+                    const rowBg = isFullPrefixSet ? "#5c4d00" : "#0f1222";
+                    const labelBg = isFullPrefixSet ? "#7a6700" : "#111529";
+
                     let relevantOwners = characters.filter(c => {
                         return slots.some(slot => (c.armorCounts?.[`${searchKeyBase} ${slot}`] || 0) > 0);
                     });
@@ -2622,11 +2638,11 @@
                         displayName = `<span style="color:#fff;">${group.full}</span>`;
                     }
 
-                    fullHtml += `<tr>
-                    <td style="padding:12px; border:1px solid #2a3158; background:#111529; vertical-align:middle; text-align:center; white-space:nowrap; color:#fff; font-size:14px;">${displayName}</td>`;
+                    fullHtml += `<tr style="background: ${rowBg};">
+                <td style="padding:12px; border:1px solid #2a3158; background:${labelBg}; vertical-align:middle; text-align:center; white-space:nowrap; color:#fff; font-size:14px;">${displayName}</td>`;
 
                     slots.forEach(slot => {
-                        fullHtml += `<td style="padding:8px; border:1px solid #2a3158; vertical-align:middle; text-align:center; background:#0f1222;">`;
+                        fullHtml += `<td style="padding:8px; border:1px solid #2a3158; vertical-align:middle; text-align:center;">`;
 
                         if (mode === 'EXCEED') {
                             // 💡 익시드: 가로줄 맞추지 않고 데이터가 있는 캐릭터만 촘촘하게 출력
