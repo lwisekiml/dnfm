@@ -355,6 +355,7 @@
     <button class="action-btn" style="background: linear-gradient(135deg, #6a5acd, #483d8b);" onclick="exportJSON()">
         💎 JSON 저장 (백업)
     </button>
+    <button onclick="saveJsonWithLocation()" class="char-btn" style="background: #e67e22;">📂 JSON 경로 지정 저장</button>
     <label class="file-label" style="background: #2c3e50; margin: 0; cursor: pointer;">
         📥 JSON 불러오기
         <input type="file" id="jsonFile" accept=".json" onchange="importJSON(event)" style="display:none;">
@@ -2746,6 +2747,53 @@
         // 3. 현재 클릭한 버튼에만 active 클래스 추가 (불빛 켜기)
         if (clickedBtn) {
             clickedBtn.classList.add('active');
+        }
+    }
+
+    async function saveJsonWithLocation() {
+        const dataStr = localStorage.getItem('dnfm_eq');
+        if (!dataStr) {
+            alert("저장할 데이터가 없습니다.");
+            return;
+        }
+
+        // 파일 기본 이름 설정 (오늘 날짜 포함)
+        const defaultName = "dnfm_eq_JSON_backup_" + new Date().toISOString().slice(0, 10) + ".json";
+
+        // 1. 최신 브라우저용 (File System Access API) - 직접 폴더/이름 지정 가능
+        if ('showSaveFilePicker' in window) {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: defaultName,
+                    types: [{
+                        description: 'JSON Files',
+                        accept: { 'application/json': ['.json'] },
+                    }],
+                });
+
+                const writable = await handle.createWritable();
+                await writable.write(dataStr);
+                await writable.close();
+
+                alert("지정된 위치에 저장되었습니다.");
+            } catch (err) {
+                // 사용자가 취소를 누른 경우 외의 에러 처리
+                if (err.name !== 'AbortError') {
+                    console.error(err);
+                    alert("파일 저장 중 오류가 발생했습니다.");
+                }
+            }
+        }
+        // 2. 구형 브라우저/모바일용 (대체 수단)
+        else {
+            alert("현재 브라우저가 저장 위치 지정을 직접 지원하지 않아 기본 다운로드 방식으로 진행합니다.");
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = defaultName;
+            link.click();
+            URL.revokeObjectURL(url);
         }
     }
 </script>
