@@ -464,6 +464,7 @@
 <h2>🛡️ RPG 통합 장비 관리 시스템</h2>
 
 <div class="control-bar">
+    <button class="btn-action" onclick="saveJsonWithLocation()" >📂 JSON 경로 지정 저장</button>
     <button class="btn-action" onclick="exportToJSON()">📤 JSON 파일 저장</button>
     <button class="btn-action" onclick="document.getElementById('fileInput').click()">📥 JSON 파일 불러오기</button>
     <button class="btn-action btn-add" onclick="createCharacterTable()">➕ 캐릭터 추가</button>
@@ -2122,6 +2123,71 @@
             });
         }
     });
+
+    // 기존 exportToJSON() 함수를 이것으로 교체하세요
+    async function saveJsonWithLocation() {
+        const charData = localStorage.getItem(STORAGE_KEY);
+        const historyData = localStorage.getItem(STORAGE_KEY + "_history");
+
+        if (!charData) return alert("저장된 데이터가 없습니다.");
+
+        // 기본 파일명 (오늘 날짜 포함)
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const defaultFileName = `dnfm_character_equipment_backup_${year}-${month}-${day}.json`;
+
+        const backup = {
+            characters: JSON.parse(charData),
+            history: historyData ? JSON.parse(historyData) : []
+        };
+
+        // 1. 최신 브라우저용 (File System Access API) - 직접 폴더/이름 지정 가능
+        if ('showSaveFilePicker' in window) {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: defaultFileName,
+                    types: [{
+                        description: 'JSON Files',
+                        accept: { 'application/json': ['.json'] },
+                    }],
+                });
+
+                const writable = await handle.createWritable();
+                await writable.write(JSON.stringify(backup, null, 2));
+                await writable.close();
+
+                const statusMsg = document.getElementById('statusMsg');
+                if (statusMsg) {
+                    statusMsg.innerText = `✅ "${handle.name}" 저장 완료`;
+                    setTimeout(() => statusMsg.innerText = "", 2000);
+                }
+            } catch (err) {
+                // 사용자가 취소를 누른 경우
+                if (err.name !== 'AbortError') {
+                    console.error(err);
+                    alert("파일 저장 중 오류가 발생했습니다.");
+                }
+            }
+        }
+        // 2. 구형 브라우저/모바일용 (대체 수단)
+        else {
+            alert("현재 브라우저가 저장 위치 지정을 직접 지원하지 않아 기본 다운로드 방식으로 진행합니다.");
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = defaultFileName;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+
+            const statusMsg = document.getElementById('statusMsg');
+            if (statusMsg) {
+                statusMsg.innerText = `✅ "${defaultFileName}" 저장 완료`;
+                setTimeout(() => statusMsg.innerText = "", 2000);
+            }
+        }
+    }
 
 </script>
 </body>
