@@ -457,6 +457,136 @@
             color: #facc15;
         }
 
+        /* 비교 모드 스타일 */
+        #compareContainer {
+            display: none;
+        }
+
+        .compare-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 50px;
+        }
+
+        .compare-header h3 {
+            color: var(--gold);
+            margin: 0;
+            flex: 1;
+            text-align: center;
+        }
+
+        .compare-center-label {
+            flex: 0 0 100px;
+            color: #888;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--table-bg);
+            border: 2px solid var(--gold);
+            margin-bottom: 30px;
+        }
+
+        .compare-table th {
+            background-color: #2a2a32;
+            color: var(--gold);
+            padding: 8px 4px;
+            border: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .compare-table td {
+            border: 1px solid var(--border);
+            padding: 6px 4px;
+            font-size: 11px;
+            height: auto;
+        }
+
+        .compare-slot-name {
+            background-color: #2a2a32;
+            color: var(--gold);
+            font-weight: bold;
+            width: 60px;
+        }
+
+        .compare-divider-row td {
+            border-top: 2px solid var(--gold);
+            height: 8px;
+            background: transparent;
+        }
+
+        .compare-diff {
+            background-color: #4a3f12;
+            color: #fcc419;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .compare-diff.same {
+            background-color: #2a2a32;
+            color: #888;
+        }
+
+        .compare-section-title {
+            color: var(--gold);
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .btn-exit-compare {
+            background: #4b5563;
+            margin-bottom: 20px;
+        }
+
+        #characterContainer {
+            display: block;
+        }
+
+        .compare-char-btn {
+            background: #1d4ed8;
+            color: white;
+            border: 2px solid #444;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .compare-char-btn.selected {
+            background: #c5a678;
+            color: #000;
+            border-color: #c5a678;
+        }
+
+        #compareCharSelectionContainer {
+            display: none;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #1a1a1f;
+            border: 2px solid #444;
+            border-radius: 4px;
+        }
+
+        #compareCharSelectionContainer h3 {
+            color: var(--gold);
+            margin-top: 0;
+        }
+
+        #compareCharSelectionContainer p {
+            color: #888;
+            font-size: 11px;
+            margin: 10px 0;
+        }
+
     </style>
 </head>
 <body>
@@ -473,8 +603,24 @@
         전체 잠금
     </button>
     <button class="btn-action" style="background:#0ea5e9;" onclick="openHistoryModal()">📜 기록</button>
+
+    <button class="btn-action" style="background:#f59e0b;" onclick="enterCompareMode()">⚖️ 비교</button>
+
     <input type="file" id="fileInput" style="display:none" accept=".json" onchange="importFromJSON(this)">
     <span id="statusMsg" class="status-msg"></span>
+</div>
+
+<!-- 캐릭터 선택 UI -->
+<div id="compareCharSelectionContainer">
+    <h3>⚖️ 비교할 캐릭터 선택</h3>
+    <p>비교하고 싶은 2명의 캐릭터를 선택해주세요. (정확히 2명 선택 필요)</p>
+    <div id="compareCharacterButtons" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+</div>
+
+<!-- 비교 결과 UI -->
+<div id="compareContainer">
+    <button class="btn-action btn-exit-compare" onclick="exitCompareMode()">✕ 비교 종료</button>
+    <div id="compareContent"></div>
 </div>
 
 <div id="characterContainer"></div>
@@ -2189,6 +2335,534 @@
         }
     }
 
+    // ================================================
+    // 비교 기능 관련 모든 함수 (수정 완료)
+    // ================================================
+
+    let selectedCharactersForCompare = [];
+
+    function enterCompareMode() {
+        const sections = document.querySelectorAll('.char-section');
+        if (sections.length === 0) {
+            alert("비교할 캐릭터가 없습니다.");
+            return;
+        }
+
+        // UI 전환
+        document.getElementById('characterContainer').style.display = 'none';
+        document.getElementById('compareCharSelectionContainer').style.display = 'block';
+        document.getElementById('compareContainer').style.display = 'none';
+
+        // 캐릭터 버튼 생성
+        const buttonContainer = document.getElementById('compareCharacterButtons');
+        buttonContainer.innerHTML = '';
+        selectedCharactersForCompare = [];
+
+        sections.forEach(section => {
+            const charId = section.id;
+            const jobEl = section.querySelector('[data-key="info_job"]');
+            const nameEl = section.querySelector('[data-key="info_name"]');
+            const job = jobEl ? jobEl.value : '미정';
+            const name = nameEl ? nameEl.value : '이름없음';
+            const displayName = `${job}(${name})`;
+
+            const btn = document.createElement('button');
+            btn.className = 'compare-char-btn';
+            btn.textContent = displayName;
+            btn.setAttribute('data-char-id', charId);
+            btn.onclick = () => toggleCharacterSelect(btn, charId);
+            buttonContainer.appendChild(btn);
+        });
+    }
+
+    function toggleCharacterSelect(btn, charId) {
+        if (btn.classList.contains('selected')) {
+            btn.classList.remove('selected');
+            selectedCharactersForCompare = selectedCharactersForCompare.filter(id => id !== charId);
+        } else {
+            if (selectedCharactersForCompare.length >= 2) {
+                alert("최대 2명까지만 비교 가능합니다.");
+                return;
+            }
+            btn.classList.add('selected');
+            selectedCharactersForCompare.push(charId);
+        }
+
+        if (selectedCharactersForCompare.length === 2) {
+            displayComparison();
+        }
+    }
+
+    function displayComparison() {
+        // UI 전환
+        document.getElementById('compareCharSelectionContainer').style.display = 'none';
+        document.getElementById('compareContainer').style.display = 'block';
+
+        const charId1 = selectedCharactersForCompare[0];
+        const charId2 = selectedCharactersForCompare[1];
+
+        const section1 = document.getElementById(charId1);
+        const section2 = document.getElementById(charId2);
+
+        const job1 = section1.querySelector('[data-key="info_job"]')?.value || '미정';
+        const name1 = section1.querySelector('[data-key="info_name"]')?.value || '이름없음';
+        const job2 = section2.querySelector('[data-key="info_job"]')?.value || '미정';
+        const name2 = section2.querySelector('[data-key="info_name"]')?.value || '이름없음';
+
+        const displayName1 = `${job1}(${name1})`;
+        const displayName2 = `${job2}(${name2})`;
+
+        let html = '';
+
+        // 장비 비교 섹션
+        html += `<div class="compare-section-title">*장비 비교*</div>`;
+        html += generateEquipmentComparisonTable(section1, section2, displayName1, displayName2);
+
+        // 마법봉인 비교 섹션
+        html += `<div class="compare-section-title">*마법봉인 비교*</div>`;
+        html += generateSealComparisonTable(section1, section2, displayName1, displayName2);
+
+        // 엠블렘 비교 섹션
+        html += `<div class="compare-section-title">*엠블렘 비교*</div>`;
+        html += generateEmblemComparisonTable(section1, section2, displayName1, displayName2);
+
+        // 마법부여 비교 섹션
+        html += `<div class="compare-section-title">*마법부여 비교*</div>`;
+        html += generateEnchantComparisonTable(section1, section2, displayName1, displayName2);
+
+        document.getElementById('compareContent').innerHTML = html;
+    }
+
+    function generateEquipmentComparisonTable(section1, section2, displayName1, displayName2) {
+        const equipSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호", "외형칭호", "오라", "아바타"];
+        const groupSlots = {
+            group1: ["무기", "상의", "어깨", "하의", "신발", "벨트"],
+            group2: ["목걸이", "팔찌", "반지"],
+            group3: ["보조장비", "귀걸이", "마법석"],
+            group4: ["칭호", "외형칭호", "오라", "아바타"]
+        };
+
+        let html = `<table class="compare-table" style="width: 100%; border-collapse: collapse;">
+        <colgroup>
+            <col style="width: 7%;">
+            <col style="width: 8%;">
+            <col style="width: 8%;">
+            <col style="width: 8%;">
+            <col style="width: 20%;">
+            <col style="width: 8%;">
+            <col style="width: 8%;">
+            <col style="width: 8%;">
+            <col style="width: 20%;">
+            <col style="width: 8%;">
+            <col style="width: 8%;">
+            <col style="width: 8%;">
+        </colgroup>
+        <thead>
+            <tr>
+                <th colspan="1"></th>
+                <th colspan="5">${displayName1}</th>
+                <th>비교값</th>
+                <th colspan="5">${displayName2}</th>
+            </tr>
+            <tr>
+                <th>슬롯</th>
+                <th>희귀도</th>
+                <th>익시드</th>
+                <th>접두어</th>
+                <th>아이템이름</th>
+                <th>강화</th>
+                <th>차이</th>
+                <th>강화</th>
+                <th>아이템이름</th>
+                <th>접두어</th>
+                <th>익시드</th>
+                <th>희귀도</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+        let currentGroup = '';
+        equipSlots.forEach((slot) => {
+            // 그룹 변경시 구분선
+            for (const [groupName, groupArray] of Object.entries(groupSlots)) {
+                if (groupArray[0] === slot && currentGroup !== groupName) {
+                    if (currentGroup !== '') {
+                        html += `<tr class="compare-divider-row"><td colspan="12"></td></tr>`;
+                    }
+                    currentGroup = groupName;
+                    break;
+                }
+            }
+
+            const data1 = getSlotData(section1, slot);
+            const data2 = getSlotData(section2, slot);
+
+            const reinforceDiff = calculateReinforceDiff(slot, data1.reinforce, data2.reinforce);
+
+            html += `<tr>
+            <td class="compare-slot-name">${slot}</td>
+            <td>${data1.rarity}</td>
+            <td>${data1.exceed}</td>
+            <td>${data1.prefix}</td>
+            <td>${data1.itemname}</td>
+            <td>${data1.reinforce}</td>
+            <td class="compare-diff ${reinforceDiff === '' || reinforceDiff === '-' ? 'same' : ''}">${reinforceDiff}</td>
+            <td>${data2.reinforce}</td>
+            <td>${data2.itemname}</td>
+            <td>${data2.prefix}</td>
+            <td>${data2.exceed}</td>
+            <td>${data2.rarity}</td>
+        </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        return html;
+    }
+
+    function generateSealComparisonTable(section1, section2, displayName1, displayName2) {
+        const equipSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석"];
+        const groupSlots = {
+            group1: ["무기", "상의", "어깨", "하의", "신발", "벨트"],
+            group2: ["목걸이", "팔찌", "반지"],
+            group3: ["보조장비", "귀걸이", "마법석"]
+        };
+
+        // 고유 옵션 테이블
+        let html = `<table class="compare-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <colgroup>
+            <col style="width: 10%;">
+            <col style="width: 20%;">
+            <col style="width: 12%;">
+            <col style="width: 18%;">
+            <col style="width: 20%;">
+            <col style="width: 12%;">
+            <col style="width: 8%;">
+        </colgroup>
+        <thead>
+            <tr>
+                <th colspan="1"></th>
+                <th colspan="2">${displayName1}</th>
+                <th>비교값</th>
+                <th colspan="2">${displayName2}</th>
+            </tr>
+            <tr>
+                <th>슬롯</th>
+                <th>고유 옵션</th>
+                <th>수치</th>
+                <th>고유옵션 차이</th>
+                <th>고유 옵션</th>
+                <th>수치</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+        let currentGroup = '';
+        equipSlots.forEach((slot) => {
+            // 그룹 변경시 구분선
+            for (const [groupName, groupArray] of Object.entries(groupSlots)) {
+                if (groupArray[0] === slot && currentGroup !== groupName) {
+                    if (currentGroup !== '') {
+                        html += `<tr class="compare-divider-row"><td colspan="6"></td></tr>`;
+                    }
+                    currentGroup = groupName;
+                    break;
+                }
+            }
+
+            const data1 = getSlotData(section1, slot);
+            const data2 = getSlotData(section2, slot);
+
+            let seal1Diff = '-';
+            if (data1.seal1 === data2.seal1 && data1.seal1 !== '') {
+                seal1Diff = calculateNumDiff(data1.seal1_val, data2.seal1_val);
+            } else if (data1.seal1 !== data2.seal1 && (data1.seal1 !== '' || data2.seal1 !== '')) {
+                seal1Diff = '고유옵션 값이 다름';
+            }
+
+            html += `<tr>
+            <td class="compare-slot-name">${slot}</td>
+            <td>${data1.seal1}</td>
+            <td>${data1.seal1_val}</td>
+            <td class="compare-diff ${seal1Diff === '-' ? 'same' : ''}">${seal1Diff}</td>
+            <td>${data2.seal1}</td>
+            <td>${data2.seal1_val}</td>
+        </tr>`;
+        });
+
+        html += `</tbody></table>`;
+
+        // 일반 옵션 테이블
+        html += `<table class="compare-table" style="width: 100%; border-collapse: collapse;">
+        <colgroup>
+            <col style="width: 10%;">
+            <col style="width: 20%;">
+            <col style="width: 12%;">
+            <col style="width: 18%;">
+            <col style="width: 20%;">
+            <col style="width: 12%;">
+            <col style="width: 8%;">
+        </colgroup>
+        <thead>
+            <tr>
+                <th colspan="1"></th>
+                <th colspan="2">${displayName1}</th>
+                <th>비교값</th>
+                <th colspan="2">${displayName2}</th>
+            </tr>
+            <tr>
+                <th>슬롯</th>
+                <th>일반 옵션</th>
+                <th>수치</th>
+                <th>일반옵션 차이</th>
+                <th>일반 옵션</th>
+                <th>수치</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+        currentGroup = '';
+        equipSlots.forEach((slot) => {
+            // 그룹 변경시 구분선
+            for (const [groupName, groupArray] of Object.entries(groupSlots)) {
+                if (groupArray[0] === slot && currentGroup !== groupName) {
+                    if (currentGroup !== '') {
+                        html += `<tr class="compare-divider-row"><td colspan="6"></td></tr>`;
+                    }
+                    currentGroup = groupName;
+                    break;
+                }
+            }
+
+            const data1 = getSlotData(section1, slot);
+            const data2 = getSlotData(section2, slot);
+
+            let seal2Diff = '-';
+            if (data1.seal2 === data2.seal2 && data1.seal2 !== '') {
+                seal2Diff = calculateNumDiff(data1.seal2_val, data2.seal2_val);
+            } else if (data1.seal2 !== data2.seal2 && (data1.seal2 !== '' || data2.seal2 !== '')) {
+                seal2Diff = '일반옵션 값이 다름';
+            }
+
+            html += `<tr>
+            <td class="compare-slot-name">${slot}</td>
+            <td>${data1.seal2}</td>
+            <td>${data1.seal2_val}</td>
+            <td class="compare-diff ${seal2Diff === '-' ? 'same' : ''}">${seal2Diff}</td>
+            <td>${data2.seal2}</td>
+            <td>${data2.seal2_val}</td>
+        </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        return html;
+    }
+
+    function generateEmblemComparisonTable(section1, section2, displayName1, displayName2) {
+        const emblemSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호"];
+        const selectEmblemSlots = ["보조장비", "귀걸이", "마법석", "칭호"];
+        const groupSlots = {
+            group1: ["무기", "상의", "어깨", "하의", "신발", "벨트"],
+            group2: ["목걸이", "팔찌", "반지"],
+            group3: ["보조장비", "귀걸이", "마법석"],
+            group4: ["칭호"]
+        };
+
+        let html = `<table class="compare-table" style="width: 100%; border-collapse: collapse;">
+        <colgroup>
+            <col style="width: 10%;">
+            <col style="width: 20%;">
+            <col style="width: 20%;">
+            <col style="width: 12%;">
+            <col style="width: 20%;">
+            <col style="width: 18%;">
+        </colgroup>
+        <thead>
+            <tr>
+                <th colspan="1"></th>
+                <th colspan="2">${displayName1}</th>
+                <th>비교값</th>
+                <th colspan="2">${displayName2}</th>
+            </tr>
+            <tr>
+                <th>슬롯</th>
+                <th>엠블렘1</th>
+                <th>엠블렘2</th>
+                <th>차이</th>
+                <th>엠블렘1</th>
+                <th>엠블렘2</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+        let currentGroup = '';
+        emblemSlots.forEach((slot) => {
+            // 그룹 변경시 구분선
+            for (const [groupName, groupArray] of Object.entries(groupSlots)) {
+                if (groupArray[0] === slot && currentGroup !== groupName) {
+                    if (currentGroup !== '') {
+                        html += `<tr class="compare-divider-row"><td colspan="6"></td></tr>`;
+                    }
+                    currentGroup = groupName;
+                    break;
+                }
+            }
+
+            const data1 = getSlotData(section1, slot);
+            const data2 = getSlotData(section2, slot);
+
+            let embDiff = '-';
+
+            // 선택지 엠블렘 슬롯 (보조장비, 귀걸이, 마법석, 칭호)
+            if (selectEmblemSlots.includes(slot)) {
+                if (data1.emb1 === data2.emb1) {
+                    // 엠블렘1이 같으면 엠블렘2의 숫자 차이만 표시
+                    const emb2Diff = calculateNumDiff(extractNumber(data1.emb2), extractNumber(data2.emb2));
+                    embDiff = emb2Diff;
+                } else {
+                    // 엠블렘1이 다르면 "값이 다름"
+                    embDiff = '값이 다름';
+                }
+            } else {
+                // 일반 엠블렘 슬롯 (무기, 방어구, 악세)
+                const emb1Diff = calculateNumDiff(extractNumber(data1.emb1), extractNumber(data2.emb1));
+                const emb2Diff = calculateNumDiff(extractNumber(data1.emb2), extractNumber(data2.emb2));
+                embDiff = `${emb1Diff} / ${emb2Diff}`;
+            }
+
+            html += `<tr>
+            <td class="compare-slot-name">${slot}</td>
+            <td>${data1.emb1}</td>
+            <td>${data1.emb2}</td>
+            <td class="compare-diff ${embDiff === '-' || embDiff === '- / -' ? 'same' : ''}">${embDiff}</td>
+            <td>${data2.emb1}</td>
+            <td>${data2.emb2}</td>
+        </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        return html;
+    }
+
+    function generateEnchantComparisonTable(section1, section2, displayName1, displayName2) {
+        const enchantSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호"];
+        const groupSlots = {
+            group1: ["무기", "상의", "어깨", "하의", "신발", "벨트"],
+            group2: ["목걸이", "팔찌", "반지"],
+            group3: ["보조장비", "귀걸이", "마법석"],
+            group4: ["칭호"]
+        };
+
+        let html = `<table class="compare-table" style="width: 100%; border-collapse: collapse;">
+        <colgroup>
+            <col style="width: 10%;">
+            <col style="width: 22%;">
+            <col style="width: 10%;">
+            <col style="width: 12%;">
+            <col style="width: 22%;">
+            <col style="width: 14%;">
+        </colgroup>
+        <thead>
+            <tr>
+                <th colspan="1"></th>
+                <th colspan="2">${displayName1}</th>
+                <th>비교값</th>
+                <th colspan="2">${displayName2}</th>
+            </tr>
+            <tr>
+                <th>슬롯</th>
+                <th>마법부여</th>
+                <th>수치</th>
+                <th>수치 차이</th>
+                <th>마법부여</th>
+                <th>수치</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+        let currentGroup = '';
+        enchantSlots.forEach((slot) => {
+            // 그룹 변경시 구분선
+            for (const [groupName, groupArray] of Object.entries(groupSlots)) {
+                if (groupArray[0] === slot && currentGroup !== groupName) {
+                    if (currentGroup !== '') {
+                        html += `<tr class="compare-divider-row"><td colspan="6"></td></tr>`;
+                    }
+                    currentGroup = groupName;
+                    break;
+                }
+            }
+
+            const data1 = getSlotData(section1, slot);
+            const data2 = getSlotData(section2, slot);
+
+            // 마법부여가 같을 때만 수치 비교
+            let enchantDiff = '-';
+            if (data1.enchant === data2.enchant && data1.enchant !== '') {
+                enchantDiff = calculateNumDiff(data1.enchant_val, data2.enchant_val);
+            } else if (data1.enchant !== data2.enchant && (data1.enchant !== '' || data2.enchant !== '')) {
+                enchantDiff = '값이 다름';
+            }
+
+            html += `<tr>
+            <td class="compare-slot-name">${slot}</td>
+            <td>${data1.enchant}</td>
+            <td>${data1.enchant_val}</td>
+            <td class="compare-diff ${enchantDiff === '-' ? 'same' : ''}">${enchantDiff}</td>
+            <td>${data2.enchant}</td>
+            <td>${data2.enchant_val}</td>
+        </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        return html;
+    }
+
+    function getSlotData(section, slot) {
+        return {
+            rarity: section.querySelector(`select[data-key="${slot}_rarity"]`)?.value || '',
+            exceed: section.querySelector(`select[data-key="${slot}_exceed"]`)?.value || '',
+            prefix: section.querySelector(`select[data-key="${slot}_prefix"]`)?.value || '',
+            itemname: section.querySelector(`[data-key="${slot}_itemname"]`)?.value || '',
+            reinforce: section.querySelector(`input[data-key="${slot}_reinforce"]`)?.value || '',
+            seal1: section.querySelector(`select[data-key="${slot}_seal1"]`)?.value || '',
+            seal1_val: section.querySelector(`input[data-key="${slot}_seal1_val"]`)?.value || '',
+            seal2: section.querySelector(`select[data-key="${slot}_seal2"]`)?.value || '',
+            seal2_val: section.querySelector(`input[data-key="${slot}_seal2_val"]`)?.value || '',
+            emb1: section.querySelector(`[data-key="${slot}_emb1"]`)?.value || '',
+            emb2: section.querySelector(`[data-key="${slot}_emb2"]`)?.value || '',
+            enchant: section.querySelector(`input[data-key="${slot}_enchant"]`)?.value || '',
+            enchant_val: section.querySelector(`input[data-key="${slot}_enchant_val"]`)?.value || ''
+        };
+    }
+
+    function extractNumber(str) {
+        const num = str.match(/\d+/);
+        return num ? num[0] : '0';
+    }
+
+    function calculateReinforceDiff(slot, val1, val2) {
+        const noReinforcedSlots = ["칭호", "외형칭호", "오라", "아바타"];
+        if (noReinforcedSlots.includes(slot)) return '';
+        if (!val1 || !val2) return '-';
+        const diff = parseInt(val2) - parseInt(val1);
+        if (diff === 0) return '-';
+        return diff > 0 ? `+${diff}` : `${diff}`;
+    }
+
+    function calculateNumDiff(val1, val2) {
+        if (!val1 || !val2) return '-';
+        const diff = parseInt(val2) - parseInt(val1);
+        if (diff === 0) return '-';
+        return diff > 0 ? `+${diff}` : `${diff}`;
+    }
+
+    function exitCompareMode() {
+        document.getElementById('characterContainer').style.display = 'block';
+        document.getElementById('compareCharSelectionContainer').style.display = 'none';
+        document.getElementById('compareContainer').style.display = 'none';
+        selectedCharactersForCompare = [];
+        document.getElementById('compareContent').innerHTML = '';
+    }
 </script>
 </body>
 </html>
