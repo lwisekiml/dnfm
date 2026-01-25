@@ -587,6 +587,22 @@
             margin: 10px 0;
         }
 
+        .btn-mode {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .btn-mode.active {
+            background: #f59e0b;
+            border: 2px solid #fff;
+        }
+
     </style>
 </head>
 <body>
@@ -603,8 +619,8 @@
         전체 잠금
     </button>
     <button class="btn-action" style="background:#0ea5e9;" onclick="openHistoryModal()">📜 기록</button>
-
-    <button class="btn-action" style="background:#f59e0b;" onclick="enterCompareMode()">⚖️ 비교</button>
+    <button class="btn-mode active" id="btnBasicMode" onclick="switchToBasicMode()">📋 기본</button>
+    <button class="btn-mode" id="btnCompareMode" onclick="enterCompareMode()">⚖️ 비교</button>
 
     <input type="file" id="fileInput" style="display:none" accept=".json" onchange="importFromJSON(this)">
     <span id="statusMsg" class="status-msg"></span>
@@ -2335,12 +2351,22 @@
         }
     }
 
-    // ================================================
-    // 비교 기능 관련 모든 함수 (수정 완료)
-    // ================================================
+    // ============ 기본 모드 전환 함수 ============
+    function switchToBasicMode() {
+        document.getElementById('characterContainer').style.display = 'block';
+        document.getElementById('compareCharSelectionContainer').style.display = 'none';
+        document.getElementById('compareContainer').style.display = 'none';
 
-    let selectedCharactersForCompare = [];
+        // 버튼 활성화 상태 전환
+        document.getElementById('btnBasicMode').classList.add('active');
+        document.getElementById('btnCompareMode').classList.remove('active');
 
+        // 모달 닫기
+        if (typeof closeRuneModal === 'function') closeRuneModal();
+        if (typeof closeHistoryModal === 'function') closeHistoryModal();
+    }
+
+    // ============ 비교 모드 진입 함수 (수정) ============
     function enterCompareMode() {
         const sections = document.querySelectorAll('.char-section');
         if (sections.length === 0) {
@@ -2348,10 +2374,14 @@
             return;
         }
 
-        // UI 전환
+        // 기본 화면 숨기기
         document.getElementById('characterContainer').style.display = 'none';
         document.getElementById('compareCharSelectionContainer').style.display = 'block';
         document.getElementById('compareContainer').style.display = 'none';
+
+        // 버튼 활성화 상태 전환
+        document.getElementById('btnBasicMode').classList.remove('active');
+        document.getElementById('btnCompareMode').classList.add('active');
 
         // 캐릭터 버튼 생성
         const buttonContainer = document.getElementById('compareCharacterButtons');
@@ -2374,6 +2404,8 @@
             buttonContainer.appendChild(btn);
         });
     }
+
+    let selectedCharactersForCompare = [];
 
     function toggleCharacterSelect(btn, charId) {
         if (btn.classList.contains('selected')) {
