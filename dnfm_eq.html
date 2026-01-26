@@ -345,6 +345,45 @@
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); /* 외부 광채 */
             font-weight: bold;
         }
+
+        /* 페이지네이션 스타일 */
+        .pagination {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .pagination button {
+            padding: 10px 15px;
+            border: 1px solid #2a3158;
+            background: #181c33;
+            color: #e6e9ff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            min-width: 40px;
+        }
+
+        .pagination button:hover {
+            background: #2a3158;
+            border-color: #3a4270;
+        }
+
+        .pagination button.active {
+            background: #4a33cc;
+            border-color: #ffd700;
+            color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+            font-weight: bold;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -421,9 +460,11 @@
 
 <div id="updateModal" class="modal-overlay">
     <div class="modal-content" style="min-width: 90vw; max-height: 85vh; overflow-y: auto;">
-        <h3>🌟 최근 장비 업데이트 (TOP 10)</h3>
+        <h3>🌟 최근 장비 업데이트 (TOP 50)</h3>
 
         <div id="updateModalContent"></div>
+
+        <div id="updatePagination" class="pagination"></div>
 
         <div class="modal-options" style="margin-top: 30px;">
             <button class="modal-btn modal-cancel-btn" onclick="closeUpdateModal()">닫기</button>
@@ -469,6 +510,10 @@
 
     let activeCharacterId = null; // 현재 어떤 캐릭터가 선택되었는지 기억
     let activeWeaponJob = null;
+    let currentUpdatePage = 1;
+    let allUpdatesData = [];
+    const ITEMS_PER_PAGE = 10;
+    const TOTAL_PAGES = 5;
 
     // 데이터 저장 시
     function saveLocalData() {
@@ -1609,14 +1654,12 @@
     // [리팩토링] 최근 업데이트 내역 표시
     // =======================================================
     function showRecentUpdates() {
-        const allUpdates = [];
+        allUpdatesData = [];
 
         characters.forEach(char => {
-            // 1 & 2 통합 수집 로직
             Object.entries(char.updateTimes).forEach(([fullKey, timestamp]) => {
                 if (!timestamp || timestamp <= 0) return;
 
-                // 방어구/악세/특장 체크
                 if (char.armorCounts && char.armorCounts[fullKey] !== undefined) {
                     const parts = fullKey.split(' ');
                     const slot = parts.pop();
@@ -1628,25 +1671,22 @@
                     if (setType === "ACCESSORY") category = "악세";
                     else if (setType === "SPECIAL") category = "특장";
 
-                    allUpdates.push({
+                    allUpdatesData.push({
                         name: char.name, job: char.job, itemName: itemName,
                         category: category, slot: slot, count: char.armorCounts[fullKey], timestamp: timestamp
                     });
-                }
-                // 무기 체크
-                else if (char.weaponCounts && char.weaponCounts[fullKey] !== undefined) {
+                } else if (char.weaponCounts && char.weaponCounts[fullKey] !== undefined) {
                     let weaponSubCategory = "-";
                     outerLoop:
                         for (const jobData of Object.values(WEAPON_DATA_MAP)) {
                             for (const [catName, list] of Object.entries(jobData)) {
-                                // fullKey에 무기 이름이 포함되어 있는지 확인
                                 if (list.some(name => fullKey.includes(name))) {
                                     weaponSubCategory = catName;
                                     break outerLoop;
                                 }
                             }
                         }
-                    allUpdates.push({
+                    allUpdatesData.push({
                         name: char.name, job: char.job, itemName: fullKey,
                         category: "무기", slot: weaponSubCategory, count: char.weaponCounts[fullKey], timestamp: timestamp
                     });
@@ -1654,39 +1694,51 @@
             });
         });
 
-        allUpdates.sort((a, b) => b.timestamp - a.timestamp);
+        allUpdatesData.sort((a, b) => b.timestamp - a.timestamp);
 
         const modalContent = document.getElementById("updateModalContent");
-        if (allUpdates.length === 0) {
+        if (allUpdatesData.length === 0) {
             modalContent.innerHTML = "<p>최근 업데이트된 내역이 없습니다.</p>";
+            document.getElementById("updatePagination").innerHTML = "";
             document.getElementById("updateModal").style.display = 'flex';
             return;
         }
 
+        currentUpdatePage = 1;
+        renderUpdatePage(1);
+        document.getElementById("updateModal").style.display = 'flex';
+    }
+
+    function renderUpdatePage(pageNum) {
+        const modalContent = document.getElementById("updateModalContent");
+        const paginationContainer = document.getElementById("updatePagination");
+
+        const startIdx = (pageNum - 1) * ITEMS_PER_PAGE;
+        const endIdx = startIdx + ITEMS_PER_PAGE;
+        const pageItems = allUpdatesData.slice(startIdx, endIdx);
+
         const table = document.createElement("table");
         table.style.width = '100%';
         table.innerHTML = `<thead><tr>
-        <th style="width:20%;">직업 / 이름</th>
-        <th style="width:15%;">종류 (부위)</th>
-        <th style="width:35%;">아이템</th>
-        <th style="width:10%;">보유 개수</th>
-        <th style="width:20%;">업데이트 시간</th>
-    </tr></thead><tbody></tbody>`;
+    <th style="width:20%;">직업 / 이름</th>
+    <th style="width:15%;">종류 (부위)</th>
+    <th style="width:35%;">아이템</th>
+    <th style="width:10%;">보유 개수</th>
+    <th style="width:20%;">업데이트 시간</th>
+</tr></thead><tbody></tbody>`;
 
         const tbody = table.querySelector("tbody");
 
-        allUpdates.slice(0, 10).forEach(item => {
+        pageItems.forEach(item => {
             const date = new Date(item.timestamp);
             const formatTime = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 
-            // 💡 강화된 스타일링 로직
             let styledItemName = item.itemName;
             const tagMatch = styledItemName.match(/^(\[.*?\])\s*(.*)/);
 
             if (tagMatch) {
                 const tag = tagMatch[1];
                 const restName = tagMatch[2];
-                // EXCEED_COLOR_MAP 또는 커스텀 맵 활용
                 let tagColor = '#ffd700';
                 if (tag.includes('선봉') || tag.includes('분쇄')) tagColor = '#ff4d4f';
                 else if (tag.includes('의지') || tag.includes('광채')) tagColor = '#3399cc';
@@ -1706,18 +1758,89 @@
 
             const tr = document.createElement("tr");
             tr.innerHTML = `
-            <td style="white-space:nowrap;">${item.job} / ${item.name}</td>
-            <td>[${item.category}] ${item.slot}</td>
-            <td style="text-align:left;">${styledItemName}</td>
-            <td style="font-weight:bold; color:${item.count > 0 ? '#ffcc00' : '#888'};">${item.count}</td>
-            <td style="font-size:0.9em;">${formatTime}</td>
-        `;
+        <td style="white-space:nowrap;">${item.job} / ${item.name}</td>
+        <td>[${item.category}] ${item.slot}</td>
+        <td style="text-align:left;">${styledItemName}</td>
+        <td style="font-weight:bold; color:${item.count > 0 ? '#ffcc00' : '#888'};">${item.count}</td>
+        <td style="font-size:0.9em;">${formatTime}</td>
+    `;
             tbody.appendChild(tr);
         });
 
         modalContent.innerHTML = "";
         modalContent.appendChild(table);
-        document.getElementById("updateModal").style.display = 'flex';
+
+        renderPaginationButtons(pageNum);
+    }
+
+    function renderPaginationButtons(currentPage) {
+        const paginationContainer = document.getElementById("updatePagination");
+        paginationContainer.innerHTML = "";
+
+        const totalPages = Math.ceil(allUpdatesData.length / ITEMS_PER_PAGE);
+
+        // 데이터가 없으면 버튼 생성 안 함
+        if (totalPages === 0) return;
+
+        // 처음으로 버튼
+        const firstBtn = document.createElement("button");
+        firstBtn.textContent = "⏮ 처음으로";
+        firstBtn.disabled = currentPage === 1;
+        firstBtn.onclick = () => {
+            currentUpdatePage = 1;
+            renderUpdatePage(1);
+        };
+        paginationContainer.appendChild(firstBtn);
+
+        // 이전 페이지 버튼
+        const prevBtn = document.createElement("button");
+        prevBtn.textContent = "◀ 이전";
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.onclick = () => {
+            if (currentPage > 1) {
+                currentUpdatePage = currentPage - 1;
+                renderUpdatePage(currentUpdatePage);
+            }
+        };
+        paginationContainer.appendChild(prevBtn);
+
+        // 페이지 범위 계산 (현재 페이지 기준으로 5개씩)
+        const pageGroupStart = Math.floor((currentPage - 1) / 5) * 5 + 1;
+        const pageGroupEnd = Math.min(pageGroupStart + 4, totalPages);
+
+        // 페이지 번호 버튼 (5개씩 표시)
+        for (let i = pageGroupStart; i <= pageGroupEnd; i++) {
+            const pageBtn = document.createElement("button");
+            pageBtn.textContent = i;
+            pageBtn.className = currentPage === i ? "active" : "";
+            pageBtn.onclick = () => {
+                currentUpdatePage = i;
+                renderUpdatePage(i);
+            };
+            paginationContainer.appendChild(pageBtn);
+        }
+
+        // 다음 페이지 버튼
+        const nextBtn = document.createElement("button");
+        nextBtn.textContent = "다음 ▶";
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.onclick = () => {
+            if (currentPage < totalPages) {
+                currentUpdatePage = currentPage + 1;
+                renderUpdatePage(currentUpdatePage);
+            }
+        };
+        paginationContainer.appendChild(nextBtn);
+
+        // 끝으로 버튼
+        const lastBtn = document.createElement("button");
+        lastBtn.textContent = "끝으로 ⏭";
+        lastBtn.disabled = currentPage === totalPages;
+        lastBtn.onclick = () => {
+            currentUpdatePage = totalPages;
+            renderUpdatePage(totalPages);
+        };
+        paginationContainer.appendChild(lastBtn);
     }
 
 
