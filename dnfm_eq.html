@@ -459,8 +459,8 @@
 
 
 <div id="updateModal" class="modal-overlay">
-    <div class="modal-content" style="min-width: 90vw; max-height: 85vh; overflow-y: auto;">
-        <h3>🌟 최근 장비 업데이트 (TOP 50)</h3>
+    <div class="modal-content" style="width: 1200px; max-width: 90vw; max-height: 85vh; overflow-y: auto;">
+        <h3>🌟 최근 장비 업데이트</h3>
 
         <div id="updateModalContent"></div>
 
@@ -1841,6 +1841,66 @@
             renderUpdatePage(totalPages);
         };
         paginationContainer.appendChild(lastBtn);
+
+        // 페이지 검색 입력창 추가
+        const searchDiv = document.createElement("div");
+        searchDiv.style.display = "flex";
+        searchDiv.style.gap = "8px";
+        searchDiv.style.alignItems = "center";
+        searchDiv.style.marginLeft = "15px";
+
+        const searchLabel = document.createElement("span");
+        searchLabel.textContent = "페이지 검색:";
+        searchLabel.style.color = "#e6e9ff";
+        searchLabel.style.fontWeight = "bold";
+        searchDiv.appendChild(searchLabel);
+
+        const searchInput = document.createElement("input");
+        searchInput.type = "number";
+        searchInput.min = "1";
+        searchInput.max = totalPages;
+        searchInput.placeholder = `1-${totalPages}`;
+        searchInput.style.width = "80px";
+        searchInput.style.padding = "8px";
+        searchInput.style.border = "1px solid #2a3158";
+        searchInput.style.background = "#181c33";
+        searchInput.style.color = "#e6e9ff";
+        searchInput.style.borderRadius = "6px";
+        searchInput.style.textAlign = "center";
+
+        const searchBtn = document.createElement("button");
+        searchBtn.textContent = "🔍 이동";
+        searchBtn.style.padding = "8px 15px";
+        searchBtn.style.border = "1px solid #2a3158";
+        searchBtn.style.background = "#25c2a0";
+        searchBtn.style.color = "#fff";
+        searchBtn.style.borderRadius = "6px";
+        searchBtn.style.cursor = "pointer";
+        searchBtn.style.fontWeight = "bold";
+        searchBtn.style.transition = "0.2s";
+        searchBtn.onmouseover = () => searchBtn.style.background = "#1a8c7d";
+        searchBtn.onmouseout = () => searchBtn.style.background = "#25c2a0";
+
+        searchBtn.onclick = () => {
+            const pageNum = parseInt(searchInput.value);
+            if (isNaN(pageNum) || pageNum < 1 || pageNum > totalPages) {
+                alert(`1 ~ ${totalPages} 사이의 페이지를 입력하세요.`);
+                return;
+            }
+            currentUpdatePage = pageNum;
+            renderUpdatePage(pageNum);
+        };
+
+        // Enter 키로도 검색 가능
+        searchInput.onkeypress = (e) => {
+            if (e.key === "Enter") {
+                searchBtn.click();
+            }
+        };
+
+        searchDiv.appendChild(searchInput);
+        searchDiv.appendChild(searchBtn);
+        paginationContainer.appendChild(searchDiv);
     }
 
 
