@@ -2364,14 +2364,27 @@
                 if (targetGroupKeys.length === 0) return;
 
                 fullHtml += `<h3 style="color:#fff; margin-top:30px;">[${baseSetName} 세트]</h3>`;
+
+                // 익시드 모드일 때 슬롯 필터링
+                let displaySlots = slots;
+                if (mode === 'EXCEED') {
+                    if (setType === "ARMOR") {
+                        displaySlots = ["상의"];
+                    } else if (setType === "ACCESSORY") {
+                        displaySlots = ["팔찌"];
+                    } else if (setType === "SPECIAL") {
+                        displaySlots = ["귀걸이"];
+                    }
+                }
+
                 fullHtml += `<table style="width:max-content; border-collapse:collapse; margin-bottom:20px; border:1px solid #2a3158;">
             <thead style="background:#181c33;"><tr>
                 <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">직업</th>
                 <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">이름</th>
                 ${(mode === 'ALL' || mode === 'EXCEED') ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">익시드</th>' : ''}
                 ${mode !== 'NORMAL' ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">접두어</th>' : ''}
-                ${slots.map(s => `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">${s}</th>`).join('')}
-                <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">달성</th>
+                ${displaySlots.map(s => `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">${s}</th>`).join('')}
+                ${mode !== 'EXCEED' ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">달성</th>' : ''}
             </tr></thead><tbody>`;
 
                 characters.forEach(char => {
@@ -2383,7 +2396,7 @@
                     );
 
                     charGroups.forEach((group, gIdx) => {
-                        let slotsHtml = slots.map(s => {
+                        let slotsHtml = displaySlots.map(s => {
                             const count = char.armorCounts?.[`${group.full} ${s}`] || 0;
                             return `<td style="padding:10px; border:1px solid #2a3158; text-align:center; color:${count > 0 ? '#fff' : '#444'}; font-weight:bold;">${count}</td>`;
                         }).join('');
@@ -2415,7 +2428,7 @@
                         <td style="padding:10px; ${borderStyle} background:#181c33; white-space:nowrap;">${char.job}</td>
                         <td style="padding:10px; ${borderStyle} white-space:nowrap;">${char.name}</td>
                         ${rowInfo.replace(/border:1px solid #2a3158/g, borderStyle)}${slotsHtml.replace(/border:1px solid #2a3158/g, borderStyle)}
-                        <td style="padding:10px; ${borderStyle} font-weight:bold; text-align:center; color:${statusColor};">${totalDistinct}</td>
+                        ${mode !== 'EXCEED' ? `<td style="padding:10px; ${borderStyle} font-weight:bold; text-align:center; color:${statusColor};">${totalDistinct}</td>` : ''}
                     </tr>`;
                     });
                 });
