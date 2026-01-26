@@ -2153,7 +2153,8 @@
 
             weaponList.forEach((weaponName, wIdx) => {
                 WEAPON_PREFIXES.forEach((pref, pIdx) => {
-                    html += `<tr>`;
+                    const rowId = `weapon-row-${categories.indexOf(category)}-${wIdx}-${pIdx}`;
+                    html += `<tr id="${rowId}" onclick="toggleRowHighlight('${rowId}')">`;
 
                     // 💡 종류 셀: 가로/세로 정중앙 + 너비 고정 적용
                     if (wIdx === 0 && pIdx === 0) {
@@ -2161,7 +2162,7 @@
                     }
 
                     const styledName = `<span style="color:${pref.color}; font-weight:bold;">${pref.tag}</span>&nbsp;${weaponName}`;
-                    html += `<td style="text-align:left; padding: 8px 15px; white-space: nowrap; border: 1px solid #2a3158;">${styledName}</td>`;
+                    html += `<td style="text-align:left; padding: 8px 15px; white-space: nowrap; border: 1px solid #2a3158; cursor: pointer;">${styledName}</td>`;
 
                     characters.forEach(char => {
                         const weaponKey = `${pref.tag} ${weaponName}`;
@@ -2185,6 +2186,36 @@
 
         if (typeof applyStoredHighlights === "function") {
             applyStoredHighlights();
+        }
+    }
+
+    // 💡 무기 테이블 행 강조 함수
+    let highlightedRowId = null;
+
+    function toggleRowHighlight(rowId) {
+        const table = document.getElementById("weaponDetailTable");
+        if (!table) return;
+
+        const rows = table.querySelectorAll('tbody tr');
+
+        // 이미 선택된 행을 다시 누르면 해제
+        if (highlightedRowId === rowId) {
+            highlightedRowId = null;
+        } else {
+            highlightedRowId = rowId;
+        }
+
+        // 모든 행의 강조 해제
+        rows.forEach(row => {
+            row.style.backgroundColor = "";
+        });
+
+        // 선택된 행만 강조
+        if (highlightedRowId) {
+            const selectedRow = document.getElementById(highlightedRowId);
+            if (selectedRow) {
+                selectedRow.style.backgroundColor = "rgba(255, 255, 200, 0.15)";
+            }
         }
     }
 
