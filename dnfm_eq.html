@@ -2396,6 +2396,36 @@
                     );
 
                     charGroups.forEach((group, gIdx) => {
+                        // 각 모드별로 달성도 계산
+                        let displayDistinct = totalDistinct;
+                        let statusColor = "#fff";
+
+                        if (mode === 'NORMAL') {
+                            displayDistinct = 0;
+                            slots.forEach(slot => {
+                                const key = `${baseSetName} ${slot}`;
+                                if ((char.armorCounts[key] || 0) > 0) {
+                                    displayDistinct++;
+                                }
+                            });
+                        } else if (mode === 'PREFIX') {
+                            displayDistinct = 0;
+                            slots.forEach(slot => {
+                                const key = `${group.full} ${slot}`;
+                                if ((char.armorCounts[key] || 0) > 0) {
+                                    displayDistinct++;
+                                }
+                            });
+                        }
+
+                        // 색상 결정
+                        if (setType === "ARMOR") {
+                            if (displayDistinct === 5) statusColor = "#ffd700";
+                            else if (displayDistinct >= 3) statusColor = "#2ecc71";
+                        } else {
+                            if (displayDistinct === 3) statusColor = "#2ecc71";
+                        }
+
                         let slotsHtml = displaySlots.map(s => {
                             const count = char.armorCounts?.[`${group.full} ${s}`] || 0;
                             return `<td style="padding:10px; border:1px solid #2a3158; text-align:center; color:${count > 0 ? '#fff' : '#444'}; font-weight:bold;">${count}</td>`;
@@ -2412,24 +2442,16 @@
                             rowInfo = `<td style="padding:10px; border:1px solid #2a3158; color:#ffd700; font-weight:bold; white-space:nowrap;">${group.display}</td>`;
                         }
 
-                        let statusColor = "#fff";
-                        if (setType === "ARMOR") {
-                            if (totalDistinct === 5) statusColor = "#ffd700";
-                            else if (totalDistinct >= 3) statusColor = "#2ecc71";
-                        } else {
-                            if (totalDistinct === 3) statusColor = "#2ecc71";
-                        }
-
                         // 💡 [모두] 버튼일 때만 캐릭터 경계선에 진한 선 적용
                         const isLastRowOfChar = (gIdx === charGroups.length - 1);
                         const borderStyle = (mode === 'ALL' && isLastRowOfChar) ? "border-bottom: 3px solid #666;" : "border-bottom: 1px solid #2a3158;";
 
                         fullHtml += `<tr>
-                        <td style="padding:10px; ${borderStyle} background:#181c33; white-space:nowrap;">${char.job}</td>
-                        <td style="padding:10px; ${borderStyle} white-space:nowrap;">${char.name}</td>
-                        ${rowInfo.replace(/border:1px solid #2a3158/g, borderStyle)}${slotsHtml.replace(/border:1px solid #2a3158/g, borderStyle)}
-                        ${mode !== 'EXCEED' ? `<td style="padding:10px; ${borderStyle} font-weight:bold; text-align:center; color:${statusColor};">${totalDistinct}</td>` : ''}
-                    </tr>`;
+                    <td style="padding:10px; ${borderStyle} background:#181c33; white-space:nowrap;">${char.job}</td>
+                    <td style="padding:10px; ${borderStyle} white-space:nowrap;">${char.name}</td>
+                    ${rowInfo.replace(/border:1px solid #2a3158/g, borderStyle)}${slotsHtml.replace(/border:1px solid #2a3158/g, borderStyle)}
+                    ${mode !== 'EXCEED' ? `<td style="padding:10px; ${borderStyle} font-weight:bold; text-align:center; color:${statusColor};">${displayDistinct}</td>` : ''}
+                </tr>`;
                     });
                 });
                 fullHtml += `</tbody></table>`;
