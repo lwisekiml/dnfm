@@ -626,16 +626,26 @@
     <span id="statusMsg" class="status-msg"></span>
 </div>
 
-<!-- 캐릭터 선택 UI -->
 <div id="compareCharSelectionContainer">
     <h3>⚖️ 비교할 캐릭터 선택</h3>
-    <p>비교하고 싶은 2명의 캐릭터를 선택해주세요. (정확히 2명 선택 필요)</p>
-    <div id="compareCharacterButtons" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+    <p>왼쪽과 오른쪽에서 각각 1명 씩을 선택해주세요.</p>
+    <div style="display: flex; gap: 60px; margin-top: 20px;">
+        <!-- 왼쪽 선택 -->
+        <div style="flex: 1;">
+            <h4 style="color: var(--gold); margin-top: 0; margin-bottom: 10px;">⬅️ 왼쪽 선택</h4>
+            <div id="compareCharacterButtonsLeft" style="display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+
+        <!-- 오른쪽 선택 -->
+        <div style="flex: 1;">
+            <h4 style="color: var(--gold); margin-top: 0; margin-bottom: 10px;">➡️ 오른쪽 선택</h4>
+            <div id="compareCharacterButtonsRight" style="display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+    </div>
 </div>
 
 <!-- 비교 결과 UI -->
 <div id="compareContainer">
-    <button class="btn-action btn-exit-compare" onclick="exitCompareMode()">✕ 비교 종료</button>
     <div id="compareContent"></div>
 </div>
 
@@ -2383,10 +2393,12 @@
         document.getElementById('btnBasicMode').classList.remove('active');
         document.getElementById('btnCompareMode').classList.add('active');
 
-        // 캐릭터 버튼 생성
-        const buttonContainer = document.getElementById('compareCharacterButtons');
-        buttonContainer.innerHTML = '';
-        selectedCharactersForCompare = [];
+        // 캐릭터 버튼 생성 (왼쪽/오른쪽)
+        const buttonContainerLeft = document.getElementById('compareCharacterButtonsLeft');
+        const buttonContainerRight = document.getElementById('compareCharacterButtonsRight');
+        buttonContainerLeft.innerHTML = '';
+        buttonContainerRight.innerHTML = '';
+        compareSelection = { left: null, right: null };
 
         sections.forEach(section => {
             const charId = section.id;
@@ -2396,42 +2408,64 @@
             const name = nameEl ? nameEl.value : '이름없음';
             const displayName = `${job}(${name})`;
 
-            const btn = document.createElement('button');
-            btn.className = 'compare-char-btn';
-            btn.textContent = displayName;
-            btn.setAttribute('data-char-id', charId);
-            btn.onclick = () => toggleCharacterSelect(btn, charId);
-            buttonContainer.appendChild(btn);
+            // 왼쪽 버튼
+            const btnLeft = document.createElement('button');
+            btnLeft.className = 'compare-char-btn';
+            btnLeft.textContent = displayName;
+            btnLeft.setAttribute('data-char-id', charId);
+            btnLeft.onclick = () => toggleCharacterSelect(btnLeft, charId, 'left');
+            buttonContainerLeft.appendChild(btnLeft);
+
+            // 오른쪽 버튼
+            const btnRight = document.createElement('button');
+            btnRight.className = 'compare-char-btn';
+            btnRight.textContent = displayName;
+            btnRight.setAttribute('data-char-id', charId);
+            btnRight.onclick = () => toggleCharacterSelect(btnRight, charId, 'right');
+            buttonContainerRight.appendChild(btnRight);
         });
     }
 
-    let selectedCharactersForCompare = [];
+    // [수정] 왼쪽/오른쪽 선택 시스템
+    let compareSelection = {
+        left: null,
+        right: null
+    };
 
-    function toggleCharacterSelect(btn, charId) {
-        if (btn.classList.contains('selected')) {
+    function toggleCharacterSelect(btn, charId, position) {
+        // position: 'left' or 'right'
+
+        // 기존 선택 해제
+        const containerSelector = position === 'left' ? '#compareCharacterButtonsLeft' : '#compareCharacterButtonsRight';
+        const allButtons = document.querySelectorAll(containerSelector + ' .compare-char-btn');
+        allButtons.forEach(b => b.classList.remove('selected'));
+
+        // 같은 버튼 다시 클릭하면 선택 해제
+        if (compareSelection[position] === charId) {
+            compareSelection[position] = null;
             btn.classList.remove('selected');
-            selectedCharactersForCompare = selectedCharactersForCompare.filter(id => id !== charId);
         } else {
-            if (selectedCharactersForCompare.length >= 2) {
-                alert("최대 2명까지만 비교 가능합니다.");
-                return;
-            }
+            // 새 캐릭터 선택
+            compareSelection[position] = charId;
             btn.classList.add('selected');
-            selectedCharactersForCompare.push(charId);
         }
 
-        if (selectedCharactersForCompare.length === 2) {
+        // 양쪽 모두 선택된 경우만 비교 실행
+        if (compareSelection.left && compareSelection.right) {
             displayComparison();
+        } else {
+            // 둘 중 하나라도 미선택된 경우 비교 화면 감춤
+            document.getElementById('compareContainer').style.display = 'none';
         }
     }
 
     function displayComparison() {
         // UI 전환
-        document.getElementById('compareCharSelectionContainer').style.display = 'none';
+        document.getElementById('compareCharSelectionContainer').style.display = 'block';
         document.getElementById('compareContainer').style.display = 'block';
 
-        const charId1 = selectedCharactersForCompare[0];
-        const charId2 = selectedCharactersForCompare[1];
+        const charId1 = compareSelection.left;
+        const charId2 = compareSelection.right;
 
         const section1 = document.getElementById(charId1);
         const section2 = document.getElementById(charId2);
@@ -2892,7 +2926,7 @@
         document.getElementById('characterContainer').style.display = 'block';
         document.getElementById('compareCharSelectionContainer').style.display = 'none';
         document.getElementById('compareContainer').style.display = 'none';
-        selectedCharactersForCompare = [];
+        compareSelection = { left: null, right: null };
         document.getElementById('compareContent').innerHTML = '';
     }
 </script>
