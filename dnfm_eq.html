@@ -2326,14 +2326,25 @@
     function renderEquipmentTab(mode) {
         const displayArea = document.getElementById("equipment-display-area");
         const CATEGORIES = [
-            {name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX},
-            {name: "악세", sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX},
-            {name: "특장", sets: SPECIAL_SETS, prefix: SPECIAL_PREFIX}
+            {name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX, id: 'cat-armor'},
+            {name: "악세", sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX, id: 'cat-accessory'},
+            {name: "특장", sets: SPECIAL_SETS, prefix: SPECIAL_PREFIX, id: 'cat-special'}
         ];
 
-        let fullHtml = `<h2 style="color:#ffd700; margin-bottom:20px;">📊 캐릭터별 상세 현황 (${mode})</h2>`;
+        // 스크롤 버튼 추가
+        let scrollButtonHtml = `<div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">`;
+        CATEGORIES.forEach(cat => {
+            scrollButtonHtml += `<button class="char-btn" style="background: #4a33cc; border: 1px solid #ffd700;"
+                            onclick="scrollToCategory('${cat.id}')">${cat.name}로 이동 →</button>`;
+        });
+        scrollButtonHtml += `</div>`;
+
+        let fullHtml = scrollButtonHtml + `<h2 style="color:#ffd700; margin-bottom:20px;">📊 캐릭터별 상세 현황 (${mode})</h2>`;
 
         CATEGORIES.forEach(cat => {
+            fullHtml += `<div id="${cat.id}" style="margin-bottom: 50px; padding-top: 20px; border-top: 3px solid #4a33cc;">`;
+            fullHtml += `<h2 style="color:#ffd700; font-size: 24px; margin-bottom: 15px;">🔹 ${cat.name}</h2>`;
+
             Object.keys(cat.sets).forEach(baseSetName => {
                 const prefixes = cat.prefix[baseSetName] || [];
                 const slots = cat.sets[baseSetName];
@@ -2456,6 +2467,8 @@
                 });
                 fullHtml += `</tbody></table>`;
             });
+
+            fullHtml += `</div>`; // 카테고리 닫는 태그 추가
         });
 
         displayArea.innerHTML = fullHtml;
@@ -2465,14 +2478,25 @@
     function renderFullEquipmentTab(mode) {
         const displayArea = document.getElementById("equipment-display-area");
         const CATEGORIES = [
-            {name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX},
-            {name: "악세", sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX},
-            {name: "특장", sets: SPECIAL_SETS, prefix: SPECIAL_PREFIX}
+            {name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX, id: 'cat-armor'},
+            {name: "악세", sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX, id: 'cat-accessory'},
+            {name: "특장", sets: SPECIAL_SETS, prefix: SPECIAL_PREFIX, id: 'cat-special'}
         ];
 
-        let fullHtml = `<h2 style="color:#ffd700; margin-bottom:20px;">🌎 아이템별 전체 현황 (${mode})</h2>`;
+        // 스크롤 버튼 추가
+        let scrollButtonHtml = `<div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">`;
+        CATEGORIES.forEach(cat => {
+            scrollButtonHtml += `<button class="char-btn" style="background: #4a33cc; border: 1px solid #ffd700;"
+                            onclick="scrollToCategory('${cat.id}')">${cat.name}로 이동 →</button>`;
+        });
+        scrollButtonHtml += `</div>`;
+
+        let fullHtml = scrollButtonHtml + `<h2 style="color:#ffd700; margin-bottom:20px;">🌎 아이템별 전체 현황 (${mode})</h2>`;
 
         CATEGORIES.forEach(cat => {
+            fullHtml += `<div id="${cat.id}" style="margin-bottom: 50px; padding-top: 20px; border-top: 3px solid #4a33cc;">`;
+            fullHtml += `<h2 style="color:#ffd700; font-size: 24px; margin-bottom: 15px;">🔹 ${cat.name}</h2>`;
+
             Object.keys(cat.sets).forEach(baseSetName => {
                 const prefixes = cat.prefix[baseSetName] || [];
                 let slots = [...cat.sets[baseSetName]];
@@ -2584,8 +2608,17 @@
                 });
                 fullHtml += `</tbody></table>`;
             });
+            fullHtml += `</div>`; // 카테고리 닫는 태그 추가
         });
+
         displayArea.innerHTML = fullHtml;
+    }
+
+    function scrollToCategory(categoryId) {
+        const element = document.getElementById(categoryId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
     }
 
     // 모바일 터치 대응 (터치 시작 시 닫기)
