@@ -549,28 +549,6 @@
             display: block;
         }
 
-        .compare-char-btn {
-            background: #1d4ed8;
-            color: white;
-            border: 2px solid #444;
-            padding: 8px 12px;
-            cursor: pointer;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 12px;
-            margin-bottom: 10px;
-            white-space: nowrap;  /* 텍스트 줄바꿈 방지 */
-            display: block;       /* 블록 요소 */
-            width: 100%;          /* 전체 너비 사용 */
-            overflow: visible;    /* 텍스트 넘쳐도 표시 */
-        }
-
-        .compare-char-btn.selected {
-            background: #c5a678;
-            color: #000;
-            border-color: #c5a678;
-        }
-
         #compareCharSelectionContainer {
             display: none;
             margin-bottom: 20px;
@@ -633,17 +611,21 @@
 <div id="compareCharSelectionContainer">
     <h3>⚖️ 비교할 캐릭터 선택</h3>
     <p>왼쪽과 오른쪽에서 각각 1명 씩을 선택해주세요.</p>
-    <div style="display: flex; gap: 60px; margin-top: 20px;">
+    <div style="display: flex; gap: 30px; margin-top: 20px; align-items: center;">
         <!-- 왼쪽 선택 -->
         <div style="flex: 1;">
-            <h4 style="color: var(--gold); margin-top: 0; margin-bottom: 10px;">⬅️ 왼쪽 선택</h4>
-            <div id="compareCharacterButtonsLeft" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            <label style="color: var(--gold); font-weight: bold; display: block; margin-bottom: 8px;">⬅️ 왼쪽 선택</label>
+            <select id="compareCharacterSelectLeft" style="width: 100%; padding: 8px; background: #000; color: #fff; border: 2px solid #c5a678; border-radius: 4px; font-size: 12px; cursor: pointer; height: 38px; line-height: 1.5;">
+                <option value="">캐릭터 선택...</option>
+            </select>
         </div>
 
         <!-- 오른쪽 선택 -->
         <div style="flex: 1;">
-            <h4 style="color: var(--gold); margin-top: 0; margin-bottom: 10px;">➡️ 오른쪽 선택</h4>
-            <div id="compareCharacterButtonsRight" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            <label style="color: var(--gold); font-weight: bold; display: block; margin-bottom: 8px;">➡️ 오른쪽 선택</label>
+            <select id="compareCharacterSelectRight" style="width: 100%; padding: 8px; background: #000; color: #fff; border: 2px solid #c5a678; border-radius: 4px; font-size: 12px; cursor: pointer; height: 38px; line-height: 1.5;">
+                <option value="">캐릭터 선택...</option>
+            </select>
         </div>
     </div>
 </div>
@@ -2397,28 +2379,12 @@
         document.getElementById('btnBasicMode').classList.remove('active');
         document.getElementById('btnCompareMode').classList.add('active');
 
-        // 캐릭터 버튼 생성 (왼쪽/오른쪽)
-        const buttonContainerLeft = document.getElementById('compareCharacterButtonsLeft');
-        const buttonContainerRight = document.getElementById('compareCharacterButtonsRight');
-        buttonContainerLeft.innerHTML = '';
-        buttonContainerRight.innerHTML = '';
+        // 드롭다운 선택지 생성 (왼쪽/오른쪽)
+        const selectLeft = document.getElementById('compareCharacterSelectLeft');
+        const selectRight = document.getElementById('compareCharacterSelectRight');
+        selectLeft.innerHTML = '<option value="">캐릭터 선택...</option>';
+        selectRight.innerHTML = '<option value="">캐릭터 선택...</option>';
         compareSelection = { left: null, right: null };
-
-        // ★ [추가] 가장 긴 캐릭터 이름의 길이로 버튼 너비 자동 조정
-        let maxLength = 0;
-        sections.forEach(section => {
-            const jobEl = section.querySelector('[data-key="info_job"]');
-            const nameEl = section.querySelector('[data-key="info_name"]');
-            const job = jobEl ? jobEl.value : '미정';
-            const name = nameEl ? nameEl.value : '이름없음';
-            const displayName = `${job}(${name})`;
-            maxLength = Math.max(maxLength, displayName.length);
-        });
-
-        // 계산된 길이에 따라 컨테이너 너비 설정
-        const containerWidth = Math.max(150, maxLength * 8.5 + 50);
-        buttonContainerLeft.style.maxWidth = containerWidth + 'px';
-        buttonContainerRight.style.maxWidth = containerWidth + 'px';
 
         sections.forEach(section => {
             const charId = section.id;
@@ -2428,21 +2394,36 @@
             const name = nameEl ? nameEl.value : '이름없음';
             const displayName = `${job}(${name})`;
 
-            // 왼쪽 버튼
-            const btnLeft = document.createElement('button');
-            btnLeft.className = 'compare-char-btn';
-            btnLeft.textContent = displayName;
-            btnLeft.setAttribute('data-char-id', charId);
-            btnLeft.onclick = () => toggleCharacterSelect(btnLeft, charId, 'left');
-            buttonContainerLeft.appendChild(btnLeft);
+            // 왼쪽 드롭다운 옵션
+            const optionLeft = document.createElement('option');
+            optionLeft.value = charId;
+            optionLeft.textContent = displayName;
+            selectLeft.appendChild(optionLeft);
 
-            // 오른쪽 버튼
-            const btnRight = document.createElement('button');
-            btnRight.className = 'compare-char-btn';
-            btnRight.textContent = displayName;
-            btnRight.setAttribute('data-char-id', charId);
-            btnRight.onclick = () => toggleCharacterSelect(btnRight, charId, 'right');
-            buttonContainerRight.appendChild(btnRight);
+            // 오른쪽 드롭다운 옵션
+            const optionRight = document.createElement('option');
+            optionRight.value = charId;
+            optionRight.textContent = displayName;
+            selectRight.appendChild(optionRight);
+        });
+
+        // 드롭다운 변경 이벤트
+        selectLeft.addEventListener('change', (e) => {
+            compareSelection.left = e.target.value || null;
+            if (compareSelection.left && compareSelection.right) {
+                displayComparison();
+            } else {
+                document.getElementById('compareContainer').style.display = 'none';
+            }
+        });
+
+        selectRight.addEventListener('change', (e) => {
+            compareSelection.right = e.target.value || null;
+            if (compareSelection.left && compareSelection.right) {
+                displayComparison();
+            } else {
+                document.getElementById('compareContainer').style.display = 'none';
+            }
         });
     }
 
@@ -2451,33 +2432,6 @@
         left: null,
         right: null
     };
-
-    function toggleCharacterSelect(btn, charId, position) {
-        // position: 'left' or 'right'
-
-        // 기존 선택 해제
-        const containerSelector = position === 'left' ? '#compareCharacterButtonsLeft' : '#compareCharacterButtonsRight';
-        const allButtons = document.querySelectorAll(containerSelector + ' .compare-char-btn');
-        allButtons.forEach(b => b.classList.remove('selected'));
-
-        // 같은 버튼 다시 클릭하면 선택 해제
-        if (compareSelection[position] === charId) {
-            compareSelection[position] = null;
-            btn.classList.remove('selected');
-        } else {
-            // 새 캐릭터 선택
-            compareSelection[position] = charId;
-            btn.classList.add('selected');
-        }
-
-        // 양쪽 모두 선택된 경우만 비교 실행
-        if (compareSelection.left && compareSelection.right) {
-            displayComparison();
-        } else {
-            // 둘 중 하나라도 미선택된 경우 비교 화면 감춤
-            document.getElementById('compareContainer').style.display = 'none';
-        }
-    }
 
     function displayComparison() {
         // UI 전환
