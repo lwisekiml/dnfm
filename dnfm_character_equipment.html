@@ -585,6 +585,78 @@
             border: 2px solid #fff;
         }
 
+        /* 비교 테이블 셀 색상 적용용 클래스 */
+        .compare-table .rare-에픽 {
+            color: var(--txt-epic) !important;
+            font-weight: bold;
+        }
+
+        .compare-table .rare-유니크 {
+            color: var(--txt-unique) !important;
+            font-weight: bold;
+        }
+
+        .compare-table .rare-레어 {
+            color: var(--txt-rare) !important;
+            font-weight: bold;
+        }
+
+        .compare-table .rare-언커먼 {
+            color: var(--txt-uncom) !important;
+            font-weight: bold;
+        }
+
+        .compare-table .rare-커먼 {
+            color: var(--txt-common) !important;
+            font-weight: bold;
+        }
+
+        .compare-table .rare-티어 {
+            color: #ffffff !important;
+            font-weight: bold;
+        }
+
+        .compare-table .ex-이상 {
+            color: var(--ex-isang) !important;
+            font-weight: bold;
+        }
+
+        .compare-table .ex-선봉 {
+            color: var(--ex-sunbong) !important;
+            font-weight: bold;
+        }
+
+        .compare-table .ex-의지 {
+            color: var(--ex-uiji) !important;
+            font-weight: bold;
+        }
+
+        .compare-table .prefix-selected {
+            color: var(--txt-epic) !important;
+            font-weight: bold;
+        }
+
+        .compare-table .prefix-tier {
+            color: #ffffff !important;
+            font-weight: bold;
+        }
+
+        .compare-table .p-blue {
+            color: #3b82f6 !important;
+        }
+
+        .compare-table .p-red {
+            color: #ef4444 !important;
+        }
+
+        .compare-table .p-green {
+            color: #22c55e !important;
+        }
+
+        .compare-table .p-yellow {
+            color: #facc15 !important;
+        }
+
     </style>
 </head>
 <body>
@@ -2523,7 +2595,6 @@
 
         let currentGroup = '';
         equipSlots.forEach((slot) => {
-            // 그룹 변경시 구분선
             for (const [groupName, groupArray] of Object.entries(groupSlots)) {
                 if (groupArray[0] === slot && currentGroup !== groupName) {
                     if (currentGroup !== '') {
@@ -2539,19 +2610,61 @@
 
             const reinforceDiff = calculateReinforceDiff(slot, data1.reinforce, data2.reinforce);
 
+            // 희귀도 클래스 적용
+            const rarityClass1 = data1.rarity ? `rare-${data1.rarity}` : '';
+            const rarityClass2 = data2.rarity ? `rare-${data2.rarity}` : '';
+
+            // 익시드 클래스 적용
+            const exceedClass1 = data1.exceed ? `ex-${data1.exceed}` : '';
+            const exceedClass2 = data2.exceed ? `ex-${data2.exceed}` : '';
+
+            // 접두어 클래스 적용
+            let prefixClass1 = '';
+            let prefixClass2 = '';
+
+            if (data1.prefix) {
+                if (data1.prefix.startsWith('T')) {
+                    prefixClass1 = 'prefix-tier';
+                } else if (data1.prefix !== '') {
+                    prefixClass1 = 'prefix-selected';
+                    // 무기 전용 접두어 색상
+                    if (slot === "무기") {
+                        if (data1.prefix === "광채") prefixClass1 += ' p-blue';
+                        else if (data1.prefix === "분쇄") prefixClass1 += ' p-red';
+                        else if (data1.prefix === "선명") prefixClass1 += ' p-green';
+                        else if (data1.prefix === "강타") prefixClass1 += ' p-yellow';
+                    }
+                }
+            }
+
+            if (data2.prefix) {
+                if (data2.prefix.startsWith('T')) {
+                    prefixClass2 = 'prefix-tier';
+                } else if (data2.prefix !== '') {
+                    prefixClass2 = 'prefix-selected';
+                    // 무기 전용 접두어 색상
+                    if (slot === "무기") {
+                        if (data2.prefix === "광채") prefixClass2 += ' p-blue';
+                        else if (data2.prefix === "분쇄") prefixClass2 += ' p-red';
+                        else if (data2.prefix === "선명") prefixClass2 += ' p-green';
+                        else if (data2.prefix === "강타") prefixClass2 += ' p-yellow';
+                    }
+                }
+            }
+
             html += `<tr>
             <td class="compare-slot-name">${slot}</td>
-            <td>${data1.rarity}</td>
-            <td>${data1.exceed}</td>
-            <td>${data1.prefix}</td>
+            <td class="${rarityClass1}">${data1.rarity}</td>
+            <td class="${exceedClass1}">${data1.exceed}</td>
+            <td class="${prefixClass1}">${data1.prefix}</td>
             <td>${data1.itemname}</td>
             <td>${data1.reinforce}</td>
             <td class="compare-diff ${reinforceDiff === '' || reinforceDiff === '-' ? 'same' : ''}">${reinforceDiff}</td>
             <td>${data2.reinforce}</td>
             <td>${data2.itemname}</td>
-            <td>${data2.prefix}</td>
-            <td>${data2.exceed}</td>
-            <td>${data2.rarity}</td>
+            <td class="${prefixClass2}">${data2.prefix}</td>
+            <td class="${exceedClass2}">${data2.exceed}</td>
+            <td class="${rarityClass2}">${data2.rarity}</td>
         </tr>`;
         });
 
@@ -2566,6 +2679,10 @@
             group2: ["목걸이", "팔찌", "반지"],
             group3: ["보조장비", "귀걸이", "마법석"]
         };
+
+        const armorSlots = ["상의", "어깨", "하의", "신발", "벨트"];
+        const accSlots = ["목걸이", "팔찌", "반지"];
+        const specialSlots = ["보조장비", "귀걸이", "마법석"];
 
         // 고유 옵션 테이블
         let html = `<table class="compare-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
@@ -2598,7 +2715,6 @@
 
         let currentGroup = '';
         equipSlots.forEach((slot) => {
-            // 그룹 변경시 구분선
             for (const [groupName, groupArray] of Object.entries(groupSlots)) {
                 if (groupArray[0] === slot && currentGroup !== groupName) {
                     if (currentGroup !== '') {
@@ -2612,6 +2728,34 @@
             const data1 = getSlotData(section1, slot);
             const data2 = getSlotData(section2, slot);
 
+            // 캐릭터 스탯/속강 설정 가져오기
+            const statType1 = section1.querySelector(`select[data-key="info_stat_type"]`)?.value || "";
+            const eleType1 = section1.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
+            const statType2 = section2.querySelector(`select[data-key="info_stat_type"]`)?.value || "";
+            const eleType2 = section2.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
+
+            // 고유옵션 하이라이트 클래스
+            let seal1Class1 = '';
+            let seal1Class2 = '';
+
+            // 캐릭터1 고유옵션 강조
+            if (slot === "무기" && data1.seal1 === "데미지 증가") {
+                seal1Class1 = 'highlight-yellow';
+            } else if ((armorSlots.includes(slot) || specialSlots.includes(slot)) && data1.seal1 === statType1) {
+                seal1Class1 = 'highlight-yellow';
+            } else if (accSlots.includes(slot) && data1.seal1 === eleType1) {
+                seal1Class1 = 'highlight-yellow';
+            }
+
+            // 캐릭터2 고유옵션 강조
+            if (slot === "무기" && data2.seal1 === "데미지 증가") {
+                seal1Class2 = 'highlight-yellow';
+            } else if ((armorSlots.includes(slot) || specialSlots.includes(slot)) && data2.seal1 === statType2) {
+                seal1Class2 = 'highlight-yellow';
+            } else if (accSlots.includes(slot) && data2.seal1 === eleType2) {
+                seal1Class2 = 'highlight-yellow';
+            }
+
             let seal1Diff = '-';
             if (data1.seal1 === data2.seal1 && data1.seal1 !== '') {
                 seal1Diff = calculateNumDiff(data1.seal1_val, data2.seal1_val);
@@ -2621,11 +2765,11 @@
 
             html += `<tr>
             <td class="compare-slot-name">${slot}</td>
-            <td>${data1.seal1}</td>
-            <td>${data1.seal1_val}</td>
+            <td class="${seal1Class1}">${data1.seal1}</td>
+            <td class="${seal1Class1}">${data1.seal1_val}</td>
             <td class="compare-diff ${seal1Diff === '-' ? 'same' : ''}">${seal1Diff}</td>
-            <td>${data2.seal1}</td>
-            <td>${data2.seal1_val}</td>
+            <td class="${seal1Class2}">${data2.seal1}</td>
+            <td class="${seal1Class2}">${data2.seal1_val}</td>
         </tr>`;
         });
 
@@ -2662,7 +2806,6 @@
 
         currentGroup = '';
         equipSlots.forEach((slot) => {
-            // 그룹 변경시 구분선
             for (const [groupName, groupArray] of Object.entries(groupSlots)) {
                 if (groupArray[0] === slot && currentGroup !== groupName) {
                     if (currentGroup !== '') {
@@ -2676,6 +2819,30 @@
             const data1 = getSlotData(section1, slot);
             const data2 = getSlotData(section2, slot);
 
+            // 캐릭터 스탯/속강 설정 가져오기
+            const statType1 = section1.querySelector(`select[data-key="info_stat_type"]`)?.value || "";
+            const eleType1 = section1.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
+            const statType2 = section2.querySelector(`select[data-key="info_stat_type"]`)?.value || "";
+            const eleType2 = section2.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
+
+            // 일반옵션 하이라이트 클래스 (seal2 사용)
+            let seal2Class1 = '';
+            let seal2Class2 = '';
+
+            // 캐릭터1 일반옵션 강조
+            if ((armorSlots.includes(slot) || slot === "무기" || specialSlots.includes(slot)) && data1.seal2 === statType1) {
+                seal2Class1 = 'highlight-yellow';
+            } else if (accSlots.includes(slot) && data1.seal2 === eleType1) {
+                seal2Class1 = 'highlight-yellow';
+            }
+
+            // 캐릭터2 일반옵션 강조
+            if ((armorSlots.includes(slot) || slot === "무기" || specialSlots.includes(slot)) && data2.seal2 === statType2) {
+                seal2Class2 = 'highlight-yellow';
+            } else if (accSlots.includes(slot) && data2.seal2 === eleType2) {
+                seal2Class2 = 'highlight-yellow';
+            }
+
             let seal2Diff = '-';
             if (data1.seal2 === data2.seal2 && data1.seal2 !== '') {
                 seal2Diff = calculateNumDiff(data1.seal2_val, data2.seal2_val);
@@ -2685,11 +2852,11 @@
 
             html += `<tr>
             <td class="compare-slot-name">${slot}</td>
-            <td>${data1.seal2}</td>
-            <td>${data1.seal2_val}</td>
+            <td class="${seal2Class1}">${data1.seal2}</td>
+            <td class="${seal2Class1}">${data1.seal2_val}</td>
             <td class="compare-diff ${seal2Diff === '-' ? 'same' : ''}">${seal2Diff}</td>
-            <td>${data2.seal2}</td>
-            <td>${data2.seal2_val}</td>
+            <td class="${seal2Class2}">${data2.seal2}</td>
+            <td class="${seal2Class2}">${data2.seal2_val}</td>
         </tr>`;
         });
 
@@ -2706,6 +2873,9 @@
             group3: ["보조장비", "귀걸이", "마법석"],
             group4: ["칭호"]
         };
+
+        // 이 부분을 추가하세요
+        const embHighlightSlots = ["보조장비", "귀걸이", "마법석", "칭호"];
 
         let html = `<table class="compare-table" style="width: 100%; border-collapse: collapse;">
         <colgroup>
@@ -2734,9 +2904,8 @@
         </thead>
         <tbody>`;
 
-        let currentGroup = '';
+        currentGroup = '';
         emblemSlots.forEach((slot) => {
-            // 그룹 변경시 구분선
             for (const [groupName, groupArray] of Object.entries(groupSlots)) {
                 if (groupArray[0] === slot && currentGroup !== groupName) {
                     if (currentGroup !== '') {
@@ -2750,37 +2919,52 @@
             const data1 = getSlotData(section1, slot);
             const data2 = getSlotData(section2, slot);
 
+            // 캐릭터 속강 설정 가져오기
+            const eleType1 = section1.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
+            const eleType2 = section2.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
+
+            // 엠블렘 하이라이트 클래스
+            let emb1Class1 = '';
+            let emb1Class2 = '';
+
+            const embHighlightSlots = ["보조장비", "귀걸이", "마법석", "칭호"];
+
+            // 캐릭터1 엠블렘 강조
+            if (embHighlightSlots.includes(slot) && (data1.emb1 === eleType1 || data1.emb1 === "모속강")) {
+                emb1Class1 = 'highlight-yellow';
+            }
+
+            // 캐릭터2 엠블렘 강조
+            if (embHighlightSlots.includes(slot) && (data2.emb1 === eleType2 || data2.emb1 === "모속강")) {
+                emb1Class2 = 'highlight-yellow';
+            }
+
             let embDiff = '-';
 
-            // 선택지 엠블렘 슬롯 (보조장비, 귀걸이, 마법석, 칭호)
             if (selectEmblemSlots.includes(slot)) {
                 if (data1.emb1 === data2.emb1) {
-                    // 엠블렘1이 같으면 엠블렘2의 숫자 차이만 표시
                     const emb2Diff = calculateNumDiff(extractNumber(data1.emb2), extractNumber(data2.emb2));
                     embDiff = emb2Diff;
                 } else {
-                    // 엠블렘1이 다르면 "값이 다름"
                     embDiff = '값이 다름';
                 }
             } else {
-                // 일반 엠블렘 슬롯 (무기, 방어구, 악세)
                 const emb1Diff = calculateNumDiff(extractNumber(data1.emb1), extractNumber(data2.emb1));
                 const emb2Diff = calculateNumDiff(extractNumber(data1.emb2), extractNumber(data2.emb2));
                 embDiff = `${emb1Diff} / ${emb2Diff}`;
             }
 
             html += `<tr>
-            <td class="compare-slot-name">${slot}</td>
-            <td>${data1.emb1}</td>
-            <td>${data1.emb2}</td>
-            <td class="compare-diff ${embDiff === '-' || embDiff === '- / -' ? 'same' : ''}">${embDiff}</td>
-            <td>${data2.emb1}</td>
-            <td>${data2.emb2}</td>
-        </tr>`;
+        <td class="compare-slot-name">${slot}</td>
+        <td class="${emb1Class1}">${data1.emb1}</td>
+        <td class="${emb1Class1}">${data1.emb2}</td>
+        <td class="compare-diff ${embDiff === '-' || embDiff === '- / -' ? 'same' : ''}">${embDiff}</td>
+        <td class="${emb1Class2}">${data2.emb1}</td>
+        <td class="${emb1Class2}">${data2.emb2}</td>
+    </tr>`;
         });
-
         html += `</tbody></table>`;
-        return html;
+        return html;  // 이 줄이 누락되었습니다
     }
 
     function generateEnchantComparisonTable(section1, section2, displayName1, displayName2) {
