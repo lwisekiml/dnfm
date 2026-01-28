@@ -2554,21 +2554,21 @@
             group4: ["칭호", "외형칭호", "오라", "아바타"]
         };
 
-        let html = `<table class="compare-table" style="width: 100%; border-collapse: collapse;">
-        <colgroup>
-            <col style="width: 7%;">
-            <col style="width: 8%;">
-            <col style="width: 8%;">
-            <col style="width: 8%;">
-            <col style="width: 20%;">
-            <col style="width: 8%;">
-            <col style="width: 8%;">
-            <col style="width: 8%;">
-            <col style="width: 20%;">
-            <col style="width: 8%;">
-            <col style="width: 8%;">
-            <col style="width: 8%;">
-        </colgroup>
+        let html = `<table class="compare-table" style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+    <colgroup>
+        <col style="width: 6%; min-width: 60px;">   <!-- 슬롯 -->
+        <col style="width: 7%; min-width: 70px;">   <!-- 희귀도1 -->
+        <col style="width: 7%; min-width: 70px;">   <!-- 익시드1 -->
+        <col style="width: 7%; min-width: 70px;">   <!-- 접두어1 -->
+        <col style="width: 17%; min-width: 150px;">  <!-- 아이템이름1 -->
+        <col style="width: 6%; min-width: 50px;">   <!-- 강화1 -->
+        <col style="width: 8%; min-width: 70px;">   <!-- 비교값 -->
+        <col style="width: 6%; min-width: 50px;">   <!-- 강화2 -->
+        <col style="width: 17%; min-width: 150px;">  <!-- 아이템이름2 -->
+        <col style="width: 7%; min-width: 70px;">   <!-- 접두어2 -->
+        <col style="width: 7%; min-width: 70px;">   <!-- 익시드2 -->
+        <col style="width: 7%; min-width: 70px;">   <!-- 희귀도2 -->
+    </colgroup>
         <thead>
             <tr>
                 <th colspan="1"></th>
