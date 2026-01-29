@@ -2518,11 +2518,13 @@
 
         const job1 = section1.querySelector('[data-key="info_job"]')?.value || '미정';
         const name1 = section1.querySelector('[data-key="info_name"]')?.value || '이름없음';
+        const power1 = section1.querySelector('[data-key="info_power"]')?.value || '-';
         const job2 = section2.querySelector('[data-key="info_job"]')?.value || '미정';
         const name2 = section2.querySelector('[data-key="info_name"]')?.value || '이름없음';
+        const power2 = section2.querySelector('[data-key="info_power"]')?.value || '-';
 
-        const displayName1 = `${job1}(${name1})`;
-        const displayName2 = `${job2}(${name2})`;
+        const displayName1 = `${job1}(${name1}) / ${power1}`;
+        const displayName2 = `${job2}(${name2}) / ${power2}`;
 
         let html = '';
 
