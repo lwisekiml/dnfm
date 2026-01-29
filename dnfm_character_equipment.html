@@ -79,6 +79,116 @@
             color: var(--gold);
         }
 
+        /* 비교 테이블 공통 레이아웃 */
+        .compare-table {
+            table-layout: fixed !important;
+        }
+
+        /* 비교값 열 고정 */
+        .compare-diff-col {
+            width: 8% !important;
+            min-width: 70px !important;
+            text-align: center !important;
+            vertical-align: middle !important;
+        }
+
+        /* 슬롯명 열 고정 */
+        .compare-slot-col {
+            width: 6% !important;
+            min-width: 60px !important;
+        }
+
+        /* 옵션명 열 고정 */
+        .compare-option-col {
+            width: 20% !important;
+            min-width: 120px !important;
+        }
+
+        /* 수치 열 고정 */
+        .compare-value-col {
+            width: 10% !important;
+            min-width: 60px !important;
+            text-align: center !important;
+        }
+
+        /* 희귀도/익시드/접두어 열 고정 */
+        .compare-attr-col {
+            width: 7% !important;
+            min-width: 70px !important;
+            text-align: center !important;
+        }
+
+        /* 아이템명 열 고정 */
+        .compare-item-col {
+            width: 17% !important;
+            min-width: 140px !important;
+        }
+
+        /* 강화 열 고정 */
+        .compare-reinforce-col {
+            width: 6% !important;
+            min-width: 50px !important;
+            text-align: center !important;
+        }
+
+        /* 비교값 열 강조 스타일 */
+        .compare-diff-col {
+            width: 8% !important;
+            min-width: 70px !important;
+            text-align: center !important;
+            vertical-align: middle !important;
+            background-color: #2a2a32 !important;
+            border-left: 2px solid var(--gold) !important;
+            border-right: 2px solid var(--gold) !important;
+            position: relative;
+        }
+
+        /* 비교값 열 헤더 강조 */
+        .compare-table th.compare-diff-col {
+            background-color: #3a3a42 !important;
+            font-weight: bold;
+            color: var(--gold) !important;
+            font-size: 12px;
+        }
+
+        /* 비교값 셀 강조 */
+        .compare-table td.compare-diff {
+            background-color: #4a3f12 !important;
+            color: #fcc419 !important;
+            font-weight: bold;
+            text-align: center;
+            border-left: 2px solid var(--gold) !important;
+            border-right: 2px solid var(--gold) !important;
+            font-size: 12px;
+        }
+
+        .compare-table td.compare-diff.same {
+            background-color: #2a2a32 !important;
+            color: #666 !important;
+            font-weight: normal;
+        }
+
+        /* 비교값 열에 그림자 효과 추가 */
+        .compare-diff-col::before {
+            content: '';
+            position: absolute;
+            left: -3px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to right, rgba(197, 166, 120, 0.3), transparent);
+        }
+
+        .compare-diff-col::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to left, rgba(197, 166, 120, 0.3), transparent);
+        }
+
         .char-section {
             margin-bottom: 30px;
         }
@@ -184,6 +294,36 @@
             pointer-events: auto !important;
             touch-action: auto !important;
             -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 증가/감소에 따른 색상 구분 */
+        .compare-table td.compare-diff {
+            background-color: #4a3f12 !important;
+            color: #fcc419 !important;
+            font-weight: bold;
+            text-align: center;
+            border-left: 2px solid var(--gold) !important;
+            border-right: 2px solid var(--gold) !important;
+            font-size: 12px;
+        }
+
+        /* 값이 같을 때 */
+        .compare-table td.compare-diff.same {
+            background-color: #2a2a32 !important;
+            color: #666 !important;
+            font-weight: normal;
+        }
+
+        /* 증가 (양수) */
+        .compare-table td.compare-diff.positive {
+            background-color: #1a4a2a !important;
+            color: #4ade80 !important;
+        }
+
+        /* 감소 (음수) */
+        .compare-table td.compare-diff.negative {
+            background-color: #4a1a1a !important;
+            color: #f87171 !important;
         }
 
         select option {
@@ -2556,26 +2696,26 @@
             group4: ["칭호", "외형칭호", "오라", "아바타"]
         };
 
-        let html = `<table class="compare-table" style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-    <colgroup>
-        <col style="width: 6%; min-width: 60px;">   <!-- 슬롯 -->
-        <col style="width: 7%; min-width: 70px;">   <!-- 희귀도1 -->
-        <col style="width: 7%; min-width: 70px;">   <!-- 익시드1 -->
-        <col style="width: 7%; min-width: 70px;">   <!-- 접두어1 -->
-        <col style="width: 17%; min-width: 150px;">  <!-- 아이템이름1 -->
-        <col style="width: 6%; min-width: 50px;">   <!-- 강화1 -->
-        <col style="width: 8%; min-width: 70px;">   <!-- 비교값 -->
-        <col style="width: 6%; min-width: 50px;">   <!-- 강화2 -->
-        <col style="width: 17%; min-width: 150px;">  <!-- 아이템이름2 -->
-        <col style="width: 7%; min-width: 70px;">   <!-- 접두어2 -->
-        <col style="width: 7%; min-width: 70px;">   <!-- 익시드2 -->
-        <col style="width: 7%; min-width: 70px;">   <!-- 희귀도2 -->
-    </colgroup>
+        let html = `<table class="compare-table">
+        <colgroup>
+            <col class="compare-slot-col">
+            <col class="compare-attr-col">
+            <col class="compare-attr-col">
+            <col class="compare-attr-col">
+            <col class="compare-item-col">
+            <col class="compare-reinforce-col">
+            <col class="compare-diff-col">
+            <col class="compare-reinforce-col">
+            <col class="compare-item-col">
+            <col class="compare-attr-col">
+            <col class="compare-attr-col">
+            <col class="compare-attr-col">
+        </colgroup>
         <thead>
             <tr>
-                <th colspan="1"></th>
+                <th></th>
                 <th colspan="5">${displayName1}</th>
-                <th>비교값</th>
+                <th class="compare-diff-col">비교값</th>
                 <th colspan="5">${displayName2}</th>
             </tr>
             <tr>
@@ -2609,18 +2749,13 @@
 
             const data1 = getSlotData(section1, slot);
             const data2 = getSlotData(section2, slot);
-
             const reinforceDiff = calculateReinforceDiff(slot, data1.reinforce, data2.reinforce);
 
-            // 희귀도 클래스 적용
             const rarityClass1 = data1.rarity ? `rare-${data1.rarity}` : '';
             const rarityClass2 = data2.rarity ? `rare-${data2.rarity}` : '';
-
-            // 익시드 클래스 적용
             const exceedClass1 = data1.exceed ? `ex-${data1.exceed}` : '';
             const exceedClass2 = data2.exceed ? `ex-${data2.exceed}` : '';
 
-            // 접두어 클래스 적용
             let prefixClass1 = '';
             let prefixClass2 = '';
 
@@ -2629,7 +2764,6 @@
                     prefixClass1 = 'prefix-tier';
                 } else if (data1.prefix !== '') {
                     prefixClass1 = 'prefix-selected';
-                    // 무기 전용 접두어 색상
                     if (slot === "무기") {
                         if (data1.prefix === "광채") prefixClass1 += ' p-blue';
                         else if (data1.prefix === "분쇄") prefixClass1 += ' p-red';
@@ -2644,7 +2778,6 @@
                     prefixClass2 = 'prefix-tier';
                 } else if (data2.prefix !== '') {
                     prefixClass2 = 'prefix-selected';
-                    // 무기 전용 접두어 색상
                     if (slot === "무기") {
                         if (data2.prefix === "광채") prefixClass2 += ' p-blue';
                         else if (data2.prefix === "분쇄") prefixClass2 += ' p-red';
@@ -2661,7 +2794,7 @@
             <td class="${prefixClass1}">${data1.prefix}</td>
             <td>${data1.itemname}</td>
             <td>${data1.reinforce}</td>
-            <td class="compare-diff ${reinforceDiff === '' || reinforceDiff === '-' ? 'same' : ''}">${reinforceDiff}</td>
+            <td class="compare-diff ${reinforceDiff === '' || reinforceDiff === '-' ? 'same' : reinforceDiff.includes('+') ? 'positive' : 'negative'}">${reinforceDiff}</td>
             <td>${data2.reinforce}</td>
             <td>${data2.itemname}</td>
             <td class="${prefixClass2}">${data2.prefix}</td>
@@ -2687,28 +2820,27 @@
         const specialSlots = ["보조장비", "귀걸이", "마법석"];
 
         // 고유 옵션 테이블
-        let html = `<table class="compare-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        let html = `<table class="compare-table">
         <colgroup>
-            <col style="width: 10%;">
-            <col style="width: 20%;">
-            <col style="width: 12%;">
-            <col style="width: 18%;">
-            <col style="width: 20%;">
-            <col style="width: 12%;">
-            <col style="width: 8%;">
+            <col class="compare-slot-col">
+            <col class="compare-option-col">
+            <col class="compare-value-col">
+            <col class="compare-diff-col">
+            <col class="compare-option-col">
+            <col class="compare-value-col">
         </colgroup>
         <thead>
             <tr>
-                <th colspan="1"></th>
+                <th></th>
                 <th colspan="2">${displayName1}</th>
-                <th>비교값</th>
+                <th class="compare-diff-col">비교값</th>
                 <th colspan="2">${displayName2}</th>
             </tr>
             <tr>
                 <th>슬롯</th>
                 <th>고유 옵션</th>
                 <th>수치</th>
-                <th>고유옵션 차이</th>
+                <th>차이</th>
                 <th>고유 옵션</th>
                 <th>수치</th>
             </tr>
@@ -2730,17 +2862,14 @@
             const data1 = getSlotData(section1, slot);
             const data2 = getSlotData(section2, slot);
 
-            // 캐릭터 스탯/속강 설정 가져오기
             const statType1 = section1.querySelector(`select[data-key="info_stat_type"]`)?.value || "";
             const eleType1 = section1.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
             const statType2 = section2.querySelector(`select[data-key="info_stat_type"]`)?.value || "";
             const eleType2 = section2.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
 
-            // 고유옵션 하이라이트 클래스
             let seal1Class1 = '';
             let seal1Class2 = '';
 
-            // 캐릭터1 고유옵션 강조
             if (slot === "무기" && data1.seal1 === "데미지 증가") {
                 seal1Class1 = 'highlight-yellow';
             } else if ((armorSlots.includes(slot) || specialSlots.includes(slot)) && data1.seal1 === statType1) {
@@ -2749,7 +2878,6 @@
                 seal1Class1 = 'highlight-yellow';
             }
 
-            // 캐릭터2 고유옵션 강조
             if (slot === "무기" && data2.seal1 === "데미지 증가") {
                 seal1Class2 = 'highlight-yellow';
             } else if ((armorSlots.includes(slot) || specialSlots.includes(slot)) && data2.seal1 === statType2) {
@@ -2769,7 +2897,7 @@
             <td class="compare-slot-name">${slot}</td>
             <td class="${seal1Class1}">${data1.seal1}</td>
             <td class="${seal1Class1}">${data1.seal1_val}</td>
-            <td class="compare-diff ${seal1Diff === '-' ? 'same' : ''}">${seal1Diff}</td>
+            <td class="compare-diff ${seal1Diff === '-' ? 'same' : seal1Diff.includes('+') ? 'positive' : 'negative'}">${seal1Diff}</td>
             <td class="${seal1Class2}">${data2.seal1}</td>
             <td class="${seal1Class2}">${data2.seal1_val}</td>
         </tr>`;
@@ -2778,28 +2906,27 @@
         html += `</tbody></table>`;
 
         // 일반 옵션 테이블
-        html += `<table class="compare-table" style="width: 100%; border-collapse: collapse;">
+        html += `<table class="compare-table">
         <colgroup>
-            <col style="width: 10%;">
-            <col style="width: 20%;">
-            <col style="width: 12%;">
-            <col style="width: 18%;">
-            <col style="width: 20%;">
-            <col style="width: 12%;">
-            <col style="width: 8%;">
+            <col class="compare-slot-col">
+            <col class="compare-option-col">
+            <col class="compare-value-col">
+            <col class="compare-diff-col">
+            <col class="compare-option-col">
+            <col class="compare-value-col">
         </colgroup>
         <thead>
             <tr>
-                <th colspan="1"></th>
+                <th></th>
                 <th colspan="2">${displayName1}</th>
-                <th>비교값</th>
+                <th class="compare-diff-col">비교값</th>
                 <th colspan="2">${displayName2}</th>
             </tr>
             <tr>
                 <th>슬롯</th>
                 <th>일반 옵션</th>
                 <th>수치</th>
-                <th>일반옵션 차이</th>
+                <th>차이</th>
                 <th>일반 옵션</th>
                 <th>수치</th>
             </tr>
@@ -2821,45 +2948,48 @@
             const data1 = getSlotData(section1, slot);
             const data2 = getSlotData(section2, slot);
 
-            // 캐릭터 스탯/속강 설정 가져오기
             const statType1 = section1.querySelector(`select[data-key="info_stat_type"]`)?.value || "";
             const eleType1 = section1.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
             const statType2 = section2.querySelector(`select[data-key="info_stat_type"]`)?.value || "";
             const eleType2 = section2.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
 
-            // 일반옵션 하이라이트 클래스 (seal2 사용)
             let seal2Class1 = '';
             let seal2Class2 = '';
 
-            // 캐릭터1 일반옵션 강조
             if ((armorSlots.includes(slot) || slot === "무기" || specialSlots.includes(slot)) && data1.seal2 === statType1) {
                 seal2Class1 = 'highlight-yellow';
             } else if (accSlots.includes(slot) && data1.seal2 === eleType1) {
                 seal2Class1 = 'highlight-yellow';
             }
 
-            // 캐릭터2 일반옵션 강조
             if ((armorSlots.includes(slot) || slot === "무기" || specialSlots.includes(slot)) && data2.seal2 === statType2) {
                 seal2Class2 = 'highlight-yellow';
             } else if (accSlots.includes(slot) && data2.seal2 === eleType2) {
                 seal2Class2 = 'highlight-yellow';
             }
 
+            // 일반 옵션 테이블 tbody 부분에서
             let seal2Diff = '-';
+            let seal2DiffClass = 'same';
+
             if (data1.seal2 === data2.seal2 && data1.seal2 !== '') {
                 seal2Diff = calculateNumDiff(data1.seal2_val, data2.seal2_val);
+                if (seal2Diff !== '-') {
+                    seal2DiffClass = seal2Diff.includes('+') ? 'positive' : 'negative';
+                }
             } else if (data1.seal2 !== data2.seal2 && (data1.seal2 !== '' || data2.seal2 !== '')) {
                 seal2Diff = '일반옵션 값이 다름';
+                seal2DiffClass = 'negative';
             }
 
             html += `<tr>
-            <td class="compare-slot-name">${slot}</td>
-            <td class="${seal2Class1}">${data1.seal2}</td>
-            <td class="${seal2Class1}">${data1.seal2_val}</td>
-            <td class="compare-diff ${seal2Diff === '-' ? 'same' : ''}">${seal2Diff}</td>
-            <td class="${seal2Class2}">${data2.seal2}</td>
-            <td class="${seal2Class2}">${data2.seal2_val}</td>
-        </tr>`;
+    <td class="compare-slot-name">${slot}</td>
+    <td class="${seal2Class1}">${data1.seal2}</td>
+    <td class="${seal2Class1}">${data1.seal2_val}</td>
+    <td class="compare-diff ${seal2DiffClass}">${seal2Diff}</td>
+    <td class="${seal2Class2}">${data2.seal2}</td>
+    <td class="${seal2Class2}">${data2.seal2_val}</td>
+</tr>`;
         });
 
         html += `</tbody></table>`;
@@ -2876,23 +3006,22 @@
             group4: ["칭호"]
         };
 
-        // 이 부분을 추가하세요
         const embHighlightSlots = ["보조장비", "귀걸이", "마법석", "칭호"];
 
-        let html = `<table class="compare-table" style="width: 100%; border-collapse: collapse;">
+        let html = `<table class="compare-table">
         <colgroup>
-            <col style="width: 10%;">
-            <col style="width: 20%;">
-            <col style="width: 20%;">
-            <col style="width: 12%;">
-            <col style="width: 20%;">
-            <col style="width: 18%;">
+            <col class="compare-slot-col">
+            <col class="compare-option-col">
+            <col class="compare-option-col">
+            <col class="compare-diff-col">
+            <col class="compare-option-col">
+            <col class="compare-option-col">
         </colgroup>
         <thead>
             <tr>
-                <th colspan="1"></th>
+                <th></th>
                 <th colspan="2">${displayName1}</th>
-                <th>비교값</th>
+                <th class="compare-diff-col">비교값</th>
                 <th colspan="2">${displayName2}</th>
             </tr>
             <tr>
@@ -2906,7 +3035,7 @@
         </thead>
         <tbody>`;
 
-        currentGroup = '';
+        let currentGroup = '';
         emblemSlots.forEach((slot) => {
             for (const [groupName, groupArray] of Object.entries(groupSlots)) {
                 if (groupArray[0] === slot && currentGroup !== groupName) {
@@ -2921,52 +3050,68 @@
             const data1 = getSlotData(section1, slot);
             const data2 = getSlotData(section2, slot);
 
-            // 캐릭터 속강 설정 가져오기
             const eleType1 = section1.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
             const eleType2 = section2.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
 
-            // 엠블렘 하이라이트 클래스
             let emb1Class1 = '';
             let emb1Class2 = '';
 
-            const embHighlightSlots = ["보조장비", "귀걸이", "마법석", "칭호"];
-
-            // 캐릭터1 엠블렘 강조
             if (embHighlightSlots.includes(slot) && (data1.emb1 === eleType1 || data1.emb1 === "모속강")) {
                 emb1Class1 = 'highlight-yellow';
             }
 
-            // 캐릭터2 엠블렘 강조
             if (embHighlightSlots.includes(slot) && (data2.emb1 === eleType2 || data2.emb1 === "모속강")) {
                 emb1Class2 = 'highlight-yellow';
             }
 
             let embDiff = '-';
+            let embDiffClass = 'same';
 
             if (selectEmblemSlots.includes(slot)) {
-                if (data1.emb1 === data2.emb1) {
+                if (data1.emb1 === data2.emb1 && data1.emb1 !== '') {
                     const emb2Diff = calculateNumDiff(extractNumber(data1.emb2), extractNumber(data2.emb2));
                     embDiff = emb2Diff;
-                } else {
+                    if (emb2Diff !== '-') {
+                        embDiffClass = emb2Diff.includes('+') ? 'positive' : 'negative';
+                    }
+                } else if (data1.emb1 !== data2.emb1 && (data1.emb1 !== '' || data2.emb1 !== '')) {
                     embDiff = '값이 다름';
+                    embDiffClass = 'negative';
                 }
             } else {
                 const emb1Diff = calculateNumDiff(extractNumber(data1.emb1), extractNumber(data2.emb1));
                 const emb2Diff = calculateNumDiff(extractNumber(data1.emb2), extractNumber(data2.emb2));
                 embDiff = `${emb1Diff} / ${emb2Diff}`;
+
+                if (embDiff !== '- / -') {
+                    // 둘 중 하나라도 증가/감소가 있으면 색상 적용
+                    const hasPositive = emb1Diff.includes('+') || emb2Diff.includes('+');
+                    const hasNegative = (emb1Diff.includes('⬇') || emb2Diff.includes('⬇')) ||
+                        (emb1Diff !== '-' && !emb1Diff.includes('+')) ||
+                        (emb2Diff !== '-' && !emb2Diff.includes('+'));
+
+                    if (hasPositive && !hasNegative) {
+                        embDiffClass = 'positive';
+                    } else if (hasNegative && !hasPositive) {
+                        embDiffClass = 'negative';
+                    } else if (hasPositive && hasNegative) {
+                        embDiffClass = ''; // 증가와 감소가 섞여있으면 기본 노란색
+                    }
+                }
             }
 
             html += `<tr>
-        <td class="compare-slot-name">${slot}</td>
-        <td class="${emb1Class1}">${data1.emb1}</td>
-        <td class="${emb1Class1}">${data1.emb2}</td>
-        <td class="compare-diff ${embDiff === '-' || embDiff === '- / -' ? 'same' : ''}">${embDiff}</td>
-        <td class="${emb1Class2}">${data2.emb1}</td>
-        <td class="${emb1Class2}">${data2.emb2}</td>
-    </tr>`;
+            <td class="compare-slot-name">${slot}</td>
+            <td class="${emb1Class1}">${data1.emb1}</td>
+            <td class="${emb1Class1}">${data1.emb2}</td>
+            <td class="compare-diff ${embDiffClass}">${embDiff}</td>
+            <td class="${emb1Class2}">${data2.emb1}</td>
+            <td class="${emb1Class2}">${data2.emb2}</td>
+        </tr>`;
         });
+
         html += `</tbody></table>`;
-        return html;  // 이 줄이 누락되었습니다
+        return html;
     }
 
     function generateEnchantComparisonTable(section1, section2, displayName1, displayName2) {
@@ -2978,27 +3123,27 @@
             group4: ["칭호"]
         };
 
-        let html = `<table class="compare-table" style="width: 100%; border-collapse: collapse;">
+        let html = `<table class="compare-table">
         <colgroup>
-            <col style="width: 10%;">
-            <col style="width: 22%;">
-            <col style="width: 10%;">
-            <col style="width: 12%;">
-            <col style="width: 22%;">
-            <col style="width: 14%;">
+            <col class="compare-slot-col">
+            <col class="compare-option-col">
+            <col class="compare-value-col">
+            <col class="compare-diff-col">
+            <col class="compare-option-col">
+            <col class="compare-value-col">
         </colgroup>
         <thead>
             <tr>
-                <th colspan="1"></th>
+                <th></th>
                 <th colspan="2">${displayName1}</th>
-                <th>비교값</th>
+                <th class="compare-diff-col">비교값</th>
                 <th colspan="2">${displayName2}</th>
             </tr>
             <tr>
                 <th>슬롯</th>
                 <th>마법부여</th>
                 <th>수치</th>
-                <th>수치 차이</th>
+                <th>차이</th>
                 <th>마법부여</th>
                 <th>수치</th>
             </tr>
@@ -3007,7 +3152,6 @@
 
         let currentGroup = '';
         enchantSlots.forEach((slot) => {
-            // 그룹 변경시 구분선
             for (const [groupName, groupArray] of Object.entries(groupSlots)) {
                 if (groupArray[0] === slot && currentGroup !== groupName) {
                     if (currentGroup !== '') {
@@ -3021,19 +3165,24 @@
             const data1 = getSlotData(section1, slot);
             const data2 = getSlotData(section2, slot);
 
-            // 마법부여가 같을 때만 수치 비교
             let enchantDiff = '-';
+            let enchantDiffClass = 'same';
+
             if (data1.enchant === data2.enchant && data1.enchant !== '') {
                 enchantDiff = calculateNumDiff(data1.enchant_val, data2.enchant_val);
+                if (enchantDiff !== '-') {
+                    enchantDiffClass = enchantDiff.includes('+') ? 'positive' : 'negative';
+                }
             } else if (data1.enchant !== data2.enchant && (data1.enchant !== '' || data2.enchant !== '')) {
                 enchantDiff = '값이 다름';
+                enchantDiffClass = 'negative';
             }
 
             html += `<tr>
             <td class="compare-slot-name">${slot}</td>
             <td>${data1.enchant}</td>
             <td>${data1.enchant_val}</td>
-            <td class="compare-diff ${enchantDiff === '-' ? 'same' : ''}">${enchantDiff}</td>
+            <td class="compare-diff ${enchantDiffClass}">${enchantDiff}</td>
             <td>${data2.enchant}</td>
             <td>${data2.enchant_val}</td>
         </tr>`;
@@ -3072,14 +3221,16 @@
         if (!val1 || !val2) return '-';
         const diff = parseInt(val2) - parseInt(val1);
         if (diff === 0) return '-';
-        return diff > 0 ? `+${diff}` : `${diff}`;
+        if (diff > 0) return `⬆ +${diff}`;
+        return `⬇ ${diff}`;
     }
 
     function calculateNumDiff(val1, val2) {
         if (!val1 || !val2) return '-';
         const diff = parseInt(val2) - parseInt(val1);
         if (diff === 0) return '-';
-        return diff > 0 ? `+${diff}` : `${diff}`;
+        if (diff > 0) return `⬆ +${diff}`;
+        return `⬇ ${diff}`;
     }
 
     function exitCompareMode() {
