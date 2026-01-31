@@ -3,15 +3,1159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>페이지 제목</title>
+    <title>RPG 통합 장비 관리 시스템</title>
+    <style>
+        /* ========================================
+            CSS 변수 정의 (확장됨)
+        ======================================== */
+        :root {
+            /* ===== 기본 색상 팔레트 ===== */
+            --color-white: #ffffff;
+            --color-black: #000000;
+
+            /* 그레이 스케일 */
+            --color-gray-darkest: #121216;
+            --color-gray-darker: #222;
+            --color-gray-dark: #333;
+            --color-gray: #444;
+            --color-gray-medium: #555;
+            --color-gray-light: #666;
+            --color-gray-lighter: #888;
+            --color-gray-lightest: #ccc;
+
+            /* 골드 */
+            --gold: #c5a678;
+            --border-heavy: #c5a678;
+
+            /* ===== 배경 색상 ===== */
+            --bg: #0f0f12;
+            --bg-dark: #000;
+            --bg-section: #121216;
+            --bg-row: #1a1a1f;
+            --table-bg: #1a1a1f;
+            --bg-header: #2a2a32;
+            --bg-header-alt: #3a3a42;
+            --bg-compare: #2a2a32;
+            --bg-highlight: #4a3f12;
+            --bg-compare-diff: #2a2a32;
+            --input-bg: #000;
+
+            /* ===== 테두리 ===== */
+            --border: #444;
+            --border-width: 1px;
+            --border-width-heavy: 2px;
+            --border-width-thick: 3px;
+            --border-radius: 3px;
+            --border-radius-sm: 2px;
+            --border-radius-md: 4px;
+            --border-style: solid;
+            --border-style-dashed: dashed;
+
+            /* ===== 텍스트 색상 ===== */
+            --text: #ddd;
+
+            /* 등급 색상 */
+            --txt-epic: #fcc419;
+            --txt-unique: #ff80ab;
+            --txt-rare: #b197fc;
+            --txt-uncom: #4dabf7;
+            --txt-common: #888;
+
+            /* 익시드 색상 */
+            --ex-sunbong: #ff5252;
+            --ex-uiji: #448aff;
+            --ex-isang: #40c057;
+            --ex-itemname-light: #85EFAD;
+
+            /* 강조 색상 */
+            --highlight-yellow: #fcc419;
+            --highlight-green: #4ade80;
+            --highlight-red: #f87171;
+            --highlight-green-dark: #1a4a2a;
+            --highlight-red-dark: #4a1a1a;
+            --highlight-cyan: #71D2E5;
+
+            /* 접두어 색상 */
+            --prefix-blue: #3b82f6;
+            --prefix-red: #ef4444;
+            --prefix-green: #22c55e;
+            --prefix-yellow: #facc15;
+
+            /* ===== 엠블렘 배경 ===== */
+            --emb-red: #4a1212;
+            --emb-yellow: #4a3f12;
+            --emb-blue: #121d4a;
+            --emb-green: #124a1d;
+            --emb-gray: #2d2d2d;
+
+            /* 각인 */
+            --gakin-2: #fff5f5bb;
+
+            /* ===== 그라디언트 ===== */
+            --gradient-emb-red: linear-gradient(to bottom, #6a1a1a 0%, var(--emb-red) 100%);
+            --gradient-emb-yellow: linear-gradient(to bottom, #6a5a1a 0%, var(--emb-yellow) 100%);
+            --gradient-emb-blue: linear-gradient(to bottom, #1a2a6a 0%, var(--emb-blue) 100%);
+            --gradient-emb-green: linear-gradient(to bottom, #1a6a2a 0%, var(--emb-green) 100%);
+            --gradient-emb-gray: linear-gradient(to bottom, #444 0%, var(--emb-gray) 100%);
+            --gradient-select: linear-gradient(to bottom, #2a2a32 0%, #000000 100%);
+
+            /* ===== 버튼 색상 ===== */
+            --btn-primary: #1d4ed8;
+            --btn-add: #7c3aed;
+            --btn-success: #059669;
+            --btn-info: #0ea5e9;
+            --btn-warning: #f59e0b;
+            --btn-danger: #ff4d4d;
+            --btn-secondary: #4b5563;
+            --btn-lock: #2563eb;
+
+            /* ===== 폰트 크기 ===== */
+            --fs: 11px;
+            --fs-xs: 11px;
+            --fs-sm: 12px;
+            --fs-md: 13px;
+            --fs-lg: 1.1rem;
+
+            /* ===== 간격 ===== */
+            --spacing-xs: 2px;
+            --spacing-sm: 4px;
+            --spacing-md: 5px;
+            --spacing-lg: 8px;
+            --spacing-xl: 10px;
+            --spacing-2xl: 15px;
+            --spacing-3xl: 20px;
+            --spacing-4xl: 30px;
+
+            /* ===== 패딩 ===== */
+            --padding-xs: 1px 2px;
+            --padding-sm: 2px 4px;
+            --padding-md: 4px 8px;
+            --padding-lg: 5px 15px;
+            --padding-xl: 15px;
+            --padding-section: 5px;
+            --padding-cell: 1px 2px;
+            --padding-button: 4px;
+            --padding-button-sm: 2px 8px;
+            --padding-input: 8px;
+            --padding-modal: 15px;
+            --padding-textarea: 4px 6px;
+
+            /* ===== 높이 ===== */
+            --height-input: 22px;
+            --height-select: 22px;
+            --height-button: 30px;
+            --height-row: 26px;
+            --height-button-tall: 38px;
+            --height-divider: 8px;
+            --height-vline: 12px;
+            --height-textarea-min: 44px;
+
+            /* ===== 너비 ===== */
+            --width-char-info: 120px;
+            --width-slot: 45px;
+            --width-rarity: 42px;
+            --width-exceed: 45px;
+            --width-prefix: 38px;
+            --width-val-short: 35px;
+            --width-emblem: 40px;
+            --width-enchant: 55px;
+            --width-itemname-min: 120px;
+            --width-desc-min: 230px;
+            --width-modal: 310px;
+            --width-modal-history: 450px;
+            --width-rune-name: 68px;
+            --width-rune-lv: 48px;
+            --width-rune-skill: 50px;
+            --width-col-num: 30px;
+            --width-art-color: 65px;
+            --width-art-opt: 110px;
+
+            /* 비교 테이블 너비 */
+            --compare-slot-width: 6%;
+            --compare-slot-min: 60px;
+            --compare-option-width: 20%;
+            --compare-option-min: 120px;
+            --compare-value-width: 10%;
+            --compare-value-min: 60px;
+            --compare-attr-width: 7%;
+            --compare-attr-min: 70px;
+            --compare-item-width: 17%;
+            --compare-item-min: 140px;
+            --compare-reinforce-width: 6%;
+            --compare-reinforce-min: 50px;
+            --compare-diff-width: 8%;
+            --compare-diff-min: 70px;
+
+            /* ===== 그림자 ===== */
+            --shadow-text: 0 0 2px rgba(0, 0, 0, 0.8);
+            --shadow-highlight: 0 0 10px var(--gold);
+
+            /* ===== 투명도 ===== */
+            --opacity-disabled: 0.5;
+            --opacity-overlay: 0.7;
+            --opacity-tap: 0.1;
+            --opacity-full: 1;
+
+            /* ===== z-index ===== */
+            --z-sticky: 1000;
+            --z-overlay: 1999;
+            --z-modal: 2000;
+
+            /* ===== 기타 ===== */
+            --max-height-modal: 85vh;
+            --max-height-modal-history: 80vh;
+            --line-height-normal: 1.5;
+            --line-height-history: 1.6;
+        }
+
+        /* ========================================
+           기본 스타일
+        ======================================== */
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Malgun Gothic', sans-serif;
+            margin: 0;
+            padding: var(--spacing-xl);
+        }
+
+        h2 {
+            color: var(--gold);
+            border-bottom: var(--border-width-heavy) var(--border-style) var(--gold);
+            padding-bottom: var(--spacing-md);
+            margin: 0 0 var(--spacing-xl) 0;
+            font-size: var(--fs-lg);
+        }
+
+        /* ========================================
+           레이아웃
+        ======================================== */
+        .control-bar {
+            margin-bottom: var(--spacing-xl);
+            display: flex;
+            gap: var(--spacing-xl);
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: var(--z-sticky);
+            padding: var(--spacing-md) 0;
+        }
+
+        .char-section {
+            margin-bottom: var(--spacing-4xl);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        /* ========================================
+           테이블 스타일
+        ======================================== */
+        table {
+            border-collapse: collapse;
+            background-color: var(--table-bg);
+            width: max-content;
+            font-size: var(--fs);
+            border: var(--border-width-heavy) var(--border-style) var(--gold);
+        }
+
+        th, td {
+            border: var(--border-width) var(--border-style) var(--border) !important;
+            padding: var(--padding-cell);
+            text-align: center;
+            height: var(--height-row);
+            color: var(--color-gray-lightest);
+        }
+
+        th {
+            background-color: var(--bg-header);
+            color: var(--gold);
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .v-border-heavy {
+            border-left: var(--border-width-heavy) var(--border-style) var(--border-heavy) !important;
+        }
+
+        .group-header {
+            border-bottom: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+        }
+
+        /* 열 너비 */
+        .col-char-info { width: var(--width-char-info) !important; }
+        .col-slot { width: var(--width-slot) !important; font-weight: bold; color: var(--gold) !important; }
+        .col-rarity { width: var(--width-rarity) !important; }
+        .col-exceed { width: var(--width-exceed) !important; }
+        .col-prefix { width: var(--width-prefix) !important; }
+        .col-val-short { width: var(--width-val-short) !important; }
+        .col-emblem { width: var(--width-emblem) !important; }
+        .col-enchant { width: var(--width-enchant) !important; min-width: var(--width-enchant); }
+        .col-m-num { width: var(--width-col-num); }
+
+        /* ========================================
+           입력 요소 (Form Controls)
+        ======================================== */
+        input {
+            background: var(--input-bg);
+            color: var(--color-white);
+            border: var(--border-width) var(--border-style) var(--border);
+            padding: var(--padding-xs);
+            width: 100%;
+            font-size: var(--fs);
+            box-sizing: border-box;
+            height: var(--height-input);
+            outline: none;
+            text-align: center;
+        }
+
+        select {
+            background: var(--gradient-select);
+            color: var(--color-white);
+            border: var(--border-width) var(--border-style) var(--color-gray-medium);
+            padding: 1px 0px;
+            width: 100%;
+            font-size: var(--fs);
+            box-sizing: border-box;
+            height: var(--height-select);
+            outline: none;
+            text-align: center;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            cursor: pointer;
+            pointer-events: auto !important;
+            touch-action: auto !important;
+            -webkit-tap-highlight-color: rgba(255, 255, 255, var(--opacity-tap));
+        }
+
+        select option {
+            background-color: var(--bg-row);
+            color: var(--color-white);
+        }
+
+        select:hover {
+            border-color: var(--gold);
+        }
+
+        input:disabled, select:disabled {
+            cursor: not-allowed;
+            opacity: var(--opacity-full);
+            -webkit-text-fill-color: inherit;
+            pointer-events: none !important;
+        }
+
+        textarea {
+            background: var(--bg-dark);
+            color: var(--color-white);
+            border: var(--border-width) var(--border-style) var(--border);
+            padding: var(--padding-textarea);
+            resize: none;
+            font-family: sans-serif;
+            font-size: var(--fs-xs);
+            box-sizing: border-box;
+            text-align: left;
+            outline: none;
+        }
+
+        /* ========================================
+           버튼 스타일
+        ======================================== */
+        .btn-action {
+            background: var(--btn-primary);
+            color: var(--color-white);
+            border: none;
+            padding: var(--padding-lg);
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            font-size: var(--fs-xs);
+        }
+
+        .btn-add {
+            background: var(--btn-add);
+        }
+
+        .btn-all-lock {
+            background-color: var(--btn-secondary);
+            color: var(--color-white);
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: var(--border-radius-md);
+            font-weight: bold;
+            margin-left: var(--spacing-lg);
+        }
+
+        .btn-char-lock {
+            background: var(--btn-lock);
+            color: var(--color-white);
+            padding: var(--padding-button);
+            cursor: pointer;
+            font-size: var(--fs-xs);
+            border: none;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .btn-char-unlock {
+            background: var(--color-gray);
+            color: var(--color-white);
+            padding: var(--padding-button);
+            cursor: pointer;
+            font-size: var(--fs-xs);
+            border: none;
+        }
+
+        .btn-active {
+            border: var(--border-width-heavy) var(--border-style) var(--color-white) !important;
+        }
+
+        .btn-mode {
+            background: var(--btn-warning);
+            color: var(--color-white);
+            border: none;
+            padding: var(--padding-lg);
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            font-size: var(--fs-xs);
+        }
+
+        .btn-mode.active {
+            background: var(--btn-warning);
+            border: var(--border-width-heavy) var(--border-style) var(--color-white);
+        }
+
+        .btn-move {
+            flex: 1;
+            background: var(--color-gray);
+            padding: var(--spacing-xs);
+        }
+
+        .btn-exit-compare {
+            background: var(--btn-secondary);
+            margin-bottom: var(--spacing-3xl);
+        }
+
+        .del-btn {
+            background: var(--btn-danger);
+            color: var(--color-white);
+            border: none;
+            padding: var(--padding-button);
+            cursor: pointer;
+            font-size: var(--fs-xs);
+            border-radius: var(--border-radius-sm);
+        }
+
+        .status-msg {
+            font-size: var(--fs-sm);
+            color: var(--gold);
+        }
+
+        /* ========================================
+           등급 색상 (Rarity Colors)
+        ======================================== */
+        .rare-에픽, .bg-에픽 {
+            color: var(--txt-epic) !important;
+            font-weight: bold;
+        }
+
+        .rare-유니크, .bg-유니크 {
+            color: var(--txt-unique) !important;
+            font-weight: bold;
+        }
+
+        .rare-레어, .bg-레어 {
+            color: var(--txt-rare) !important;
+            font-weight: bold;
+        }
+
+        .rare-언커먼, .bg-언커먼 {
+            color: var(--txt-uncom) !important;
+            font-weight: bold;
+        }
+
+        .rare-커먼, .bg-커먼 {
+            color: var(--txt-common) !important;
+            font-weight: bold;
+        }
+
+        .rare-티어 {
+            color: var(--color-white) !important;
+            font-weight: bold;
+        }
+
+        /* ========================================
+           익시드 색상 (Exceed Colors)
+        ======================================== */
+        .ex-이상 {
+            color: var(--ex-isang) !important;
+            font-weight: bold;
+        }
+
+        .ex-선봉 {
+            color: var(--ex-sunbong) !important;
+            font-weight: bold;
+        }
+
+        .ex-의지 {
+            color: var(--ex-uiji) !important;
+            font-weight: bold;
+        }
+
+        .ex-itemname-light {
+            color: var(--ex-itemname-light) !important;
+            font-weight: bold;
+        }
+
+        /* ========================================
+           접두어 색상 (Prefix Colors)
+        ======================================== */
+        .prefix-selected {
+            color: var(--txt-epic) !important;
+            font-weight: bold;
+        }
+
+        .prefix-tier {
+            color: var(--color-white) !important;
+            font-weight: bold;
+        }
+
+        .p-blue { color: var(--prefix-blue) !important; }
+        .p-red { color: var(--prefix-red) !important; }
+        .p-green { color: var(--prefix-green) !important; }
+        .p-yellow { color: var(--prefix-yellow) !important; }
+
+        select.prefix-selected.p-blue { color: var(--prefix-blue); }
+        select.prefix-selected.p-red { color: var(--prefix-red); }
+        select.prefix-selected.p-green { color: var(--prefix-green); }
+        select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
+
+        /* ========================================
+           엠블렘 배경 (Emblem Backgrounds)
+        ======================================== */
+        .emb-bg-red {
+            background: var(--gradient-emb-red) !important;
+            color: var(--color-white) !important;
+        }
+
+        .emb-bg-yellow {
+            background: var(--gradient-emb-yellow) !important;
+            color: var(--color-white) !important;
+        }
+
+        .emb-bg-blue {
+            background: var(--gradient-emb-blue) !important;
+            color: var(--color-white) !important;
+        }
+
+        .emb-bg-green {
+            background: var(--gradient-emb-green) !important;
+            color: var(--color-white) !important;
+        }
+
+        .emb-bg-gray {
+            background: var(--gradient-emb-gray) !important;
+            color: var(--color-white) !important;
+        }
+
+        /* ========================================
+           하이라이트 (Highlights)
+        ======================================== */
+        .highlight-yellow {
+            color: var(--highlight-yellow) !important;
+            font-weight: bold;
+            text-shadow: var(--shadow-text);
+        }
+
+        .set-highlight {
+            color: var(--highlight-cyan) !important;
+            font-weight: bold;
+        }
+
+        .itemname-color-sync {
+            font-weight: bold;
+        }
+
+        /* ========================================
+           아티팩트 (Creature Artifacts)
+        ======================================== */
+        .artifact-main-wrapper {
+            display: flex;
+            gap: var(--spacing-lg);
+            justify-content: start;
+            align-items: center;
+            padding: var(--spacing-xs) var(--spacing-md);
+        }
+
+        .art-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            border: var(--border-width) var(--border-style) var(--border);
+            padding: var(--spacing-sm);
+            background: var(--bg-dark);
+        }
+
+        .art-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .custom-top-line {
+            margin-bottom: var(--spacing-sm);
+            border-bottom: var(--border-width) var(--border-style-dashed) var(--border);
+            padding-bottom: var(--spacing-sm);
+        }
+
+        .art-color-select {
+            width: var(--width-art-color);
+        }
+
+        .art-opt-select {
+            width: var(--width-art-opt);
+        }
+
+        /* ========================================
+           모달 (Modals)
+        ======================================== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, var(--opacity-overlay));
+            z-index: var(--z-overlay);
+        }
+
+        #skillRunemodal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-row);
+            border: var(--border-width-heavy) var(--border-style) var(--gold);
+            padding: var(--padding-modal);
+            z-index: var(--z-modal);
+            width: var(--width-modal);
+            max-height: var(--max-height-modal);
+            overflow-y: auto;
+        }
+
+        #historyModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-row);
+            border: var(--border-width-heavy) var(--border-style) var(--gold);
+            padding: var(--padding-modal);
+            z-index: var(--z-modal);
+            width: var(--width-modal-history);
+            max-height: var(--max-height-modal-history);
+            overflow-y: auto;
+        }
+
+        #historyList {
+            font-size: var(--fs-xs);
+            color: var(--color-gray-lightest);
+            line-height: var(--line-height-history);
+        }
+
+        /* ========================================
+           스킬 룬 모달 특화
+        ======================================== */
+        .m-rune-name { width: var(--width-rune-name) !important; }
+        .m-rune-lv { width: var(--width-rune-lv) !important; }
+        .m-rune-skillLv { width: var(--width-rune-skill) !important; }
+
+        .v-line {
+            border-left: var(--border-width) var(--border-style) var(--color-gray-medium);
+            height: var(--height-vline);
+            margin: 0 var(--spacing-lg);
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .gakin-section {
+            margin-top: var(--spacing-xl);
+            border-top: var(--border-width-heavy) var(--border-style) var(--gold);
+            padding-top: var(--spacing-xl);
+        }
+
+        .gakin-title {
+            color: var(--gold);
+            font-weight: bold;
+            font-size: var(--fs-sm);
+            margin-bottom: var(--spacing-md);
+            text-align: center;
+        }
+
+        .gakin-container {
+            display: flex;
+            gap: var(--spacing-md);
+            width: 100%;
+        }
+
+        .m-gakin-input-box {
+            flex: 1;
+        }
+
+        .rune-modal-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--fs-sm);
+            border: var(--border-width) var(--border-style) var(--border);
+        }
+
+        /* ========================================
+           캐릭터 정보 섹션
+        ======================================== */
+        .info-select {
+            flex: 1;
+            border: var(--border-width) var(--border-style) var(--border);
+            background: var(--bg-dark);
+            color: var(--color-white);
+            font-size: var(--fs-xs);
+            height: var(--height-select);
+        }
+
+        .divider-gold {
+            border-bottom: var(--border-width-heavy) var(--border-style) var(--gold);
+            margin: var(--spacing-sm) 0;
+        }
+
+        .divider-gold-lg {
+            border-bottom: var(--border-width-heavy) var(--border-style) var(--gold);
+            margin: var(--spacing-lg) 0;
+        }
+
+        /* ========================================
+           비교 모드 (Compare Mode)
+        ======================================== */
+        #characterContainer {
+            display: block;
+        }
+
+        #compareContainer {
+            display: none;
+        }
+
+        #compareCharSelectionContainer {
+            display: none;
+            margin-bottom: var(--spacing-3xl);
+            padding: var(--padding-modal);
+            background: var(--bg-row);
+            border: var(--border-width-heavy) var(--border-style) var(--border);
+            border-radius: var(--border-radius-md);
+        }
+
+        #compareCharSelectionContainer h3 {
+            color: var(--gold);
+            margin-top: 0;
+        }
+
+        #compareCharSelectionContainer p {
+            color: var(--color-gray-lighter);
+            font-size: var(--fs-xs);
+            margin: var(--spacing-xl) 0;
+        }
+
+        .compare-select {
+            width: 100%;
+            padding: var(--padding-input);
+            background: var(--bg-dark);
+            color: var(--color-white);
+            border: var(--border-width-heavy) var(--border-style) var(--gold);
+            border-radius: var(--border-radius-md);
+            font-size: var(--fs-sm);
+            cursor: pointer;
+            height: var(--height-button-tall);
+            line-height: var(--line-height-normal);
+        }
+
+        .compare-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-3xl);
+            gap: 50px;
+        }
+
+        .compare-header h3 {
+            color: var(--gold);
+            margin: 0;
+            flex: 1;
+            text-align: center;
+        }
+
+        .compare-center-label {
+            flex: 0 0 100px;
+            color: var(--color-gray-lighter);
+            text-align: center;
+            font-size: var(--fs-sm);
+        }
+
+        .compare-section-title {
+            color: var(--gold);
+            font-weight: bold;
+            margin-top: var(--spacing-3xl);
+            margin-bottom: var(--spacing-xl);
+            font-size: var(--fs-md);
+        }
+
+        /* 비교 테이블 */
+        .compare-table {
+            width: 100%;
+            table-layout: fixed !important;
+            border-collapse: collapse;
+            background-color: var(--table-bg);
+            border: var(--border-width-heavy) var(--border-style) var(--gold);
+            margin-bottom: var(--spacing-4xl);
+        }
+
+        .compare-table th {
+            background-color: var(--bg-header);
+            color: var(--gold);
+            padding: var(--spacing-lg) var(--spacing-sm);
+            border: var(--border-width) var(--border-style) var(--border);
+            font-size: var(--fs-xs);
+            font-weight: bold;
+        }
+
+        .compare-table td {
+            border: var(--border-width) var(--border-style) var(--border);
+            padding: 6px var(--spacing-sm);
+            font-size: var(--fs-xs);
+            height: auto;
+        }
+
+        /* 비교 테이블 열 너비 */
+        .compare-slot-col {
+            width: var(--compare-slot-width) !important;
+            min-width: var(--compare-slot-min) !important;
+        }
+
+        .compare-option-col {
+            width: var(--compare-option-width) !important;
+            min-width: var(--compare-option-min) !important;
+        }
+
+        .compare-value-col {
+            width: var(--compare-value-width) !important;
+            min-width: var(--compare-value-min) !important;
+            text-align: center !important;
+        }
+
+        .compare-attr-col {
+            width: var(--compare-attr-width) !important;
+            min-width: var(--compare-attr-min) !important;
+            text-align: center !important;
+        }
+
+        .compare-item-col {
+            width: var(--compare-item-width) !important;
+            min-width: var(--compare-item-min) !important;
+        }
+
+        .compare-reinforce-col {
+            width: var(--compare-reinforce-width) !important;
+            min-width: var(--compare-reinforce-min) !important;
+            text-align: center !important;
+        }
+
+        .compare-diff-col {
+            width: var(--compare-diff-width) !important;
+            min-width: var(--compare-diff-min) !important;
+            text-align: center !important;
+            vertical-align: middle !important;
+            background-color: var(--bg-compare-diff) !important;
+            border-left: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+            border-right: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+            position: relative;
+        }
+
+        .compare-table th.compare-diff-col {
+            background-color: var(--bg-header-alt) !important;
+            font-weight: bold;
+            color: var(--gold) !important;
+            font-size: var(--fs-sm);
+        }
+
+        .compare-table td.compare-diff {
+            background-color: var(--bg-highlight) !important;
+            color: var(--highlight-yellow) !important;
+            font-weight: bold;
+            text-align: center;
+            border-left: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+            border-right: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+            font-size: var(--fs-sm);
+        }
+
+        .compare-table td.compare-diff.same {
+            background-color: var(--bg-compare-diff) !important;
+            color: var(--color-gray-light) !important;
+            font-weight: normal;
+        }
+
+        .compare-table td.compare-diff.positive {
+            background-color: var(--highlight-green-dark) !important;
+            color: var(--highlight-green) !important;
+        }
+
+        .compare-table td.compare-diff.negative {
+            background-color: var(--highlight-red-dark) !important;
+            color: var(--highlight-red) !important;
+        }
+
+        .compare-diff-col::before {
+            content: '';
+            position: absolute;
+            left: -3px;
+            top: 0;
+            bottom: 0;
+            width: var(--spacing-sm);
+            background: linear-gradient(to right, rgba(197, 166, 120, 0.3), transparent);
+        }
+
+        .compare-diff-col::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 0;
+            bottom: 0;
+            width: var(--spacing-sm);
+            background: linear-gradient(to left, rgba(197, 166, 120, 0.3), transparent);
+        }
+
+        .compare-slot-name {
+            background-color: var(--bg-header);
+            color: var(--gold);
+            font-weight: bold;
+            width: var(--compare-slot-min);
+        }
+
+        .compare-divider-row td {
+            border-top: var(--border-width-heavy) var(--border-style) var(--gold);
+            height: var(--height-divider);
+            background: transparent;
+        }
+
+        /* 비교 테이블 색상 적용 */
+        .compare-table .rare-에픽{ color: var(--txt-epic) !important; font-weight: bold; }
+        .compare-table .rare-유니크 { color: var(--txt-unique) !important; font-weight: bold; }
+        .compare-table .rare-레어 { color: var(--txt-rare) !important; font-weight: bold; }
+        .compare-table .rare-언커먼 { color: var(--txt-uncom) !important; font-weight: bold; }
+        .compare-table .rare-커먼 { color: var(--txt-common) !important; font-weight: bold; }
+        .compare-table .rare-티어 { color: var(--color-white) !important; font-weight: bold; }
+        .compare-table .ex-이상 { color: var(--ex-isang) !important; font-weight: bold; }
+        .compare-table .ex-선봉 { color: var(--ex-sunbong) !important; font-weight: bold; }
+        .compare-table .ex-의지 { color: var(--ex-uiji) !important; font-weight: bold; }
+        .compare-table .prefix-selected { color: var(--txt-epic) !important; font-weight: bold; }
+        .compare-table .prefix-tier { color: var(--color-white) !important; font-weight: bold; }
+        .compare-table .p-blue { color: var(--prefix-blue) !important; }
+        .compare-table .p-red { color: var(--prefix-red) !important; }
+        .compare-table .p-green { color: var(--prefix-green) !important; }
+        .compare-table .p-yellow { color: var(--prefix-yellow) !important; }
+
+        /* ========================================
+           유틸리티 클래스 (Utility Classes)
+        ======================================== */
+
+        /* 배경 색상 */
+        .bg-dark { background: var(--bg-dark) !important; }
+        .bg-section { background: var(--bg-section) !important; }
+        .bg-row { background: var(--bg-row) !important; }
+        .bg-header { background: var(--bg-header) !important; }
+
+        /* 텍스트 색상 */
+        .text-white { color: var(--color-white) !important; }
+        .text-gold { color: var(--gold) !important; }
+        .text-gray { color: var(--color-gray-lighter) !important; }
+        .text-dark-gray { color: var(--color-gray-light) !important; }
+
+        /* 테두리 */
+        .border-gold { border: var(--border-width) var(--border-style) var(--gold) !important; }
+        .border-gold-2 { border: var(--border-width-heavy) var(--border-style) var(--gold) !important; }
+        .border-gray { border: var(--border-width) var(--border-style) var(--border) !important; }
+
+        /* 패딩 */
+        .p-xs { padding: var(--padding-xs) !important; }
+        .p-sm { padding: var(--padding-sm) !important; }
+        .p-md { padding: var(--padding-md) !important; }
+        .p-lg { padding: var(--padding-lg) !important; }
+
+        /* 간격 */
+        .gap-xs { gap: var(--spacing-xs) !important; }
+        .gap-sm { gap: var(--spacing-sm) !important; }
+        .gap-md { gap: var(--spacing-md) !important; }
+        .gap-lg { gap: var(--spacing-lg) !important; }
+
+        /* 폰트 크기 */
+        .fs-xs { font-size: var(--fs-xs) !important; }
+        .fs-sm { font-size: var(--fs-sm) !important; }
+        .fs-md { font-size: var(--fs-md) !important; }
+
+        /* 그림자 */
+        .shadow-highlight { box-shadow: var(--shadow-highlight); }
+
+        /* 불투명도 */
+        .opacity-disabled { opacity: var(--opacity-disabled); }
+
+        /* 커서 */
+        .cursor-pointer { cursor: pointer; }
+        .cursor-default { cursor: default; }
+        .cursor-text { cursor: text; }
+        .cursor-not-allowed { cursor: not-allowed; }
+
+        /* 텍스트 스타일 */
+        .font-bold { font-weight: bold; }
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+    </style>
 </head>
 <body>
 
+<h2>🛡️ RPG 통합 장비 관리 시스템</h2>
 
-    <h1>안녕하세요! 반갑습니다.</h1>
-    <p>여기에 웹사이트의 내용을 작성합니다.</p>
-	
-	<a href="dnfm_eq.html">테스트 페이지(test.html) 열기</a>
+<div class="control-bar">
+    <button class="btn-action" onclick="exportToJSON()">📤 JSON 파일 저장</button>
+    <button class="btn-action" onclick="saveJsonWithLocation()" >📂 JSON 경로 지정 저장</button>
+    <button class="btn-action" onclick="document.getElementById('fileInput').click()">📥 JSON 파일 불러오기</button>
+    <button class="btn-action btn-add" onclick="createCharacterTable()">➕ 캐릭터 추가</button>
+    <button onclick="lockAllCharacters()" class="btn-all-lock">
+        전체 잠금
+    </button>
+    <button class="btn-action" style="background: var(--btn-info);" onclick="openHistoryModal()">📜 기록</button>
+    <button class="btn-mode active" id="btnBasicMode" onclick="switchToBasicMode()">📋 기본</button>
+    <button class="btn-mode" id="btnCompareMode" onclick="enterCompareMode()">⚖️ 비교</button>
+
+    <input type="file" id="fileInput" style="display:none" accept=".json" onchange="importFromJSON(this)">
+    <span id="statusMsg" class="status-msg"></span>
+</div>
+
+<div id="compareCharSelectionContainer">
+    <h3>⚖️ 비교할 캐릭터 선택</h3>
+    <p>왼쪽과 오른쪽에서 각각 1명 씩을 선택해주세요.</p>
+    <div style="display: flex; gap: 30px; margin-top: 20px; align-items: center;">
+        <!-- 왼쪽 선택 -->
+        <div style="flex: 1;">
+            <label style="color: var(--gold); font-weight: bold; display: block; margin-bottom: 8px;">⬅️ 왼쪽 선택</label>
+            <select id="compareCharacterSelectLeft" class="compare-select" style="width: 100%; padding: 8px; height: 38px; line-height: 1.5;">
+                <option value="">캐릭터 선택...</option>
+            </select>
+        </div>
+
+        <!-- 오른쪽 선택 -->
+        <div style="flex: 1;">
+            <label style="color: var(--gold); font-weight: bold; display: block; margin-bottom: 8px;">➡️ 오른쪽 선택</label>
+            <select id="compareCharacterSelectRight" style="width: 100%; padding: 8px; background: #000; color: #fff; border: 2px solid #c5a678; border-radius: 4px; font-size: 12px; cursor: pointer; height: 38px; line-height: 1.5;">
+                <option value="">캐릭터 선택...</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- 비교 결과 UI -->
+<div id="compareContainer">
+    <div id="compareContent"></div>
+</div>
+
+<div id="characterContainer"></div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeRuneModal()"></div>
+<div id="skillRunemodal">
+    <h3 style="color:var(--gold); margin-top:0;">💎 스킬룬 & 각인 설정</h3>
+
+    <div style="display:flex; gap:5px; margin-bottom:5px;">
+        <select id="m-batch-rune-name"
+                class="bg-row text-white border-gold" style="flex:1; height: var(--height-button);"></select>
+        <button class="btn-action" style="background:var(--btn-add); flex:1.2;" onclick="setAllRunesBatch()">룬 설정</button>
+    </div>
+
+    <div style="display:flex; gap:5px; margin-bottom:5px;">
+        <select id="m-batch-rune-lv"
+                class="bg-row text-white border-gold" style="flex:1; height: var(--height-button);"></select>
+        <button class="btn-action" style="background:var(--btn-success); flex:1.2;" onclick="setAllRuneLevels()">레벨 설정</button>
+    </div>
+
+    <div style="display:flex; gap:5px; margin-bottom:10px;">
+        <select id="m-batch-skill-lv"
+                class="bg-row text-white border-gold" style="flex:1; height: var(--height-button);"></select>
+        <button class="btn-action" style="background:var(--btn-lock); flex:1.2;" onclick="setAllSkillLevels()">레벨로 설정</button>
+    </div>
+
+    <table class="rune-modal-table">
+        <thead>
+        <tr style="color:var(--gold);">
+            <th class="col-m-num">번호</th>
+            <th style="width:68px;">스킬룬 이름</th>
+            <th style="width:48px;">룬 레벨</th>
+            <th style="width:50px;">스킬 레벨</th>
+        </tr>
+        </thead>
+        <tbody id="runeModalBody"></tbody>
+    </table>
+    <div class="gakin-section">
+        <div class="gakin-title">각인 설정</div>
+        <div class="gakin-container">
+            <div class="m-gakin-input-box"><input type="text" id="m-gakin1" placeholder="메인 미표시 (50%)"></div>
+            <div class="m-gakin-input-box"><input type="text" id="m-gakin2" placeholder="메인 표시 (50%)"></div>
+        </div>
+    </div>
+    <div style="margin-top:15px; display:flex; gap:10px; justify-content:center; padding-bottom: 5px;">
+        <button class="btn-action" style="background:#059669;" onclick="saveRuneData()">저장</button>
+        <button class="btn-action" style="background:#4b5563;" onclick="closeRuneModal()">취소</button>
+    </div>
+</div>
+
+<div id="historyModal"
+     style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1f; border: 2px solid var(--gold); padding: 15px; z-index: 2000; width: 450px; max-height: 80vh; overflow-y: auto;">
+    <h3 style="color:var(--gold); margin-top:0;">📝 최근 변경 기록 (최근 10개)</h3>
+    <div id="historyList"></div>
+    <div style="margin-top:15px; text-align:center;">
+        <button class="btn-action" style="background:#4b5563;" onclick="closeHistoryModal()">닫기</button>
+    </div>
+</div>
+
+<!-- 1. 상수 정의 -->
+<script src="js/constants.js"></script>
+
+<!-- 2. 게임 데이터 -->
+<script src="js/data.js"></script>
+
+<!-- 3. 상태 관리 -->
+<script src="js/state.js"></script>
+
+<!-- 4. 유틸리티 함수 -->
+<script src="js/utils.js"></script>
+
+<!-- 5. 저장/불러오기 -->
+<script src="js/storage.js"></script>
+
+<!-- 6. 핵심 UI 기능 -->
+<script src="js/ui-core.js"></script>
+
+<!-- 7. 캐릭터 관리 -->
+<script src="js/ui-character.js"></script>
+
+<!-- 8. 스킬룬 모달 -->
+<script src="js/ui-rune.js"></script>
+
+<!-- 9. 일반 모달 -->
+<script src="js/ui-modal.js"></script>
+
+<!-- 10. 비교 모드 -->
+<script src="js/ui-compare.js"></script>
+
+<!-- 11. 메인 초기화 & 이벤트 -->
+<script src="js/main.js"></script>
 
 </body>
 </html>
