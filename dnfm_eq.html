@@ -384,6 +384,40 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+
+        .craft-input {
+            background: #1b1e33;
+            color: #e0e0e0;
+            border: 1px solid #444a7a;
+            border-radius: 4px;
+            padding: 4px;
+        }
+
+        .craft-input:focus {
+            outline: none;
+            border-color: #6b5cff;
+            background: #20244a;
+        }
+
+        .craft-lock-btn {
+            background: #2a3158;
+            color: #fff;
+            border: 2px solid transparent;
+            padding: 4px 10px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .craft-lock-btn.active {
+            border: 2px solid #ffffff;
+        }
+
+        /* 제작에 숫자만 입력가능한데 증감버튼이 생기는것을 막아줌 */
+        .craft-input::-webkit-inner-spin-button,
+        .craft-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -414,6 +448,12 @@
             style="background: #2a3158; color: #ffffff; border: 1px solid transparent;" onclick="switchTo('equipment')">
         장비 관리
     </button>
+    <button id="tab-craft" class="modal-btn"
+            style="background: #2a3158; color: #ffffff; border: 1px solid transparent;"
+            onclick="switchTo('craft')">
+        제작
+    </button>
+
 </div>
 
 <button class="action-btn" onclick="showRecentUpdates()">🌟 최근 업데이트</button>
@@ -502,6 +542,29 @@
     </div>
     <div id="weaponPanel"></div>
 </div>
+
+<div id="section-craft-view" style="display:none; padding:20px;">
+    <div style="display:flex; align-items:center; gap:10px;">
+        <h2 style="margin:0;">[제작]</h2>
+
+        <button id="craft-lock-btn"
+                onclick="setCraftLock(true)"
+                class="craft-lock-btn active">
+            잠금
+        </button>
+
+        <button id="craft-unlock-btn"
+                onclick="setCraftLock(false)"
+                class="craft-lock-btn">
+            해제
+        </button>
+    </div>
+    <div id="craft-table-area"
+         style="overflow-x:auto; background:#0f1222; padding:15px;
+                border-radius:8px; border:1px solid #2a3158;">
+    </div>
+</div>
+
 
 <script>
     // =======================================================
@@ -2280,12 +2343,14 @@
         const sections = {
             'char': document.getElementById("section-character-view"),
             'weapon': document.getElementById("section-weapon-view"),
-            'equipment': document.getElementById("section-equipment-view")
+            'equipment': document.getElementById("section-equipment-view"),
+            'craft': document.getElementById("section-craft-view") // ✅ 추가
         };
         const buttons = {
             'char': document.getElementById("tab-char"),
             'weapon': document.getElementById("tab-weapon"),
-            'equipment': document.getElementById("tab-equipment")
+            'equipment': document.getElementById("tab-equipment"),
+            'craft': document.getElementById("tab-craft") // ✅ 추가
         };
 
         // 모든 섹션 숨기고 버튼 스타일 초기화
@@ -2318,6 +2383,7 @@
             equipmentToolbar.querySelectorAll(".char-btn").forEach(b => b.classList.remove("active"));
             if (firstBtn) firstBtn.classList.add("active");
         }
+        if (view === 'craft') renderCraftTable();
 
         window.scrollTo(0, 0);
     }
@@ -2732,6 +2798,81 @@
             URL.revokeObjectURL(url);
         }
     }
+
+    function renderCraftTable() {
+        const area = document.getElementById("craft-table-area");
+        area.innerHTML = "";
+
+        const materials = [
+            { name: "망가진 기계 캡슐", img: "망가진기계캡슐.png" },
+            { name: "스펙쿨룸 파편", img: "스펙쿨룸파편.png" },
+            { name: "망가진 강철 톱니바퀴", img: "망가진강철톱니바퀴.png" },
+            { name: "강철 화로의 파편", img: "강철화로의파편.png" },
+            { name: "빛의 저장소", img: "빝의저장소.png" },
+            { name: "마누스 메모리얼", img: "마누스메모리얼.png" },
+            { name: "데이터 칩 상자", img: "데이터칩.png" },
+            { name: "강화된 데이터 칩 상자", img: "강화된데이터칩.png" }
+        ];
+
+        const table = document.createElement("table");
+
+        // ===== 1행 (캐릭터 직업/이름) =====
+        const header = document.createElement("tr");
+        header.appendChild(document.createElement("th"));
+        header.appendChild(document.createElement("th"));
+
+        characters.forEach(c => {
+            const th = document.createElement("th");
+            th.innerHTML = `${c.job}<br>(${c.name})`;
+            header.appendChild(th);
+        });
+
+        table.appendChild(header);
+
+        // ===== 재료 행 =====
+        materials.forEach(mat => {
+            const tr = document.createElement("tr");
+
+            const nameTd = document.createElement("td");
+            nameTd.textContent = mat.name;
+            tr.appendChild(nameTd);
+
+            const imgTd = document.createElement("td");
+            imgTd.innerHTML = `<img src="${mat.img}" style="width:32px;">`;
+            tr.appendChild(imgTd);
+
+            characters.forEach(() => {
+                const td = document.createElement("td");
+                td.innerHTML = `<input type="number" class="craft-input" style="width:60px;" min="0" step="-1">`;
+                tr.appendChild(td);
+            });
+
+            table.appendChild(tr);
+        });
+
+        area.appendChild(table);
+
+        setCraftLock(true);
+    }
+
+    let craftLocked = true;
+
+    function setCraftLock(lock) {
+        craftLocked = lock;
+
+        // 버튼 상태 변경
+        document.getElementById("craft-lock-btn")
+            .classList.toggle("active", lock);
+        document.getElementById("craft-unlock-btn")
+            .classList.toggle("active", !lock);
+
+        // 입력칸 활성/비활성
+        document.querySelectorAll("#section-craft-view input")
+            .forEach(input => {
+                input.disabled = lock;
+            });
+    }
+
 </script>
 
 </div>
