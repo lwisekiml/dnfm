@@ -3,8 +3,7 @@
 // ============================================
 
 /**
- * 캐릭터 테이블 생성 (매우 큰 함수이므로 원본 유지)
- * 이 함수는 HTML 파일에서 그대로 가져옵니다
+ * 캐릭터 테이블 생성
  */
 function createCharacterTable(savedData = null) {
     // 1) 고유 ID 생성 및 룬 데이터 초기화
@@ -13,8 +12,8 @@ function createCharacterTable(savedData = null) {
     section.className = 'char-section';
     section.id = charId;
 
-    // 룬 데이터 메모리 할당
-    charRuneData[charId] = (savedData && savedData.runeData) ? savedData.runeData : {
+    // 룬 데이터 메모리 할당 - AppState 사용
+    AppState.charRuneData[charId] = (savedData && savedData.runeData) ? savedData.runeData : {
         runes: Array(20).fill().map(() => ({name: '', lv: '', skillLv: ''})),
         gakin: ['', '']
     };
@@ -57,15 +56,15 @@ function createCharacterTable(savedData = null) {
         // 왼쪽 캐릭터 정보 칸 (첫 번째 행에만 rowspan으로 추가)
         if (index === 0) {
             tr.innerHTML += `
-            <td rowspan="${slots.length}" class="bg-section" style="vertical-align: top;">
+            <td rowspan="${slots.length}" style="background-color: #121216; vertical-align: top;">
                 <div style="display:flex; flex-direction:column; gap:4px; padding:5px;">
                     <div style="display:flex; gap:4px;">
-                        <select data-key="info_stat_type" class="info-select" style="flex:1;">
+                        <select data-key="info_stat_type" onchange="applySealHighlight('${charId}'); autoSave();" style="flex:1; border:1px solid #444; background:#000; color:#fff; font-size:11px; height:22px;">
                             <option value="">(스탯)</option>
                             <option value="힘">힘</option>
                             <option value="지능">지능</option>
                         </select>
-                        <select data-key="info_ele_type" class="info-select" style="flex:1;" onchange="applySealHighlight('${charId}'); autoSave();">
+                        <select data-key="info_ele_type" onchange="applySealHighlight('${charId}'); autoSave();" style="flex:1; border:1px solid #444; background:#000; color:#fff; font-size:11px; height:22px;">
                             <option value=""></option>
                             <option value="화속강">화속강</option>
                             <option value="수속강">수속강</option>
@@ -73,19 +72,19 @@ function createCharacterTable(savedData = null) {
                             <option value="암속강">암속강</option>
                         </select>
                     </div>
-                    <div class="divider-gold"></div>
+                    <div style="border-bottom: 2px solid var(--gold); margin: 4px 0;"></div>
                     <input type="text" placeholder="직업" data-key="info_job" oninput="autoSave()">
                     <input type="text" placeholder="이름" data-key="info_name" oninput="autoSave()">
 					<input type="text" placeholder="항마력" data-key="info_power" oninput="autoSave()">
-                    <div class="divider-gold-lg"></div>
+                    <div style="border-bottom: 2px solid var(--gold); margin: 8px 0;"></div>
                     <button onclick="toggleEdit('${charId}', true)" class="btn-char-lock lock-btn">잠금</button>
                     <button onclick="toggleEdit('${charId}', false)" class="btn-char-unlock unlock-btn">해제</button>
-                    <div class="divider-gold-lg"></div>
+                    <div style="border-bottom: 2px solid var(--gold); margin: 10px 0;"></div>
 					<div style="display:flex; gap:2px; margin-bottom: 4px;">
-                        <button onclick="moveCharacter('${charId}', 'up')" class="btn-action btn-move">▲</button>
-                        <button onclick="moveCharacter('${charId}', 'down')" class="btn-action btn-move">▼</button>
-                    </div>
-                    <button onclick="deleteCharacter('${charId}')" class="del-btn">삭제</button>
+						<button onclick="moveCharacter('${charId}', 'up')" class="btn-action" style="flex:1; background:#444; padding:2px;">▲</button>
+						<button onclick="moveCharacter('${charId}', 'down')" class="btn-action" style="flex:1; background:#444; padding:2px;">▼</button>
+					</div>
+                    <button onclick="deleteCharacter('${charId}')" class="del-btn" style="background:#ff4d4d; color:white; border:none; padding:4px; cursor:pointer; font-size:11px; border-radius:2px;">삭제</button>
                 </div>
             </td>`;
         }
@@ -142,11 +141,11 @@ function createCharacterTable(savedData = null) {
             const hasEmb = !["외형칭호", "오라", "아바타", "크리쳐"].includes(slot);
             const isElemSlot = ["보조장비", "귀걸이", "마법석", "칭호"].includes(slot);
 
-            // [수정 포인트] 신규 추가 시 마법부여 기본값 설정 로직
+            // 신규 추가 시 마법부여 기본값 설정 로직
             let defaultEnchant = "";
             let defaultEnchantVal = "";
 
-            if (!savedData) { // 신규 캐릭터 추가일 때만 실행
+            if (!savedData) {
                 if (slot === "무기") {
                     defaultEnchant = "물마공";
                     defaultEnchantVal = "30";
@@ -167,10 +166,10 @@ function createCharacterTable(savedData = null) {
 
             // 마법봉인 목록 가져오기
             let g = {n1: [], n2: []};
-            if (slot === "무기") g = mData.weapon;
-            else if (index >= 1 && index <= 5) g = mData.armor;
-            else if (index >= 6 && index <= 8) g = mData.accessory;
-            else if (index >= 9 && index <= 11) g = mData.special;
+            if (slot === "무기") g = GameData.sealData.weapon;
+            else if (index >= 1 && index <= 5) g = GameData.sealData.armor;
+            else if (index >= 6 && index <= 8) g = GameData.sealData.accessory;
+            else if (index >= 9 && index <= 11) g = GameData.sealData.special;
 
             let embCls = (["상의", "하의"].includes(slot)) ? "emb-bg-red" : (["어깨", "벨트"].includes(slot)) ? "emb-bg-yellow" : (["신발", "팔찌"].includes(slot)) ? "emb-bg-blue" : (["목걸이", "반지"].includes(slot)) ? "emb-bg-green" : "emb-bg-gray";
             const tierSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비"];
@@ -208,16 +207,11 @@ function createCharacterTable(savedData = null) {
     document.getElementById('characterContainer').appendChild(section);
     updateRuneSummary(charId);
 
-// [수정 포인트] 신규 추가 시에도 접두어 리스트를 부위에 맞게 즉시 갱신
+    // 신규 추가 시에도 접두어 리스트를 부위에 맞게 즉시 갱신
     section.querySelectorAll('select[data-key$="_prefix"]').forEach(sel => {
         const slot = sel.getAttribute('data-slot');
         const raritySel = section.querySelector(`select[data-key="${slot}_rarity"]`);
-        const rarity = raritySel ? raritySel.value : "에픽"; // 기본값 에픽 기준
-
-        // updateStyle을 호출하여 부위별(악세/특수/티어) 접두어 목록을 즉시 생성
         updateStyle(sel, 'prefix', true);
-
-        // rarity에 따른 목록 동기화가 필요하므로 raritySel을 기준으로 스타일 업데이트 1회 실행
         if (raritySel) {
             updateStyle(raritySel, 'rarity', true);
         }
@@ -225,7 +219,7 @@ function createCharacterTable(savedData = null) {
 
     // 6) 저장된 데이터 복구 로직
     if (savedData) {
-        // 6-1) 희귀도 먼저 설정 (이전과 동일)
+        // 6-1) 희귀도 먼저 설정
         const rarityInputs = section.querySelectorAll('select[data-key$="_rarity"]');
         rarityInputs.forEach(el => {
             const key = el.getAttribute('data-key');
@@ -245,9 +239,8 @@ function createCharacterTable(savedData = null) {
 
                 el.value = data.val;
 
-                // [핵심 추가] 크리쳐 아티팩트 배경색 강제 동기화
+                // 크리쳐 아티팩트 배경색 강제 동기화
                 if (key.includes('_art_') && key.includes('_bg_')) {
-                    // 이 라인이 실행되어야 select의 value와 배경색 클래스가 일치하게 됩니다.
                     updateStyle(el, 'artBg', true);
                 } else if (data.cls) {
                     el.className = data.cls;
@@ -259,32 +252,25 @@ function createCharacterTable(savedData = null) {
             }
         });
 
-        // 3. [최종 해결책] 모든 데이터가 들어간 직후, 브라우저가 DOM을 안정화할 시간을 아주 잠깐(0ms) 주고 함수 호출
+        // 3. 세트 체크 및 하이라이트 재적용
         setTimeout(() => {
-            // 방어구 세트 체크
             if (typeof checkArmorSetColor === "function") {
                 checkArmorSetColor(charId);
             }
-            // 악세서리 및 특수장비 세트 체크
             const setTargetSlots = ["목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석"];
             setTargetSlots.forEach(slot => {
                 if (typeof runSetCheck === "function") {
                     runSetCheck(slot, charId);
                 }
             });
-            // 하이라이트 재적용
             applySealHighlight(charId);
         }, 0);
 
         toggleEdit(charId, !!savedData.locked);
     }
 
-    // 데이터가 있으면 저장된 상태대로, 없으면 해제(false) 상태로 시작
     toggleEdit(charId, savedData ? !!savedData.locked : false);
-
-    console.log("createCharacterTable called");
 }
-
 
 /**
  * 캐릭터 삭제
@@ -333,7 +319,7 @@ function moveCharacter(charId, direction) {
         }
     }
 
-    AppState.updateSnapshot();
+    AppState.updateLastSnapshot();
     autoSave();
 
     section.style.boxShadow = "0 0 10px var(--gold)";
@@ -341,7 +327,29 @@ function moveCharacter(charId, direction) {
 }
 
 /**
- * 캐릭터 편집 잠금/해제 토글
+ * 모든 캐릭터 잠금
+ */
+function lockAllCharacters() {
+    const allSections = document.querySelectorAll('.char-section');
+
+    if (allSections.length === 0) return;
+
+    if (confirm("모든 캐릭터를 잠금 상태로 변경하시겠습니까?")) {
+        allSections.forEach(section => {
+            const charId = section.id;
+            toggleEdit(charId, true);
+        });
+
+        const statusMsg = document.getElementById('statusMsg');
+        if (statusMsg) {
+            statusMsg.innerText = "🔒 모든 캐릭터가 잠겼습니다.";
+            setTimeout(() => statusMsg.innerText = "", 2000);
+        }
+    }
+}
+
+/**
+ * 편집 잠금/해제 토글
  */
 function toggleEdit(charId, isLock) {
     const section = document.getElementById(charId);
@@ -390,97 +398,6 @@ function toggleEdit(charId, isLock) {
     } else {
         lockBtn?.classList.remove('btn-active');
         unlockBtn?.classList.add('btn-active');
-    }
-
-    autoSave();
-}
-
-/**
- * 모든 캐릭터 잠금
- */
-function lockAllCharacters() {
-    const allSections = document.querySelectorAll('.char-section');
-
-    if (allSections.length === 0) return;
-
-    if (confirm("모든 캐릭터를 잠금 상태로 변경하시겠습니까?")) {
-        allSections.forEach(section => {
-            const charId = section.id;
-            toggleEdit(charId, true);
-        });
-
-        const statusMsg = document.getElementById('statusMsg');
-        if (statusMsg) {
-            statusMsg.innerText = "🔒 모든 캐릭터가 잠겼습니다.";
-            setTimeout(() => statusMsg.innerText = "", 2000);
-        }
-    }
-}
-
-/**
- * 봉인 변경 핸들러
- */
-function handleSealChange(el) {
-    const key = el.getAttribute('data-key');
-    const slot = el.getAttribute('data-slot');
-    const row = el.closest('tr');
-    const opt = el.value;
-    const armors = ["상의", "어깨", "하의", "신발", "벨트"];
-    const accs = ["목걸이", "팔찌", "반지"];
-    const specials = ["보조장비", "귀걸이", "마법석"];
-    const commonValTable = {
-        "힘": "46", "지능": "46", "체력": "46", "정신력": "46",
-        "공격속도": "1.6", "캐스팅속도": "2", "이동속도": "1.6",
-        "최대 HP 증가": "456", "최대 MP 증가": "270",
-        "물리 방어력": "234", "마법 방어력": "178",
-        "적중": "124", "회피": "70"
-    };
-
-    if (key.includes("_seal1")) {
-        const vIn = row.querySelector(`input[data-key="${slot}_seal1_val"]`);
-        if (!vIn) return;
-        if (slot === "무기") {
-            const weaponTable = {
-                "데미지 증가": "8", "추가 데미지": "8", "모든 직업 50레벨스킬": "1",
-                "화속강": "10", "수속강": "10", "명속강": "10", "암속강": "10",
-                "힘": "46", "지능": "46", "물리 공격력": "19", "마법 공격력": "19"
-            };
-            if (weaponTable[opt]) vIn.value = weaponTable[opt];
-        } else if (armors.includes(slot)) {
-            const armorTable = {"힘": "46", "지능": "46", "체력": "46", "정신력": "46", "물리 크리티컬": "29", "마법 크리티컬": "29"};
-            if (armorTable[opt]) vIn.value = armorTable[opt];
-        } else if (accs.includes(slot)) {
-            const accTable = {"화속강": "10", "수속강": "10", "명속강": "10", "암속강": "10", "힘": "46", "지능": "46", "체력": "46", "정신력": "46"};
-            if (accTable[opt]) vIn.value = accTable[opt];
-        } else if (specials.includes(slot)) {
-            const specTable = {"물리 공격력": "19", "마법 공격력": "19", "힘": "46", "지능": "46", "물리 크리티컬": "60", "마법 크리티컬": "60", "적중": "75", "회피": "75"};
-            if (specTable[opt]) vIn.value = specTable[opt];
-        }
-    }
-
-    if (key.includes("_seal2")) {
-        const vIn = row.querySelector(`input[data-key="${slot}_seal2_val"]`);
-        if (!vIn) return;
-        if (slot === "무기") {
-            if (opt === "물리 공격력" || opt === "마법 공격력") vIn.value = "18";
-            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
-        } else if (armors.includes(slot)) {
-            if (opt === "물리 크리티컬" || opt === "마법 크리티컬") vIn.value = "30";
-            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
-        } else if (accs.includes(slot)) {
-            const resTable = {"화속성 저항": "8", "수속성 저항": "8", "명속성 저항": "8", "암속성 저항": "8", "화속강": "8", "수속강": "8", "명속강": "8", "암속강": "8"};
-            if (resTable[opt]) vIn.value = resTable[opt];
-            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
-        } else if (specials.includes(slot)) {
-            if (opt === "물리 공격력" || opt === "마법 공격력") vIn.value = "18";
-            else if (opt === "물리 크리티컬" || opt === "마법 크리티컬") vIn.value = "30";
-            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
-        }
-    }
-
-    const charSection = el.closest('.char-section');
-    if (charSection) {
-        applySealHighlight(charSection.id);
     }
 
     autoSave();
