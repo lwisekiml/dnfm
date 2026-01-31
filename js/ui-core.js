@@ -3,6 +3,121 @@
 // ============================================
 
 /**
+ * 마법봉인 변경 처리
+ */
+function handleSealChange(el) {
+    const key = el.getAttribute('data-key');
+    const slot = el.getAttribute('data-slot');
+    const row = el.closest('tr');
+    const opt = el.value;
+    const armors = ["상의", "어깨", "하의", "신발", "벨트"];
+    const accs = ["목걸이", "팔찌", "반지"];
+    const specials = ["보조장비", "귀걸이", "마법석"];
+    const commonValTable = {
+        "힘": "46",
+        "지능": "46",
+        "체력": "46",
+        "정신력": "46",
+        "공격속도": "1.6",
+        "캐스팅속도": "2",
+        "이동속도": "1.6",
+        "최대 HP 증가": "456",
+        "최대 MP 증가": "270",
+        "물리 방어력": "234",
+        "마법 방어력": "178",
+        "적중": "124",
+        "회피": "70"
+    };
+
+    // ===== 1. 고유 옵션 (seal1) 수치 자동 입력 =====
+    if (key.includes("_seal1")) {
+        const vIn = row.querySelector(`input[data-key="${slot}_seal1_val"]`);
+        if (!vIn) return;
+        if (slot === "무기") {
+            const weaponTable = {
+                "데미지 증가": "8",
+                "추가 데미지": "8",
+                "모든 직업 50레벨스킬": "1",
+                "화속강": "10",
+                "수속강": "10",
+                "명속강": "10",
+                "암속강": "10",
+                "힘": "46",
+                "지능": "46",
+                "물리 공격력": "19",
+                "마법 공격력": "19"
+            };
+            if (weaponTable[opt]) vIn.value = weaponTable[opt];
+        } else if (armors.includes(slot)) {
+            const armorTable = {"힘": "46", "지능": "46", "체력": "46", "정신력": "46", "물리 크리티컬": "29", "마법 크리티컬": "29"};
+            if (armorTable[opt]) vIn.value = armorTable[opt];
+        } else if (accs.includes(slot)) {
+            const accTable = {
+                "화속강": "10",
+                "수속강": "10",
+                "명속강": "10",
+                "암속강": "10",
+                "힘": "46",
+                "지능": "46",
+                "체력": "46",
+                "정신력": "46"
+            };
+            if (accTable[opt]) vIn.value = accTable[opt];
+        } else if (specials.includes(slot)) {
+            const specTable = {
+                "물리 공격력": "19",
+                "마법 공격력": "19",
+                "힘": "46",
+                "지능": "46",
+                "물리 크리티컬": "60",
+                "마법 크리티컬": "60",
+                "적중": "75",
+                "회피": "75"
+            };
+            if (specTable[opt]) vIn.value = specTable[opt];
+        }
+    }
+
+    // ===== 2. 일반 옵션 (seal2) 수치 자동 입력 =====
+    if (key.includes("_seal2")) {
+        const vIn = row.querySelector(`input[data-key="${slot}_seal2_val"]`);
+        if (!vIn) return;
+        if (slot === "무기") {
+            if (opt === "물리 공격력" || opt === "마법 공격력") vIn.value = "18";
+            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
+        } else if (armors.includes(slot)) {
+            if (opt === "물리 크리티컬" || opt === "마법 크리티컬") vIn.value = "30";
+            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
+        } else if (accs.includes(slot)) {
+            const resTable = {
+                "화속성 저항": "8",
+                "수속성 저항": "8",
+                "명속성 저항": "8",
+                "암속성 저항": "8",
+                "화속강": "8",
+                "수속강": "8",
+                "명속강": "8",
+                "암속강": "8"
+            };
+            if (resTable[opt]) vIn.value = resTable[opt];
+            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
+        } else if (specials.includes(slot)) {
+            if (opt === "물리 공격력" || opt === "마법 공격력") vIn.value = "18";
+            else if (opt === "물리 크리티컬" || opt === "마법 크리티컬") vIn.value = "30";
+            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
+        }
+    }
+
+    // ===== 3. 힘지능/속강 선택지에 따른 노란색 강조 실행 =====
+    const charSection = el.closest('.char-section');
+    if (charSection) {
+        applySealHighlight(charSection.id);
+    }
+
+    autoSave();
+}
+
+/**
  * 세트 체크 실행
  */
 function runSetCheck(slot, charId) {
