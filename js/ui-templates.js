@@ -3,7 +3,7 @@
  * templates.html의 <template> 태그를 복제하고 데이터를 주입하는 유틸리티
  */
 
-const TemplateHelper = {
+window.TemplateHelper = {
     /**
      * 템플릿 복제 및 플레이스홀더 치환
      * @param {string} templateId - 템플릿 ID
@@ -165,6 +165,3 @@ const TemplateHelper = {
         return enchantMap[slot] || { enchant: '', val: '' };
     }
 };
-
-// 전역으로 노출
-window.TemplateHelper = TemplateHelper;
