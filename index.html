@@ -6,7 +6,7 @@
     <title>RPG 통합 장비 관리 시스템</title>
     <style>
         /* ========================================
-            CSS 변수 정의 (확장됨)
+            CSS 변수 정의 (100% 완성)
         ======================================== */
         :root {
             /* ===== 기본 색상 팔레트 ===== */
@@ -125,6 +125,7 @@
             --spacing-2xl: 15px;
             --spacing-3xl: 20px;
             --spacing-4xl: 30px;
+            --spacing-5xl: 50px;
 
             /* ===== 패딩 ===== */
             --padding-xs: 1px 2px;
@@ -136,6 +137,7 @@
             --padding-cell: 1px 2px;
             --padding-button: 4px;
             --padding-button-sm: 2px 8px;
+            --padding-button-md: 6px 12px;
             --padding-input: 8px;
             --padding-modal: 15px;
             --padding-textarea: 4px 6px;
@@ -169,6 +171,7 @@
             --width-col-num: 30px;
             --width-art-color: 65px;
             --width-art-opt: 110px;
+            --width-full: 100%;
 
             /* 비교 테이블 너비 */
             --compare-slot-width: 6%;
@@ -204,8 +207,14 @@
             /* ===== 기타 ===== */
             --max-height-modal: 85vh;
             --max-height-modal-history: 80vh;
+            --max-height-modal-xl: 80vh;
             --line-height-normal: 1.5;
             --line-height-history: 1.6;
+
+            /* ===== Position 값 ===== */
+            --position-center-x: 50%;
+            --position-center-y: 50%;
+            --transform-center: translate(-50%, -50%);
         }
 
         /* ========================================
@@ -225,6 +234,11 @@
             padding-bottom: var(--spacing-md);
             margin: 0 0 var(--spacing-xl) 0;
             font-size: var(--fs-lg);
+        }
+
+        h3 {
+            color: var(--gold);
+            margin-top: 0;
         }
 
         /* ========================================
@@ -382,7 +396,7 @@
             background-color: var(--btn-secondary);
             color: var(--color-white);
             border: none;
-            padding: 6px 12px;
+            padding: var(--padding-button-md);
             cursor: pointer;
             border-radius: var(--border-radius-md);
             font-weight: bold;
@@ -636,9 +650,9 @@
         #skillRunemodal {
             display: none;
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: var(--position-center-y);
+            left: var(--position-center-x);
+            transform: var(--transform-center);
             background: var(--bg-row);
             border: var(--border-width-heavy) var(--border-style) var(--gold);
             padding: var(--padding-modal);
@@ -651,9 +665,9 @@
         #historyModal {
             display: none;
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: var(--position-center-y);
+            left: var(--position-center-x);
+            transform: var(--transform-center);
             background: var(--bg-row);
             border: var(--border-width-heavy) var(--border-style) var(--gold);
             padding: var(--padding-modal);
@@ -768,8 +782,20 @@
             margin: var(--spacing-xl) 0;
         }
 
+        /* [100% 완성] 비교 선택 드롭다운 클래스 */
+        .compare-select-wrapper {
+            flex: 1;
+        }
+
+        .compare-select-label {
+            color: var(--gold);
+            font-weight: bold;
+            display: block;
+            margin-bottom: var(--spacing-lg);
+        }
+
         .compare-select {
-            width: 100%;
+            width: var(--width-full);
             padding: var(--padding-input);
             background: var(--bg-dark);
             color: var(--color-white);
@@ -781,11 +807,18 @@
             line-height: var(--line-height-normal);
         }
 
+        .compare-select-container {
+            display: flex;
+            gap: var(--spacing-4xl);
+            margin-top: var(--spacing-3xl);
+            align-items: center;
+        }
+
         .compare-header {
             display: flex;
             justify-content: space-between;
             margin-bottom: var(--spacing-3xl);
-            gap: 50px;
+            gap: var(--spacing-5xl);
         }
 
         .compare-header h3 {
@@ -948,7 +981,7 @@
         }
 
         /* 비교 테이블 색상 적용 */
-        .compare-table .rare-에픽{ color: var(--txt-epic) !important; font-weight: bold; }
+        .compare-table .rare-에픽 { color: var(--txt-epic) !important; font-weight: bold; }
         .compare-table .rare-유니크 { color: var(--txt-unique) !important; font-weight: bold; }
         .compare-table .rare-레어 { color: var(--txt-rare) !important; font-weight: bold; }
         .compare-table .rare-언커먼 { color: var(--txt-uncom) !important; font-weight: bold; }
@@ -965,6 +998,36 @@
         .compare-table .p-yellow { color: var(--prefix-yellow) !important; }
 
         /* ========================================
+           모달 버튼 그룹
+        ======================================== */
+        .modal-button-group {
+            margin-top: var(--padding-modal);
+            display: flex;
+            gap: var(--spacing-xl);
+            justify-content: center;
+            padding-bottom: var(--spacing-md);
+        }
+
+        .modal-flex-row {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .modal-flex-col {
+            flex: 1;
+        }
+
+        .modal-flex-col-wide {
+            flex: 1.2;
+        }
+
+        .modal-title {
+            color: var(--gold);
+            margin-top: 0;
+        }
+
+        /* ========================================
            유틸리티 클래스 (Utility Classes)
         ======================================== */
 
@@ -979,6 +1042,7 @@
         .text-gold { color: var(--gold) !important; }
         .text-gray { color: var(--color-gray-lighter) !important; }
         .text-dark-gray { color: var(--color-gray-light) !important; }
+        .text-center { text-align: center; }
 
         /* 테두리 */
         .border-gold { border: var(--border-width) var(--border-style) var(--gold) !important; }
@@ -1016,8 +1080,19 @@
 
         /* 텍스트 스타일 */
         .font-bold { font-weight: bold; }
-        .text-center { text-align: center; }
         .text-left { text-align: left; }
+
+        /* Display */
+        .d-none { display: none; }
+        .d-block { display: block; }
+        .d-flex { display: flex; }
+        .d-inline-block { display: inline-block; }
+
+        /* Flex */
+        .flex-1 { flex: 1; }
+        .flex-column { flex-direction: column; }
+        .align-center { align-items: center; }
+        .justify-center { justify-content: center; }
     </style>
 </head>
 <body>
@@ -1026,36 +1101,34 @@
 
 <div class="control-bar">
     <button class="btn-action" onclick="exportToJSON()">📤 JSON 파일 저장</button>
-    <button class="btn-action" onclick="saveJsonWithLocation()" >📂 JSON 경로 지정 저장</button>
+    <button class="btn-action" onclick="saveJsonWithLocation()">📂 JSON 경로 지정 저장</button>
     <button class="btn-action" onclick="document.getElementById('fileInput').click()">📥 JSON 파일 불러오기</button>
     <button class="btn-action btn-add" onclick="createCharacterTable()">➕ 캐릭터 추가</button>
-    <button onclick="lockAllCharacters()" class="btn-all-lock">
-        전체 잠금
-    </button>
+    <button onclick="lockAllCharacters()" class="btn-all-lock">전체 잠금</button>
     <button class="btn-action" style="background: var(--btn-info);" onclick="openHistoryModal()">📜 기록</button>
     <button class="btn-mode active" id="btnBasicMode" onclick="switchToBasicMode()">📋 기본</button>
     <button class="btn-mode" id="btnCompareMode" onclick="enterCompareMode()">⚖️ 비교</button>
 
-    <input type="file" id="fileInput" style="display:none" accept=".json" onchange="importFromJSON(this)">
+    <input type="file" id="fileInput" class="d-none" accept=".json" onchange="importFromJSON(this)">
     <span id="statusMsg" class="status-msg"></span>
 </div>
 
 <div id="compareCharSelectionContainer">
-    <h3>⚖️ 비교할 캐릭터 선택</h3>
+    <h3 class="modal-title">⚖️ 비교할 캐릭터 선택</h3>
     <p>왼쪽과 오른쪽에서 각각 1명 씩을 선택해주세요.</p>
-    <div style="display: flex; gap: 30px; margin-top: 20px; align-items: center;">
+    <div class="compare-select-container">
         <!-- 왼쪽 선택 -->
-        <div style="flex: 1;">
-            <label style="color: var(--gold); font-weight: bold; display: block; margin-bottom: 8px;">⬅️ 왼쪽 선택</label>
-            <select id="compareCharacterSelectLeft" class="compare-select" style="width: 100%; padding: 8px; height: 38px; line-height: 1.5;">
+        <div class="compare-select-wrapper">
+            <label class="compare-select-label">⬅️ 왼쪽 선택</label>
+            <select id="compareCharacterSelectLeft" class="compare-select">
                 <option value="">캐릭터 선택...</option>
             </select>
         </div>
 
         <!-- 오른쪽 선택 -->
-        <div style="flex: 1;">
-            <label style="color: var(--gold); font-weight: bold; display: block; margin-bottom: 8px;">➡️ 오른쪽 선택</label>
-            <select id="compareCharacterSelectRight" style="width: 100%; padding: 8px; background: #000; color: #fff; border: 2px solid #c5a678; border-radius: 4px; font-size: 12px; cursor: pointer; height: 38px; line-height: 1.5;">
+        <div class="compare-select-wrapper">
+            <label class="compare-select-label">➡️ 오른쪽 선택</label>
+            <select id="compareCharacterSelectRight" class="compare-select">
                 <option value="">캐릭터 선택...</option>
             </select>
         </div>
@@ -1070,30 +1143,29 @@
 <div id="characterContainer"></div>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeRuneModal()"></div>
+
+<!-- 스킬룬 모달 -->
 <div id="skillRunemodal">
-    <h3 style="color:var(--gold); margin-top:0;">💎 스킬룬 & 각인 설정</h3>
+    <h3 class="modal-title">💎 스킬룬 & 각인 설정</h3>
 
-    <div style="display:flex; gap:5px; margin-bottom:5px;">
-        <select id="m-batch-rune-name"
-                class="bg-row text-white border-gold" style="flex:1; height: var(--height-button);"></select>
-        <button class="btn-action" style="background:var(--btn-add); flex:1.2;" onclick="setAllRunesBatch()">룬 설정</button>
+    <div class="modal-flex-row">
+        <select id="m-batch-rune-name" class="bg-row text-white border-gold modal-flex-col"></select>
+        <button class="btn-action modal-flex-col-wide" style="background:var(--btn-add);" onclick="setAllRunesBatch()">룬 설정</button>
     </div>
 
-    <div style="display:flex; gap:5px; margin-bottom:5px;">
-        <select id="m-batch-rune-lv"
-                class="bg-row text-white border-gold" style="flex:1; height: var(--height-button);"></select>
-        <button class="btn-action" style="background:var(--btn-success); flex:1.2;" onclick="setAllRuneLevels()">레벨 설정</button>
+    <div class="modal-flex-row">
+        <select id="m-batch-rune-lv" class="bg-row text-white border-gold modal-flex-col"></select>
+        <button class="btn-action modal-flex-col-wide" style="background:var(--btn-success);" onclick="setAllRuneLevels()">레벨 설정</button>
     </div>
 
-    <div style="display:flex; gap:5px; margin-bottom:10px;">
-        <select id="m-batch-skill-lv"
-                class="bg-row text-white border-gold" style="flex:1; height: var(--height-button);"></select>
-        <button class="btn-action" style="background:var(--btn-lock); flex:1.2;" onclick="setAllSkillLevels()">레벨로 설정</button>
+    <div class="modal-flex-row">
+        <select id="m-batch-skill-lv" class="bg-row text-white border-gold modal-flex-col"></select>
+        <button class="btn-action modal-flex-col-wide" style="background:var(--btn-lock);" onclick="setAllSkillLevels()">레벨로 설정</button>
     </div>
 
     <table class="rune-modal-table">
         <thead>
-        <tr style="color:var(--gold);">
+        <tr class="text-gold">
             <th class="col-m-num">번호</th>
             <th style="width:68px;">스킬룬 이름</th>
             <th style="width:48px;">룬 레벨</th>
@@ -1102,6 +1174,7 @@
         </thead>
         <tbody id="runeModalBody"></tbody>
     </table>
+
     <div class="gakin-section">
         <div class="gakin-title">각인 설정</div>
         <div class="gakin-container">
@@ -1109,18 +1182,19 @@
             <div class="m-gakin-input-box"><input type="text" id="m-gakin2" placeholder="메인 표시 (50%)"></div>
         </div>
     </div>
-    <div style="margin-top:15px; display:flex; gap:10px; justify-content:center; padding-bottom: 5px;">
-        <button class="btn-action" style="background:#059669;" onclick="saveRuneData()">저장</button>
-        <button class="btn-action" style="background:#4b5563;" onclick="closeRuneModal()">취소</button>
+
+    <div class="modal-button-group">
+        <button class="btn-action" style="background:var(--btn-success);" onclick="saveRuneData()">저장</button>
+        <button class="btn-action" style="background:var(--btn-secondary);" onclick="closeRuneModal()">취소</button>
     </div>
 </div>
 
-<div id="historyModal"
-     style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1f; border: 2px solid var(--gold); padding: 15px; z-index: 2000; width: 450px; max-height: 80vh; overflow-y: auto;">
-    <h3 style="color:var(--gold); margin-top:0;">📝 최근 변경 기록 (최근 10개)</h3>
+<!-- 히스토리 모달 -->
+<div id="historyModal">
+    <h3 class="modal-title">📝 최근 변경 기록 (최근 10개)</h3>
     <div id="historyList"></div>
-    <div style="margin-top:15px; text-align:center;">
-        <button class="btn-action" style="background:#4b5563;" onclick="closeHistoryModal()">닫기</button>
+    <div class="modal-button-group text-center">
+        <button class="btn-action" style="background:var(--btn-secondary);" onclick="closeHistoryModal()">닫기</button>
     </div>
 </div>
 
