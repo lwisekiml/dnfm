@@ -39,13 +39,13 @@ const AppConstants = {
         "전격": "#fcc419", "허상": "#fcc419", "작열": "#fcc419", "침식": "#fcc419",
         "수호": "#fcc419", "왜곡": "#fcc419", "자상": "#fcc419", "맹독": "#fcc419",
         "보호": "#fcc419", "쇄도": "#fcc419", "신속": "#fcc419", "연격": "#fcc419",
-        "견고": "#fcc419", "혈독": "#fcc419", "초선": "#fcc419", "감오": "#fcc419", "가속": "#fcc419", "조화": "#fcc419",
+        "견고": "#fcc419", "혈독": "#fcc419", "초석": "#fcc419", "각오": "#fcc419", "가속": "#fcc419", "조화": "#fcc419",
         "불굴": "#fcc419", "숙련": "#fcc419", "결의": "#fcc419", "격변": "#fcc419", "촉진": "#fcc419", "질주": "#fcc419"
     }
 };
 
-// 하위 호환성을 위한 전역 별칭
-const STORAGE_KEY = AppConstants.STORAGE_KEY;
+// 읽기 전용 별칭 (전역 오염 방지를 위해 const 사용)
+// 원본: AppConstants.*
 const slots = AppConstants.SLOTS;
 const heavyBorderSlots = AppConstants.HEAVY_BORDER_SLOTS;
 const prefixes = AppConstants.PREFIXES;

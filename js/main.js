@@ -36,8 +36,6 @@ window.onload = () => {
 
     if (typeof AppState !== 'undefined' && typeof AppState.updateSnapshot === 'function') {
         AppState.updateSnapshot();
-    } else if (typeof updateLastSnapshot === 'function') {
-        updateLastSnapshot();
     }
 };
 
@@ -116,14 +114,10 @@ document.addEventListener('change', function (e) {
 
         if (typeof AppState !== 'undefined' && typeof AppState.saveHistory === 'function') {
             AppState.saveHistory();
-        } else if (typeof saveHistory === 'function') {
-            saveHistory();
         }
 
         if (typeof AppState !== 'undefined' && typeof AppState.updateSnapshot === 'function') {
             AppState.updateSnapshot();
-        } else if (typeof updateLastSnapshot === 'function') {
-            updateLastSnapshot();
         }
 
         if (key.includes('info_stat_type') ||

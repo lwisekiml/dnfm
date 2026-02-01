@@ -69,18 +69,4 @@ const AppState = {
     }
 };
 
-// 하위 호환성을 위한 전역 별칭
-let charRuneData = AppState.charRuneData;
-let currentEditingCharId = AppState.currentEditingCharId;
-let changeHistory = AppState.changeHistory;
-let lastSnapshot = AppState.lastSnapshot;
-let compareSelection = AppState.compareSelection;
-
-// 하위 호환성 함수
-function saveHistory() {
-    AppState.saveHistory();
-}
-
-function updateLastSnapshot() {
-    AppState.updateSnapshot();
-}
+// 전역 별칭 제거 완료 - 모든 코드에서 AppState.* 직접 사용

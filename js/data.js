@@ -79,8 +79,8 @@ const GameData = {
     }
 };
 
-// 하위 호환성을 위한 전역 별칭
-const mData = GameData.sealData;
+// 읽기 전용 별칭 (전역 오염 방지를 위해 const 사용)
+// 원본: GameData.*
 const itemOptions = GameData.itemOptions;
 const armorSets = GameData.armorSets;
 const accSets = GameData.accSets;
