@@ -1198,6 +1198,402 @@
     </div>
 </div>
 
+<!-- ========================================
+     캐릭터 테이블 템플릿 모음
+     사용법: document.getElementById('템플릿ID').content.cloneNode(true)
+======================================== -->
+
+<!-- 1. 캐릭터 정보 칸 템플릿 -->
+<template id="character-info-template">
+    <td class="col-char-info bg-section" style="vertical-align: top;">
+        <div class="d-flex flex-column gap-sm" style="padding: var(--spacing-md);">
+            <!-- 스탯/속강 선택 -->
+            <div class="d-flex gap-sm">
+                <select data-key="info_stat_type" class="info-select" onchange="applySealHighlight('{CHAR_ID}'); autoSave();">
+                    <option value="">(스탯)</option>
+                    <option value="힘">힘</option>
+                    <option value="지능">지능</option>
+                </select>
+                <select data-key="info_ele_type" class="info-select" onchange="applySealHighlight('{CHAR_ID}'); autoSave();">
+                    <option value=""></option>
+                    <option value="화속강">화속강</option>
+                    <option value="수속강">수속강</option>
+                    <option value="명속강">명속강</option>
+                    <option value="암속강">암속강</option>
+                </select>
+            </div>
+
+            <div class="divider-gold"></div>
+
+            <!-- 직업/이름/항마력 -->
+            <input type="text" placeholder="직업" data-key="info_job" oninput="autoSave()">
+            <input type="text" placeholder="이름" data-key="info_name" oninput="autoSave()">
+            <input type="text" placeholder="항마력" data-key="info_power" oninput="autoSave()">
+
+            <div class="divider-gold"></div>
+
+            <!-- 잠금 버튼 -->
+            <button onclick="toggleEdit('{CHAR_ID}', true)" class="btn-char-lock lock-btn">잠금</button>
+            <button onclick="toggleEdit('{CHAR_ID}', false)" class="btn-char-unlock unlock-btn">해제</button>
+
+            <div class="divider-gold-lg"></div>
+
+            <!-- 이동/삭제 버튼 -->
+            <div class="d-flex gap-xs" style="margin-bottom: var(--spacing-sm);">
+                <button onclick="moveCharacter('{CHAR_ID}', 'up')" class="btn-action btn-move">▲</button>
+                <button onclick="moveCharacter('{CHAR_ID}', 'down')" class="btn-action btn-move">▼</button>
+            </div>
+            <button onclick="deleteCharacter('{CHAR_ID}')" class="del-btn">삭제</button>
+        </div>
+    </td>
+</template>
+
+<!-- 2. 일반 장비 행 템플릿 (무기~벨트) -->
+<template id="equipment-row-template">
+    <tr>
+        <td class="col-slot v-border-heavy">{SLOT_NAME}</td>
+        <td class="col-rarity">
+            <select data-key="{SLOT}_rarity" data-slot="{SLOT}" onchange="updateStyle(this, 'rarity')" class="rare-에픽">
+                <option>에픽</option>
+                <option>유니크</option>
+                <option>레어</option>
+                <option>언커먼</option>
+                <option>커먼</option>
+                <option>티어</option>
+            </select>
+        </td>
+        <td class="col-exceed">
+            <select data-key="{SLOT}_exceed" data-slot="{SLOT}" onchange="updateStyle(this,'exceed')">
+                <option></option>
+                <option>이상</option>
+                <option>선봉</option>
+                <option>의지</option>
+            </select>
+        </td>
+        <td class="col-prefix">
+            <select data-key="{SLOT}_prefix" data-slot="{SLOT}" onchange="updateStyle(this,'prefix')">
+                <option></option>
+                <option>전격</option>
+                <option>허상</option>
+                <option>작열</option>
+                <option>침식</option>
+                <option>수호</option>
+                <option>왜곡</option>
+                <option>자상</option>
+                <option>맹독</option>
+                <option>보호</option>
+                <option>쇄도</option>
+                <option>신속</option>
+                <option>연격</option>
+            </select>
+        </td>
+        <td>
+            <input type="text" data-key="{SLOT}_itemname" class="rare-에픽 itemname-color-sync" oninput="autoSave()">
+        </td>
+        <td class="col-val-short">
+            <input type="text" data-key="{SLOT}_reinforce" oninput="autoSave()">
+        </td>
+        <td>
+            <select data-key="{SLOT}_seal1" data-slot="{SLOT}" onchange="handleSealChange(this)">
+                <option></option>
+            </select>
+        </td>
+        <td class="col-val-short">
+            <input type="text" data-key="{SLOT}_seal1_val" oninput="applySealHighlight('{CHAR_ID}'); autoSave();">
+        </td>
+        <td>
+            <select data-key="{SLOT}_seal2" data-slot="{SLOT}" onchange="handleSealChange(this)">
+                <option></option>
+            </select>
+        </td>
+        <td class="col-val-short">
+            <input type="text" data-key="{SLOT}_seal2_val" oninput="applySealHighlight('{CHAR_ID}'); autoSave();">
+        </td>
+        <td class="col-emblem {EMB_CLASS}">
+            <input type="text" data-key="{SLOT}_emb1" oninput="autoSave()">
+        </td>
+        <td class="col-emblem {EMB_CLASS}">
+            <input type="text" data-key="{SLOT}_emb2" oninput="autoSave()">
+        </td>
+        <td class="col-enchant">
+            <input type="text" data-key="{SLOT}_enchant" value="{DEFAULT_ENCHANT}" oninput="autoSave()">
+        </td>
+        <td class="col-val-short">
+            <input type="text" data-key="{SLOT}_enchant_val" value="{DEFAULT_ENCHANT_VAL}" oninput="autoSave()">
+        </td>
+        <td class="v-border-heavy">
+            <input type="text" data-key="{SLOT}_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;">
+        </td>
+    </tr>
+</template>
+
+<!-- 3. 스킬룬 행 템플릿 -->
+<template id="skillrune-row-template">
+    <tr>
+        <td class="col-slot v-border-heavy">스킬룬</td>
+        <td colspan="3">
+            <button class="btn-action" onclick="openRuneModal('{CHAR_ID}')" style="background:var(--btn-success); padding: var(--padding-sm);">수정</button>
+            <button class="btn-action" onclick="resetRuneData('{CHAR_ID}')" style="background:var(--btn-secondary); padding: var(--padding-sm);">초기화</button>
+        </td>
+        <td colspan="10" id="{CHAR_ID}_runeSummary" class="text-left text-gold font-bold" style="padding-left: var(--spacing-xl); font-size: var(--fs-xs);">
+            설정된 룬 없음
+        </td>
+        <td class="v-border-heavy">
+            <input type="text" data-key="스킬룬_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;">
+        </td>
+    </tr>
+</template>
+
+<!-- 4. 크리쳐 행 템플릿 -->
+<template id="creature-row-template">
+    <tr>
+        <td class="col-slot v-border-heavy">크리쳐</td>
+        <td class="col-rarity">
+            <select data-key="크리쳐_rarity" onchange="updateStyle(this, 'rarity')" class="rare-에픽">
+                <option>에픽</option>
+                <option>유니크</option>
+                <option>레어</option>
+                <option>언커먼</option>
+                <option>커먼</option>
+            </select>
+        </td>
+        <td colspan="2">
+            <input type="text" data-key="크리쳐_name" placeholder="크리쳐 이름" class="rare-에픽" oninput="autoSave()">
+        </td>
+        <td colspan="10">
+            <div class="artifact-main-wrapper">
+                <!-- Red 그룹 -->
+                <div class="art-group">
+                    <div class="art-item custom-top-line">
+                        <select data-key="크리쳐_art_red_top_rarity" class="art-color-select bg-에픽" onchange="updateStyle(this, 'artBg')">
+                            <option>에픽</option>
+                            <option>유니크</option>
+                            <option>레어</option>
+                            <option>언커먼</option>
+                            <option>커먼</option>
+                        </select>
+                        <input type="text" data-key="크리쳐_art_red_top_text" class="art-opt-select bg-에픽" placeholder="내용 입력" oninput="autoSave()">
+                    </div>
+                    <div class="art-item">
+                        <select data-key="크리쳐_art_red_bg_1" class="art-color-select bg-에픽" onchange="updateStyle(this, 'artBg')">
+                            <option>에픽</option>
+                            <option>유니크</option>
+                            <option>레어</option>
+                            <option>언커먼</option>
+                            <option>커먼</option>
+                        </select>
+                        <select data-key="크리쳐_art_red_opt_1" class="art-opt-select bg-에픽" onchange="autoSave()">
+                            <option value="">옵션 선택</option>
+                            <option>힘</option>
+                            <option>지능</option>
+                            <option>체력</option>
+                            <option>정신력</option>
+                            <option>적중</option>
+                            <option>회피</option>
+                        </select>
+                    </div>
+                    <div class="art-item">
+                        <select data-key="크리쳐_art_red_bg_2" class="art-color-select bg-에픽" onchange="updateStyle(this, 'artBg')">
+                            <option>에픽</option>
+                            <option>유니크</option>
+                            <option>레어</option>
+                            <option>언커먼</option>
+                            <option>커먼</option>
+                        </select>
+                        <select data-key="크리쳐_art_red_opt_2" class="art-opt-select bg-에픽" onchange="autoSave()">
+                            <option value="">옵션 선택</option>
+                            <option>힘</option>
+                            <option>지능</option>
+                            <option>체력</option>
+                            <option>정신력</option>
+                            <option>적중</option>
+                            <option>회피</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Blue 그룹 -->
+                <div class="art-group">
+                    <div class="art-item custom-top-line">
+                        <select data-key="크리쳐_art_blue_top_rarity" class="art-color-select bg-에픽" onchange="updateStyle(this, 'artBg')">
+                            <option>에픽</option>
+                            <option>유니크</option>
+                            <option>레어</option>
+                            <option>언커먼</option>
+                            <option>커먼</option>
+                        </select>
+                        <input type="text" data-key="크리쳐_art_blue_top_text" class="art-opt-select bg-에픽" placeholder="내용 입력" oninput="autoSave()">
+                    </div>
+                    <div class="art-item">
+                        <select data-key="크리쳐_art_blue_bg_1" class="art-color-select bg-에픽" onchange="updateStyle(this, 'artBg')">
+                            <option>에픽</option>
+                            <option>유니크</option>
+                            <option>레어</option>
+                            <option>언커먼</option>
+                            <option>커먼</option>
+                        </select>
+                        <select data-key="크리쳐_art_blue_opt_1" class="art-opt-select bg-에픽" onchange="autoSave()">
+                            <option value="">옵션 선택</option>
+                            <option>HP MAX</option>
+                            <option>MP MAX</option>
+                            <option>물리 공격력</option>
+                            <option>마법 공격력</option>
+                            <option>물리 방어력</option>
+                            <option>마법 방어력</option>
+                        </select>
+                    </div>
+                    <div class="art-item">
+                        <select data-key="크리쳐_art_blue_bg_2" class="art-color-select bg-에픽" onchange="updateStyle(this, 'artBg')">
+                            <option>에픽</option>
+                            <option>유니크</option>
+                            <option>레어</option>
+                            <option>언커먼</option>
+                            <option>커먼</option>
+                        </select>
+                        <select data-key="크리쳐_art_blue_opt_2" class="art-opt-select bg-에픽" onchange="autoSave()">
+                            <option value="">옵션 선택</option>
+                            <option>HP MAX</option>
+                            <option>MP MAX</option>
+                            <option>물리 공격력</option>
+                            <option>마법 공격력</option>
+                            <option>물리 방어력</option>
+                            <option>마법 방어력</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Green 그룹 -->
+                <div class="art-group">
+                    <div class="art-item custom-top-line">
+                        <select data-key="크리쳐_art_green_top_rarity" class="art-color-select bg-에픽" onchange="updateStyle(this, 'artBg')">
+                            <option>에픽</option>
+                            <option>유니크</option>
+                            <option>레어</option>
+                            <option>언커먼</option>
+                            <option>커먼</option>
+                        </select>
+                        <input type="text" data-key="크리쳐_art_green_top_text" class="art-opt-select bg-에픽" placeholder="내용 입력" oninput="autoSave()">
+                    </div>
+                    <div class="art-item">
+                        <select data-key="크리쳐_art_green_bg_1" class="art-color-select bg-에픽" onchange="updateStyle(this, 'artBg')">
+                            <option>에픽</option>
+                            <option>유니크</option>
+                            <option>레어</option>
+                            <option>언커먼</option>
+                            <option>커먼</option>
+                        </select>
+                        <select data-key="크리쳐_art_green_opt_1" class="art-opt-select bg-에픽" onchange="autoSave()">
+                            <option value="">옵션 선택</option>
+                            <option>물리 크리티컬</option>
+                            <option>마법 크리티컬</option>
+                            <option>공격속도</option>
+                            <option>캐스팅속도</option>
+                            <option>이동속도</option>
+                            <option>화속강</option>
+                            <option>수속강</option>
+                            <option>명속강</option>
+                            <option>암속강</option>
+                            <option>모속강</option>
+                        </select>
+                    </div>
+                    <div class="art-item">
+                        <select data-key="크리쳐_art_green_bg_2" class="art-color-select bg-에픽" onchange="updateStyle(this, 'artBg')">
+                            <option>에픽</option>
+                            <option>유니크</option>
+                            <option>레어</option>
+                            <option>언커먼</option>
+                            <option>커먼</option>
+                        </select>
+                        <select data-key="크리쳐_art_green_opt_2" class="art-opt-select bg-에픽" onchange="autoSave()">
+                            <option value="">옵션 선택</option>
+                            <option>물리 크리티컬</option>
+                            <option>마법 크리티컬</option>
+                            <option>공격속도</option>
+                            <option>캐스팅속도</option>
+                            <option>이동속도</option>
+                            <option>화속강</option>
+                            <option>수속강</option>
+                            <option>명속강</option>
+                            <option>암속강</option>
+                            <option>모속강</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </td>
+        <td class="v-border-heavy">
+            <input type="text" data-key="크리쳐_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;">
+        </td>
+    </tr>
+</template>
+
+<!-- 5. 칭호 행 템플릿 (textarea 포함) -->
+<template id="title-row-template">
+    <tr>
+        <td class="col-slot v-border-heavy">칭호</td>
+        <td class="col-rarity">
+            <select data-key="칭호_rarity" data-slot="칭호" onchange="updateStyle(this, 'rarity')" class="rare-에픽">
+                <option>에픽</option>
+                <option>유니크</option>
+                <option>레어</option>
+                <option>언커먼</option>
+                <option>커먼</option>
+            </select>
+        </td>
+        <td colspan="2">-</td>
+        <td>
+            <input type="text" data-key="칭호_itemname" class="rare-에픽 itemname-color-sync" oninput="autoSave()">
+        </td>
+        <td class="col-val-short">-</td>
+        <td colspan="4">-</td>
+        <td class="col-emblem">
+            <select data-key="칭호_emb1" class="emb-bg-gray" onchange="autoSave()">
+                <option></option>
+                <option>모속강</option>
+                <option>화속강</option>
+                <option>수속강</option>
+                <option>명속강</option>
+                <option>암속강</option>
+                <option>힘</option>
+                <option>지능</option>
+            </select>
+        </td>
+        <td class="col-emblem emb-bg-gray">
+            <input type="text" data-key="칭호_emb2" oninput="autoSave()">
+        </td>
+        <td class="col-enchant">
+            <input type="text" data-key="칭호_enchant" oninput="autoSave()">
+        </td>
+        <td class="col-val-short">
+            <input type="text" data-key="칭호_enchant_val" oninput="autoSave()">
+        </td>
+        <td rowspan="2" class="v-border-heavy" style="padding: var(--spacing-xs); vertical-align: middle;">
+            <textarea data-key="칭호_desc" oninput="autoSave()" style="width:calc(100% - 4px); height:calc(100% - 2px); min-height: var(--height-textarea-min);"></textarea>
+        </td>
+    </tr>
+</template>
+
+<!-- 6. 외형칭호/오라/아바타 행 템플릿 -->
+<template id="simple-row-template">
+    <tr>
+        <td class="col-slot v-border-heavy">{SLOT_NAME}</td>
+        <td class="col-rarity">
+            <select tabindex="-1" data-key="{SLOT}_rarity" data-slot="{SLOT}" onchange="updateStyle(this, 'rarity')" class="rare-에픽">
+                <option>에픽</option>
+                <option>유니크</option>
+                <option>레어</option>
+                <option>언커먼</option>
+                <option>커먼</option>
+            </select>
+        </td>
+        <td colspan="2">-</td>
+        <td>
+            <input tabindex="-1" type="text" data-key="{SLOT}_itemname" class="rare-에픽 itemname-color-sync" oninput="autoSave()">
+        </td>
+        <td colspan="9">-</td>
+    </tr>
+</template>
+
 <!-- 1. 상수 정의 -->
 <script src="js/constants.js"></script>
 
@@ -1227,6 +1623,8 @@
 
 <!-- 10. 비교 모드 -->
 <script src="js/ui-compare.js"></script>
+
+<script src="js/ui-templates.js"></script>  <!-- ✨ 새로 추가 -->
 
 <!-- 11. 메인 초기화 & 이벤트 -->
 <script src="js/main.js"></script>
