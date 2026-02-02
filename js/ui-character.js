@@ -55,33 +55,27 @@ function createCharacterTable(savedData = null) {
 
     const tbody = section.querySelector('.tbody-content');
 
-    // 5) 각 슬롯별 행 생성 (템플릿 사용)
+    // 5) 각 슬롯별 행 생성 (템플릿 사용) ✅ 수정됨!
     slots.forEach((slot, index) => {
-        let rowFragment;
+        // ✅ 슬롯 컨텐츠에서 <tr> 가져오기
+        const slotFragment = createSlotContent(slot, index, charId, savedData);
+        const tr = slotFragment.querySelector('tr');  // ✅ 템플릿의 <tr> 추출
 
-        // 첫 번째 행: 캐릭터 정보 칸 추가
-        if (index === 0) {
-            const charInfoCell = TemplateHelper.createCharacterInfo(charId);
-            const firstRow = document.createElement('tr');
-            firstRow.appendChild(charInfoCell);
-
-            // 첫 번째 슬롯 내용도 추가
-            const slotContent = createSlotContent(slot, index, charId, savedData);
-            slotContent.childNodes.forEach(node => firstRow.appendChild(node.cloneNode(true)));
-
-            if (heavyBorderSlots.includes(slot)) {
-                firstRow.style.borderBottom = "2px solid var(--border-heavy)";
-            }
-
-            tbody.appendChild(firstRow);
+        if (!tr) {
+            console.error(`템플릿에서 <tr>을 찾을 수 없습니다: ${slot}`);
             return;
         }
 
-        // 나머지 행들
-        const tr = document.createElement('tr');
-        const slotContent = createSlotContent(slot, index, charId, savedData);
-        slotContent.childNodes.forEach(node => tr.appendChild(node.cloneNode(true)));
+        // ✅ 첫 번째 행: 캐릭터 정보 칸 추가
+        if (index === 0) {
+            const charInfoFragment = TemplateHelper.createCharacterInfo(charId);
+            const charInfoCell = charInfoFragment.firstElementChild;  // <td>
 
+            // ✅ tr의 맨 앞에 캐릭터 정보 td 삽입
+            tr.insertBefore(charInfoCell, tr.firstChild);
+        }
+
+        // ✅ 테두리 적용
         if (heavyBorderSlots.includes(slot)) {
             tr.style.borderBottom = "2px solid var(--border-heavy)";
         }
@@ -109,34 +103,27 @@ function createCharacterTable(savedData = null) {
  * 슬롯별 컨텐츠 생성 (템플릿 사용)
  */
 function createSlotContent(slot, index, charId, savedData) {
-    const fragment = document.createDocumentFragment();
-
     // 스킬룬
     if (slot === "스킬룬") {
-        const runeRow = TemplateHelper.createSkillRuneRow(charId);
-        return runeRow;
+        return TemplateHelper.createSkillRuneRow(charId);
     }
 
     // 크리쳐
     if (slot === "크리쳐") {
-        const creatureRow = TemplateHelper.createCreatureRow();
-        return creatureRow;
+        return TemplateHelper.createCreatureRow();
     }
 
     // 칭호 (textarea 특수 처리)
     if (slot === "칭호") {
-        const titleRow = TemplateHelper.createTitleRow();
-        return titleRow;
+        return TemplateHelper.createTitleRow();
     }
 
     // 외형칭호/오라/아바타
     if (["외형칭호", "오라", "아바타"].includes(slot)) {
-        const simpleRow = TemplateHelper.createSimpleRow(slot);
-        return simpleRow;
+        return TemplateHelper.createSimpleRow(slot);
     }
 
     // 일반 장비
-    const isEquipment = index < 12;
     const options = {
         emblemClass: TemplateHelper.getEmblemClass(slot),
         ...(!savedData ? TemplateHelper.getDefaultEnchant(slot) : {enchant: '', val: ''})
@@ -328,7 +315,7 @@ function moveCharacter(charId, direction) {
         }
     }
 
-    AppState.updateLastSnapshot();
+    AppState.updateSnapshot();
     autoSave();
 
     section.style.boxShadow = "0 0 10px var(--gold)";

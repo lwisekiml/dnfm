@@ -1,5 +1,5 @@
 // ============================================
-// ui-core.js - 핵심 UI 기능
+// ui-core.js - 핵심 UI 기능 (중복 제거 완료)
 // ============================================
 
 /**
@@ -10,105 +10,26 @@ function handleSealChange(el) {
     const slot = el.getAttribute('data-slot');
     const row = el.closest('tr');
     const opt = el.value;
-    const armors = ["상의", "어깨", "하의", "신발", "벨트"];
-    const accs = ["목걸이", "팔찌", "반지"];
-    const specials = ["보조장비", "귀걸이", "마법석"];
-    const commonValTable = {
-        "힘": "46",
-        "지능": "46",
-        "체력": "46",
-        "정신력": "46",
-        "공격속도": "1.6",
-        "캐스팅속도": "2",
-        "이동속도": "1.6",
-        "최대 HP 증가": "456",
-        "최대 MP 증가": "270",
-        "물리 방어력": "234",
-        "마법 방어력": "178",
-        "적중": "124",
-        "회피": "70"
-    };
 
-    // ===== 1. 고유 옵션 (seal1) 수치 자동 입력 =====
+    // 1. 고유 옵션 (seal1) 수치 자동 입력
     if (key.includes("_seal1")) {
         const vIn = row.querySelector(`input[data-key="${slot}_seal1_val"]`);
         if (!vIn) return;
-        if (slot === "무기") {
-            const weaponTable = {
-                "데미지 증가": "8",
-                "추가 데미지": "8",
-                "모든 직업 50레벨스킬": "1",
-                "화속강": "10",
-                "수속강": "10",
-                "명속강": "10",
-                "암속강": "10",
-                "힘": "46",
-                "지능": "46",
-                "물리 공격력": "19",
-                "마법 공격력": "19"
-            };
-            if (weaponTable[opt]) vIn.value = weaponTable[opt];
-        } else if (armors.includes(slot)) {
-            const armorTable = {"힘": "46", "지능": "46", "체력": "46", "정신력": "46", "물리 크리티컬": "29", "마법 크리티컬": "29"};
-            if (armorTable[opt]) vIn.value = armorTable[opt];
-        } else if (accs.includes(slot)) {
-            const accTable = {
-                "화속강": "10",
-                "수속강": "10",
-                "명속강": "10",
-                "암속강": "10",
-                "힘": "46",
-                "지능": "46",
-                "체력": "46",
-                "정신력": "46"
-            };
-            if (accTable[opt]) vIn.value = accTable[opt];
-        } else if (specials.includes(slot)) {
-            const specTable = {
-                "물리 공격력": "19",
-                "마법 공격력": "19",
-                "힘": "46",
-                "지능": "46",
-                "물리 크리티컬": "60",
-                "마법 크리티컬": "60",
-                "적중": "75",
-                "회피": "75"
-            };
-            if (specTable[opt]) vIn.value = specTable[opt];
-        }
+
+        const value = DataTables.getSealValue(SlotUtils.getSlotType(slot), opt, 1);
+        if (value) vIn.value = value;
     }
 
-    // ===== 2. 일반 옵션 (seal2) 수치 자동 입력 =====
+    // 2. 일반 옵션 (seal2) 수치 자동 입력
     if (key.includes("_seal2")) {
         const vIn = row.querySelector(`input[data-key="${slot}_seal2_val"]`);
         if (!vIn) return;
-        if (slot === "무기") {
-            if (opt === "물리 공격력" || opt === "마법 공격력") vIn.value = "18";
-            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
-        } else if (armors.includes(slot)) {
-            if (opt === "물리 크리티컬" || opt === "마법 크리티컬") vIn.value = "30";
-            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
-        } else if (accs.includes(slot)) {
-            const resTable = {
-                "화속성 저항": "8",
-                "수속성 저항": "8",
-                "명속성 저항": "8",
-                "암속성 저항": "8",
-                "화속강": "8",
-                "수속강": "8",
-                "명속강": "8",
-                "암속강": "8"
-            };
-            if (resTable[opt]) vIn.value = resTable[opt];
-            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
-        } else if (specials.includes(slot)) {
-            if (opt === "물리 공격력" || opt === "마법 공격력") vIn.value = "18";
-            else if (opt === "물리 크리티컬" || opt === "마법 크리티컬") vIn.value = "30";
-            else if (commonValTable[opt]) vIn.value = commonValTable[opt];
-        }
+
+        const value = DataTables.getSealValue(SlotUtils.getSlotType(slot), opt, 2);
+        if (value) vIn.value = value;
     }
 
-    // ===== 3. 힘지능/속강 선택지에 따른 노란색 강조 실행 =====
+    // 3. 힘지능/속강 선택지에 따른 노란색 강조 실행
     const charSection = el.closest('.char-section');
     if (charSection) {
         applySealHighlight(charSection.id);
@@ -122,38 +43,68 @@ function handleSealChange(el) {
  */
 function runSetCheck(slot, charId) {
     const slotType = SlotUtils.getSlotType(slot);
-    if (slotType === 'armor') checkArmorSetColor(charId);
-    else if (slotType === 'accessory') checkAccSetColor(charId);
-    else if (slotType === 'special') checkSpecialSetColor(charId);
+    if (slotType === 'armor') checkSetColor(charId, 'armor');
+    else if (slotType === 'accessory') checkSetColor(charId, 'accessory');
+    else if (slotType === 'special') checkSetColor(charId, 'special');
 }
 
 /**
- * 방어구 세트 색상 체크
+ * 세트 색상 체크 (통합 버전) ⭐
+ * 3개 함수를 1개로 통합하여 중복 제거
  */
-function checkArmorSetColor(charId) {
+function checkSetColor(charId, setType) {
     const section = document.getElementById(charId);
     if (!section) return;
 
-    const checkSlots = [
-        "상의", "하의", "어깨", "벨트", "신발",
-        "목걸이", "팔찌", "반지",
-        "보조장비", "귀걸이", "마법석"
-    ];
-
-    const currentItems = {};
-    checkSlots.forEach(slot => {
-        const el = section.querySelector(`[data-key="${slot}_itemname"]`);
-        if (el && el.value.trim()) {
-            currentItems[slot] = el.value.trim();
+    // 세트 타입별 설정
+    const setConfig = {
+        armor: {
+            slots: ["상의", "하의", "어깨", "벨트", "신발"],
+            sets: armorSets,
+            requireRarity: false
+        },
+        accessory: {
+            slots: ["팔찌", "목걸이", "반지"],
+            sets: accSets,
+            requireRarity: true,
+            requiredRarity: "에픽"
+        },
+        special: {
+            slots: ["귀걸이", "마법석", "보조장비"],
+            sets: specialSets,
+            requireRarity: true,
+            requiredRarity: "에픽"
         }
+    };
+
+    const config = setConfig[setType];
+    if (!config) return;
+
+    // 1. 현재 장착 아이템 수집
+    const currentItems = {};
+    let isAllCorrectRarity = true;
+
+    config.slots.forEach(slot => {
+        if (config.requireRarity) {
+            const raritySel = section.querySelector(`select[data-key="${slot}_rarity"]`);
+            const rarity = raritySel ? raritySel.value : "";
+            if (rarity !== config.requiredRarity) {
+                isAllCorrectRarity = false;
+            }
+        }
+
+        const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
+        const name = nameEl ? nameEl.value.trim() : "";
+        if (name) currentItems[slot] = name;
     });
 
+    // 2. 세트 카운팅
     const setCounts = {};
     const slotToSetName = {};
 
-    for (const [setName, setList] of Object.entries(armorSets)) {
+    for (const [setName, setList] of Object.entries(config.sets)) {
         setCounts[setName] = 0;
-        checkSlots.forEach(slot => {
+        config.slots.forEach(slot => {
             const itemName = currentItems[slot];
             if (itemName && setList.includes(itemName)) {
                 setCounts[setName]++;
@@ -162,113 +113,50 @@ function checkArmorSetColor(charId) {
         });
     }
 
-    checkSlots.forEach(slot => {
-        const el = section.querySelector(`[data-key="${slot}_itemname"]`);
-        if (!el) return;
+    // 3. 세트 효과 활성화 여부 확인
+    let isSetComplete = false;
+    if (!config.requireRarity || isAllCorrectRarity) {
+        for (const setName in setCounts) {
+            if (setCounts[setName] >= 3) {
+                isSetComplete = true;
+                break;
+            }
+        }
+    }
 
-        const setName = slotToSetName[slot];
-        if (setName && setCounts[setName] >= 3) {
-            el.style.setProperty("color", "#71D2E5", "important");
-            el.style.fontWeight = "bold";
-            el.title = `${setName} 세트 효과 활성화 (${setCounts[setName]}셋)`;
+    // 4. 하이라이트 적용
+    config.slots.forEach(slot => {
+        const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
+        if (!nameEl) return;
+
+        if (isSetComplete) {
+            nameEl.style.setProperty('color', '#71D2E5', 'important');
+            nameEl.style.fontWeight = 'bold';
+            const setName = slotToSetName[slot];
+            if (setName) {
+                nameEl.title = `${setName} 세트 효과 활성화 (${setCounts[setName]}셋)`;
+            }
         } else {
-            el.style.color = "";
-            el.style.fontWeight = "";
-            el.title = "";
+            nameEl.style.color = "";
+            nameEl.style.fontWeight = "";
+            nameEl.title = "";
         }
     });
 }
 
 /**
- * 악세서리 세트 색상 체크
+ * 호환성을 위한 래퍼 함수들
  */
+function checkArmorSetColor(charId) {
+    checkSetColor(charId, 'armor');
+}
+
 function checkAccSetColor(charId) {
-    const section = document.getElementById(charId);
-    if (!section) return;
-
-    const accSlots = ["팔찌", "목걸이", "반지"];
-    let equippedItems = [];
-    let isAllEpic = true;
-
-    accSlots.forEach(slot => {
-        const raritySel = section.querySelector(`select[data-key="${slot}_rarity"]`);
-        const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
-
-        const rarity = raritySel ? raritySel.value : "";
-        const name = nameEl ? nameEl.value.trim() : "";
-
-        if (rarity !== "에픽") isAllEpic = false;
-        if (name) equippedItems.push(name);
-    });
-
-    let isSetComplete = false;
-    if (isAllEpic && equippedItems.length >= 3) {
-        for (const setName in accSets) {
-            const setList = accSets[setName];
-            const matchCount = equippedItems.filter(item => setList.includes(item)).length;
-            if (matchCount >= 3) {
-                isSetComplete = true;
-                break;
-            }
-        }
-    }
-
-    accSlots.forEach(slot => {
-        const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
-        if (nameEl) {
-            if (isSetComplete) {
-                nameEl.style.setProperty('color', '#71D2E5', 'important');
-            } else {
-                nameEl.style.color = "";
-            }
-        }
-    });
+    checkSetColor(charId, 'accessory');
 }
 
-/**
- * 특수장비 세트 색상 체크
- */
 function checkSpecialSetColor(charId) {
-    const section = document.getElementById(charId);
-    if (!section) return;
-
-    const specialSlots = ["귀걸이", "마법석", "보조장비"];
-    let equippedItems = [];
-    let isAllEpic = true;
-
-    specialSlots.forEach(slot => {
-        const raritySel = section.querySelector(`select[data-key="${slot}_rarity"]`);
-        const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
-
-        const rarity = raritySel ? raritySel.value : "";
-        const name = nameEl ? nameEl.value.trim() : "";
-
-        if (rarity !== "에픽") isAllEpic = false;
-        if (name) equippedItems.push(name);
-    });
-
-    let isSetComplete = false;
-    if (isAllEpic && equippedItems.length >= 3) {
-        for (const setName in specialSets) {
-            const setList = specialSets[setName];
-            const matchCount = equippedItems.filter(item => setList.includes(item)).length;
-            if (matchCount >= 3) {
-                isSetComplete = true;
-                break;
-            }
-        }
-    }
-
-    specialSlots.forEach(slot => {
-        const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
-        if (nameEl) {
-            if (isSetComplete) {
-                nameEl.style.setProperty('color', '#71D2E5', 'important');
-            } else {
-                nameEl.style.color = "";
-            }
-        }
-    });
+    checkSetColor(charId, 'special');
 }
 
 /**
@@ -382,7 +270,6 @@ function updateStyle(el, type, isInitial = false) {
             const rarityClass = 'rare-' + el.value;
             el.classList.add(rarityClass);
 
-            const colorSyncSlots = ["칭호", "외형칭호", "오라", "아바타"];
             const nameEl = row.querySelector(`[data-key="${slot}_itemname"]`);
 
             if (type === 'rarity' && slot === "크리쳐") {
