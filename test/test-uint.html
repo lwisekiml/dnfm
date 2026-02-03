@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>단위 테스트 - RPG 장비 관리 시스템</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background: #0f0f12;
+            color: #ddd;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #c5a678;
+            border-bottom: 2px solid #c5a678;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #fcc419;
+            margin-top: 30px;
+        }
+
+        .test-suite {
+            background: #1a1a1f;
+            border: 1px solid #444;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .test-case {
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 4px solid #666;
+            background: #121216;
+        }
+
+        .test-case.pass {
+            border-left-color: #4ade80;
+            background: #1a4a2a;
+        }
+
+        .test-case.fail {
+            border-left-color: #f87171;
+            background: #4a1a1a;
+        }
+
+        .test-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .test-result {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .test-error {
+            color: #ff5252;
+            font-family: monospace;
+            font-size: 11px;
+            margin-top: 5px;
+            padding: 5px;
+            background: #000;
+            border-radius: 2px;
+        }
+
+        .summary {
+            background: #2a2a32;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            border: 2px solid #c5a678;
+        }
+
+        .summary-item {
+            display: inline-block;
+            margin-right: 20px;
+            font-weight: bold;
+        }
+
+        .pass-count { color: #4ade80; }
+        .fail-count { color: #f87171; }
+        .total-count { color: #c5a678; }
+
+        button {
+            background: #1d4ed8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-weight: bold;
+            margin: 10px 5px 10px 0;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        .run-all {
+            background: #059669;
+        }
+
+        .run-all:hover {
+            background: #10b981;
+        }
+    </style>
+</head>
+<body>
+<h1>🧪 단위 테스트 - RPG 장비 관리 시스템</h1>
+
+<div>
+    <button class="run-all" onclick="runAllTests()">▶ 모든 테스트 실행</button>
+    <button onclick="clearResults()">🗑️ 결과 초기화</button>
+</div>
+
+<div id="summary" class="summary" style="display: none;">
+    <span class="summary-item total-count">총 <span id="totalTests">0</span>개</span>
+    <span class="summary-item pass-count">통과 <span id="passTests">0</span>개</span>
+    <span class="summary-item fail-count">실패 <span id="failTests">0</span>개</span>
+    <span class="summary-item">소요 시간: <span id="duration">0</span>ms</span>
+</div>
+
+<div id="testResults"></div>
+
+<!-- 테스트 대상 스크립트 로드 -->
+<script src="../js/constants.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/state.js"></script>
+<script src="../js/utils.js"></script>
+
+<!-- 테스트 프레임워크 -->
+<script>
+    // 간단한 테스트 프레임워크
+    class TestRunner {
+        constructor() {
+            this.tests = [];
+            this.results = [];
+            this.currentSuite = null;
+        }
+
+        describe(suiteName, fn) {
+            this.currentSuite = {
+                name: suiteName,
+                tests: []
+            };
+            fn();
+            this.tests.push(this.currentSuite);
+            this.currentSuite = null;
+        }
+
+        it(testName, fn) {
+            if (!this.currentSuite) {
+                console.error('it() must be called inside describe()');
+                return;
+            }
+            this.currentSuite.tests.push({
+                name: testName,
+                fn: fn
+            });
+        }
+
+        async runAll() {
+            const startTime = performance.now();
+            this.results = [];
+
+            for (const suite of this.tests) {
+                for (const test of suite.tests) {
+                    const result = await this.runTest(suite.name, test);
+                    this.results.push(result);
+                }
+            }
+
+            const endTime = performance.now();
+            const duration = Math.round(endTime - startTime);
+
+            this.displayResults(duration);
+        }
+
+        async runTest(suiteName, test) {
+            try {
+                await test.fn();
+                return {
+                    suite: suiteName,
+                    name: test.name,
+                    passed: true,
+                    error: null
+                };
+            } catch (error) {
+                return {
+                    suite: suiteName,
+                    name: test.name,
+                    passed: false,
+                    error: error.message
+                };
+            }
+        }
+
+        displayResults(duration) {
+            const container = document.getElementById('testResults');
+            container.innerHTML = '';
+
+            let currentSuite = null;
+            let suiteDiv = null;
+
+            this.results.forEach(result => {
+                if (currentSuite !== result.suite) {
+                    currentSuite = result.suite;
+                    suiteDiv = document.createElement('div');
+                    suiteDiv.className = 'test-suite';
+                    suiteDiv.innerHTML = `<h2>${currentSuite}</h2>`;
+                    container.appendChild(suiteDiv);
+                }
+
+                const testDiv = document.createElement('div');
+                testDiv.className = `test-case ${result.passed ? 'pass' : 'fail'}`;
+
+                testDiv.innerHTML = `
+                        <div class="test-name">
+                            ${result.passed ? '✅' : '❌'} ${result.name}
+                        </div>
+                        ${result.error ? `<div class="test-error">${result.error}</div>` : ''}
+                    `;
+
+                suiteDiv.appendChild(testDiv);
+            });
+
+            // 요약 표시
+            const passCount = this.results.filter(r => r.passed).length;
+            const failCount = this.results.filter(r => !r.passed).length;
+
+            document.getElementById('summary').style.display = 'block';
+            document.getElementById('totalTests').textContent = this.results.length;
+            document.getElementById('passTests').textContent = passCount;
+            document.getElementById('failTests').textContent = failCount;
+            document.getElementById('duration').textContent = duration;
+        }
+    }
+
+    // 어서션 헬퍼
+    function expect(actual) {
+        return {
+            toBe(expected) {
+                if (actual !== expected) {
+                    throw new Error(`Expected ${JSON.stringify(expected)}, but got ${JSON.stringify(actual)}`);
+                }
+            },
+            toEqual(expected) {
+                if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+                    throw new Error(`Expected ${JSON.stringify(expected)}, but got ${JSON.stringify(actual)}`);
+                }
+            },
+            toBeTruthy() {
+                if (!actual) {
+                    throw new Error(`Expected truthy value, but got ${actual}`);
+                }
+            },
+            toBeFalsy() {
+                if (actual) {
+                    throw new Error(`Expected falsy value, but got ${actual}`);
+                }
+            },
+            toContain(item) {
+                if (!actual.includes(item)) {
+                    throw new Error(`Expected array to contain ${item}`);
+                }
+            },
+            toHaveProperty(prop) {
+                if (!(prop in actual)) {
+                    throw new Error(`Expected object to have property ${prop}`);
+                }
+            },
+            toBeInstanceOf(constructor) {
+                if (!(actual instanceof constructor)) {
+                    throw new Error(`Expected instance of ${constructor.name}`);
+                }
+            },
+            toThrow() {
+                try {
+                    actual();
+                    throw new Error('Expected function to throw an error');
+                } catch (e) {
+                    // 성공
+                }
+            }
+        };
+    }
+
+    const runner = new TestRunner();
+
+    // ============================================
+    // 1. AppConstants 테스트
+    // ============================================
+    runner.describe('AppConstants - 상수 정의', () => {
+        runner.it('STORAGE_KEY가 정의되어 있어야 함', () => {
+            expect(AppConstants.STORAGE_KEY).toBe('dnfm_character_equipment_data');
+        });
+
+        runner.it('SLOTS 배열이 18개 슬롯을 포함해야 함', () => {
+            expect(AppConstants.SLOTS.length).toBe(18);
+        });
+
+        runner.it('SLOTS에 무기 슬롯이 있어야 함', () => {
+            expect(AppConstants.SLOTS).toContain('무기');
+        });
+
+        runner.it('HEAVY_BORDER_SLOTS가 배열이어야 함', () => {
+            expect(Array.isArray(AppConstants.HEAVY_BORDER_SLOTS)).toBeTruthy();
+        });
+
+        runner.it('PREFIXES가 정의되어 있어야 함', () => {
+            expect(AppConstants.PREFIXES).toBeTruthy();
+        });
+
+        runner.it('RUNE_NAMES가 배열이어야 함', () => {
+            expect(Array.isArray(AppConstants.RUNE_NAMES)).toBeTruthy();
+        });
+
+        runner.it('RARITY_COLORS 객체가 에픽 색상을 포함해야 함', () => {
+            expect(AppConstants.RARITY_COLORS).toHaveProperty('에픽');
+        });
+    });
+
+    // ============================================
+    // 2. GameData 테스트
+    // ============================================
+    runner.describe('GameData - 게임 데이터', () => {
+        runner.it('sealData가 정의되어 있어야 함', () => {
+            expect(GameData.sealData).toBeTruthy();
+        });
+
+        runner.it('sealData.weapon이 n1, n2를 포함해야 함', () => {
+            expect(GameData.sealData.weapon).toHaveProperty('n1');
+            expect(GameData.sealData.weapon).toHaveProperty('n2');
+        });
+
+        runner.it('itemOptions가 정의되어 있어야 함', () => {
+            expect(GameData.itemOptions).toBeTruthy();
+        });
+
+        runner.it('itemOptions.상의가 배열이어야 함', () => {
+            expect(Array.isArray(GameData.itemOptions['상의'])).toBeTruthy();
+        });
+
+        runner.it('armorSets가 정의되어 있어야 함', () => {
+            expect(GameData.armorSets).toBeTruthy();
+        });
+
+        runner.it('accSets가 정의되어 있어야 함', () => {
+            expect(GameData.accSets).toBeTruthy();
+        });
+
+        runner.it('specialSets가 정의되어 있어야 함', () => {
+            expect(GameData.specialSets).toBeTruthy();
+        });
+    });
+
+    // ============================================
+    // 3. AppState 테스트
+    // ============================================
+    runner.describe('AppState - 상태 관리', () => {
+        runner.it('charRuneData 객체가 정의되어 있어야 함', () => {
+            expect(AppState.charRuneData).toBeTruthy();
+        });
+
+        runner.it('changeHistory 배열이 정의되어 있어야 함', () => {
+            expect(Array.isArray(AppState.changeHistory)).toBeTruthy();
+        });
+
+        runner.it('lastSnapshot 배열이 정의되어 있어야 함', () => {
+            expect(Array.isArray(AppState.lastSnapshot)).toBeTruthy();
+        });
+
+        runner.it('compareSelection 객체가 정의되어 있어야 함', () => {
+            expect(AppState.compareSelection).toBeTruthy();
+        });
+
+        runner.it('init 메서드가 함수여야 함', () => {
+            expect(typeof AppState.init).toBe('function');
+        });
+
+        runner.it('saveHistory 메서드가 함수여야 함', () => {
+            expect(typeof AppState.saveHistory).toBe('function');
+        });
+
+        runner.it('updateSnapshot 메서드가 함수여야 함', () => {
+            expect(typeof AppState.updateSnapshot).toBe('function');
+        });
+    });
+
+    // ============================================
+    // 4. DOMUtils 테스트
+    // ============================================
+    runner.describe('DOMUtils - DOM 유틸리티', () => {
+        runner.it('getSlotElement 메서드가 정의되어 있어야 함', () => {
+            expect(typeof DOMUtils.getSlotElement).toBe('function');
+        });
+
+        runner.it('getSlotElements 메서드가 정의되어 있어야 함', () => {
+            expect(typeof DOMUtils.getSlotElements).toBe('function');
+        });
+
+        runner.it('getCharInfo 메서드가 정의되어 있어야 함', () => {
+            expect(typeof DOMUtils.getCharInfo).toBe('function');
+        });
+
+        runner.it('getCharInfos 메서드가 정의되어 있어야 함', () => {
+            expect(typeof DOMUtils.getCharInfos).toBe('function');
+        });
+    });
+
+    // ============================================
+    // 5. SlotUtils 테스트
+    // ============================================
+    runner.describe('SlotUtils - 슬롯 유틸리티', () => {
+        runner.it('ARMOR_SLOTS가 배열이어야 함', () => {
+            expect(Array.isArray(SlotUtils.ARMOR_SLOTS)).toBeTruthy();
+        });
+
+        runner.it('ACCESSORY_SLOTS가 배열이어야 함', () => {
+            expect(Array.isArray(SlotUtils.ACCESSORY_SLOTS)).toBeTruthy();
+        });
+
+        runner.it('상의가 방어구 슬롯으로 인식되어야 함', () => {
+            expect(SlotUtils.isArmorSlot('상의')).toBeTruthy();
+        });
+
+        runner.it('목걸이가 악세서리 슬롯으로 인식되어야 함', () => {
+            expect(SlotUtils.isAccessorySlot('목걸이')).toBeTruthy();
+        });
+
+        runner.it('보조장비가 특수 슬롯으로 인식되어야 함', () => {
+            expect(SlotUtils.isSpecialSlot('보조장비')).toBeTruthy();
+        });
+
+        runner.it('getSlotType이 올바른 타입을 반환해야 함', () => {
+            expect(SlotUtils.getSlotType('상의')).toBe('armor');
+            expect(SlotUtils.getSlotType('목걸이')).toBe('accessory');
+            expect(SlotUtils.getSlotType('보조장비')).toBe('special');
+        });
+    });
+
+    // ============================================
+    // 6. ClassUtils 테스트
+    // ============================================
+    runner.describe('ClassUtils - 클래스 조작 유틸리티', () => {
+        runner.it('removeClassesStartingWith 메서드가 정의되어 있어야 함', () => {
+            expect(typeof ClassUtils.removeClassesStartingWith).toBe('function');
+        });
+
+        runner.it('toggleHighlight 메서드가 정의되어 있어야 함', () => {
+            expect(typeof ClassUtils.toggleHighlight).toBe('function');
+        });
+
+        runner.it('removeHighlightFromAll 메서드가 정의되어 있어야 함', () => {
+            expect(typeof ClassUtils.removeHighlightFromAll).toBe('function');
+        });
+    });
+
+    // ============================================
+    // 7. DataTables 테스트
+    // ============================================
+    runner.describe('DataTables - 데이터 테이블 유틸리티', () => {
+        runner.it('COMMON_VALUES가 정의되어 있어야 함', () => {
+            expect(DataTables.COMMON_VALUES).toBeTruthy();
+        });
+
+        runner.it('힘 스탯 값이 46이어야 함', () => {
+            expect(DataTables.COMMON_VALUES['힘']).toBe('46');
+        });
+
+        runner.it('WEAPON_SEAL1이 정의되어 있어야 함', () => {
+            expect(DataTables.WEAPON_SEAL1).toBeTruthy();
+        });
+
+        runner.it('getSealValue 메서드가 정의되어 있어야 함', () => {
+            expect(typeof DataTables.getSealValue).toBe('function');
+        });
+
+        runner.it('무기 seal1 데미지 증가 값이 8이어야 함', () => {
+            const value = DataTables.getSealValue('weapon', '데미지 증가', 1);
+            expect(value).toBe('8');
+        });
+    });
+
+    // ============================================
+    // 8. 헬퍼 함수 테스트
+    // ============================================
+    runner.describe('Helper Functions - 헬퍼 함수', () => {
+        runner.it('getCurrentDateTime이 문자열을 반환해야 함', () => {
+            const result = getCurrentDateTime();
+            expect(typeof result).toBe('string');
+        });
+
+        runner.it('getCurrentDateTime이 날짜 형식을 포함해야 함', () => {
+            const result = getCurrentDateTime();
+            expect(result).toContain('-');
+            expect(result).toContain(':');
+        });
+
+        runner.it('extractNumber가 숫자를 추출해야 함', () => {
+            expect(extractNumber('힘 46')).toBe('46');
+            expect(extractNumber('123abc')).toBe('123');
+        });
+
+        runner.it('calculateNumDiff가 차이를 계산해야 함', () => {
+            expect(calculateNumDiff('10', '15')).toContain('+5');
+            expect(calculateNumDiff('20', '15')).toContain('-5');
+            expect(calculateNumDiff('10', '10')).toBe('-');
+        });
+
+        runner.it('calculateReinforceDiff가 강화 차이를 계산해야 함', () => {
+            expect(calculateReinforceDiff('무기', '10', '12')).toContain('+2');
+            expect(calculateReinforceDiff('무기', '12', '10')).toContain('-2');
+        });
+
+        runner.it('칭호는 강화 차이를 계산하지 않아야 함', () => {
+            expect(calculateReinforceDiff('칭호', '10', '12')).toBe('');
+        });
+    });
+
+    // ============================================
+    // 9. 전역 별칭 테스트 (하위 호환성)
+    // ============================================
+    runner.describe('Global Aliases - 전역 별칭 (하위 호환성)', () => {
+        runner.it('slots 별칭이 AppConstants.SLOTS를 가리켜야 함', () => {
+            expect(slots).toEqual(AppConstants.SLOTS);
+        });
+
+        runner.it('itemOptions 별칭이 GameData.itemOptions를 가리켜야 함', () => {
+            expect(itemOptions).toEqual(GameData.itemOptions);
+        });
+
+        runner.it('armorSets 별칭이 GameData.armorSets를 가리켜야 함', () => {
+            expect(armorSets).toEqual(GameData.armorSets);
+        });
+
+        runner.it('accSets 별칭이 GameData.accSets를 가리켜야 함', () => {
+            expect(accSets).toEqual(GameData.accSets);
+        });
+    });
+
+    // 전역 함수
+    function runAllTests() {
+        runner.runAll();
+    }
+
+    function clearResults() {
+        document.getElementById('testResults').innerHTML = '';
+        document.getElementById('summary').style.display = 'none';
+    }
+
+    console.log('✅ 단위 테스트 준비 완료');
+    console.log('📝 "모든 테스트 실행" 버튼을 클릭하세요');
+</script>
+</body>
+</html>
