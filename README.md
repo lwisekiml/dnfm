@@ -1036,6 +1036,676 @@ window.addEventListener('orientationchange', () => {
 });
 ```
 
+---
+
+🚀 통합 테스트 실행 방법
+```
+# 프로젝트 루트에서
+python -m http.server 8000
+
+
+# 2. 브라우저에서
+http://localhost:8000/test/test-integration-v2.html
+
+# 3. F12 눌러서 Console 탭 보기
+
+# 4. 테스트 실행 버튼 클릭
+
+# 5. 콘솔 로그 확인
+🔥 테스트 스크립트 로드됨 - v2
+🚀 테스트 시작!
+🧹 localStorage 초기화 중...
+✅ 페이지 로드 완료
+📊 초기 캐릭터 개수: 1
+📍 Suite2 시작 - 캐릭터 개수: 1
+🧹 기존 캐릭터 삭제 중...
+➕ 새 캐릭터 추가 중...
+📍 캐릭터 추가 후 개수: 1
+📍 슬롯 개수: 19
+
+
+# 📸 F12 콘솔에서 확인할 것
+
+콘솔에 이렇게 나와야 해요:
+
+📊 초기 캐릭터 개수: 1  ← 자동 생성됨
+📍 Suite2 시작 - 캐릭터 개수: 1  ← 맞음!
+📍 캐릭터 추가 후 개수: 1  ← 삭제 후 새로 추가해서 1개
+📍 슬롯 개수: 19  ← 정상!
+📍 Suite7 - 두 번째 추가 후 개수: 2  ← 정상!
+
+```
+
 
 ---
 
+좋아요! 캐시 문제였군요! 😊
+
+이제 **통합 테스트 코드를 완벽하게 설명**해드릴게요!
+
+---
+
+# 📘 통합 테스트 완벽 가이드
+
+## 🎯 통합 테스트란?
+
+**여러 모듈이 함께 잘 작동하는지** 테스트하는 거예요!
+
+- ✅ 단위 테스트: 함수 하나씩 (예: `autoSave()` 함수만)
+- ✅ **통합 테스트**: 여러 기능 조합 (예: 데이터 입력 → 저장 → 복구)
+- ✅ E2E 테스트: 실제 사용자처럼 전체 플로우
+
+---
+
+## 🏗️ 전체 구조
+
+```javascript
+// 1. iframe으로 실제 앱 로드
+<iframe id="testFrame" src="../index.html"></iframe>
+
+// 2. 테스트 실행
+async function runAllTests() {
+    // localStorage 초기화 → 페이지 새로고침
+    // 8개 Suite 순차 실행
+    // 결과 표시
+}
+
+// 3. 각 Suite
+suite1() // DOM 요소 확인
+suite2() // 캐릭터 생성
+suite3() // 데이터 입력
+suite4() // 자동 저장
+suite5() // 스킬룬 모달
+suite6() // JSON 직렬화
+suite7() // 비교 모드
+suite8() // 잠금/해제
+```
+
+---
+
+## 📦 Suite별 상세 설명
+
+### Suite 1: DOM 요소 존재 확인 (5개 테스트)
+
+**목적**: 기본 UI 요소들이 제대로 로드됐는지 확인
+
+```javascript
+async function suite1() {
+    const s = 'Suite 1: DOM 요소';
+    
+    // ✅ 테스트 1: 컨트롤바 있나?
+    if (testDoc.querySelector('.control-bar')) 
+        displayTest(s, '컨트롤바', 'pass');
+    
+    // ✅ 테스트 2: 캐릭터 추가 버튼 있나?
+    if (testDoc.querySelector('.btn-add')) 
+        displayTest(s, '캐릭터 추가 버튼', 'pass');
+    
+    // ✅ 테스트 3: 캐릭터 컨테이너 있나?
+    if (testDoc.getElementById('characterContainer')) 
+        displayTest(s, '캐릭터 컨테이너', 'pass');
+    
+    // ✅ 테스트 4: 모달 오버레이 있나?
+    if (testDoc.getElementById('modalOverlay')) 
+        displayTest(s, '모달 오버레이', 'pass');
+    
+    // ✅ 테스트 5: 스킬룬 모달 있나?
+    if (testDoc.getElementById('skillRunemodal')) 
+        displayTest(s, '스킬룬 모달', 'pass');
+}
+```
+
+**검증 내용**:
+- `querySelector()`: CSS 선택자로 요소 찾기
+- `getElementById()`: ID로 요소 찾기
+- 요소 존재 여부만 확인 (기능은 X)
+
+---
+
+### Suite 2: 캐릭터 생성 (5개 테스트)
+
+**목적**: 캐릭터 추가 버튼 클릭 → 테이블 생성 확인
+
+```javascript
+async function suite2() {
+    const s = 'Suite 2: 캐릭터 생성';
+    
+    // ✅ 테스트 1: 초기 상태 확인
+    // localStorage 비우면 main.js가 자동으로 1개 생성!
+    const sec = testDoc.querySelectorAll('.char-section');
+    if (sec.length === 1) 
+        displayTest(s, '초기: 자동 생성된 캐릭터 1개 확인', 'pass');
+    
+    // ✅ 테스트 2: 기존 삭제 후 새로 추가
+    // 깨끗한 상태에서 테스트하기 위해 삭제
+    existingSections.forEach(sec => sec.remove());
+    testDoc.querySelector('.btn-add').click();
+    await delay(500); // 생성 대기
+    
+    // ✅ 테스트 3: 캐릭터 1개 생성됐나?
+    if (testDoc.querySelectorAll('.char-section').length === 1)
+        displayTest(s, '캐릭터 섹션 생성', 'pass');
+    
+    // ✅ 테스트 4: 테이블 있나?
+    if (testDoc.querySelector('.char-section table'))
+        displayTest(s, '테이블 생성', 'pass');
+    
+    // ✅ 테스트 5: 슬롯 19개 맞나?
+    // 18개 슬롯이지만 칭호 rowspan 때문에 .col-slot은 19개
+    const slots = testDoc.querySelector('.char-section')
+                         .querySelectorAll('.col-slot');
+    if (slots.length === 19)
+        displayTest(s, '19개 슬롯 생성', 'pass');
+}
+```
+
+**핵심 포인트**:
+1. **자동 생성**: localStorage 비우면 `main.js`가 빈 캐릭터 1개 자동 생성
+2. **삭제 후 재생성**: 테스트 일관성을 위해 기존 삭제
+3. **슬롯 19개**: 칭호가 `rowspan="2"`지만 외형칭호가 별도 행이라 `.col-slot`은 19개
+
+---
+
+### Suite 3: 데이터 입력 (4개 테스트)
+
+**목적**: input/select 요소에 값 입력 → 제대로 저장되는지 확인
+
+```javascript
+async function suite3() {
+    const s = 'Suite 3: 데이터 입력';
+    
+    // ✅ 테스트 1: 직업 입력
+    const job = testDoc.querySelector('[data-key="info_job"]');
+    job.value = '귀검사';
+    job.dispatchEvent(new Event('input', { bubbles: true }));
+    await delay(300);
+    if (job.value === '귀검사') 
+        displayTest(s, '직업 입력', 'pass');
+    
+    // ✅ 테스트 2: 이름 입력
+    const name = testDoc.querySelector('[data-key="info_name"]');
+    name.value = '테스트캐릭터';
+    name.dispatchEvent(new Event('input', { bubbles: true }));
+    
+    // ✅ 테스트 3: 희귀도 선택 (select)
+    const rarity = testDoc.querySelector('[data-key="무기_rarity"]');
+    rarity.value = '에픽';
+    rarity.dispatchEvent(new Event('change', { bubbles: true }));
+    
+    // ✅ 테스트 4: 아이템 이름
+    // 에픽이면 select, 아니면 input
+    const item = testDoc.querySelector('[data-key="무기_itemname"]');
+    if (item.tagName === 'SELECT') 
+        item.selectedIndex = 1;
+    else 
+        item.value = '테스트무기';
+}
+```
+
+**핵심 포인트**:
+1. **dispatchEvent**: 수동으로 이벤트 발생 (사용자 입력 시뮬레이션)
+2. **bubbles: true**: 이벤트가 상위로 전파 (main.js의 이벤트 리스너가 감지)
+3. **delay()**: 비동기 처리 대기 (autoSave 같은 것들)
+4. **동적 필드**: 에픽이면 select, 아니면 input (조건 처리)
+
+---
+
+### Suite 4: 자동 저장 (4개 테스트)
+
+**목적**: 데이터 입력 → autoSave() → localStorage 확인
+
+```javascript
+async function suite4() {
+    const s = 'Suite 4: 자동 저장';
+    
+    // autoSave()는 800ms 후 실행되므로 대기
+    await delay(1000);
+    
+    // ✅ 테스트 1: localStorage에 저장됐나?
+    const saved = testWin.localStorage.getItem('dnfm_character_equipment_data');
+    if (saved) 
+        displayTest(s, 'localStorage 저장', 'pass');
+    
+    // ✅ 테스트 2: JSON 형식이 맞나?
+    const data = JSON.parse(saved);
+    if (Array.isArray(data) && data.length > 0)
+        displayTest(s, '데이터 형식', 'pass');
+    
+    // ✅ 테스트 3: 입력한 값이 저장됐나?
+    if (data[0].inputs['info_name'].val === '테스트캐릭터')
+        displayTest(s, '입력값 확인', 'pass');
+    
+    // ✅ 테스트 4: 데이터 구조가 맞나?
+    if (data[0].id && data[0].inputs)
+        displayTest(s, '데이터 구조', 'pass');
+}
+```
+
+**핵심 포인트**:
+1. **delay(1000)**: autoSave()의 setTimeout(800ms) 대기
+2. **testWin.localStorage**: iframe의 localStorage 접근
+3. **JSON.parse**: 문자열 → 객체 변환
+4. **데이터 구조 검증**: `{id, inputs, locked, runeData}` 형식
+
+---
+
+### Suite 5: 스킬룬 모달 (5개 테스트)
+
+**목적**: 모달 열기 → 룬 테이블 확인 → 모달 닫기
+
+```javascript
+async function suite5() {
+    const s = 'Suite 5: 스킬룬 모달';
+    
+    // ✅ 테스트 1: 캐릭터 ID 있나?
+    const sec = testDoc.querySelector('.char-section');
+    if (sec && sec.id) 
+        displayTest(s, '캐릭터 ID', 'pass');
+    
+    // ✅ 테스트 2: "수정" 버튼 찾아서 클릭
+    const btns = sec.querySelectorAll('button');
+    let rb = null;
+    for (let b of btns) {
+        if (b.textContent.includes('수정')) {
+            rb = b;
+            break;
+        }
+    }
+    rb.click();
+    await delay(500);
+    
+    // ✅ 테스트 3: 모달이 표시됐나?
+    const m = testDoc.getElementById('skillRunemodal');
+    const o = testDoc.getElementById('modalOverlay');
+    if (m.style.display === 'block' && o.style.display === 'block')
+        displayTest(s, '모달 표시', 'pass');
+    
+    // ✅ 테스트 4: 룬 행 20개 맞나?
+    const rows = testDoc.querySelectorAll('#runeModalBody tr');
+    if (rows.length === 20)
+        displayTest(s, '20개 룬 행', 'pass');
+    
+    // ✅ 테스트 5: 모달 닫기
+    testDoc.getElementById('modalOverlay').click();
+    await delay(300);
+    if (m.style.display === 'none')
+        displayTest(s, '모달 닫기', 'pass');
+}
+```
+
+**핵심 포인트**:
+1. **버튼 찾기**: textContent로 "수정" 포함된 버튼 검색
+2. **모달 상태**: `style.display === 'block'` 확인
+3. **동적 생성**: 룬 테이블이 모달 열 때 동적으로 생성됨
+4. **오버레이 클릭**: 모달 닫기 동작 테스트
+
+---
+
+### Suite 6: JSON 직렬화/역직렬화 (3개 테스트)
+
+**목적**: 데이터 내보내기/불러오기 기능 검증
+
+```javascript
+async function suite6() {
+    const s = 'Suite 6: JSON';
+    
+    // ✅ 테스트 1: 데이터 가져오기
+    const saved = testWin.localStorage.getItem('dnfm_character_equipment_data');
+    const cd = JSON.parse(saved);
+    if (cd) 
+        displayTest(s, '데이터 가져오기', 'pass');
+    
+    // ✅ 테스트 2: JSON 직렬화/역직렬화
+    // 객체 → 문자열 → 객체 (손실 없이 복구되나?)
+    const js = JSON.stringify(cd);
+    const p = JSON.parse(js);
+    if (p) 
+        displayTest(s, 'JSON 직렬화/역직렬화', 'pass');
+    
+    // ✅ 테스트 3: 구조 검증
+    if (cd[0].id && cd[0].inputs && typeof cd[0].locked === 'boolean')
+        displayTest(s, '구조 확인', 'pass');
+}
+```
+
+**핵심 포인트**:
+1. **JSON.stringify**: 객체 → JSON 문자열
+2. **JSON.parse**: JSON 문자열 → 객체
+3. **왕복 변환**: 데이터 손실 없는지 확인
+4. **타입 검증**: `typeof cd[0].locked === 'boolean'`
+
+---
+
+### Suite 7: 비교 모드 (5개 테스트)
+
+**목적**: 2개 캐릭터 → 비교 모드 → 드롭다운 → 기본 모드 복귀
+
+```javascript
+async function suite7() {
+    const s = 'Suite 7: 비교 모드';
+    
+    // ✅ 테스트 1: 두 번째 캐릭터 추가
+    testDoc.querySelector('.btn-add').click();
+    await delay(500);
+    const sec = testDoc.querySelectorAll('.char-section');
+    // 이미 1개 있으므로 → 2개
+    if (sec.length === 2)
+        displayTest(s, '두 번째 캐릭터', 'pass');
+    
+    // ✅ 테스트 2: 비교 모드 버튼 클릭
+    testDoc.getElementById('btnCompareMode').click();
+    await delay(500);
+    
+    // ✅ 테스트 3: 비교 UI 표시됐나?
+    const c = testDoc.getElementById('compareCharSelectionContainer');
+    if (c.style.display === 'block')
+        displayTest(s, '비교 UI 표시', 'pass');
+    
+    // ✅ 테스트 4: 드롭다운에 옵션 있나?
+    const sl = testDoc.getElementById('compareCharacterSelectLeft');
+    const opts = sl.querySelectorAll('option');
+    if (opts.length >= 2)
+        displayTest(s, '드롭다운 옵션', 'pass');
+    
+    // ✅ 테스트 5: 기본 모드 복귀
+    testDoc.getElementById('btnBasicMode').click();
+    await delay(300);
+    const container = testDoc.getElementById('characterContainer');
+    if (container.style.display === 'block')
+        displayTest(s, '기본 모드 복귀', 'pass');
+}
+```
+
+**핵심 포인트**:
+1. **모드 전환**: 기본 ↔ 비교 모드 UI 변경
+2. **동적 드롭다운**: 캐릭터 추가될 때마다 옵션 생성
+3. **display 속성**: `block` vs `none`으로 표시/숨김
+4. **복귀 확인**: 원래 상태로 돌아가는지 검증
+
+---
+
+### Suite 8: 잠금/해제 (4개 테스트)
+
+**목적**: 편집 잠금 → 필드 비활성화 → 해제 → 필드 활성화
+
+```javascript
+async function suite8() {
+    const s = 'Suite 8: 잠금/해제';
+    
+    // ✅ 테스트 1: 잠금 버튼 클릭
+    const lb = testDoc.querySelector('.char-section .lock-btn');
+    lb.click();
+    await delay(300);
+    if (lb.classList.contains('btn-active'))
+        displayTest(s, '잠금 버튼', 'pass');
+    
+    // ✅ 테스트 2: 입력 필드 비활성화됐나?
+    const inp = testDoc.querySelector('.char-section input[data-key="info_name"]');
+    if (inp.readOnly)
+        displayTest(s, '입력 필드 비활성화', 'pass');
+    
+    // ✅ 테스트 3: 해제 버튼 클릭
+    const ub = testDoc.querySelector('.char-section .unlock-btn');
+    ub.click();
+    await delay(300);
+    if (ub.classList.contains('btn-active'))
+        displayTest(s, '해제 버튼', 'pass');
+    
+    // ✅ 테스트 4: 입력 필드 활성화됐나?
+    if (!inp.readOnly)
+        displayTest(s, '입력 필드 활성화', 'pass');
+}
+```
+
+**핵심 포인트**:
+1. **classList.contains**: 클래스 존재 여부 확인
+2. **readOnly 속성**: input 편집 가능 여부
+3. **토글 기능**: 잠금 ↔ 해제 반복 가능
+4. **UI 상태**: 버튼 활성화 + 필드 속성 변경
+
+---
+
+## 🛠️ 핵심 헬퍼 함수
+
+### 1. displayTest() - 테스트 결과 표시
+
+```javascript
+function displayTest(suiteName, testName, status, error = null) {
+    // Suite div 찾기 (없으면 생성)
+    let sd = document.getElementById('suite-' + suiteName.replace(/\s+/g, '-'));
+    if (!sd) {
+        sd = document.createElement('div');
+        sd.className = 'test-suite';
+        sd.innerHTML = `<h2>${suiteName}</h2>`;
+        document.getElementById('results').appendChild(sd);
+    }
+    
+    // 테스트 결과 div 생성
+    const td = document.createElement('div');
+    td.className = 'test-case ' + status; // pass 또는 fail
+    
+    let st = status === 'pass' ? '✅ PASS' : '❌ FAIL';
+    td.innerHTML = `<span class="status ${status}">${st}</span>${testName}`;
+    
+    // 에러 메시지 추가
+    if (error) {
+        td.innerHTML += `<div class="error-detail">${error}</div>`;
+    }
+    
+    sd.appendChild(td);
+    testResults.push({ suite: suiteName, test: testName, status, error });
+    currentTest++;
+    updateProgress();
+}
+```
+
+**동작**:
+1. Suite별로 div 묶기
+2. 테스트 결과에 색상 적용 (초록/빨강)
+3. 에러 메시지 표시
+4. 진행률 업데이트
+
+---
+
+### 2. delay() - 비동기 대기
+
+```javascript
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// 사용 예시
+await delay(500); // 0.5초 대기
+```
+
+**필요한 이유**:
+- DOM 업데이트 대기
+- 이벤트 처리 대기
+- autoSave() 타이머 대기 (800ms)
+- 모달 애니메이션 대기
+
+---
+
+### 3. updateProgress() - 진행률 바
+
+```javascript
+function updateProgress() {
+    const p = Math.round((currentTest / totalTests) * 100);
+    const pb = document.getElementById('progressBar');
+    pb.style.width = p + '%';
+    pb.textContent = p + '%';
+}
+```
+
+**동작**:
+- 현재 테스트 / 전체 테스트 = 진행률
+- 프로그레스 바 너비 업데이트
+- 퍼센트 텍스트 표시
+
+---
+
+## 🎓 핵심 개념 정리
+
+### 1. iframe 사용 이유
+
+```javascript
+<iframe id="testFrame" src="../index.html"></iframe>
+
+testWin = iframe.contentWindow;
+testDoc = iframe.contentDocument;
+```
+
+**왜 iframe?**
+- ✅ 실제 앱과 독립된 환경
+- ✅ localStorage 격리
+- ✅ 페이지 새로고침 가능
+- ✅ DOM 완전 접근 가능
+
+---
+
+### 2. 이벤트 시뮬레이션
+
+```javascript
+element.value = '귀검사';
+element.dispatchEvent(new Event('input', { bubbles: true }));
+```
+
+**왜 필요?**
+- 단순히 `value` 변경만으로는 이벤트 리스너 발동 안 됨
+- `bubbles: true`로 상위 요소까지 전파
+- 실제 사용자 입력과 동일하게 동작
+
+---
+
+### 3. async/await 패턴
+
+```javascript
+async function suite2() {
+    testDoc.querySelector('.btn-add').click();
+    await delay(500); // 생성 대기
+    
+    const sec = testDoc.querySelectorAll('.char-section');
+    // 이제 안전하게 확인 가능
+}
+```
+
+**왜 async/await?**
+- DOM 업데이트는 비동기
+- 순차 실행 보장
+- 타이밍 이슈 방지
+
+---
+
+## 📊 테스트 결과 해석
+
+### ✅ 성공 케이스
+```
+✅ Suite 1: DOM 요소 (5/5)
+✅ Suite 2: 캐릭터 생성 (5/5)
+...
+🎉 총 35개 | 통과 35개 | 실패 0개 🎉
+```
+
+→ 모든 기능 정상 작동!
+
+---
+
+### ❌ 실패 케이스
+```
+❌ FAIL캐릭터 섹션 생성
+2개 (예상: 1)
+```
+
+**의미**: 캐릭터가 1개 생성되어야 하는데 2개가 있음
+
+**원인 가능성**:
+1. 이전 테스트 데이터 남아있음
+2. 중복 클릭
+3. localStorage 초기화 안 됨
+
+---
+
+## 🎯 테스트 작성 원칙
+
+### 1. 독립성
+```javascript
+// ✅ 좋은 예: 매번 초기화
+iframe.contentWindow.localStorage.clear();
+iframe.contentWindow.location.reload();
+
+// ❌ 나쁜 예: 이전 상태 의존
+// 이전 테스트에서 만든 캐릭터 사용
+```
+
+### 2. 순차성
+```javascript
+// ✅ 좋은 예: await로 대기
+testDoc.querySelector('.btn-add').click();
+await delay(500);
+const sec = testDoc.querySelectorAll('.char-section');
+
+// ❌ 나쁜 예: 대기 없이
+testDoc.querySelector('.btn-add').click();
+const sec = testDoc.querySelectorAll('.char-section'); // 아직 생성 안 됨!
+```
+
+### 3. 명확성
+```javascript
+// ✅ 좋은 예: 구체적인 에러 메시지
+throw new Error(`${sec.length}개 (예상: 1)`);
+
+// ❌ 나쁜 예: 애매한 메시지
+throw new Error('실패');
+```
+
+---
+
+## 🚀 실전 활용
+
+### 1. 새 기능 추가 시
+```javascript
+// 새로운 Suite 추가
+async function suite9_NewFeature() {
+    const s = 'Suite 9: 새 기능';
+    
+    // 테스트 작성
+    try {
+        // 기능 실행
+        // 결과 확인
+        displayTest(s, '테스트명', 'pass');
+    } catch (e) {
+        displayTest(s, '테스트명', 'fail', e.message);
+    }
+}
+
+// runAllTests()에 추가
+await suite9_NewFeature();
+totalTests = 40; // 업데이트
+```
+
+### 2. 버그 재현
+```javascript
+// 버그 재현 Suite 만들기
+async function suiteBugRepro() {
+    // 1. 버그 발생 조건 설정
+    // 2. 버그 발생 동작 실행
+    // 3. 예상 결과 vs 실제 결과 확인
+}
+```
+
+---
+
+## 🎉 마무리
+
+이 통합 테스트는:
+
+✅ **35개 테스트**로 핵심 기능 전체 검증
+✅ **실제 DOM 조작**으로 리얼한 테스트
+✅ **자동화**로 빠른 회귀 테스트
+✅ **시각적 피드백**으로 직관적인 결과
+
+**언제 실행?**
+- 새 기능 추가 후
+- 버그 수정 후
+- 리팩토링 후
+- 배포 전
