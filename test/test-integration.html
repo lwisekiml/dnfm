@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>통합 테스트 v2</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; background: #0f0f12; color: #ddd; padding: 20px; margin: 0; }
+        h1 { color: #c5a678; border-bottom: 2px solid #c5a678; padding-bottom: 10px; }
+        h2 { color: #c5a678; margin-top: 30px; }
+        .test-container { background: #1a1a1f; border: 2px solid #444; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .test-suite { margin: 15px 0; }
+        .test-case { padding: 8px; margin: 5px 0; border-left: 4px solid #666; background: #121216; }
+        .test-case.pass { border-left-color: #4ade80; background: #1a4a2a; }
+        .test-case.fail { border-left-color: #f87171; background: #4a1a1a; }
+        .status { font-weight: bold; padding: 2px 8px; border-radius: 3px; margin-right: 10px; }
+        .status.pass { color: #4ade80; }
+        .status.fail { color: #f87171; }
+        .error-detail { color: #f87171; font-size: 12px; margin-top: 5px; padding-left: 20px; font-family: monospace; }
+        .summary { background: #2a2a32; padding: 15px; margin: 20px 0; border-radius: 5px; font-size: 18px; }
+        .summary.success { border: 2px solid #4ade80; }
+        .summary.failure { border: 2px solid #f87171; }
+        button { background: #1d4ed8; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 5px; margin: 10px 5px; }
+        button:hover { background: #2563eb; }
+        button:disabled { background: #666; cursor: not-allowed; }
+        #testFrame { width: 100%; height: 600px; border: 2px solid #444; background: white; margin: 20px 0; display: none; }
+        .progress { width: 100%; height: 30px; background: #121216; border: 1px solid #444; border-radius: 5px; overflow: hidden; margin: 10px 0; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #1d4ed8, #2563eb); transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1>🧪 통합 테스트 v2 (캐시 우회)</h1>
+
+<div class="test-container">
+    <button onclick="runAllTests()" id="runBtn">▶ 모든 테스트 실행</button>
+    <button onclick="clearResults()">🗑️ 결과 지우기</button>
+    <button onclick="toggleFrame()">👁️ 프레임 보기/숨기기</button>
+
+    <div class="progress">
+        <div class="progress-bar" id="progressBar" style="width: 0%">0%</div>
+    </div>
+
+    <div id="summary"></div>
+</div>
+
+<iframe id="testFrame" src="../index.html"></iframe>
+
+<div id="results"></div>
+
+<script>
+    let testWin, testDoc;
+    let testResults = [];
+    let currentTest = 0;
+    let totalTests = 35;
+
+    console.log('🔥 테스트 스크립트 로드됨 - v2');
+
+    function toggleFrame() {
+        const f = document.getElementById('testFrame');
+        f.style.display = f.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function clearResults() {
+        document.getElementById('results').innerHTML = '';
+        document.getElementById('summary').innerHTML = '';
+        document.getElementById('progressBar').style.width = '0%';
+        document.getElementById('progressBar').textContent = '0%';
+        testResults = [];
+        currentTest = 0;
+    }
+
+    function updateProgress() {
+        const p = Math.round((currentTest / totalTests) * 100);
+        const pb = document.getElementById('progressBar');
+        pb.style.width = p + '%';
+        pb.textContent = p + '%';
+    }
+
+    function displayTest(suiteName, testName, status, error = null) {
+        let sd = document.getElementById('suite-' + suiteName.replace(/\s+/g, '-'));
+
+        if (!sd) {
+            sd = document.createElement('div');
+            sd.id = 'suite-' + suiteName.replace(/\s+/g, '-');
+            sd.className = 'test-suite';
+            sd.innerHTML = `<h2>${suiteName}</h2>`;
+            document.getElementById('results').appendChild(sd);
+        }
+
+        const td = document.createElement('div');
+        td.className = 'test-case ' + status;
+
+        let st = status === 'pass' ? '✅ PASS' : '❌ FAIL';
+        td.innerHTML = `<span class="status ${status}">${st}</span>${testName}`;
+
+        if (error) td.innerHTML += `<div class="error-detail">${error}</div>`;
+
+        sd.appendChild(td);
+        testResults.push({ suite: suiteName, test: testName, status, error });
+        currentTest++;
+        updateProgress();
+    }
+
+    function displaySummary() {
+        const passed = testResults.filter(r => r.status === 'pass').length;
+        const failed = testResults.filter(r => r.status === 'fail').length;
+        const total = testResults.length;
+
+        const sd = document.getElementById('summary');
+        sd.className = 'summary ' + (failed === 0 ? 'success' : 'failure');
+        sd.innerHTML = `<strong>테스트 완료!</strong><br>총 ${total}개 | 통과 ${passed}개 | 실패 ${failed}개 ${failed === 0 ? ' 🎉' : ' ⚠️'}`;
+    }
+
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function runAllTests() {
+        console.log('🚀 테스트 시작!');
+        clearResults();
+        document.getElementById('runBtn').disabled = true;
+
+        const iframe = document.getElementById('testFrame');
+
+        console.log('🧹 localStorage 초기화 중...');
+        iframe.contentWindow.localStorage.clear();
+        iframe.contentWindow.location.reload();
+        await delay(2000);
+
+        console.log('✅ 페이지 로드 완료');
+        testWin = iframe.contentWindow;
+        testDoc = iframe.contentDocument;
+
+        console.log('📊 초기 캐릭터 개수:', testDoc.querySelectorAll('.char-section').length);
+
+        try {
+            await suite1();
+            await suite2();
+            await suite3();
+            await suite4();
+            await suite5();
+            await suite6();
+            await suite7();
+            await suite8();
+        } catch (e) {
+            console.error('❌ 테스트 오류:', e);
+        }
+
+        displaySummary();
+        document.getElementById('runBtn').disabled = false;
+    }
+
+    async function suite1() {
+        const s = 'Suite 1: DOM 요소';
+
+        try {
+            if (testDoc.querySelector('.control-bar')) displayTest(s, '컨트롤바', 'pass');
+            else throw new Error('없음');
+        } catch (e) { displayTest(s, '컨트롤바', 'fail', e.message); }
+
+        try {
+            if (testDoc.querySelector('.btn-add')) displayTest(s, '캐릭터 추가 버튼', 'pass');
+            else throw new Error('없음');
+        } catch (e) { displayTest(s, '캐릭터 추가 버튼', 'fail', e.message); }
+
+        try {
+            if (testDoc.getElementById('characterContainer')) displayTest(s, '캐릭터 컨테이너', 'pass');
+            else throw new Error('없음');
+        } catch (e) { displayTest(s, '캐릭터 컨테이너', 'fail', e.message); }
+
+        try {
+            if (testDoc.getElementById('modalOverlay')) displayTest(s, '모달 오버레이', 'pass');
+            else throw new Error('없음');
+        } catch (e) { displayTest(s, '모달 오버레이', 'fail', e.message); }
+
+        try {
+            if (testDoc.getElementById('skillRunemodal')) displayTest(s, '스킬룬 모달', 'pass');
+            else throw new Error('없음');
+        } catch (e) { displayTest(s, '스킬룬 모달', 'fail', e.message); }
+
+        await delay(300);
+    }
+
+    async function suite2() {
+        const s = 'Suite 2: 캐릭터 생성';
+
+        // ⭐ localStorage 비우면 자동으로 1개 생성됨!
+        try {
+            const sec = testDoc.querySelectorAll('.char-section');
+            console.log('📍 Suite2 시작 - 캐릭터 개수:', sec.length);
+            if (sec.length === 1) displayTest(s, '초기: 자동 생성된 캐릭터 1개 확인', 'pass');
+            else throw new Error(`${sec.length}개 존재 (예상: 1개 자동 생성)`);
+        } catch (e) { displayTest(s, '초기: 자동 생성된 캐릭터 1개 확인', 'fail', e.message); }
+
+        // ⭐ 자동 생성된 캐릭터 삭제 후 새로 추가
+        try {
+            console.log('🧹 기존 캐릭터 삭제 중...');
+            const existingSections = testDoc.querySelectorAll('.char-section');
+            existingSections.forEach(sec => sec.remove());
+            await delay(300);
+
+            console.log('➕ 새 캐릭터 추가 중...');
+            testDoc.querySelector('.btn-add').click();
+            await delay(500);
+            displayTest(s, '캐릭터 추가 버튼 클릭', 'pass');
+        } catch (e) { displayTest(s, '캐릭터 추가 버튼 클릭', 'fail', e.message); }
+
+        try {
+            const sec = testDoc.querySelectorAll('.char-section');
+            console.log('📍 캐릭터 추가 후 개수:', sec.length);
+            if (sec.length === 1) displayTest(s, '캐릭터 섹션 생성', 'pass');
+            else throw new Error(`${sec.length}개 (예상: 1)`);
+        } catch (e) { displayTest(s, '캐릭터 섹션 생성', 'fail', e.message); }
+
+        try {
+            if (testDoc.querySelector('.char-section table')) displayTest(s, '테이블 생성', 'pass');
+            else throw new Error('없음');
+        } catch (e) { displayTest(s, '테이블 생성', 'fail', e.message); }
+
+        try {
+            const slots = testDoc.querySelector('.char-section').querySelectorAll('.col-slot');
+            console.log('📍 슬롯 개수:', slots.length);
+            // ⭐ 칭호 rowspan 때문에 19개가 정상!
+            if (slots.length === 19) displayTest(s, '19개 슬롯 생성 (칭호 rowspan 포함)', 'pass');
+            else throw new Error(`${slots.length}개 (예상: 19)`);
+        } catch (e) { displayTest(s, '19개 슬롯 생성 (칭호 rowspan 포함)', 'fail', e.message); }
+
+        await delay(300);
+    }
+
+    async function suite3() {
+        const s = 'Suite 3: 데이터 입력';
+
+        try {
+            const job = testDoc.querySelector('[data-key="info_job"]');
+            job.value = '귀검사';
+            job.dispatchEvent(new Event('input', { bubbles: true }));
+            await delay(300);
+            if (job.value === '귀검사') displayTest(s, '직업 입력', 'pass');
+            else throw new Error('실패');
+        } catch (e) { displayTest(s, '직업 입력', 'fail', e.message); }
+
+        try {
+            const name = testDoc.querySelector('[data-key="info_name"]');
+            name.value = '테스트캐릭터';
+            name.dispatchEvent(new Event('input', { bubbles: true }));
+            await delay(300);
+            if (name.value === '테스트캐릭터') displayTest(s, '이름 입력', 'pass');
+            else throw new Error('실패');
+        } catch (e) { displayTest(s, '이름 입력', 'fail', e.message); }
+
+        try {
+            const rarity = testDoc.querySelector('[data-key="무기_rarity"]');
+            rarity.value = '에픽';
+            rarity.dispatchEvent(new Event('change', { bubbles: true }));
+            await delay(300);
+            if (rarity.value === '에픽') displayTest(s, '희귀도 선택', 'pass');
+            else throw new Error('실패');
+        } catch (e) { displayTest(s, '희귀도 선택', 'fail', e.message); }
+
+        try {
+            const item = testDoc.querySelector('[data-key="무기_itemname"]');
+            if (item.tagName === 'SELECT') item.selectedIndex = 1;
+            else item.value = '테스트무기';
+            item.dispatchEvent(new Event('change', { bubbles: true }));
+            await delay(300);
+            displayTest(s, '아이템 이름', 'pass');
+        } catch (e) { displayTest(s, '아이템 이름', 'fail', e.message); }
+
+        await delay(300);
+    }
+
+    async function suite4() {
+        const s = 'Suite 4: 자동 저장';
+
+        await delay(1000);
+
+        try {
+            const saved = testWin.localStorage.getItem('dnfm_character_equipment_data');
+            if (saved) displayTest(s, 'localStorage 저장', 'pass');
+            else throw new Error('없음');
+        } catch (e) { displayTest(s, 'localStorage 저장', 'fail', e.message); }
+
+        try {
+            const saved = testWin.localStorage.getItem('dnfm_character_equipment_data');
+            const data = JSON.parse(saved);
+            if (Array.isArray(data) && data.length > 0) displayTest(s, '데이터 형식', 'pass');
+            else throw new Error('형식 오류');
+        } catch (e) { displayTest(s, '데이터 형식', 'fail', e.message); }
+
+        try {
+            const saved = testWin.localStorage.getItem('dnfm_character_equipment_data');
+            const data = JSON.parse(saved);
+            if (data[0].inputs['info_name'].val === '테스트캐릭터') displayTest(s, '입력값 확인', 'pass');
+            else throw new Error('불일치');
+        } catch (e) { displayTest(s, '입력값 확인', 'fail', e.message); }
+
+        try {
+            const saved = testWin.localStorage.getItem('dnfm_character_equipment_data');
+            const data = JSON.parse(saved);
+            if (data[0].id && data[0].inputs) displayTest(s, '데이터 구조', 'pass');
+            else throw new Error('구조 오류');
+        } catch (e) { displayTest(s, '데이터 구조', 'fail', e.message); }
+
+        await delay(300);
+    }
+
+    async function suite5() {
+        const s = 'Suite 5: 스킬룬 모달';
+
+        try {
+            const sec = testDoc.querySelector('.char-section');
+            if (sec && sec.id) displayTest(s, '캐릭터 ID', 'pass');
+            else throw new Error('없음');
+        } catch (e) { displayTest(s, '캐릭터 ID', 'fail', e.message); }
+
+        try {
+            const sec = testDoc.querySelector('.char-section');
+            const btns = sec.querySelectorAll('button');
+            let rb = null;
+            for (let b of btns) if (b.textContent.includes('수정')) { rb = b; break; }
+
+            if (rb) {
+                rb.click();
+                await delay(500);
+                displayTest(s, '모달 열기', 'pass');
+            } else throw new Error('버튼 없음');
+        } catch (e) { displayTest(s, '모달 열기', 'fail', e.message); }
+
+        try {
+            const m = testDoc.getElementById('skillRunemodal');
+            const o = testDoc.getElementById('modalOverlay');
+            if (m.style.display === 'block' && o.style.display === 'block') displayTest(s, '모달 표시', 'pass');
+            else throw new Error(`모달:${m.style.display} 오버레이:${o.style.display}`);
+        } catch (e) { displayTest(s, '모달 표시', 'fail', e.message); }
+
+        try {
+            const rows = testDoc.querySelectorAll('#runeModalBody tr');
+            if (rows.length === 20) displayTest(s, '20개 룬 행', 'pass');
+            else throw new Error(`${rows.length}개`);
+        } catch (e) { displayTest(s, '20개 룬 행', 'fail', e.message); }
+
+        try {
+            testDoc.getElementById('modalOverlay').click();
+            await delay(300);
+            const m = testDoc.getElementById('skillRunemodal');
+            if (m.style.display === 'none') displayTest(s, '모달 닫기', 'pass');
+            else throw new Error('실패');
+        } catch (e) { displayTest(s, '모달 닫기', 'fail', e.message); }
+
+        await delay(300);
+    }
+
+    async function suite6() {
+        const s = 'Suite 6: JSON';
+
+        let cd;
+        try {
+            const saved = testWin.localStorage.getItem('dnfm_character_equipment_data');
+            cd = JSON.parse(saved);
+            if (cd) displayTest(s, '데이터 가져오기', 'pass');
+            else throw new Error('없음');
+        } catch (e) { displayTest(s, '데이터 가져오기', 'fail', e.message); }
+
+        try {
+            const js = JSON.stringify(cd);
+            const p = JSON.parse(js);
+            if (p) displayTest(s, 'JSON 직렬화/역직렬화', 'pass');
+            else throw new Error('실패');
+        } catch (e) { displayTest(s, 'JSON 직렬화/역직렬화', 'fail', e.message); }
+
+        try {
+            if (cd[0].id && cd[0].inputs && typeof cd[0].locked === 'boolean') displayTest(s, '구조 확인', 'pass');
+            else throw new Error('오류');
+        } catch (e) { displayTest(s, '구조 확인', 'fail', e.message); }
+
+        await delay(300);
+    }
+
+    async function suite7() {
+        const s = 'Suite 7: 비교 모드';
+
+        try {
+            testDoc.querySelector('.btn-add').click();
+            await delay(500);
+            const sec = testDoc.querySelectorAll('.char-section');
+            console.log('📍 Suite7 - 두 번째 추가 후 개수:', sec.length);
+            // ⭐ 이미 1개 있으므로 추가하면 2개
+            if (sec.length === 2) displayTest(s, '두 번째 캐릭터', 'pass');
+            else throw new Error(`${sec.length}개 (예상: 2)`);
+        } catch (e) { displayTest(s, '두 번째 캐릭터', 'fail', e.message); }
+
+        try {
+            testDoc.getElementById('btnCompareMode').click();
+            await delay(500);
+            displayTest(s, '비교 모드 버튼', 'pass');
+        } catch (e) { displayTest(s, '비교 모드 버튼', 'fail', e.message); }
+
+        try {
+            const c = testDoc.getElementById('compareCharSelectionContainer');
+            if (c.style.display === 'block') displayTest(s, '비교 UI 표시', 'pass');
+            else throw new Error('미표시');
+        } catch (e) { displayTest(s, '비교 UI 표시', 'fail', e.message); }
+
+        try {
+            const sl = testDoc.getElementById('compareCharacterSelectLeft');
+            const opts = sl.querySelectorAll('option');
+            if (opts.length >= 2) displayTest(s, '드롭다운 옵션', 'pass');
+            else throw new Error(`${opts.length}개`);
+        } catch (e) { displayTest(s, '드롭다운 옵션', 'fail', e.message); }
+
+        try {
+            testDoc.getElementById('btnBasicMode').click();
+            await delay(300);
+            const c = testDoc.getElementById('characterContainer');
+            if (c.style.display === 'block') displayTest(s, '기본 모드 복귀', 'pass');
+            else throw new Error('실패');
+        } catch (e) { displayTest(s, '기본 모드 복귀', 'fail', e.message); }
+
+        await delay(300);
+    }
+
+    async function suite8() {
+        const s = 'Suite 8: 잠금/해제';
+
+        try {
+            const lb = testDoc.querySelector('.char-section .lock-btn');
+            lb.click();
+            await delay(300);
+            if (lb.classList.contains('btn-active')) displayTest(s, '잠금 버튼', 'pass');
+            else throw new Error('실패');
+        } catch (e) { displayTest(s, '잠금 버튼', 'fail', e.message); }
+
+        try {
+            const inp = testDoc.querySelector('.char-section input[data-key="info_name"]');
+            if (inp.readOnly) displayTest(s, '입력 필드 비활성화', 'pass');
+            else throw new Error('실패');
+        } catch (e) { displayTest(s, '입력 필드 비활성화', 'fail', e.message); }
+
+        try {
+            const ub = testDoc.querySelector('.char-section .unlock-btn');
+            ub.click();
+            await delay(300);
+            if (ub.classList.contains('btn-active')) displayTest(s, '해제 버튼', 'pass');
+            else throw new Error('실패');
+        } catch (e) { displayTest(s, '해제 버튼', 'fail', e.message); }
+
+        try {
+            const inp = testDoc.querySelector('.char-section input[data-key="info_name"]');
+            if (!inp.readOnly) displayTest(s, '입력 필드 활성화', 'pass');
+            else throw new Error('실패');
+        } catch (e) { displayTest(s, '입력 필드 활성화', 'fail', e.message); }
+
+        await delay(300);
+    }
+</script>
+</body>
+</html>
