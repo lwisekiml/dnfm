@@ -630,6 +630,9 @@
         "레거시: 자연의 수호자": []
     };
 
+    // 💡 신규 추가: 접두어 없이 익시드만 있는 레거시 방어구 목록
+    const ARMOR_EXCEED_ONLY = ["레거시: 마력의 소용돌이", "레거시: 자연의 수호자"];
+
     const ACCESSORY_SETS = {
         "엘팅 메모리얼의 기억": ["팔찌", "목걸이", "반지"],
         "섬뜩한 빛의 관리자": ["팔찌", "목걸이", "반지"],
@@ -650,6 +653,9 @@
         "레거시: 에테리얼 리베넌트": [],
         "레거시: 지나온 영광의 시대": []
     };
+
+    // 💡 신규 추가: 접두어 없이 익시드만 있는 레거시 악세 목록
+    const ACCESSORY_EXCEED_ONLY = ["레거시: 에테리얼 리베넌트", "레거시: 지나온 영광의 시대"];
 
     const SPECIAL_SETS = {
         "개구쟁이 호문쿨루스": ["귀걸이", "마법석", "보장"],
@@ -843,13 +849,27 @@
 
         // 검색할 모든 그룹 이름 (기본, 접두어, 익시드) 생성
         const namesToSearch = [baseSetName];
-        prefixes.forEach(pref => {
-            const prefixedName = `${pref}: ${baseSetName}`;
-            namesToSearch.push(prefixedName);
-            EXCEED_TAGS.forEach(tag => {
-                namesToSearch.push(`[${tag}] ${prefixedName}`);
+
+        if (prefixes.length > 0) {
+            // 접두어가 있는 경우: 기존 로직
+            prefixes.forEach(pref => {
+                const prefixedName = `${pref}: ${baseSetName}`;
+                namesToSearch.push(prefixedName);
+                EXCEED_TAGS.forEach(tag => {
+                    namesToSearch.push(`[${tag}] ${prefixedName}`);
+                });
             });
-        });
+        } else {
+            // 💡 신규 추가: 접두어가 없는 경우 (레거시 장비)
+            const isExceedOnlyArmor = (typeof ARMOR_EXCEED_ONLY !== 'undefined' && ARMOR_EXCEED_ONLY.includes(baseSetName));
+            const isExceedOnlyAccessory = (typeof ACCESSORY_EXCEED_ONLY !== 'undefined' && ACCESSORY_EXCEED_ONLY.includes(baseSetName));
+
+            if (isExceedOnlyArmor || isExceedOnlyAccessory) {
+                EXCEED_TAGS.forEach(tag => {
+                    namesToSearch.push(`[${tag}] ${baseSetName}`);
+                });
+            }
+        }
 
         let totalDistinct = 0;
 
@@ -1476,14 +1496,32 @@
 
         tbody.appendChild(makeRow(setName, setName, char));
         const prefixes = ALL_PREFIX[setName] || [];
+
+        // 💡 일반 접두어 행 추가
         prefixes.forEach(pref => {
             tbody.appendChild(makeRow(`${pref}: ${setName}`, setName, char));
         });
-        prefixes.forEach(pref => {
-            EXCEED_TAGS.forEach(ex => {
-                tbody.appendChild(makeRow(`[${ex}] ${pref}: ${setName}`, setName, char));
+
+        // 💡 익시드 행 추가 로직 수정
+        if (prefixes.length > 0) {
+            // 접두어가 있는 경우: 기존 로직대로 [태그] 접두어: 세트명
+            prefixes.forEach(pref => {
+                EXCEED_TAGS.forEach(ex => {
+                    tbody.appendChild(makeRow(`[${ex}] ${pref}: ${setName}`, setName, char));
+                });
             });
-        });
+        } else {
+            // 💡 신규 추가: 접두어가 없는 경우 (레거시 장비)
+            // ARMOR_EXCEED_ONLY 또는 ACCESSORY_EXCEED_ONLY에 해당하면 익시드만 추가
+            const isExceedOnlyArmor = (typeof ARMOR_EXCEED_ONLY !== 'undefined' && ARMOR_EXCEED_ONLY.includes(setName));
+            const isExceedOnlyAccessory = (typeof ACCESSORY_EXCEED_ONLY !== 'undefined' && ACCESSORY_EXCEED_ONLY.includes(setName));
+
+            if (isExceedOnlyArmor || isExceedOnlyAccessory) {
+                EXCEED_TAGS.forEach(ex => {
+                    tbody.appendChild(makeRow(`[${ex}] ${setName}`, setName, char));
+                });
+            }
+        }
 
         panel.appendChild(table);
 
@@ -2428,14 +2466,30 @@
                     type: 'PREFIX'
                 }));
                 if (mode === 'EXCEED' || mode === 'ALL') {
-                    prefixes.forEach(p => {
-                        EXCEED_TAGS.forEach(tag => targetGroupKeys.push({
-                            full: `[${tag}] ${p}: ${baseSetName}`,
-                            display: p,
-                            tag: tag,
-                            type: 'EXCEED'
-                        }));
-                    });
+                    // 💡 기존 로직 (접두어 있는 익시드)
+                    if (prefixes.length > 0) {
+                        prefixes.forEach(p => {
+                            EXCEED_TAGS.forEach(tag => targetGroupKeys.push({
+                                full: `[${tag}] ${p}: ${baseSetName}`,
+                                display: p,
+                                tag: tag,
+                                type: 'EXCEED'
+                            }));
+                        });
+                    } else {
+                        // 💡 신규 추가: 접두어 없는 익시드 (레거시 장비)
+                        const isExceedOnlyArmor = (typeof ARMOR_EXCEED_ONLY !== 'undefined' && ARMOR_EXCEED_ONLY.includes(baseSetName));
+                        const isExceedOnlyAccessory = (typeof ACCESSORY_EXCEED_ONLY !== 'undefined' && ACCESSORY_EXCEED_ONLY.includes(baseSetName));
+
+                        if (isExceedOnlyArmor || isExceedOnlyAccessory) {
+                            EXCEED_TAGS.forEach(tag => targetGroupKeys.push({
+                                full: `[${tag}] ${baseSetName}`,
+                                display: "레거시",
+                                tag: tag,
+                                type: 'EXCEED'
+                            }));
+                        }
+                    }
                 }
 
                 if (targetGroupKeys.length === 0) return;
@@ -2579,14 +2633,31 @@
                 } else if (mode === 'EXCEED') {
                     slots = slots.filter(s => s === "상의" || s === "팔찌" || s === "귀걸이");
                     if (slots.length === 0) return;
-                    prefixes.forEach(p => {
-                        EXCEED_TAGS.forEach(tag => targetGroups.push({
-                            display: p,
-                            full: `${p}: ${baseSetName}`,
-                            tag: tag,
-                            type: 'EXCEED'
-                        }));
-                    });
+
+                    // 💡 기존 로직 (접두어 있는 익시드)
+                    if (prefixes.length > 0) {
+                        prefixes.forEach(p => {
+                            EXCEED_TAGS.forEach(tag => targetGroups.push({
+                                display: p,
+                                full: `${p}: ${baseSetName}`,
+                                tag: tag,
+                                type: 'EXCEED'
+                            }));
+                        });
+                    } else {
+                        // 💡 신규 추가: 접두어 없는 익시드 (레거시 장비)
+                        const isExceedOnlyArmor = (typeof ARMOR_EXCEED_ONLY !== 'undefined' && ARMOR_EXCEED_ONLY.includes(baseSetName));
+                        const isExceedOnlyAccessory = (typeof ACCESSORY_EXCEED_ONLY !== 'undefined' && ACCESSORY_EXCEED_ONLY.includes(baseSetName));
+
+                        if (isExceedOnlyArmor || isExceedOnlyAccessory) {
+                            EXCEED_TAGS.forEach(tag => targetGroups.push({
+                                display: "레거시",
+                                full: baseSetName,
+                                tag: tag,
+                                type: 'EXCEED'
+                            }));
+                        }
+                    }
                 }
 
                 if (targetGroups.length === 0) return;
