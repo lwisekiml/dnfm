@@ -1,0 +1,44 @@
+{
+  "name": "rpg-equipment-manager",
+  "version": "1.0.0",
+  "description": "RPG 장비 관리 시스템 - 106개 테스트 포함",
+  "main": "index.html",
+  "scripts": {
+    "serve": "python -m http.server 8000",
+    "test": "npm run test:playwright && npm run test:cypress",
+    "test:unit": "echo '✅ 단위 테스트: http://localhost:8000/test/test-unit.html 브라우저에서 열기'",
+    "test:integration": "echo '✅ 통합 테스트: http://localhost:8000/test/test-integration.html 브라우저에서 열기'",
+    "test:e2e": "npm run test:playwright && npm run test:cypress && npm run test:e2e:js",
+    "test:e2e:js": "echo '✅ E2E JavaScript: http://localhost:8000/test/test-e2e-javascript.html 브라우저에서 열기'",
+    "test:playwright": "playwright test test/test-e2e-playwright.spec.js",
+    "test:playwright:headed": "playwright test test/test-e2e-playwright.spec.js --headed",
+    "test:playwright:debug": "playwright test test/test-e2e-playwright.spec.js --debug",
+    "test:playwright:ui": "playwright test --ui",
+    "test:cypress": "cypress run --spec 'cypress/e2e/test-e2e-cypress.cy.js'",
+    "test:cypress:open": "cypress open",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "install:playwright": "npm install -D @playwright/test && npx playwright install",
+    "install:cypress": "npm install -D cypress",
+    "clean:test": "rm -rf cypress/screenshots cypress/videos test-results",
+    "help": "echo '사용 가능한 명령어:\n  npm run serve - 로컬 서버 실행\n  npm run test - 모든 E2E 테스트 실행\n  npm run test:playwright - Playwright 테스트\n  npm run test:cypress:open - Cypress GUI\n  npm run help - 이 도움말 표시'"
+  },
+  "keywords": [
+    "rpg",
+    "equipment",
+    "manager",
+    "game",
+    "test",
+    "playwright",
+    "cypress"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "cypress": "^13.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
