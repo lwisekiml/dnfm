@@ -1709,3 +1709,887 @@ async function suiteBugRepro() {
 - 버그 수정 후
 - 리팩토링 후
 - 배포 전
+
+
+---
+
+## 🧪 E2E 테스트 프레임워크 설명
+
+### 1️⃣ Playwright
+
+#### 📖 설명
+- **Microsoft**에서 만든 최신 E2E 테스트 프레임워크
+- Chrome, Firefox, Safari, Edge 모두 지원
+- 빠르고 안정적
+- 스크린샷, 비디오 녹화 기능
+- 헤드리스(화면 없이) 실행 가능
+
+#### 장점
+✅ 매우 빠름
+✅ 브라우저 자동화 최고 수준
+✅ 병렬 테스트 지원
+✅ 타임아웃 자동 처리
+
+#### 단점
+❌ 배우기 약간 어려움
+❌ Node.js 필수
+
+---
+
+### 2️⃣ Cypress
+
+#### 📖 설명
+- 가장 인기 있는 E2E 테스트 도구
+- 실시간으로 테스트 실행 화면 확인 가능
+- 디버깅 도구 우수
+- 문서가 매우 잘 되어있음
+
+#### 장점
+✅ 사용하기 쉬움
+✅ 실시간 리로드
+✅ 타임 트래블 디버깅
+✅ 스크린샷 자동 저장
+
+#### 단점
+❌ Chrome 계열만 기본 지원 (Firefox는 베타)
+❌ iframe 테스트 제한적
+❌ 약간 느림
+
+---
+
+### 3️⃣ 순수 JavaScript
+
+#### 📖 설명
+- 별도 도구 없이 브라우저만으로 실행
+- 설치 없이 HTML 파일만 열면 됨
+- 간단한 프로젝트에 적합
+
+#### 장점
+✅ 설치 불필요
+✅ 즉시 실행 가능
+✅ 배포 간단
+
+#### 단점
+❌ 기능 제한적
+❌ 병렬 실행 어려움
+❌ 리포트 기능 약함
+
+---
+## 🚀 이제 3가지 모두 작성하겠습니다!
+
+### 🎉 E2E 테스트 3종 세트 완성!
+###✅ 생성된 파일
+#### 1. test-e2e-playwright.spec.js (Playwright)
+- 8개 시나리오
+- 가장 빠르고 안정적
+- CI/CD 파이프라인용
+
+#### 2. test-e2e-cypress.cy.js (Cypress)
+- 10개 시나리오
+- 실시간 화면 제공
+- 개발 중 디버깅용
+
+#### 3. test-e2e-javascript.html (순수 JS)
+- 4개 시나리오
+- 설치 불필요
+- 브라우저만 있으면 즉시 실행
+
+#### 4. E2E_TEST_GUIDE.md
+- 상세한 사용 가이드
+- 3가지 도구 비교표
+- 실행 방법 및 예제
+
+---
+### 📊 비교표
+|항목|Playwright|Cypress|JavaScript|
+|:---:|---|---|---|
+|설치|npm 필요|npm 필요|불필요 ✅|
+|속도|매우 빠름 ✅|보통|빠름|
+|브라우저|전부 ✅|Chrome만|전부|
+|난이도|어려움|쉬움 ✅|매우 쉬움 ✅|
+|디버깅|좋음|매우 좋음 ✅|어려움|
+|실시간|❌|✅|✅|
+|추천|CI/CD|개발 중|빠른 확인|
+
+#### 🚀 빠른 시작
+#### Playwright (가장 빠름)
+```bash
+npm install -D @playwright/test
+npx playwright install
+python -m http.server 8000
+npx playwright test test-e2e-playwright.spec.js
+```
+
+#### Cypress (가장 쉬움)
+```bash
+npm install -D cypress
+npx cypress open
+# UI에서 test-e2e-cypress.cy.js 실행
+```
+
+#### JavaScript (설치 불필요!)
+```bash
+python -m http.server 8000
+# 브라우저: http://localhost:8000/test-e2e-javascript.html
+
+---
+
+## 🎯 테스트 커버리지
+
+### Playwright (8개 시나리오)
+1. ✅ 캐릭터 생성 → 저장 → 복구
+2. ✅ 스킬룬 설정 → 저장 → 복구
+3. ✅ 2개 캐릭터 비교
+4. ✅ 잠금/해제
+5. ✅ 전체 장비 세팅
+6. ✅ 캐릭터 삭제
+7. ✅ 3개 캐릭터 동시 관리
+8. ✅ 변경 히스토리
+
+### Cypress (10개 시나리오)
+- 위 8개 +
+- ✅ 반응형 테스트 (모바일/태블릿)
+- ✅ **완전한 사용자 플로우**
+
+### JavaScript (4개 핵심 시나리오)
+- ✅ 캐릭터 생성 → 저장 → 복구
+- ✅ 스킬룬 설정 → 저장 → 복구
+- ✅ 2개 캐릭터 비교
+- ✅ 잠금/해제
+
+---
+
+## 🎊 최종 테스트 현황
+✅ 단위 테스트: 49개
+✅ 통합 테스트: 35개
+✅ E2E 테스트: 22개 (8+10+4)
+
+총 106개 테스트! 🚀
+```
+
+---
+
+## 📘 Playwright 테스트 명령어 완벽 가이드
+
+### 🔧 1. `npm install -D @playwright/test`
+
+### 무엇을?
+**Playwright 테스트 프레임워크를 개발 의존성으로 설치**
+
+### 자세히
+```bash
+npm install -D @playwright/test
+```
+
+**각 부분 설명:**
+- `npm`: Node Package Manager (Node.js 패키지 관리 도구)
+- `install`: 패키지 설치 명령어
+- `-D`: `--save-dev`의 축약형 (개발 의존성으로 저장)
+- `@playwright/test`: Playwright 테스트 패키지
+
+**개발 의존성이란?**
+- ✅ 개발/테스트할 때만 필요한 패키지
+- ✅ 실제 배포할 때는 필요 없음
+- ✅ `package.json`의 `devDependencies`에 저장됨
+
+**실행 결과:**
+```json
+// package.json
+{
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}
+```
+
+**설치되는 것:**
+- `@playwright/test` 패키지
+- 테스트 러너 (Test Runner)
+- 어설션 라이브러리 (expect)
+- 테스트 리포터
+
+**설치 위치:**
+```
+프로젝트/
+├── node_modules/
+│   └── @playwright/
+│       └── test/  ← 여기 설치됨
+├── package.json
+└── package-lock.json
+```
+
+---
+
+### 🌐 2. `npx playwright install`
+
+### 무엇을?
+**실제 브라우저 바이너리 다운로드 및 설치**
+
+### 자세히
+```bash
+npx playwright install
+```
+
+**각 부분 설명:**
+- `npx`: Node Package eXecute (npm 패키지를 즉시 실행)
+- `playwright`: Playwright CLI 도구
+- `install`: 브라우저 설치 명령어
+
+**설치되는 브라우저:**
+```
+✅ Chromium (Chrome/Edge 엔진)
+✅ Firefox (Firefox 엔진)
+✅ WebKit (Safari 엔진)
+```
+
+**실행 화면 예시:**
+```bash
+$ npx playwright install
+
+Downloading Chromium 119.0.6045.9 (playwright build v1095) - 135.9 Mb [====================] 100%
+Downloading Firefox 119.0 (playwright build v1423) - 75.4 Mb [====================] 100%
+Downloading Webkit 17.4 (playwright build v1893) - 61.8 Mb [====================] 100%
+```
+
+**설치 위치:**
+```
+Windows: C:\Users\사용자이름\AppData\Local\ms-playwright
+Mac: ~/Library/Caches/ms-playwright
+Linux: ~/.cache/ms-playwright
+```
+
+**크기:**
+- Chromium: ~140MB
+- Firefox: ~80MB
+- WebKit: ~65MB
+- **총 약 285MB**
+
+**왜 필요한가?**
+- Playwright는 **진짜 브라우저**를 자동으로 제어해요
+- 시스템에 설치된 Chrome과는 **별개**
+- Playwright 전용 브라우저 (안정성 보장)
+
+**선택적 설치:**
+```bash
+# Chromium만 설치
+npx playwright install chromium
+
+# Firefox만 설치
+npx playwright install firefox
+
+# WebKit만 설치
+npx playwright install webkit
+```
+
+---
+
+### 🐍 3. `python -m http.server 8000`
+
+### 무엇을?
+**로컬 웹 서버 실행 (포트 8000)**
+
+### 자세히
+```bash
+python -m http.server 8000
+```
+
+**각 부분 설명:**
+- `python`: Python 인터프리터
+- `-m`: 모듈로 실행
+- `http.server`: Python 내장 HTTP 서버 모듈
+- `8000`: 포트 번호
+
+**실행 결과:**
+```
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
+```
+
+**무슨 의미?**
+- ✅ 현재 폴더를 웹 루트로 설정
+- ✅ `http://localhost:8000`으로 접근 가능
+- ✅ 브라우저에서 파일 열 수 있음
+
+**예시:**
+```
+프로젝트/
+├── index.html       → http://localhost:8000/index.html
+├── css/
+│   └── styles.css   → http://localhost:8000/css/styles.css
+└── js/
+    └── main.js      → http://localhost:8000/js/main.js
+```
+
+**왜 필요한가?**
+- Playwright는 **URL로 접근**해야 함
+- `file:///C:/...` 같은 파일 경로는 안 됨
+- JavaScript 모듈, CORS 정책 등의 이유
+
+**서버 종료:**
+```bash
+Ctrl + C
+```
+
+**다른 포트 사용:**
+```bash
+python -m http.server 3000  # 포트 3000
+python -m http.server 9999  # 포트 9999
+```
+
+**Node.js 대안:**
+```bash
+# http-server (npm 설치 필요)
+npm install -g http-server
+http-server -p 8000
+
+# live-server (자동 새로고침)
+npm install -g live-server
+live-server --port=8000
+```
+
+---
+
+### 🧪 4. `npx playwright test test-e2e-playwright.spec.js`
+
+### 무엇을?
+**Playwright 테스트 실행**
+
+### 자세히
+```bash
+npx playwright test test-e2e-playwright.spec.js
+```
+
+**각 부분 설명:**
+- `npx`: npm 패키지 실행 도구
+- `playwright test`: Playwright 테스트 러너
+- `test-e2e-playwright.spec.js`: 테스트 파일 이름
+
+**실행 과정:**
+1. ✅ `test-e2e-playwright.spec.js` 파일 읽기
+2. ✅ 브라우저 자동 실행 (헤드리스 모드)
+3. ✅ 테스트 케이스 순차 실행
+4. ✅ 결과 출력
+
+**실행 화면 예시:**
+```bash
+Running 8 tests using 1 worker
+
+  ✓ [chromium] › test-e2e-playwright.spec.js:6:5 › 캐릭터 생성 → 저장 → 복구 (2s)
+  ✓ [chromium] › test-e2e-playwright.spec.js:35:5 › 스킬룬 설정 → 저장 → 복구 (3s)
+  ✓ [chromium] › test-e2e-playwright.spec.js:68:5 › 2개 캐릭터 비교 (2s)
+  ✓ [chromium] › test-e2e-playwright.spec.js:95:5 › 잠금/해제 기능 (1s)
+  
+  8 passed (10s)
+```
+
+**헤드리스 모드란?**
+- ✅ 브라우저 창이 안 보임 (백그라운드 실행)
+- ✅ 속도가 더 빠름
+- ✅ CI/CD에서 사용
+
+**헤드풀 모드 (브라우저 보기):**
+```bash
+npx playwright test test-e2e-playwright.spec.js --headed
+```
+
+**디버그 모드:**
+```bash
+npx playwright test test-e2e-playwright.spec.js --debug
+```
+
+**특정 브라우저만:**
+```bash
+# Chromium만
+npx playwright test test-e2e-playwright.spec.js --project=chromium
+
+# Firefox만
+npx playwright test test-e2e-playwright.spec.js --project=firefox
+
+# WebKit만
+npx playwright test test-e2e-playwright.spec.js --project=webkit
+```
+
+**모든 테스트 파일 실행:**
+```bash
+npx playwright test
+# *.spec.js, *.test.js 파일 모두 실행
+```
+
+**병렬 실행:**
+```bash
+# 4개 워커로 병렬 실행
+npx playwright test --workers=4
+```
+
+**리포터 옵션:**
+```bash
+# HTML 리포트
+npx playwright test --reporter=html
+
+# JSON 리포트
+npx playwright test --reporter=json
+
+# 리포트 보기
+npx playwright show-report
+```
+
+---
+
+### 📊 전체 프로세스 요약
+
+```mermaid
+graph TD
+    A[1. npm install -D @playwright/test] --> B[Playwright 프레임워크 설치]
+    B --> C[2. npx playwright install]
+    C --> D[브라우저 바이너리 다운로드]
+    D --> E[3. python -m http.server 8000]
+    E --> F[로컬 서버 실행]
+    F --> G[4. npx playwright test]
+    G --> H[테스트 실행]
+    H --> I[결과 출력]
+```
+
+---
+
+### 🎯 실전 워크플로우
+
+### 최초 설정 (프로젝트 시작)
+```bash
+# 1. 프로젝트 폴더로 이동
+cd 프로젝트/
+
+# 2. package.json 생성 (없으면)
+npm init -y
+
+# 3. Playwright 설치
+npm install -D @playwright/test
+
+# 4. 브라우저 설치
+npx playwright install
+```
+
+### 테스트 실행 (매번)
+```bash
+# 터미널 1: 서버 실행 (계속 켜둠)
+python -m http.server 8000
+
+# 터미널 2: 테스트 실행
+npx playwright test test-e2e-playwright.spec.js
+```
+
+---
+
+### 💡 자주 묻는 질문
+
+### Q1: `npm`이 없다고 나와요!
+**A:** Node.js 설치 필요
+```bash
+# 설치 확인
+node --version
+npm --version
+
+# 없으면 다운로드
+https://nodejs.org
+```
+
+### Q2: `python`이 없다고 나와요!
+**A:** Python 설치 필요
+```bash
+# 설치 확인
+python --version
+
+# Windows에서 안 되면
+python3 -m http.server 8000
+
+# 없으면 다운로드
+https://www.python.org
+```
+
+### Q3: 포트 8000이 이미 사용 중이래요!
+**A:** 다른 포트 사용
+```bash
+python -m http.server 8001
+# 테스트 파일에서도 8001로 변경
+```
+
+### Q4: 테스트가 너무 느려요!
+**A:** 병렬 실행
+```bash
+npx playwright test --workers=4
+```
+
+### Q5: 브라우저 창을 보고 싶어요!
+**A:** 헤드풀 모드
+```bash
+npx playwright test --headed
+```
+
+---
+
+### 🔍 디버깅 팁
+
+### 실패한 테스트만 다시 실행
+```bash
+npx playwright test --last-failed
+```
+
+### 느린 모션으로 실행 (디버깅)
+```bash
+npx playwright test --headed --slow-mo=1000
+# 각 동작마다 1초 대기
+```
+
+### 스크린샷 자동 저장
+```bash
+npx playwright test --screenshot=on
+# 실패 시 자동 스크린샷
+```
+
+### 비디오 녹화
+```bash
+npx playwright test --video=on
+# 전체 테스트 녹화
+```
+
+---
+
+## 📁 파일 구조 예시
+
+```
+프로젝트/
+├── node_modules/          ← npm install로 생성
+├── package.json           ← npm init으로 생성
+├── package-lock.json      ← npm install로 생성
+├── test-e2e-playwright.spec.js  ← 테스트 파일
+├── playwright.config.js   ← 설정 파일 (옵션)
+├── index.html
+├── css/
+└── js/
+```
+
+---
+
+## 🎉 요약
+
+| 명령어 | 목적 | 횟수 | 소요 시간 |
+|--------|------|------|-----------|
+| `npm install -D @playwright/test` | 프레임워크 설치 | 최초 1회 | ~30초 |
+| `npx playwright install` | 브라우저 설치 | 최초 1회 | ~3분 |
+| `python -m http.server 8000` | 서버 실행 | 매번 (켜둠) | - |
+| `npx playwright test ...` | 테스트 실행 | 매번 | ~10초 |
+
+**핵심:**
+1. **설치는 한 번만!**
+2. **서버는 계속 켜둬야 함!**
+3. **테스트는 언제든지!**
+
+---
+
+좋은 질문이에요! Playwright 완전히 삭제하는 방법 알려드릴게요! 🗑️
+
+---
+
+# 🗑️ Playwright 완전 삭제 가이드
+
+## 🎯 1단계: npm 패키지 삭제
+
+```bash
+npm uninstall @playwright/test
+```
+
+**무엇이 삭제되나요?**
+- ✅ `node_modules/@playwright/` 폴더 삭제
+- ✅ `package.json`의 `devDependencies`에서 제거
+- ✅ `package-lock.json` 업데이트
+
+**실행 결과:**
+```bash
+removed 150 packages in 2s
+```
+
+---
+
+## 🎯 2단계: 브라우저 바이너리 삭제
+
+```bash
+npx playwright uninstall
+```
+
+**또는 수동으로 폴더 삭제:**
+
+### Windows
+```bash
+# PowerShell에서
+Remove-Item -Recurse -Force "$env:LOCALAPPDATA\ms-playwright"
+
+# 또는 탐색기에서 직접 삭제
+C:\Users\사용자이름\AppData\Local\ms-playwright
+```
+
+### Mac
+```bash
+rm -rf ~/Library/Caches/ms-playwright
+```
+
+### Linux
+```bash
+rm -rf ~/.cache/ms-playwright
+```
+
+**삭제되는 크기:**
+- 약 **285MB** (Chromium + Firefox + WebKit)
+
+---
+
+## 🎯 3단계: 관련 파일 정리 (선택)
+
+### playwright.config.js 삭제
+```bash
+# Windows/Mac/Linux
+rm playwright.config.js
+
+# 또는 수동 삭제
+```
+
+### 테스트 파일 삭제
+```bash
+rm test-e2e-playwright.spec.js
+```
+
+### 리포트 폴더 삭제
+```bash
+rm -rf playwright-report
+rm -rf test-results
+```
+
+---
+
+## 📋 완전 삭제 체크리스트
+
+```bash
+# 1. npm 패키지 삭제
+npm uninstall @playwright/test
+
+# 2. 브라우저 삭제 (선택 중 하나)
+npx playwright uninstall
+# 또는
+rm -rf ~/.cache/ms-playwright  # Mac/Linux
+# 또는
+Remove-Item -Recurse -Force "$env:LOCALAPPDATA\ms-playwright"  # Windows
+
+# 3. 설정 파일 삭제 (있다면)
+rm playwright.config.js
+
+# 4. 리포트 폴더 삭제 (있다면)
+rm -rf playwright-report
+rm -rf test-results
+
+# 5. 테스트 파일 삭제 (원하면)
+rm test-e2e-playwright.spec.js
+```
+
+---
+
+## 🔍 제대로 삭제됐는지 확인
+
+### 1. npm 패키지 확인
+```bash
+npm list @playwright/test
+```
+
+**성공적으로 삭제됐다면:**
+```
+└── (empty)
+```
+
+**또는 에러:**
+```
+npm ERR! missing: @playwright/test@*
+```
+
+### 2. 브라우저 폴더 확인
+
+**Windows:**
+```powershell
+Test-Path "$env:LOCALAPPDATA\ms-playwright"
+# False면 삭제됨
+```
+
+**Mac/Linux:**
+```bash
+ls ~/.cache/ms-playwright
+# No such file or directory면 삭제됨
+```
+
+### 3. 디스크 용량 확인
+- 약 **285MB** 늘어나야 정상!
+
+---
+
+## 💡 부분 삭제 옵션
+
+### 옵션 1: 패키지만 삭제 (브라우저는 유지)
+```bash
+npm uninstall @playwright/test
+# 나중에 다시 설치하면 브라우저 다운로드 안 해도 됨!
+```
+
+### 옵션 2: 특정 브라우저만 삭제
+```bash
+# Chromium만 삭제
+npx playwright uninstall chromium
+
+# Firefox만 삭제
+npx playwright uninstall firefox
+
+# WebKit만 삭제
+npx playwright uninstall webkit
+```
+
+### 옵션 3: 캐시만 정리 (패키지는 유지)
+```bash
+npm cache clean --force
+```
+
+---
+
+## 🔄 재설치 방법 (나중에 다시 사용)
+
+```bash
+# 1. npm 패키지 설치
+npm install -D @playwright/test
+
+# 2. 브라우저 설치
+npx playwright install
+```
+
+---
+
+## 📊 삭제 전후 비교
+
+| 항목 | 설치 전 | 설치 후 | 삭제 후 |
+|------|---------|---------|---------|
+| node_modules 크기 | 0MB | +150MB | 0MB |
+| 브라우저 캐시 | 0MB | +285MB | 0MB |
+| **총 디스크 사용** | **0MB** | **+435MB** | **0MB** |
+
+---
+
+## ⚠️ 주의사항
+
+### 1. node_modules 전체 삭제하지 마세요!
+```bash
+# ❌ 이건 하지 마세요!
+rm -rf node_modules
+
+# 다른 패키지도 다 지워져요!
+```
+
+**대신 이렇게:**
+```bash
+# ✅ Playwright만 삭제
+npm uninstall @playwright/test
+```
+
+### 2. 다른 프로젝트 영향 없음
+- Playwright 브라우저는 **전역으로 설치**됨
+- 한 번 삭제하면 **모든 프로젝트에서** 없어짐
+- 다른 프로젝트에서 사용 중이면 **삭제 주의**!
+
+### 3. npx 명령어는 여전히 작동
+```bash
+npx playwright --version
+# 패키지가 없어도 임시로 다운로드해서 실행
+# 완전히 막으려면 브라우저 폴더까지 삭제 필요
+```
+
+---
+
+## 🎓 완전 삭제 스크립트
+
+### Windows (PowerShell)
+```powershell
+# cleanup-playwright.ps1
+npm uninstall @playwright/test
+Remove-Item -Recurse -Force "$env:LOCALAPPDATA\ms-playwright" -ErrorAction SilentlyContinue
+Remove-Item -Force playwright.config.js -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force playwright-report -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force test-results -ErrorAction SilentlyContinue
+Write-Host "✅ Playwright 완전 삭제 완료!"
+```
+
+**실행:**
+```powershell
+.\cleanup-playwright.ps1
+```
+
+### Mac/Linux (Bash)
+```bash
+# cleanup-playwright.sh
+#!/bin/bash
+npm uninstall @playwright/test
+rm -rf ~/.cache/ms-playwright
+rm -f playwright.config.js
+rm -rf playwright-report
+rm -rf test-results
+echo "✅ Playwright 완전 삭제 완료!"
+```
+
+**실행:**
+```bash
+chmod +x cleanup-playwright.sh
+./cleanup-playwright.sh
+```
+
+---
+
+## 🚀 한 줄 명령어 (빠른 삭제)
+
+### Mac/Linux
+```bash
+npm uninstall @playwright/test && rm -rf ~/.cache/ms-playwright && rm -f playwright.config.js && rm -rf playwright-report test-results && echo "✅ 삭제 완료!"
+```
+
+### Windows (PowerShell)
+```powershell
+npm uninstall @playwright/test; Remove-Item -Recurse -Force "$env:LOCALAPPDATA\ms-playwright" -ErrorAction SilentlyContinue; Remove-Item -Force playwright.config.js -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force playwright-report, test-results -ErrorAction SilentlyContinue; Write-Host "✅ 삭제 완료!"
+```
+
+---
+
+## 💾 삭제 용량 회복
+
+### 삭제 후 확인 명령어
+```bash
+# Mac/Linux
+du -sh ~/.cache/ms-playwright 2>/dev/null || echo "✅ 브라우저 폴더 삭제됨"
+
+# Windows (PowerShell)
+if (Test-Path "$env:LOCALAPPDATA\ms-playwright") { 
+    (Get-ChildItem "$env:LOCALAPPDATA\ms-playwright" -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB 
+} else { 
+    "✅ 브라우저 폴더 삭제됨" 
+}
+```
+
+---
+
+## 🎉 요약
+
+```bash
+# 🎯 최소 삭제 (빠름)
+npm uninstall @playwright/test
+
+# 🎯 완전 삭제 (디스크 공간 회복)
+npm uninstall @playwright/test
+npx playwright uninstall
+
+# 🎯 철저한 삭제 (모든 흔적 제거)
+npm uninstall @playwright/test
+rm -rf ~/.cache/ms-playwright
+rm -f playwright.config.js
+rm -rf playwright-report test-results
+```
+
+**추천:**
+- 디스크 공간이 부족하면 → **완전 삭제**
+- 나중에 다시 쓸 수도 있으면 → **최소 삭제**
