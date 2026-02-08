@@ -418,6 +418,38 @@
             -webkit-appearance: none;
             margin: 0;
         }
+
+        /* 캐릭터 드래그 앤 드롭 스타일 */
+        .character-wrapper {
+            cursor: move;
+            transition: all 0.2s ease;
+        }
+
+        .character-wrapper.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .character-wrapper.drag-over {
+            border-left: 3px solid #ffd700;
+            padding-left: 5px;
+        }
+
+        .drag-handle {
+            cursor: grab;
+            padding: 4px 8px;
+            color: #888;
+            font-size: 18px;
+            user-select: none;
+        }
+
+        .drag-handle:hover {
+            color: #ffd700;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
     </style>
 </head>
 <body>
@@ -519,6 +551,14 @@
         <input type="text" id="newCharName" placeholder="이름 입력">
         <input type="text" id="newCharJob" placeholder="직업 입력">
         <button class="add-btn" onclick="addCharacter()">➕ 추가</button>
+    </div>
+
+    <!-- 💡 순서 초기화 버튼 추가 -->
+    <div style="margin-bottom: 10px;">
+        <button class="char-btn" style="background: #666; font-size: 0.9em;"
+                onclick="sortCharactersByName()">🔤 이름순 정렬</button>
+        <button class="char-btn" style="background: #666; font-size: 0.9em;"
+                onclick="sortCharactersByJob()">💼 직업순 정렬</button>
     </div>
 
     <div id="characterList" class="char-grid"></div>
@@ -1155,42 +1195,220 @@
 
     function renderCharacterList() {
         const listEl = document.getElementById("characterList");
-        if (!listEl) return; // 요소가 없으면 중단
+        if (!listEl) return;
 
         listEl.innerHTML = "";
 
-        characters.forEach((c) => {
+        characters.forEach((c, index) => {
             const wrapper = document.createElement("div");
             wrapper.className = "character-wrapper";
-            wrapper.style.display = "inline-flex"; // 버튼들이 나란히 붙도록 설정
+            wrapper.style.display = "inline-flex";
             wrapper.style.alignItems = "center";
             wrapper.style.marginRight = "10px";
             wrapper.style.marginBottom = "10px";
 
-            // ⚙️ 설정(톱니바퀴) 버튼
+            // 💡 드래그 앤 드롭 속성 추가
+            wrapper.draggable = true;
+            wrapper.dataset.charId = c.id;
+            wrapper.dataset.charIndex = index;
+
+            // 💡 드래그 핸들 (⋮⋮) 추가
+            const dragHandle = document.createElement("span");
+            dragHandle.className = "drag-handle";
+            dragHandle.textContent = "⋮⋮";
+            dragHandle.title = "드래그하여 순서 변경";
+
+            // ⚙️ 설정 버튼
             const settingsBtn = document.createElement("button");
             settingsBtn.textContent = "⚙️";
             settingsBtn.className = "settings-btn";
             settingsBtn.style.cursor = "pointer";
             settingsBtn.onclick = (e) => {
-                e.stopPropagation(); // 부모 클릭 이벤트 전파 방지
+                e.stopPropagation();
                 openActionModal(c.id, c.name, c.job);
             };
 
             // 캐릭터 버튼
             const btn = document.createElement("button");
-            btn.className = "char-btn" + (c.id === (typeof activeCharacterId !== 'undefined' ? activeCharacterId : null) ? " active" : "");
+            btn.className = "char-btn" + (c.id === activeCharacterId ? " active" : "");
             btn.textContent = `${c.job} (${c.name})`;
             btn.onclick = () => {
                 if (typeof showSetButtons === "function") showSetButtons(c);
             };
 
+            // 💡 드래그 이벤트 핸들러 등록
+            wrapper.addEventListener('dragstart', handleDragStart);
+            wrapper.addEventListener('dragend', handleDragEnd);
+            wrapper.addEventListener('dragover', handleDragOver);
+            wrapper.addEventListener('drop', handleDrop);
+            wrapper.addEventListener('dragleave', handleDragLeave);
+
+            // 💡 터치 이벤트 (모바일 지원) - 선택사항
+            wrapper.addEventListener('touchstart', handleTouchStart, { passive: false });
+            wrapper.addEventListener('touchmove', handleTouchMove, { passive: false });
+            wrapper.addEventListener('touchend', handleTouchEnd);
+
+            wrapper.appendChild(dragHandle);
             wrapper.appendChild(settingsBtn);
             wrapper.appendChild(btn);
             listEl.appendChild(wrapper);
         });
     }
 
+    // 💡 드래그 앤 드롭 전역 변수
+    let draggedElement = null;
+    let draggedCharId = null;
+
+    // 드래그 시작
+    function handleDragStart(e) {
+        draggedElement = e.currentTarget;
+        draggedCharId = e.currentTarget.dataset.charId;
+
+        e.currentTarget.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', e.currentTarget.innerHTML);
+    }
+
+    // 드래그 끝
+    function handleDragEnd(e) {
+        e.currentTarget.classList.remove('dragging');
+
+        // 모든 drag-over 클래스 제거
+        document.querySelectorAll('.character-wrapper').forEach(wrapper => {
+            wrapper.classList.remove('drag-over');
+        });
+
+        draggedElement = null;
+        draggedCharId = null;
+    }
+
+    // 드래그 오버 (다른 캐릭터 위로 드래그할 때)
+    function handleDragOver(e) {
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+
+        e.dataTransfer.dropEffect = 'move';
+
+        const targetElement = e.currentTarget;
+        if (targetElement !== draggedElement) {
+            targetElement.classList.add('drag-over');
+        }
+
+        return false;
+    }
+
+    // 드래그 리브 (다른 캐릭터에서 벗어날 때)
+    function handleDragLeave(e) {
+        e.currentTarget.classList.remove('drag-over');
+    }
+
+    // 드롭 (놓기)
+    function handleDrop(e) {
+        if (e.stopPropagation) {
+            e.stopPropagation();
+        }
+
+        e.currentTarget.classList.remove('drag-over');
+
+        const targetCharId = e.currentTarget.dataset.charId;
+
+        // 같은 위치에 드롭하면 무시
+        if (draggedCharId === targetCharId) {
+            return false;
+        }
+
+        // 캐릭터 순서 변경
+        const draggedIndex = characters.findIndex(c => c.id === draggedCharId);
+        const targetIndex = characters.findIndex(c => c.id === targetCharId);
+
+        if (draggedIndex !== -1 && targetIndex !== -1) {
+            // 배열에서 드래그된 캐릭터 제거
+            const [draggedChar] = characters.splice(draggedIndex, 1);
+
+            // 타겟 위치에 삽입
+            characters.splice(targetIndex, 0, draggedChar);
+
+            // 💡 변경사항 저장 및 화면 갱신
+            saveLocalData();
+            renderCharacterList();
+
+            // 💡 현재 선택된 캐릭터가 있다면 유지
+            if (activeCharacterId) {
+                const activeChar = characters.find(c => c.id === activeCharacterId);
+                if (activeChar && typeof showSetButtons === "function") {
+                    showSetButtons(activeChar, true);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // 💡 모바일 터치 지원
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchElement = null;
+
+    function handleTouchStart(e) {
+        touchElement = e.currentTarget;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+
+        touchElement.style.opacity = '0.5';
+    }
+
+    function handleTouchMove(e) {
+        if (!touchElement) return;
+
+        e.preventDefault();
+
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - touchStartX;
+        const deltaY = touch.clientY - touchStartY;
+
+        // 터치 위치에 따라 시각적 피드백
+        touchElement.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+    }
+
+    function handleTouchEnd(e) {
+        if (!touchElement) return;
+
+        const touch = e.changedTouches[0];
+        const elementAtTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+
+        // 원래 스타일 복원
+        touchElement.style.opacity = '1';
+        touchElement.style.transform = 'translate(0, 0)';
+
+        // 드롭 대상 찾기
+        const targetWrapper = elementAtTouch?.closest('.character-wrapper');
+
+        if (targetWrapper && targetWrapper !== touchElement) {
+            const draggedCharId = touchElement.dataset.charId;
+            const targetCharId = targetWrapper.dataset.charId;
+
+            const draggedIndex = characters.findIndex(c => c.id === draggedCharId);
+            const targetIndex = characters.findIndex(c => c.id === targetCharId);
+
+            if (draggedIndex !== -1 && targetIndex !== -1) {
+                const [draggedChar] = characters.splice(draggedIndex, 1);
+                characters.splice(targetIndex, 0, draggedChar);
+
+                saveLocalData();
+                renderCharacterList();
+
+                if (activeCharacterId) {
+                    const activeChar = characters.find(c => c.id === activeCharacterId);
+                    if (activeChar && typeof showSetButtons === "function") {
+                        showSetButtons(activeChar, true);
+                    }
+                }
+            }
+        }
+
+        touchElement = null;
+    }
 
     // [로컬 스토리지] 초기 로드 및 렌더링
     loadLocalData();
@@ -2944,6 +3162,35 @@
             });
     }
 
+    // 💡 이름순 정렬
+    function sortCharactersByName() {
+        if (characters.length === 0) return;
+
+        characters.sort((a, b) => {
+            return a.name.localeCompare(b.name, 'ko-KR');
+        });
+
+        saveLocalData();
+        renderCharacterList();
+
+        alert('이름순으로 정렬되었습니다.');
+    }
+
+    // 💡 직업순 정렬
+    function sortCharactersByJob() {
+        if (characters.length === 0) return;
+
+        characters.sort((a, b) => {
+            const jobCompare = a.job.localeCompare(b.job, 'ko-KR');
+            if (jobCompare !== 0) return jobCompare;
+            return a.name.localeCompare(b.name, 'ko-KR');
+        });
+
+        saveLocalData();
+        renderCharacterList();
+
+        alert('직업순으로 정렬되었습니다.');
+    }
 </script>
 
 </div>
