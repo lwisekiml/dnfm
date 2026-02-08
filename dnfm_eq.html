@@ -555,10 +555,22 @@
 
     <!-- 💡 순서 초기화 버튼 추가 -->
     <div style="margin-bottom: 10px;">
+        <button class="char-btn" style="background: #e67e22; font-size: 0.9em; font-weight: bold;"
+                onclick="saveCurrentOrder()">
+            💾 순서 등록
+        </button>
+        <button class="char-btn" style="background: #25c2a0; font-size: 0.9em;"
+                onclick="resetToOriginalOrder()">
+            🔄 등록 순서로 복원
+        </button>
         <button class="char-btn" style="background: #666; font-size: 0.9em;"
-                onclick="sortCharactersByName()">🔤 이름순 정렬</button>
+                onclick="sortCharactersByName()">
+            🔤 이름순 정렬
+        </button>
         <button class="char-btn" style="background: #666; font-size: 0.9em;"
-                onclick="sortCharactersByJob()">💼 직업순 정렬</button>
+                onclick="sortCharactersByJob()">
+            💼 직업순 정렬
+        </button>
     </div>
 
     <div id="characterList" class="char-grid"></div>
@@ -1197,7 +1209,7 @@
         const listEl = document.getElementById("characterList");
         if (!listEl) return;
 
-        listEl.innerHTML = "";
+        listEl.innerHTML = ""; // 기존 목록 비우기
 
         characters.forEach((c, index) => {
             const wrapper = document.createElement("div");
@@ -1422,13 +1434,74 @@
             alert("이름과 직업을 입력하세요!");
             return;
         }
-        // 💡 updateTimes: {} 추가
-        const newChar = {id: "c" + Date.now(), job: job, name: name, armorCounts: {}, updateTimes: {}};
+
+        const newChar = {
+            id: "c" + Date.now(),
+            job: job,
+            name: name,
+            armorCounts: {},
+            updateTimes: {}
+            // createdOrder는 자동 부여하지 않음!
+        };
+
         characters.push(newChar);
-        saveLocalData(); // [로컬 스토리지] 데이터 변경 후 저장
+        saveLocalData();
         renderCharacterList();
         document.getElementById("newCharName").value = "";
         document.getElementById("newCharJob").value = "";
+    }
+
+    // 💡 현재 순서를 등록 순서로 저장
+    function saveCurrentOrder() {
+        characters.forEach((char, index) => {
+            char.createdOrder = index;
+        });
+
+        saveLocalData();
+        alert('✅ 현재 순서가 등록되었습니다!\n"등록 순서로 복원" 버튼으로 언제든 이 순서로 돌아올 수 있습니다.');
+    }
+
+    // 💡 등록 순서로 복원
+    function resetToOriginalOrder() {
+        if (characters.length === 0) {
+            alert('캐릭터가 없습니다.');
+            return;
+        }
+
+        // createdOrder가 없는 캐릭터가 있는지 확인
+        const hasUndefinedOrder = characters.some(char => char.createdOrder === undefined);
+
+        if (hasUndefinedOrder) {
+            alert('⚠️ 먼저 "순서 등록" 버튼을 눌러주세요!');
+            return;
+        }
+
+        characters.sort((a, b) => {
+            const orderA = a.createdOrder !== undefined ? a.createdOrder : 9999;
+            const orderB = b.createdOrder !== undefined ? b.createdOrder : 9999;
+            return orderA - orderB;
+        });
+
+        saveLocalData();
+        renderCharacterList();
+
+        alert('🔄 등록했던 순서로 복원되었습니다!');
+    }
+
+    // 💡 등록 순서로 복원
+    function resetToOriginalOrder() {
+        if (characters.length === 0) return;
+
+        characters.sort((a, b) => {
+            const orderA = a.createdOrder !== undefined ? a.createdOrder : 9999;
+            const orderB = b.createdOrder !== undefined ? b.createdOrder : 9999;
+            return orderA - orderB;
+        });
+
+        saveLocalData();
+        renderCharacterList();
+
+        alert('등록 순서로 복원되었습니다.');
     }
 
     // ===== 세트 버튼 표시 =====
