@@ -426,29 +426,29 @@
         }
 
         .character-wrapper.dragging {
-            opacity: 0.5;
-            transform: scale(0.95);
+            opacity: 0.5;              /* 반투명 */
+            transform: scale(0.95);    /* 살짝 작게 */
         }
 
         .character-wrapper.drag-over {
-            border-left: 3px solid #ffd700;
+            border-left: 3px solid #ffd700;   /* 왼쪽에 금색 선 */
             padding-left: 5px;
         }
 
         .drag-handle {
-            cursor: grab;
+            cursor: grab;              /* 마우스 커서 모양: 손 */
             padding: 4px 8px;
-            color: #888;
+            color: #888;               /* 기본: 회색 */
             font-size: 18px;
-            user-select: none;
+            user-select: none;         /* 텍스트 선택 방지 */
         }
 
         .drag-handle:hover {
-            color: #ffd700;
+            color: #ffd700;            /* 호버: 금색 */
         }
 
         .drag-handle:active {
-            cursor: grabbing;
+            cursor: grabbing;          /* 드래그 중: 주먹 쥔 손 */
         }
     </style>
 </head>
@@ -631,6 +631,24 @@
     const TOTAL_PAGES = 5;
 
     // 데이터 저장 시
+    /*
+        [
+          {
+            "id": "c1234567890",
+            "name": "강의",
+            "job": "검귀",
+            "armorCounts": {...},
+            "updateTimes": {...},
+            "createdOrder": 0
+          },
+          {
+            "id": "c1234567891",
+            "name": "철수",
+            "job": "격투가",
+            "createdOrder": 1
+          }
+        ]
+     */
     function saveLocalData() {
         localStorage.setItem("dnfm_eq", JSON.stringify(characters));
     }
@@ -1220,9 +1238,9 @@
             wrapper.style.marginBottom = "10px";
 
             // 💡 드래그 앤 드롭 속성 추가
-            wrapper.draggable = true;
-            wrapper.dataset.charId = c.id;
-            wrapper.dataset.charIndex = index;
+            wrapper.draggable = true;                    // HTML5 드래그 활성화
+            wrapper.dataset.charId = c.id;               // 데이터 속성에 ID 저장
+            wrapper.dataset.charIndex = index;           // 데이터 속성에 인덱스 저장
 
             // 💡 드래그 핸들 (⋮⋮) 추가
             const dragHandle = document.createElement("span");
@@ -1273,38 +1291,38 @@
 
     // 드래그 시작
     function handleDragStart(e) {
-        draggedElement = e.currentTarget;
-        draggedCharId = e.currentTarget.dataset.charId;
+        draggedElement = e.currentTarget;                    // 드래그 중인 요소 저장
+        draggedCharId = e.currentTarget.dataset.charId;      // 캐릭터 ID 저장
 
-        e.currentTarget.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
+        e.currentTarget.classList.add('dragging');           // 시각적 효과 (투명도)
+        e.dataTransfer.effectAllowed = 'move';               // 커서 스타일 설정
         e.dataTransfer.setData('text/html', e.currentTarget.innerHTML);
     }
 
     // 드래그 끝
     function handleDragEnd(e) {
-        e.currentTarget.classList.remove('dragging');
+        e.currentTarget.classList.remove('dragging');        // 투명 효과 제거
 
         // 모든 drag-over 클래스 제거
         document.querySelectorAll('.character-wrapper').forEach(wrapper => {
             wrapper.classList.remove('drag-over');
         });
 
-        draggedElement = null;
+        draggedElement = null;                               // 변수 초기화
         draggedCharId = null;
     }
 
     // 드래그 오버 (다른 캐릭터 위로 드래그할 때)
     function handleDragOver(e) {
         if (e.preventDefault) {
-            e.preventDefault();
+            e.preventDefault();                              // 기본 동작 방지 (필수!)
         }
 
-        e.dataTransfer.dropEffect = 'move';
+        e.dataTransfer.dropEffect = 'move';                  // 커서 모양 변경
 
         const targetElement = e.currentTarget;
         if (targetElement !== draggedElement) {
-            targetElement.classList.add('drag-over');
+            targetElement.classList.add('drag-over');        // 노란색 경계선 표시
         }
 
         return false;
@@ -1312,40 +1330,42 @@
 
     // 드래그 리브 (다른 캐릭터에서 벗어날 때)
     function handleDragLeave(e) {
-        e.currentTarget.classList.remove('drag-over');
+        e.currentTarget.classList.remove('drag-over');       // 노란색 경계선 제거
     }
 
     // 드롭 (놓기)
     function handleDrop(e) {
         if (e.stopPropagation) {
-            e.stopPropagation();
+            e.stopPropagation();                             // 이벤트 전파 중지
         }
 
-        e.currentTarget.classList.remove('drag-over');
+        e.currentTarget.classList.remove('drag-over');       // 경계선 제거
 
-        const targetCharId = e.currentTarget.dataset.charId;
+        const targetCharId = e.currentTarget.dataset.charId; // 드롭한 위치의 캐릭터 ID
 
         // 같은 위치에 드롭하면 무시
         if (draggedCharId === targetCharId) {
             return false;
         }
 
-        // 캐릭터 순서 변경
+        // 🎯 핵심: 배열에서 순서 변경 (캐릭터 순서 변경)
         const draggedIndex = characters.findIndex(c => c.id === draggedCharId);
         const targetIndex = characters.findIndex(c => c.id === targetCharId);
 
         if (draggedIndex !== -1 && targetIndex !== -1) {
-            // 배열에서 드래그된 캐릭터 제거
+            // 1. 드래그한 캐릭터를 배열에서 제거
             const [draggedChar] = characters.splice(draggedIndex, 1);
 
-            // 타겟 위치에 삽입
+            // 2. 타겟 위치에 삽입
             characters.splice(targetIndex, 0, draggedChar);
 
-            // 💡 변경사항 저장 및 화면 갱신
+            // 3. 로컬 스토리지에 저장
             saveLocalData();
+
+            // 4. 화면 갱신
             renderCharacterList();
 
-            // 💡 현재 선택된 캐릭터가 있다면 유지
+            // 5. 현재 선택된 캐릭터가 있다면 유지
             if (activeCharacterId) {
                 const activeChar = characters.find(c => c.id === activeCharacterId);
                 if (activeChar && typeof showSetButtons === "function") {
@@ -1363,31 +1383,34 @@
     let touchElement = null;
 
     function handleTouchStart(e) {
-        touchElement = e.currentTarget;
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
+        touchElement = e.currentTarget;                      // 터치한 요소 저장
+        touchStartX = e.touches[0].clientX;                  // 시작 X 좌표
+        touchStartY = e.touches[0].clientY;                  // 시작 Y 좌표
 
-        touchElement.style.opacity = '0.5';
+        touchElement.style.opacity = '0.5';                  // 반투명 효과
     }
 
     function handleTouchMove(e) {
         if (!touchElement) return;
 
-        e.preventDefault();
+        e.preventDefault();                                  // 스크롤 방지 (중요!)
 
         const touch = e.touches[0];
-        const deltaX = touch.clientX - touchStartX;
-        const deltaY = touch.clientY - touchStartY;
+        const deltaX = touch.clientX - touchStartX;          // X 이동 거리
+        const deltaY = touch.clientY - touchStartY;          // Y 이동 거리
 
-        // 터치 위치에 따라 시각적 피드백
+        // 요소를 손가락 따라 이동 (시각적 효과)
         touchElement.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
     }
 
     function handleTouchEnd(e) {
         if (!touchElement) return;
 
-        const touch = e.changedTouches[0];
-        const elementAtTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+        const touch = e.changedTouches[0];                   // 마지막 터치 위치
+        const elementAtTouch = document.elementFromPoint(
+            touch.clientX,
+            touch.clientY
+        );                                                   // 손가락 아래의 요소 찾기
 
         // 원래 스타일 복원
         touchElement.style.opacity = '1';
@@ -1404,6 +1427,7 @@
             const targetIndex = characters.findIndex(c => c.id === targetCharId);
 
             if (draggedIndex !== -1 && targetIndex !== -1) {
+                // 🎯 PC 드래그와 동일한 순서 변경 로직
                 const [draggedChar] = characters.splice(draggedIndex, 1);
                 characters.splice(targetIndex, 0, draggedChar);
 
@@ -1454,11 +1478,11 @@
     // 💡 현재 순서를 등록 순서로 저장
     function saveCurrentOrder() {
         characters.forEach((char, index) => {
-            char.createdOrder = index;
+            char.createdOrder = index;                       // 현재 인덱스를 등록 순서로 저장
         });
 
-        saveLocalData();
-        alert('✅ 현재 순서가 등록되었습니다!\n"등록 순서로 복원" 버튼으로 언제든 이 순서로 돌아올 수 있습니다.');
+        saveLocalData();                                     // 로컬 스토리지에 저장
+        alert('✅ 현재 순서가 등록되었습니다!');
     }
 
     // 💡 등록 순서로 복원
@@ -1468,18 +1492,21 @@
             return;
         }
 
-        // createdOrder가 없는 캐릭터가 있는지 확인
-        const hasUndefinedOrder = characters.some(char => char.createdOrder === undefined);
+        // createdOrder가 없는 캐릭터 확인
+        const hasUndefinedOrder = characters.some(
+            char => char.createdOrder === undefined
+        );
 
         if (hasUndefinedOrder) {
             alert('⚠️ 먼저 "순서 등록" 버튼을 눌러주세요!');
             return;
         }
 
+        // 🎯 핵심: createdOrder 기준으로 정렬
         characters.sort((a, b) => {
             const orderA = a.createdOrder !== undefined ? a.createdOrder : 9999;
             const orderB = b.createdOrder !== undefined ? b.createdOrder : 9999;
-            return orderA - orderB;
+            return orderA - orderB;                          // 오름차순 정렬
         });
 
         saveLocalData();
@@ -3240,7 +3267,7 @@
         if (characters.length === 0) return;
 
         characters.sort((a, b) => {
-            return a.name.localeCompare(b.name, 'ko-KR');
+            return a.name.localeCompare(b.name, 'ko-KR');   // 한글 가나다순
         });
 
         saveLocalData();
@@ -3255,8 +3282,8 @@
 
         characters.sort((a, b) => {
             const jobCompare = a.job.localeCompare(b.job, 'ko-KR');
-            if (jobCompare !== 0) return jobCompare;
-            return a.name.localeCompare(b.name, 'ko-KR');
+            if (jobCompare !== 0) return jobCompare;         // 직업이 다르면 직업순
+            return a.name.localeCompare(b.name, 'ko-KR');    // 직업이 같으면 이름순
         });
 
         saveLocalData();
