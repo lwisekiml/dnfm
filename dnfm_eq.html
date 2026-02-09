@@ -1050,8 +1050,8 @@
             job: job,
             name: name,
             armorCounts: {},
-            updateTimes: {}
-            // createdOrder는 자동 부여하지 않음!
+            updateTimes: {},
+            craftMaterials: {}  // 👈 추가
         };
 
         characters.push(newChar);
@@ -2796,7 +2796,7 @@
 
         const table = document.createElement("table");
 
-        // ===== 1행 (캐릭터 직업/이름) =====
+        // 헤더
         const header = document.createElement("tr");
         header.appendChild(document.createElement("th"));
         header.appendChild(document.createElement("th"));
@@ -2809,7 +2809,7 @@
 
         table.appendChild(header);
 
-        // ===== 재료 행 =====
+        // 재료 행
         materials.forEach(mat => {
             const tr = document.createElement("tr");
 
@@ -2821,9 +2821,39 @@
             imgTd.innerHTML = `<img src="${mat.img}" style="width:32px;">`;
             tr.appendChild(imgTd);
 
-            characters.forEach(() => {
+            characters.forEach(char => {
+                if (!char.craftMaterials) {
+                    char.craftMaterials = {};
+                }
+
                 const td = document.createElement("td");
-                td.innerHTML = `<input type="number" class="craft-input" style="width:60px;" min="0" step="-1">`;
+                const input = document.createElement("input");
+                input.type = "number";
+                input.className = "craft-input";
+                input.style.width = "60px";
+                input.min = "0";
+                input.placeholder = "0";  // 힌트 표시
+
+                // ✅ 저장된 값이 있고 0보다 크면 표시
+                const savedValue = char.craftMaterials[mat.name];
+                if (savedValue && savedValue > 0) {
+                    input.value = savedValue;
+                }
+
+                // ✅ 입력값 변경 시 저장 (0은 삭제)
+                input.addEventListener('input', function() {
+                    const value = parseInt(this.value);
+
+                    if (isNaN(value) || value <= 0) {
+                        delete char.craftMaterials[mat.name];
+                    } else {
+                        char.craftMaterials[mat.name] = value;
+                    }
+
+                    saveLocalData();
+                });
+
+                td.appendChild(input);
                 tr.appendChild(td);
             });
 
@@ -2831,7 +2861,6 @@
         });
 
         area.appendChild(table);
-
         setCraftLock(true);
     }
 
@@ -3000,7 +3029,8 @@
                         job: char.job,
                         armorCounts: char.armorCounts || {},
                         weaponCounts: char.weaponCounts || {},
-                        updateTimes: char.updateTimes || {}
+                        updateTimes: char.updateTimes || {},
+                        craftMaterials: char.craftMaterials || {}
                     };
                 });
 
@@ -3009,17 +3039,35 @@
                 currentSetName = null;
                 currentChar = null;
 
-                // 3. 로컬 저장 및 화면 갱신
+                // 3. 로컬 저장
                 saveLocalData();
 
-                // 4. 현재 뷰에 따른 리렌더링
+                // 4. ✅ 현재 열린 탭 확인
+                const charView = document.getElementById("section-character-view");
+                const weaponView = document.getElementById("section-weapon-view");
+                const equipmentView = document.getElementById("section-equipment-view");
+                const craftView = document.getElementById("section-craft-view");
+
+                // 5. ✅ 각 탭별 갱신 (현재 보이는 탭만 갱신하거나, 모든 탭 갱신)
+
+                // 캐릭터 탭 갱신
                 renderCharacterList();
                 document.getElementById("setList").innerHTML = "";
                 document.getElementById("panel").innerHTML = "";
 
-                // 만약 무기 탭이 열려있다면 갱신
-                if (document.getElementById("section-weapon-view").style.display !== "none") {
+                // 무기 탭이 열려있으면 갱신
+                if (weaponView.style.display !== "none") {
                     selectWeaponJob(activeWeaponJob || '귀검사', true);
+                }
+
+                // 장비 관리 탭이 열려있으면 갱신
+                if (equipmentView.style.display !== "none") {
+                    renderEquipmentTab('ALL');
+                }
+
+                // ✅ 제작 탭이 열려있으면 갱신
+                if (craftView.style.display !== "none") {
+                    renderCraftTable();
                 }
 
                 alert(`데이터 복구 완료! 총 ${characters.length}명의 데이터가 적용되었습니다.`);
