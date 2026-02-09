@@ -2331,8 +2331,6 @@
     }
 
     // 캐릭터 장비 상세 현황 렌더링
-    // 캐릭터 장비 상세 현황 렌더링
-    // 캐릭터 장비 상세 현황 렌더링
     function renderCharacterEquipmentDetail(char) {
         const detailArea = document.getElementById("character-equipment-detail");
         detailArea.style.display = "block";
@@ -2364,9 +2362,50 @@
         ];
 
         CATEGORIES.forEach(category => {
-            html += `<h3 style="color: #25c2a0; margin-top: 30px; margin-bottom: 15px;">${category.title}</h3>`;
+            // ✅ 카테고리별 총 개수 계산
+            let categoryTotal = 0;
+            Object.keys(category.sets).forEach(baseSetName => {
+                const setSlots = category.sets[baseSetName];
+                const prefixes = category.prefix[baseSetName] || [];
+                const isExceedOnly = category.exceedOnly.includes(baseSetName);
 
-            // ✅ 수정: max-content로 변경하여 내용에 맞게 자동 조절
+                // 일반 장비 개수
+                setSlots.forEach(slot => {
+                    const normalKey = `${baseSetName} ${slot}`;
+                    categoryTotal += char.armorCounts[normalKey] || 0;
+                });
+
+                // 접두어 장비 개수
+                prefixes.forEach(pref => {
+                    setSlots.forEach(slot => {
+                        const prefixKey = `${pref}: ${baseSetName} ${slot}`;
+                        categoryTotal += char.armorCounts[prefixKey] || 0;
+                    });
+                });
+
+                // 익시드 장비 개수
+                EXCEED_TAGS.forEach(tag => {
+                    if (isExceedOnly) {
+                        // 레거시 장비
+                        setSlots.forEach(slot => {
+                            const exceedKey = `[${tag}] ${baseSetName} ${slot}`;
+                            categoryTotal += char.armorCounts[exceedKey] || 0;
+                        });
+                    } else {
+                        // 일반 장비
+                        prefixes.forEach(pref => {
+                            setSlots.forEach(slot => {
+                                const exceedKey = `[${tag}] ${pref}: ${baseSetName} ${slot}`;
+                                categoryTotal += char.armorCounts[exceedKey] || 0;
+                            });
+                        });
+                    }
+                });
+            });
+
+            // ✅ 제목에 총 개수 표시
+            html += `<h3 style="color: #25c2a0; margin-top: 30px; margin-bottom: 15px;">${category.title} <span style="color: #ffd700; font-weight: bold;">(${categoryTotal}개)</span></h3>`;
+
             html += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 30px;">`;
 
             // 헤더
@@ -2515,7 +2554,6 @@
                             html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; background: #0a0c15;"></td>`;
                         } else {
                             const displayCount = count > 0 ? count : "";
-                            // ✅ 수정: 색상을 흰색(#fff)으로 변경
                             html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${displayCount}</td>`;
                         }
                     });
@@ -2532,7 +2570,6 @@
 
         detailArea.innerHTML = html;
     }
-
     /* ========================================
        8. 무기 관리
        ======================================== */
