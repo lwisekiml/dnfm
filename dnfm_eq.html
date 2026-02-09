@@ -537,10 +537,30 @@
                     onclick="renderFullEquipmentTab('EXCEED'); setActiveEquipmentButton(this)">익시드장비
             </button>
         </div>
+
+        <!-- ✅ 새로 추가: 캐릭터별 장비 보유 현황 버튼 -->
+        <div class="equipment-button-row"
+             style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 8px; overflow-x: auto; width: 100%;">
+            <button class="char-btn" style="white-space: nowrap; min-width: 200px; border-color: #25c2a0; background: #1a8c7d;"
+                    onclick="toggleCharacterEquipmentView(); setActiveEquipmentButton(this)">
+                📋 캐릭터별 장비 보유 현황
+            </button>
+        </div>
     </div>
 
     <div id="equipment-display-area"
          style="overflow-x: auto; background: #0f1222; padding: 15px; border-radius: 8px; border: 1px solid #2a3158;">
+    </div>
+
+    <!-- ✅ 새로 추가: 캐릭터 선택 영역 -->
+    <div id="character-selection-area" style="display: none; margin-top: 20px;">
+        <h3 style="color: #ffd700;">캐릭터 선택</h3>
+        <div id="character-buttons-area" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+        </div>
+    </div>
+
+    <!-- ✅ 새로 추가: 캐릭터 장비 현황 표시 영역 -->
+    <div id="character-equipment-detail" style="display: none; margin-top: 20px;">
     </div>
 </div>
 
@@ -1897,6 +1917,14 @@
     // 7-4. 장비 관리 탭
     // 1. 캐릭터별 현황 렌더링 (익시드 색상 적용)
     function renderEquipmentTab(mode) {
+        // ✅ 추가: 캐릭터별 장비 보유 현황이 열려있으면 닫기
+        if (isCharacterEquipmentViewOpen) {
+            isCharacterEquipmentViewOpen = false;
+            document.getElementById("character-selection-area").style.display = "none";
+            document.getElementById("character-equipment-detail").style.display = "none";
+            document.getElementById("equipment-display-area").style.display = "block";
+        }
+
         const displayArea = document.getElementById("equipment-display-area");
         const CATEGORIES = [
             {name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX, id: 'cat-armor'},
@@ -2065,6 +2093,14 @@
 
     // 2. 전체 현황 렌더링 (이름 열 너비 고정 및 색상 적용)
     function renderFullEquipmentTab(mode) {
+        // ✅ 추가: 캐릭터별 장비 보유 현황이 열려있으면 닫기
+        if (isCharacterEquipmentViewOpen) {
+            isCharacterEquipmentViewOpen = false;
+            document.getElementById("character-selection-area").style.display = "none";
+            document.getElementById("character-equipment-detail").style.display = "none";
+            document.getElementById("equipment-display-area").style.display = "block";
+        }
+
         const displayArea = document.getElementById("equipment-display-area");
         const CATEGORIES = [
             {name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX, id: 'cat-armor'},
@@ -2239,6 +2275,262 @@
         if (element) {
             element.scrollIntoView({ behavior: 'smooth' });
         }
+    }
+
+    /* ========================================
+   7-5. 캐릭터별 장비 보유 현황
+   ======================================== */
+    let isCharacterEquipmentViewOpen = false;
+    let selectedCharacterForEquipment = null;
+
+    // 캐릭터별 장비 보유 현황 토글
+    function toggleCharacterEquipmentView() {
+        const selectionArea = document.getElementById("character-selection-area");
+        const detailArea = document.getElementById("character-equipment-detail");
+        const displayArea = document.getElementById("equipment-display-area");
+
+        isCharacterEquipmentViewOpen = !isCharacterEquipmentViewOpen;
+
+        if (isCharacterEquipmentViewOpen) {
+            // 열기
+            displayArea.style.display = "none";
+            selectionArea.style.display = "block";
+            renderCharacterButtons();
+        } else {
+            // 닫기
+            displayArea.style.display = "block";
+            selectionArea.style.display = "none";
+            detailArea.style.display = "none";
+            selectedCharacterForEquipment = null;
+        }
+    }
+
+    // 캐릭터 버튼 렌더링
+    function renderCharacterButtons() {
+        const buttonArea = document.getElementById("character-buttons-area");
+        buttonArea.innerHTML = "";
+
+        characters.forEach(char => {
+            const btn = document.createElement("button");
+            btn.className = "char-btn";
+            btn.textContent = `${char.job} (${char.name})`;
+            btn.style.minWidth = "150px";
+
+            if (selectedCharacterForEquipment === char.id) {
+                btn.classList.add("active");
+            }
+
+            btn.onclick = () => {
+                selectedCharacterForEquipment = char.id;
+                renderCharacterButtons(); // 버튼 활성화 상태 갱신
+                renderCharacterEquipmentDetail(char);
+            };
+
+            buttonArea.appendChild(btn);
+        });
+    }
+
+    // 캐릭터 장비 상세 현황 렌더링
+    // 캐릭터 장비 상세 현황 렌더링
+    // 캐릭터 장비 상세 현황 렌더링
+    function renderCharacterEquipmentDetail(char) {
+        const detailArea = document.getElementById("character-equipment-detail");
+        detailArea.style.display = "block";
+
+        let html = `<h2 style="color: #ffd700; margin-bottom: 20px;">${char.job} (${char.name}) - 장비 보유 현황</h2>`;
+
+        const CATEGORIES = [
+            {
+                title: "방어구",
+                sets: ARMOR_SETS,
+                prefix: ARMOR_PREFIX,
+                exceedOnly: ARMOR_EXCEED_ONLY,
+                exceedSlot: "상의"
+            },
+            {
+                title: "악세",
+                sets: ACCESSORY_SETS,
+                prefix: ACCESSORY_PREFIX,
+                exceedOnly: ACCESSORY_EXCEED_ONLY,
+                exceedSlot: "팔찌"
+            },
+            {
+                title: "특장",
+                sets: SPECIAL_SETS,
+                prefix: SPECIAL_PREFIX,
+                exceedOnly: [],
+                exceedSlot: "귀걸이"
+            }
+        ];
+
+        CATEGORIES.forEach(category => {
+            html += `<h3 style="color: #25c2a0; margin-top: 30px; margin-bottom: 15px;">${category.title}</h3>`;
+
+            // ✅ 수정: max-content로 변경하여 내용에 맞게 자동 조절
+            html += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 30px;">`;
+
+            // 헤더
+            const slots = Object.values(category.sets)[0] || [];
+            html += `<thead style="background: #181c33;"><tr>
+            <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">세트</th>
+            <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">익시드</th>
+            <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">접두어</th>`;
+
+            slots.forEach(slot => {
+                html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">${slot}</th>`;
+            });
+
+            html += `</tr></thead><tbody>`;
+
+            // 각 세트별 데이터
+            Object.keys(category.sets).forEach(baseSetName => {
+                const setSlots = category.sets[baseSetName];
+                const prefixes = category.prefix[baseSetName] || [];
+                const isExceedOnly = category.exceedOnly.includes(baseSetName);
+                const exceedSlot = category.exceedSlot;
+
+                // 세트별 데이터 수집
+                let rows = [];
+
+                // 1. 익시드 행들 (접두어별로)
+                if (isExceedOnly) {
+                    // 레거시 장비: 접두어 없이 익시드만
+                    EXCEED_TAGS.forEach(tag => {
+                        let rowData = {
+                            type: 'exceed',
+                            exceed: tag,
+                            prefix: '',
+                            slots: {}
+                        };
+
+                        setSlots.forEach(slot => {
+                            const key = `[${tag}] ${baseSetName} ${slot}`;
+                            rowData.slots[slot] = char.armorCounts[key] || 0;
+                        });
+
+                        // 데이터가 있는 경우만 추가
+                        if (Object.values(rowData.slots).some(v => v > 0)) {
+                            rows.push(rowData);
+                        }
+                    });
+                } else if (prefixes.length > 0) {
+                    // 일반 장비: 접두어별 익시드
+                    prefixes.forEach(pref => {
+                        EXCEED_TAGS.forEach(tag => {
+                            let rowData = {
+                                type: 'exceed',
+                                exceed: tag,
+                                prefix: pref,
+                                slots: {}
+                            };
+
+                            setSlots.forEach(slot => {
+                                const key = `[${tag}] ${pref}: ${baseSetName} ${slot}`;
+                                rowData.slots[slot] = char.armorCounts[key] || 0;
+                            });
+
+                            // 데이터가 있는 경우만 추가
+                            if (Object.values(rowData.slots).some(v => v > 0)) {
+                                rows.push(rowData);
+                            }
+                        });
+                    });
+                }
+
+                // 2. 접두어 행들
+                prefixes.forEach(pref => {
+                    let rowData = {
+                        type: 'prefix',
+                        exceed: '',
+                        prefix: pref,
+                        slots: {}
+                    };
+
+                    setSlots.forEach(slot => {
+                        const key = `${pref}: ${baseSetName} ${slot}`;
+                        rowData.slots[slot] = char.armorCounts[key] || 0;
+                    });
+
+                    // 데이터가 있는 경우만 추가
+                    if (Object.values(rowData.slots).some(v => v > 0)) {
+                        rows.push(rowData);
+                    }
+                });
+
+                // 3. 일반 행
+                let normalRowData = {
+                    type: 'normal',
+                    exceed: '',
+                    prefix: '',
+                    slots: {}
+                };
+
+                setSlots.forEach(slot => {
+                    const key = `${baseSetName} ${slot}`;
+                    normalRowData.slots[slot] = char.armorCounts[key] || 0;
+                });
+
+                // 데이터가 있는 경우만 추가
+                if (Object.values(normalRowData.slots).some(v => v > 0)) {
+                    rows.push(normalRowData);
+                }
+
+                // 행이 하나도 없으면 이 세트는 건너뜀
+                if (rows.length === 0) return;
+
+                // 테이블 행 렌더링
+                rows.forEach((row, rowIdx) => {
+                    html += `<tr style="border-bottom: 1px solid #444;">`;
+
+                    // 세트명 (첫 행에만 rowspan으로 표시)
+                    if (rowIdx === 0) {
+                        html += `<td rowspan="${rows.length}" style="padding: 10px; border: 1px solid #2a3158; font-weight: bold; background: #1a1e33; text-align: center; vertical-align: middle; white-space: nowrap;">${baseSetName}</td>`;
+                    }
+
+                    // 익시드 열
+                    if (row.exceed) {
+                        const tagColor = EXCEED_COLOR_MAP[row.exceed] || "#ffd700";
+                        html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; white-space: nowrap;">
+                        <span style="color: ${tagColor}; font-weight: bold;">[${row.exceed}]</span>
+                    </td>`;
+                    } else {
+                        html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center;"></td>`;
+                    }
+
+                    // 접두어 열
+                    if (row.prefix) {
+                        html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; white-space: nowrap;">
+                        <span style="color: #e6b800; font-weight: bold;">${row.prefix}</span>
+                    </td>`;
+                    } else {
+                        html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center;"></td>`;
+                    }
+
+                    // 각 슬롯별 개수
+                    setSlots.forEach(slot => {
+                        const count = row.slots[slot] || 0;
+
+                        // 익시드 행인데 익시드 슬롯이 아니면 빈칸
+                        if (row.type === 'exceed' && slot !== exceedSlot) {
+                            html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; background: #0a0c15;"></td>`;
+                        } else {
+                            const displayCount = count > 0 ? count : "";
+                            // ✅ 수정: 색상을 흰색(#fff)으로 변경
+                            html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${displayCount}</td>`;
+                        }
+                    });
+
+                    html += `</tr>`;
+                });
+
+                // 세트 구분선 (두꺼운 선)
+                html += `<tr style="height: 3px; background: #2a3158;"><td colspan="${3 + setSlots.length}" style="padding: 0; border: none;"></td></tr>`;
+            });
+
+            html += `</tbody></table>`;
+        });
+
+        detailArea.innerHTML = html;
     }
 
     /* ========================================
@@ -3042,30 +3334,38 @@
                 // 3. 로컬 저장
                 saveLocalData();
 
-                // 4. ✅ 현재 열린 탭 확인
+                // 4. ✅ 각 섹션 DOM 요소 미리 가져오기
                 const charView = document.getElementById("section-character-view");
                 const weaponView = document.getElementById("section-weapon-view");
                 const equipmentView = document.getElementById("section-equipment-view");
                 const craftView = document.getElementById("section-craft-view");
 
-                // 5. ✅ 각 탭별 갱신 (현재 보이는 탭만 갱신하거나, 모든 탭 갱신)
-
-                // 캐릭터 탭 갱신
+                // 5. 캐릭터 탭 갱신 (항상)
                 renderCharacterList();
                 document.getElementById("setList").innerHTML = "";
                 document.getElementById("panel").innerHTML = "";
 
-                // 무기 탭이 열려있으면 갱신
+                // 6. 무기 탭이 열려있으면 갱신
                 if (weaponView.style.display !== "none") {
                     selectWeaponJob(activeWeaponJob || '귀검사', true);
                 }
 
-                // 장비 관리 탭이 열려있으면 갱신
+                // 7. ✅ 장비 관리 탭이 열려있으면 갱신
                 if (equipmentView.style.display !== "none") {
-                    renderEquipmentTab('ALL');
+                    // ✅ 캐릭터별 장비 보유 현황이 열려있으면 갱신
+                    if (isCharacterEquipmentViewOpen && selectedCharacterForEquipment) {
+                        const char = characters.find(c => c.id === selectedCharacterForEquipment);
+                        if (char) {
+                            renderCharacterButtons();
+                            renderCharacterEquipmentDetail(char);
+                        }
+                    } else {
+                        // 일반 장비 관리 화면이면 갱신
+                        renderEquipmentTab('ALL');
+                    }
                 }
 
-                // ✅ 제작 탭이 열려있으면 갱신
+                // 8. 제작 탭이 열려있으면 갱신
                 if (craftView.style.display !== "none") {
                     renderCraftTable();
                 }
