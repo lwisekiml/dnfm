@@ -540,13 +540,22 @@
 
         <!-- ✅ 세 번째 줄도 equipment-button-row 클래스 추가 -->
         <div class="equipment-button-row"
-             style="display: flex; gap: 10px; align-items: center;">
+             style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <button class="char-btn" style="white-space: nowrap; min-width: 180px; border-color: #ffd700;"
                     onclick="toggleCharacterEquipmentView(); setActiveEquipmentButton(this)">📋 캐릭터별 장비 보유 현황
             </button>
             <button class="char-btn" style="white-space: nowrap; min-width: 100px; border-color: #ffd700;"
                     onclick="showEquipmentStatistics(); setActiveEquipmentButton(this)">📊 통계
             </button>
+
+            <!-- ✅ 검색 기능 추가 -->
+            <div style="display: flex; gap: 5px; align-items: center;">
+                <input type="text" id="equipment-search-input" placeholder="세트명 검색 (예: 말괄량이)"
+                       style="padding: 8px 12px; border-radius: 6px; border: 1px solid #2a3158; background: #181c33; color: #e6e9ff; width: 200px;">
+                <button class="char-btn" style="white-space: nowrap; min-width: 80px; background: #25c2a0;"
+                        onclick="searchEquipment(); setActiveEquipmentButton(this)">🔍 검색
+                </button>
+            </div>
         </div>
     </div>
 
@@ -2807,6 +2816,214 @@
     }
 
     /* ========================================
+   7-6. 장비 검색 기능
+   ======================================== */
+    function searchEquipment() {
+        const searchInput = document.getElementById("equipment-search-input");
+        const searchTerm = searchInput.value.trim();
+
+        if (!searchTerm) {
+            alert("검색어를 입력해주세요!");
+            return;
+        }
+
+        // ✅ 상태 업데이트
+        isCharacterEquipmentViewOpen = false;
+        isStatisticsViewOpen = false;
+        selectedCharacterForEquipment = null;
+
+        // 기존 화면 숨기기
+        document.getElementById("character-selection-area").style.display = "none";
+        document.getElementById("character-equipment-detail").style.display = "none";
+
+        const displayArea = document.getElementById("equipment-display-area");
+        displayArea.style.display = "block";
+
+        // ✅ 모든 장비 관리 버튼 비활성화
+        document.querySelectorAll("#section-equipment-view .equipment-button-row .char-btn").forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        let html = `<h2 style="color: #ffd700; margin-bottom: 20px;">🔍 검색 결과: "${searchTerm}"</h2>`;
+
+        const CATEGORIES = [
+            {name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX, exceedOnly: ARMOR_EXCEED_ONLY},
+            {name: "악세", sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX, exceedOnly: ACCESSORY_EXCEED_ONLY},
+            {name: "특장", sets: SPECIAL_SETS, prefix: SPECIAL_PREFIX, exceedOnly: []}
+        ];
+
+        let foundSets = [];
+
+        // 검색어와 일치하는 세트 찾기
+        CATEGORIES.forEach(category => {
+            Object.keys(category.sets).forEach(baseSetName => {
+                if (baseSetName.includes(searchTerm)) {
+                    foundSets.push({
+                        category: category.name,
+                        setName: baseSetName,
+                        slots: category.sets[baseSetName],
+                        prefixes: category.prefix[baseSetName] || [],
+                        exceedOnly: category.exceedOnly
+                    });
+                }
+            });
+        });
+
+        if (foundSets.length === 0) {
+            html += `<p style="color: #888; font-size: 1.2em; margin-top: 50px; text-align: center;">검색 결과가 없습니다.</p>`;
+            displayArea.innerHTML = html;
+            return;
+        }
+
+        // 검색 결과 표시
+        foundSets.forEach(set => {
+            html += `<h3 style="color: #fff; margin-top: 30px; margin-bottom: 15px;">[${set.category}] ${set.setName}</h3>`;
+
+            html += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #2a3158;">`;
+            html += `<thead style="background: #181c33;"><tr>
+            <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">직업(이름)</th>
+            <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">익시드</th>
+            <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">접두어</th>`;
+
+            set.slots.forEach(slot => {
+                html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">${slot}</th>`;
+            });
+
+            html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">합계</th>`;
+            html += `</tr></thead><tbody>`;
+
+            // 캐릭터별 데이터 수집
+            characters.forEach(char => {
+                let charRows = [];
+
+                // 익시드 데이터 수집
+                const isExceedOnly = set.exceedOnly.includes(set.setName);
+
+                if (isExceedOnly) {
+                    // 레거시 장비 (접두어 없음)
+                    EXCEED_TAGS.forEach(tag => {
+                        let rowData = {type: 'exceed', exceed: tag, prefix: '', slots: {}, total: 0};
+
+                        set.slots.forEach(slot => {
+                            const key = `[${tag}] ${set.setName} ${slot}`;
+                            const count = char.armorCounts?.[key] || 0;
+                            rowData.slots[slot] = count;
+                            rowData.total += count;
+                        });
+
+                        if (rowData.total > 0) charRows.push(rowData);
+                    });
+                } else if (set.prefixes.length > 0) {
+                    // 일반 장비 (접두어 있음)
+                    set.prefixes.forEach(pref => {
+                        EXCEED_TAGS.forEach(tag => {
+                            let rowData = {type: 'exceed', exceed: tag, prefix: pref, slots: {}, total: 0};
+
+                            set.slots.forEach(slot => {
+                                const key = `[${tag}] ${pref}: ${set.setName} ${slot}`;
+                                const count = char.armorCounts?.[key] || 0;
+                                rowData.slots[slot] = count;
+                                rowData.total += count;
+                            });
+
+                            if (rowData.total > 0) charRows.push(rowData);
+                        });
+                    });
+                }
+
+                // 접두어 데이터 수집
+                set.prefixes.forEach(pref => {
+                    let rowData = {type: 'prefix', exceed: '', prefix: pref, slots: {}, total: 0};
+
+                    set.slots.forEach(slot => {
+                        const key = `${pref}: ${set.setName} ${slot}`;
+                        const count = char.armorCounts?.[key] || 0;
+                        rowData.slots[slot] = count;
+                        rowData.total += count;
+                    });
+
+                    if (rowData.total > 0) charRows.push(rowData);
+                });
+
+                // 일반 데이터 수집
+                let normalRow = {type: 'normal', exceed: '', prefix: '', slots: {}, total: 0};
+
+                set.slots.forEach(slot => {
+                    const key = `${set.setName} ${slot}`;
+                    const count = char.armorCounts?.[key] || 0;
+                    normalRow.slots[slot] = count;
+                    normalRow.total += count;
+                });
+
+                if (normalRow.total > 0) charRows.push(normalRow);
+
+                // 행이 없으면 이 캐릭터는 건너뜀
+                if (charRows.length === 0) return;
+
+                // 테이블 행 렌더링
+                charRows.forEach((row, rowIdx) => {
+                    html += `<tr style="border-bottom: 1px solid #444;">`;
+
+                    // 캐릭터 이름 (첫 행에만 rowspan)
+                    if (rowIdx === 0) {
+                        html += `<td rowspan="${charRows.length}" style="padding: 10px; border: 1px solid #2a3158; font-weight: bold; background: #1a1e33; text-align: center; vertical-align: middle; white-space: nowrap;">${char.job}(${char.name})</td>`;
+                    }
+
+                    // 익시드 열
+                    if (row.exceed) {
+                        const tagColor = EXCEED_COLOR_MAP[row.exceed] || "#ffd700";
+                        html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; white-space: nowrap;">
+                        <span style="color: ${tagColor}; font-weight: bold;">[${row.exceed}]</span>
+                    </td>`;
+                    } else {
+                        html += `<td style="padding: 10px; border: 1px solid #2a3158;"></td>`;
+                    }
+
+                    // 접두어 열
+                    if (row.prefix) {
+                        html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; white-space: nowrap;">
+                        <span style="color: #e6b800; font-weight: bold;">${row.prefix}</span>
+                    </td>`;
+                    } else {
+                        html += `<td style="padding: 10px; border: 1px solid #2a3158;"></td>`;
+                    }
+
+                    // 슬롯별 개수
+                    set.slots.forEach(slot => {
+                        const count = row.slots[slot] || 0;
+                        const displayCount = count > 0 ? count : "";
+                        html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${displayCount}</td>`;
+                    });
+
+                    // 합계
+                    html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #ffd700; font-weight: bold;">${row.total}</td>`;
+
+                    html += `</tr>`;
+                });
+
+                // 캐릭터 구분선
+                html += `<tr style="height: 3px; background: #666;"><td colspan="${4 + set.slots.length}" style="padding: 0; border: none;"></td></tr>`;
+            });
+
+            html += `</tbody></table>`;
+        });
+
+        displayArea.innerHTML = html;
+    }
+
+    // ✅ Enter 키로도 검색 가능하도록 이벤트 리스너 추가 (초기화 섹션에 추가)
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById("equipment-search-input");
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchEquipment();
+                }
+            });
+        }
+    });
+
+    /* ========================================
        8. 무기 관리
        ======================================== */
     // 8-1. 무기 렌더링
@@ -3677,6 +3894,16 @@
             else confirmModal.style.display = 'none';
         }
     };
+
+    // Enter 키 검색 지원
+    const searchInput = document.getElementById("equipment-search-input");
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchEquipment();
+            }
+        });
+    }
 
     // // 모바일 환경을 위한 터치 이벤트 대응
     // window.ontouchstart = function (event) {
