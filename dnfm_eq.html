@@ -538,12 +538,14 @@
             </button>
         </div>
 
-        <!-- ✅ 새로 추가: 캐릭터별 장비 보유 현황 버튼 -->
+        <!-- ✅ 세 번째 줄도 equipment-button-row 클래스 추가 -->
         <div class="equipment-button-row"
-             style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 8px; overflow-x: auto; width: 100%;">
-            <button class="char-btn" style="white-space: nowrap; min-width: 200px; border-color: #25c2a0; background: #1a8c7d;"
-                    onclick="toggleCharacterEquipmentView(); setActiveEquipmentButton(this)">
-                📋 캐릭터별 장비 보유 현황
+             style="display: flex; gap: 10px; align-items: center;">
+            <button class="char-btn" style="white-space: nowrap; min-width: 180px; border-color: #ffd700;"
+                    onclick="toggleCharacterEquipmentView(); setActiveEquipmentButton(this)">📋 캐릭터별 장비 보유 현황
+            </button>
+            <button class="char-btn" style="white-space: nowrap; min-width: 100px; border-color: #ffd700;"
+                    onclick="showEquipmentStatistics(); setActiveEquipmentButton(this)">📊 통계
             </button>
         </div>
     </div>
@@ -1917,13 +1919,15 @@
     // 7-4. 장비 관리 탭
     // 1. 캐릭터별 현황 렌더링 (익시드 색상 적용)
     function renderEquipmentTab(mode) {
-        // ✅ 추가: 캐릭터별 장비 보유 현황이 열려있으면 닫기
-        if (isCharacterEquipmentViewOpen) {
-            isCharacterEquipmentViewOpen = false;
-            document.getElementById("character-selection-area").style.display = "none";
-            document.getElementById("character-equipment-detail").style.display = "none";
-            document.getElementById("equipment-display-area").style.display = "block";
-        }
+        // ✅ 상태 초기화
+        isCharacterEquipmentViewOpen = false;
+        isStatisticsViewOpen = false;
+        selectedCharacterForEquipment = null;
+
+        // ✅ 모든 영역 초기화
+        document.getElementById("character-selection-area").style.display = "none";
+        document.getElementById("character-equipment-detail").style.display = "none";
+        document.getElementById("equipment-display-area").style.display = "block";
 
         const displayArea = document.getElementById("equipment-display-area");
         const CATEGORIES = [
@@ -2093,13 +2097,15 @@
 
     // 2. 전체 현황 렌더링 (이름 열 너비 고정 및 색상 적용)
     function renderFullEquipmentTab(mode) {
-        // ✅ 추가: 캐릭터별 장비 보유 현황이 열려있으면 닫기
-        if (isCharacterEquipmentViewOpen) {
-            isCharacterEquipmentViewOpen = false;
-            document.getElementById("character-selection-area").style.display = "none";
-            document.getElementById("character-equipment-detail").style.display = "none";
-            document.getElementById("equipment-display-area").style.display = "block";
-        }
+        // ✅ 상태 초기화
+        isCharacterEquipmentViewOpen = false;
+        isStatisticsViewOpen = false;
+        selectedCharacterForEquipment = null;
+
+        // ✅ 모든 영역 초기화
+        document.getElementById("character-selection-area").style.display = "none";
+        document.getElementById("character-equipment-detail").style.display = "none";
+        document.getElementById("equipment-display-area").style.display = "block";
 
         const displayArea = document.getElementById("equipment-display-area");
         const CATEGORIES = [
@@ -2282,6 +2288,7 @@
    ======================================== */
     let isCharacterEquipmentViewOpen = false;
     let selectedCharacterForEquipment = null;
+    let isStatisticsViewOpen = false;  // 통계 화면 상태 추가
 
     // 캐릭터별 장비 보유 현황 토글
     function toggleCharacterEquipmentView() {
@@ -2289,19 +2296,39 @@
         const detailArea = document.getElementById("character-equipment-detail");
         const displayArea = document.getElementById("equipment-display-area");
 
+        // ✅ 통계 화면 닫기
+        isStatisticsViewOpen = false;
+
+        // 토글
         isCharacterEquipmentViewOpen = !isCharacterEquipmentViewOpen;
 
         if (isCharacterEquipmentViewOpen) {
             // 열기
             displayArea.style.display = "none";
             selectionArea.style.display = "block";
+            detailArea.style.display = "none";
+
+            // 캐릭터 버튼 렌더링
             renderCharacterButtons();
+
+            // ✅ 모든 장비 관리 버튼 비활성화
+            document.querySelectorAll("#section-equipment-view .equipment-button-row .char-btn").forEach(btn => {
+                btn.classList.remove('active');
+            });
         } else {
             // 닫기
-            displayArea.style.display = "block";
             selectionArea.style.display = "none";
             detailArea.style.display = "none";
-            selectedCharacterForEquipment = null;
+            displayArea.style.display = "block";
+
+            // 기본 화면으로 복귀
+            renderEquipmentTab('ALL');
+
+            // ✅ 첫 번째 버튼(모두) 활성화
+            const firstBtn = document.querySelector("#section-equipment-view .equipment-button-row .char-btn");
+            if (firstBtn) {
+                firstBtn.classList.add('active');
+            }
         }
     }
 
@@ -2657,6 +2684,126 @@
         }
 
         detailArea.innerHTML = html;
+    }
+
+    // 장비 통계 표시 함수
+    function showEquipmentStatistics() {
+        // ✅ 상태 업데이트
+        isCharacterEquipmentViewOpen = false;
+        isStatisticsViewOpen = true;
+        selectedCharacterForEquipment = null;
+
+        // 기존 화면 숨기기
+        document.getElementById("character-selection-area").style.display = "none";
+        document.getElementById("character-equipment-detail").style.display = "none";
+
+        const displayArea = document.getElementById("equipment-display-area");
+        displayArea.style.display = "block";
+
+        // ✅ 모든 장비 관리 버튼 비활성화
+        document.querySelectorAll("#section-equipment-view .equipment-button-row .char-btn").forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        let html = `<h2 style="color: #ffd700; margin-bottom: 20px;">📊 캐릭터별 장비 보유 통계</h2>`;
+
+        // 통계 테이블
+        html += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 30px;">`;
+        html += `<thead style="background: #181c33;"><tr>
+        <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">직업(이름)</th>
+        <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">방어구</th>
+        <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">악세</th>
+        <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">특장</th>
+        <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">무기</th>
+        <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">합계</th>
+    </tr></thead><tbody>`;
+
+        // 각 캐릭터별 통계
+        characters.forEach(char => {
+            let armorCount = 0;
+            let accessoryCount = 0;
+            let specialCount = 0;
+            let weaponCount = 0;
+
+            // 방어구/악세/특장 개수 계산
+            if (char.armorCounts) {
+                Object.entries(char.armorCounts).forEach(([key, count]) => {
+                    if (count <= 0) return;
+
+                    const parts = key.split(' ');
+                    const slot = parts.pop();
+                    const name = parts.join(' ');
+                    const groupKey = getGroupKey(name);
+                    const setType = getSetType(groupKey);
+
+                    if (setType === "ARMOR") armorCount += count;
+                    else if (setType === "ACCESSORY") accessoryCount += count;
+                    else if (setType === "SPECIAL") specialCount += count;
+                });
+            }
+
+            // 무기 개수 계산
+            if (char.weaponCounts) {
+                Object.values(char.weaponCounts).forEach(count => {
+                    weaponCount += count || 0;
+                });
+            }
+
+            const total = armorCount + accessoryCount + specialCount + weaponCount;
+
+            html += `<tr style="border-bottom: 1px solid #444;">
+            <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; font-weight: bold;">${char.job}(${char.name})</td>
+            <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${armorCount}</td>
+            <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${accessoryCount}</td>
+            <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${specialCount}</td>
+            <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${weaponCount}</td>
+            <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #ffd700; font-weight: bold;">${total}</td>
+        </tr>`;
+        });
+
+        // 전체 합계 행
+        let totalArmor = 0;
+        let totalAccessory = 0;
+        let totalSpecial = 0;
+        let totalWeapon = 0;
+
+        characters.forEach(char => {
+            if (char.armorCounts) {
+                Object.entries(char.armorCounts).forEach(([key, count]) => {
+                    if (count <= 0) return;
+                    const parts = key.split(' ');
+                    const slot = parts.pop();
+                    const name = parts.join(' ');
+                    const groupKey = getGroupKey(name);
+                    const setType = getSetType(groupKey);
+
+                    if (setType === "ARMOR") totalArmor += count;
+                    else if (setType === "ACCESSORY") totalAccessory += count;
+                    else if (setType === "SPECIAL") totalSpecial += count;
+                });
+            }
+
+            if (char.weaponCounts) {
+                Object.values(char.weaponCounts).forEach(count => {
+                    totalWeapon += count || 0;
+                });
+            }
+        });
+
+        const grandTotal = totalArmor + totalAccessory + totalSpecial + totalWeapon;
+
+        html += `<tr style="background: #1a1e33; border-top: 3px solid #ffd700;">
+        <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; font-weight: bold; color: #ffd700;">전체 합계</td>
+        <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #ffd700; font-weight: bold;">${totalArmor}</td>
+        <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #ffd700; font-weight: bold;">${totalAccessory}</td>
+        <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #ffd700; font-weight: bold;">${totalSpecial}</td>
+        <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #ffd700; font-weight: bold;">${totalWeapon}</td>
+        <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #ffd700; font-weight: bold; font-size: 1.1em;">${grandTotal}</td>
+    </tr>`;
+
+        html += `</tbody></table>`;
+
+        displayArea.innerHTML = html;
     }
 
     /* ========================================
