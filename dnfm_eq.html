@@ -2404,7 +2404,7 @@
             });
 
             // ✅ 제목에 총 개수 표시
-            html += `<h3 style="color: #25c2a0; margin-top: 30px; margin-bottom: 15px;">${category.title} <span style="color: #ffd700; font-weight: bold;">(${categoryTotal}개)</span></h3>`;
+            html += `<h2 style="color: #ffd700; margin-bottom: 15px;">🔹 ${category.title} <span style="color: #ffd700; font-weight: bold;">(${categoryTotal}개)</span></h2>`;
 
             html += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 30px;">`;
 
@@ -2576,7 +2576,7 @@
                 totalWeapons += count || 0;
             });
 
-            html += `<h3 style="color: #25c2a0; margin-top: 40px; margin-bottom: 15px;">무기 <span style="color: #ffd700; font-weight: bold;">(${totalWeapons}개)</span></h3>`;
+            html += `<h2 style="color: #ffd700; margin-top: 40px; margin-bottom: 15px;">🔹 무기 <span style="color: #ffd700; font-weight: bold;">(${totalWeapons}개)</span></h2>`;
 
             // 직업별로 무기 분류
             JOB_LIST.forEach(jobName => {
@@ -2618,7 +2618,7 @@
                 if (!hasWeaponsForJob) return;
 
                 // 직업명 헤더
-                html += `<h4 style="color: #ffd700; margin-top: 25px; margin-bottom: 10px;">[${jobName}]</h4>`;
+                html += `<h4 style="color: #fff; margin-top: 25px; margin-bottom: 10px;">[${jobName}]</h4>`;
 
                 // 무기 테이블
                 html += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 20px;">`;
