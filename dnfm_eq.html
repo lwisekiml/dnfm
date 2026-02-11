@@ -3590,6 +3590,24 @@
        ======================================== */
     function renderCraftTable() {
         const area = document.getElementById("craft-table-area");
+
+        // ✅ 현재 포커스된 input의 위치 저장
+        const focusedElement = document.activeElement;
+        let focusedCharIndex = -1;
+        let focusedMatIndex = -1;
+
+        if (focusedElement && focusedElement.className === "craft-input") {
+            // 어느 캐릭터, 어느 재료인지 찾기
+            const allInputs = Array.from(document.querySelectorAll(".craft-input"));
+            const focusedIndex = allInputs.indexOf(focusedElement);
+
+            if (focusedIndex !== -1) {
+                const materialsCount = 8; // 재료 개수
+                focusedCharIndex = Math.floor(focusedIndex / materialsCount);
+                focusedMatIndex = focusedIndex % materialsCount;
+            }
+        }
+
         area.innerHTML = "";
 
         const materials = [
@@ -3605,51 +3623,81 @@
 
         const table = document.createElement("table");
 
-        // 헤더
-        const header = document.createElement("tr");
-        header.appendChild(document.createElement("th"));
-        header.appendChild(document.createElement("th"));
+        // ✅ 헤더 1행: 재료명 + 합계
+        const headerRow1 = document.createElement("tr");
+        const emptyTh = document.createElement("th");
+        emptyTh.textContent = "캐릭터";
+        headerRow1.appendChild(emptyTh);
 
-        characters.forEach(c => {
+        materials.forEach(mat => {
             const th = document.createElement("th");
-            th.innerHTML = `${c.job}<br>(${c.name})`;
-            header.appendChild(th);
+            th.textContent = mat.name;
+            headerRow1.appendChild(th);
         });
 
-        table.appendChild(header);
+        // ✅ 합계 열 헤더
+        const totalTh = document.createElement("th");
+        totalTh.textContent = "합계";
+        totalTh.style.background = "#ffd700";
+        totalTh.style.color = "#000";
+        headerRow1.appendChild(totalTh);
 
-        // 재료 행
+        table.appendChild(headerRow1);
+
+        // ✅ 헤더 2행: 재료 이미지 + 빈 칸
+        const headerRow2 = document.createElement("tr");
+        const emptyTh2 = document.createElement("th");
+        headerRow2.appendChild(emptyTh2);
+
         materials.forEach(mat => {
+            const th = document.createElement("th");
+            th.innerHTML = `<img src="${mat.img}" style="width:32px;">`;
+            headerRow2.appendChild(th);
+        });
+
+        // ✅ 합계 열 빈 칸
+        const emptyTotalTh = document.createElement("th");
+        emptyTotalTh.style.background = "#ffd700";
+        headerRow2.appendChild(emptyTotalTh);
+
+        table.appendChild(headerRow2);
+
+        // ✅ 재료별 합계를 저장할 배열
+        const materialTotals = materials.map(() => 0);
+
+        // ✅ 데이터 행: 각 캐릭터
+        characters.forEach((char, charIdx) => {
+            if (!char.craftMaterials) {
+                char.craftMaterials = {};
+            }
+
             const tr = document.createElement("tr");
 
+            // 캐릭터 이름
             const nameTd = document.createElement("td");
-            nameTd.textContent = mat.name;
+            nameTd.innerHTML = `${char.job}<br>(${char.name})`;
+            nameTd.style.fontWeight = "bold";
             tr.appendChild(nameTd);
 
-            const imgTd = document.createElement("td");
-            imgTd.innerHTML = `<img src="${mat.img}" style="width:32px;">`;
-            tr.appendChild(imgTd);
+            let charTotal = 0; // 캐릭터별 합계
 
-            characters.forEach(char => {
-                if (!char.craftMaterials) {
-                    char.craftMaterials = {};
-                }
-
+            // 각 재료의 입력 필드
+            materials.forEach((mat, matIdx) => {
                 const td = document.createElement("td");
                 const input = document.createElement("input");
                 input.type = "number";
                 input.className = "craft-input";
                 input.style.width = "60px";
                 input.min = "0";
-                input.placeholder = "0";  // 힌트 표시
+                input.placeholder = "0";
 
-                // ✅ 저장된 값이 있고 0보다 크면 표시
                 const savedValue = char.craftMaterials[mat.name];
                 if (savedValue && savedValue > 0) {
                     input.value = savedValue;
+                    charTotal += savedValue;
+                    materialTotals[matIdx] += savedValue;
                 }
 
-                // ✅ 입력값 변경 시 저장 (0은 삭제)
                 input.addEventListener('input', function() {
                     const value = parseInt(this.value);
 
@@ -3660,17 +3708,71 @@
                     }
 
                     saveLocalData();
+                    renderCraftTable(); // ✅ 합계 갱신을 위해 재렌더링
                 });
+
+                // ✅ 포커스 복원
+                if (charIdx === focusedCharIndex && matIdx === focusedMatIndex) {
+                    setTimeout(() => {
+                        input.focus();
+                        // 커서를 끝으로 이동
+                        const len = input.value.length;
+                        input.setSelectionRange(len, len);
+                    }, 0);
+                }
 
                 td.appendChild(input);
                 tr.appendChild(td);
             });
 
+            // ✅ 캐릭터별 합계 표시
+            const totalTd = document.createElement("td");
+            totalTd.textContent = charTotal > 0 ? charTotal : "";
+            totalTd.style.textAlign = "center";
+            totalTd.style.fontWeight = "bold";
+            totalTd.style.background = "#ffd700";
+            totalTd.style.color = "#000";
+            tr.appendChild(totalTd);
+
             table.appendChild(tr);
         });
 
+        // ✅ 합계 행 추가
+        const totalRow = document.createElement("tr");
+        totalRow.style.background = "#ffd700";
+
+        const totalLabelTd = document.createElement("td");
+        totalLabelTd.textContent = "합계";
+        totalLabelTd.style.fontWeight = "bold";
+        totalLabelTd.style.color = "#000";
+        totalLabelTd.style.textAlign = "center";
+        totalRow.appendChild(totalLabelTd);
+
+        let grandTotal = 0;
+
+        materialTotals.forEach(total => {
+            const td = document.createElement("td");
+            td.textContent = total > 0 ? total : "";
+            td.style.textAlign = "center";
+            td.style.fontWeight = "bold";
+            td.style.color = "#000";
+            grandTotal += total;
+            totalRow.appendChild(td);
+        });
+
+        // ✅ 전체 합계 (오른쪽 아래)
+        const grandTotalTd = document.createElement("td");
+        grandTotalTd.textContent = grandTotal > 0 ? grandTotal : "";
+        grandTotalTd.style.textAlign = "center";
+        grandTotalTd.style.fontWeight = "bold";
+        grandTotalTd.style.color = "#000";
+        grandTotalTd.style.fontSize = "1.1em";
+        totalRow.appendChild(grandTotalTd);
+
+        table.appendChild(totalRow);
+
         area.appendChild(table);
-        setCraftLock(true);
+        setCraftLock(craftLocked);
     }
 
     function setCraftLock(lock) {
