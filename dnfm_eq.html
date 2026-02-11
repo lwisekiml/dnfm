@@ -779,6 +779,28 @@
         "이상": "#2ecc71"
     };
 
+    // 악세 추가 정보
+    const ACCESSORY_EXTRA_INFO = {
+        "엘팅 메모리얼의 기억": "선명한,묻힌,흐릿한,덮어둔",
+        "섬뜩한 빛의 관리자": "이심전심,무언,숨겨진,감춰진",
+        "부식된 메탈기어": "기계의 심박,사라진,정지",
+        "화력 개조 탄띠": "멀티플,트리플,피어싱,오토매틱",
+        "신비로운 빛의 소용돌이": "시린,푸른,은색,붉은",
+        "콰트로 마누스 연산장치": "기계의 주시,에너지,응시",
+        "레거시: 에테리얼 리베넌트": "아이언,강철,영혼,할기",
+        "레거시: 지나온 영광의 시대": "세이트,홀리,펠,에이션트"
+    };
+
+    // 특장 추가 정보
+    const SPECIAL_EXTRA_INFO = {
+        "개구쟁이 호문쿨루스": "말괄량이,베키",
+        "라이트닝 에너지 코어": "거신,거인",
+        "철갑을 두른 탑의 수호꾼": "메탈기어",
+        "깊은 불구덩이의 섬멸자": "강철",
+        "허영 속 어둠의 피조물": "골드",
+        "부정한 빛의 우상": "콰트로"
+    };
+
 
     // 무기 데이터
     const WEAPON_DATA_SLAYER = {
@@ -1710,10 +1732,15 @@
             btn.classList.add("selected");
         }
 
-
         // 🚨 수정된 부분: "세트명 (장비수)" 형태로 내용 구성
-        const buttonContent = `${setName} (${totalParts})`;
+        let buttonContent = `${setName} (${totalParts})`;
 
+        // ✅ 추가: 악세/특장 추가 정보 표시
+        if (setType === "ACCESSORY" && ACCESSORY_EXTRA_INFO[setName]) {
+            buttonContent += `<br>(${ACCESSORY_EXTRA_INFO[setName]})</span>`;
+        } else if (setType === "SPECIAL" && SPECIAL_EXTRA_INFO[setName]) {
+            buttonContent += `<br>(${SPECIAL_EXTRA_INFO[setName]})</span>`;
+        }
 
         btn.innerHTML = buttonContent; // innerHTML로 내용 설정
 
