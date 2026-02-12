@@ -557,9 +557,11 @@ function switchToBasicMode() {
     document.getElementById('characterContainer').style.display = 'block';
     document.getElementById('compareCharSelectionContainer').style.display = 'none';
     document.getElementById('compareContainer').style.display = 'none';
+    document.getElementById('searchContainer').style.display = 'none';
 
     document.getElementById('btnBasicMode').classList.add('active');
     document.getElementById('btnCompareMode').classList.remove('active');
+    document.getElementById('btnSearchMode').classList.remove('active');
 
     if (typeof closeRuneModal === 'function') closeRuneModal();
     if (typeof closeHistoryModal === 'function') closeHistoryModal();
@@ -578,9 +580,11 @@ function enterCompareMode() {
     document.getElementById('characterContainer').style.display = 'none';
     document.getElementById('compareCharSelectionContainer').style.display = 'block';
     document.getElementById('compareContainer').style.display = 'none';
+    document.getElementById('searchContainer').style.display = 'none';
 
     document.getElementById('btnBasicMode').classList.remove('active');
     document.getElementById('btnCompareMode').classList.add('active');
+    document.getElementById('btnSearchMode').classList.remove('active');
 
     const selectLeft = document.getElementById('compareCharacterSelectLeft');
     const selectRight = document.getElementById('compareCharacterSelectRight');
