@@ -148,10 +148,20 @@ function displaySearchResults(slot, results) {
 
     // 일반 슬롯 테이블 생성
     const table = document.createElement('table');
-    table.className = 'compare-table search-result-table';
+    table.className = 'compare-table search-result-table search-table-custom';
     table.style.width = 'auto';
-    table.style.setProperty('font-size', '14px', 'important');
     table.style.fontWeight = '900';
+
+    // 모든 셀에 직접 스타일 적용
+    const style = document.createElement('style');
+    style.textContent = `
+        .search-table-custom,
+        .search-table-custom th,
+        .search-table-custom td {
+            font-size: 14px !important;
+        }
+    `;
+    document.head.appendChild(style);
 
     // colgroup - 모든 컬럼 자동 너비
     const colgroup = document.createElement('colgroup');
@@ -309,7 +319,7 @@ function getEmblemHighlight(slot, embValue, eleType) {
  */
 function createRuneSearchTable(results) {
     let html = `
-        <table class="compare-table search-result-table" style="width: auto; font-size: 14px !important; font-weight: 900;">
+        <table class="compare-table search-result-table search-table-custom" style="width: auto; font-weight: 900;">
             <colgroup>
                 <col style="width: auto;">
                 <col style="width: auto;">
@@ -372,7 +382,7 @@ function createRuneSearchTable(results) {
  */
 function createCreatureSearchTable(results) {
     let html = `
-        <table class="compare-table search-result-table" style="width: auto; font-size: 14px !important; font-weight: 900;">
+        <table class="compare-table search-result-table search-table-custom" style="width: auto; font-weight: 900;">
             <colgroup>
                 <col style="width: auto;">
                 <col style="width: auto;">
