@@ -149,31 +149,25 @@ function getSlotDataForSearch(section, slot) {
             specialType: 'creature',
             rarity: section.querySelector(`select[data-key="${slot}_rarity"]`)?.value || '',
             name: section.querySelector(`input[data-key="${slot}_name"]`)?.value || '',
-            // 아티팩트 정보 수집
+            // 아티팩트 정보 수집 (Red, Blue, Green만)
             art_red_top_rarity: section.querySelector(`select[data-key="${slot}_art_red_top_rarity"]`)?.value || '',
             art_red_top_text: section.querySelector(`input[data-key="${slot}_art_red_top_text"]`)?.value || '',
             art_red_bg_1: section.querySelector(`select[data-key="${slot}_art_red_bg_1"]`)?.value || '',
-            art_red_text_1: section.querySelector(`input[data-key="${slot}_art_red_text_1"]`)?.value || '',
+            art_red_opt_1: section.querySelector(`select[data-key="${slot}_art_red_opt_1"]`)?.value || '',
             art_red_bg_2: section.querySelector(`select[data-key="${slot}_art_red_bg_2"]`)?.value || '',
-            art_red_text_2: section.querySelector(`input[data-key="${slot}_art_red_text_2"]`)?.value || '',
-            art_yellow_top_rarity: section.querySelector(`select[data-key="${slot}_art_yellow_top_rarity"]`)?.value || '',
-            art_yellow_top_text: section.querySelector(`input[data-key="${slot}_art_yellow_top_text"]`)?.value || '',
-            art_yellow_bg_1: section.querySelector(`select[data-key="${slot}_art_yellow_bg_1"]`)?.value || '',
-            art_yellow_text_1: section.querySelector(`input[data-key="${slot}_art_yellow_text_1"]`)?.value || '',
-            art_yellow_bg_2: section.querySelector(`select[data-key="${slot}_art_yellow_bg_2"]`)?.value || '',
-            art_yellow_text_2: section.querySelector(`input[data-key="${slot}_art_yellow_text_2"]`)?.value || '',
+            art_red_opt_2: section.querySelector(`select[data-key="${slot}_art_red_opt_2"]`)?.value || '',
             art_blue_top_rarity: section.querySelector(`select[data-key="${slot}_art_blue_top_rarity"]`)?.value || '',
             art_blue_top_text: section.querySelector(`input[data-key="${slot}_art_blue_top_text"]`)?.value || '',
             art_blue_bg_1: section.querySelector(`select[data-key="${slot}_art_blue_bg_1"]`)?.value || '',
-            art_blue_text_1: section.querySelector(`input[data-key="${slot}_art_blue_text_1"]`)?.value || '',
+            art_blue_opt_1: section.querySelector(`select[data-key="${slot}_art_blue_opt_1"]`)?.value || '',
             art_blue_bg_2: section.querySelector(`select[data-key="${slot}_art_blue_bg_2"]`)?.value || '',
-            art_blue_text_2: section.querySelector(`input[data-key="${slot}_art_blue_text_2"]`)?.value || '',
+            art_blue_opt_2: section.querySelector(`select[data-key="${slot}_art_blue_opt_2"]`)?.value || '',
             art_green_top_rarity: section.querySelector(`select[data-key="${slot}_art_green_top_rarity"]`)?.value || '',
             art_green_top_text: section.querySelector(`input[data-key="${slot}_art_green_top_text"]`)?.value || '',
             art_green_bg_1: section.querySelector(`select[data-key="${slot}_art_green_bg_1"]`)?.value || '',
-            art_green_text_1: section.querySelector(`input[data-key="${slot}_art_green_text_1"]`)?.value || '',
+            art_green_opt_1: section.querySelector(`select[data-key="${slot}_art_green_opt_1"]`)?.value || '',
             art_green_bg_2: section.querySelector(`select[data-key="${slot}_art_green_bg_2"]`)?.value || '',
-            art_green_text_2: section.querySelector(`input[data-key="${slot}_art_green_text_2"]`)?.value || '',
+            art_green_opt_2: section.querySelector(`select[data-key="${slot}_art_green_opt_2"]`)?.value || '',
             desc: section.querySelector(`[data-key="${slot}_desc"]`)?.value || ''
         };
     }
@@ -224,7 +218,8 @@ function displaySearchResults(slot, results) {
     // 일반 슬롯 테이블 생성
     const table = document.createElement('table');
     table.className = 'compare-table search-result-table search-table-custom';
-    table.style.width = 'auto';
+    table.style.tableLayout = 'auto';  // 내용에 맞춰 자동 조정
+    table.style.width = 'auto';        // 테이블 전체 너비 자동
     table.style.fontWeight = '900';
 
     // CSS 변수 사용 (--fs-search)
@@ -238,33 +233,8 @@ function displaySearchResults(slot, results) {
     `;
     document.head.appendChild(style);
 
-    // colgroup - 모든 컬럼 자동 너비
-    const colgroup = document.createElement('colgroup');
-    const colClasses = [
-        'compare-slot-col',  // 직업/이름
-        'compare-attr-col',
-        'compare-attr-col',
-        'compare-attr-col',
-        'compare-item-col',
-        'compare-reinforce-col',
-        'compare-option-col',
-        'compare-value-col',
-        'compare-option-col',
-        'compare-value-col',
-        'compare-option-col',
-        'compare-option-col',
-        'compare-option-col',
-        'compare-value-col',
-        'compare-option-col'  // 설명
-    ];
-
-    colClasses.forEach((cls) => {
-        const col = document.createElement('col');
-        col.className = cls;
-        col.style.width = 'auto';
-        colgroup.appendChild(col);
-    });
-    table.appendChild(colgroup);
+    // colgroup 제거 - 자동 너비 조정을 위해
+    // 각 열이 내용에 맞춰 자동으로 크기 조정됨
 
     // thead
     const thead = document.createElement('thead');
@@ -461,6 +431,7 @@ function createRuneSearchTable(results) {
 function createTitleSearchTable(container, results) {
     const table = document.createElement('table');
     table.className = 'compare-table search-result-table search-table-custom';
+    table.style.tableLayout = 'auto';  // 내용에 맞춰 자동 조정
     table.style.width = 'auto';
     table.style.fontWeight = '900';
 
@@ -475,14 +446,7 @@ function createTitleSearchTable(container, results) {
     `;
     document.head.appendChild(style);
 
-    // colgroup
-    const colgroup = document.createElement('colgroup');
-    ['auto', 'auto', 'auto', 'auto', 'auto', 'auto'].forEach(() => {
-        const col = document.createElement('col');
-        col.style.width = 'auto';
-        colgroup.appendChild(col);
-    });
-    table.appendChild(colgroup);
+    // colgroup 제거 - 자동 너비 조정
 
     // thead
     const thead = document.createElement('thead');
@@ -526,30 +490,61 @@ function createTitleSearchTable(container, results) {
  */
 function createCreatureSearchTable(results) {
     let html = `
-        <table class="compare-table search-result-table search-table-custom" style="width: auto; font-weight: 900;">
-            <colgroup>
-                <col style="width: auto;">
-                <col style="width: auto;">
-                <col style="width: auto;">
-                <col style="width: auto;">
-                <col style="width: auto;">
-                <col style="width: auto;">
-                <col style="width: auto;">
-                <col style="width: auto;">
-            </colgroup>
+        <style>
+            .creature-search-table {
+                table-layout: auto;
+                width: auto;
+                font-weight: 900;
+            }
+            .creature-artifacts-cell {
+                padding: 8px !important;
+            }
+            .creature-artifacts-wrapper {
+                display: flex;
+                gap: 10px;
+                justify-content: start;
+            }
+            .creature-art-group {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                border: 1px solid var(--border);
+                padding: 6px;
+                background: var(--bg-dark);
+                flex: 1;
+                min-width: 150px;
+            }
+            .creature-art-item {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: var(--fs-search);
+                min-height: 20px;
+            }
+            .creature-art-top {
+                border-bottom: 1px dashed var(--border);
+                padding-bottom: 4px;
+                margin-bottom: 4px;
+            }
+            .creature-art-rarity {
+                padding: 2px 4px;
+                min-width: 45px;
+                text-align: center;
+                font-size: var(--fs-search);
+            }
+            .creature-art-text {
+                flex: 1;
+                font-size: var(--fs-search);
+            }
+        </style>
+        <table class="compare-table search-result-table search-table-custom creature-search-table">
             <thead>
                 <tr>
-                    <th rowspan="2">직업/이름</th>
-                    <th rowspan="2">희귀도</th>
-                    <th rowspan="2">크리쳐 이름</th>
-                    <th colspan="4">아티팩트</th>
-                    <th rowspan="2">설명</th>
-                </tr>
-                <tr>
-                    <th>Red</th>
-                    <th>Yellow</th>
-                    <th>Blue</th>
-                    <th>Green</th>
+                    <th>직업/이름</th>
+                    <th>희귀도</th>
+                    <th>크리쳐 이름</th>
+                    <th>아티팩트</th>
+                    <th>설명</th>
                 </tr>
             </thead>
             <tbody>
@@ -558,32 +553,49 @@ function createCreatureSearchTable(results) {
     results.forEach(result => {
         const rarityClass = result.rarity ? `rare-${result.rarity}` : '';
 
-        // 아티팩트 정보 요약
-        const getArtifactSummary = (color) => {
+        // 아티팩트 박스 생성 함수
+        const createArtBox = (color, colorName) => {
             const topRarity = result[`art_${color}_top_rarity`] || '';
             const topText = result[`art_${color}_top_text`] || '';
             const bg1 = result[`art_${color}_bg_1`] || '';
-            const text1 = result[`art_${color}_text_1`] || '';
+            const opt1 = result[`art_${color}_opt_1`] || '';
             const bg2 = result[`art_${color}_bg_2`] || '';
-            const text2 = result[`art_${color}_text_2`] || '';
+            const opt2 = result[`art_${color}_opt_2`] || '';
 
-            let summary = [];
-            if (topText) summary.push(`상: ${topText}(${topRarity})`);
-            if (text1) summary.push(`하1: ${text1}(${bg1})`);
-            if (text2) summary.push(`하2: ${text2}(${bg2})`);
+            const rarityClassTop = topRarity ? `bg-${topRarity}` : '';
+            const rarityClassBg1 = bg1 ? `bg-${bg1}` : '';
+            const rarityClassBg2 = bg2 ? `bg-${bg2}` : '';
 
-            return summary.length > 0 ? summary.join('<br>') : '-';
+            return `
+                <div class="creature-art-group">
+                    <div class="creature-art-item creature-art-top">
+                        <span class="creature-art-rarity ${rarityClassTop}">${topRarity || '-'}</span>
+                        <span class="creature-art-text">${topText || '-'}</span>
+                    </div>
+                    <div class="creature-art-item">
+                        <span class="creature-art-rarity ${rarityClassBg1}">${bg1 || '-'}</span>
+                        <span class="creature-art-text">${opt1 || '-'}</span>
+                    </div>
+                    <div class="creature-art-item">
+                        <span class="creature-art-rarity ${rarityClassBg2}">${bg2 || '-'}</span>
+                        <span class="creature-art-text">${opt2 || '-'}</span>
+                    </div>
+                </div>
+            `;
         };
 
         html += `
             <tr>
                 <td style="white-space: nowrap;">${result.job}(${result.name})</td>
-                <td class="${rarityClass}">${result.rarity}</td>
+                <td class="${rarityClass}">${result.rarity || '-'}</td>
                 <td>${result.name || '-'}</td>
-                <td style="text-align: left; padding: 4px 8px;">${getArtifactSummary('red')}</td>
-                <td style="text-align: left; padding: 4px 8px;">${getArtifactSummary('yellow')}</td>
-                <td style="text-align: left; padding: 4px 8px;">${getArtifactSummary('blue')}</td>
-                <td style="text-align: left; padding: 4px 8px;">${getArtifactSummary('green')}</td>
+                <td class="creature-artifacts-cell">
+                    <div class="creature-artifacts-wrapper">
+                        ${createArtBox('red', 'Red')}
+                        ${createArtBox('blue', 'Blue')}
+                        ${createArtBox('green', 'Green')}
+                    </div>
+                </td>
                 <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || '-'}</td>
             </tr>
         `;
