@@ -355,7 +355,7 @@ function createSearchResultRow(slot, result) {
         <td class="${embClass}">${result.emb2}</td>
         <td>${result.enchant}</td>
         <td>${result.enchant_val}</td>
-        <td>${result.desc || ''}</td>
+        <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || ''}</td>
     `;
 
     return tr;
@@ -510,7 +510,7 @@ function createTitleSearchTable(container, results) {
             <td class="${rarityClass}">${result.rarity || ''}</td>
             <td>${result.itemname || ''}</td>
             <td>${result.reinforce || ''}</td>
-            <td style="text-align: left; padding: 4px 8px;">${result.desc || ''}</td>
+            <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || ''}</td>
         `;
 
         tbody.appendChild(tr);
@@ -584,7 +584,7 @@ function createCreatureSearchTable(results) {
                 <td style="text-align: left; padding: 4px 8px;">${getArtifactSummary('yellow')}</td>
                 <td style="text-align: left; padding: 4px 8px;">${getArtifactSummary('blue')}</td>
                 <td style="text-align: left; padding: 4px 8px;">${getArtifactSummary('green')}</td>
-                <td style="text-align: left; padding: 4px 8px;">${result.desc || '-'}</td>
+                <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || '-'}</td>
             </tr>
         `;
     });
