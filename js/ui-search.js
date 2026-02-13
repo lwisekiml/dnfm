@@ -29,9 +29,17 @@ function enterSearchMode() {
     // 기본 option (disabled + selected)
     let optionsHTML = '<option value="" disabled selected>▼ 슬롯 선택...</option>';
 
-    // 각 슬롯 옵션 추가
+    // 각 슬롯 옵션 추가 (칭호/외형칭호 통합)
     AppConstants.SLOTS.forEach(slot => {
-        optionsHTML += `<option value="${slot}">${slot}</option>`;
+        // 칭호와 외형칭호를 하나로 통합
+        if (slot === "칭호") {
+            optionsHTML += `<option value="칭호/외형칭호">칭호/외형칭호</option>`;
+        } else if (slot === "외형칭호") {
+            // 이미 칭호에서 통합했으므로 스킵
+            return;
+        } else {
+            optionsHTML += `<option value="${slot}">${slot}</option>`;
+        }
     });
 
     slotSelect.innerHTML = optionsHTML;
@@ -59,25 +67,60 @@ function performSearch() {
     const sections = document.querySelectorAll('.char-section');
     const searchResults = [];
 
-    // 모든 캐릭터에서 해당 슬롯 데이터 수집
-    sections.forEach(section => {
-        const charId = section.id;
-        const job = section.querySelector('[data-key="info_job"]')?.value || '미정';
-        const name = section.querySelector('[data-key="info_name"]')?.value || '이름없음';
-        const statType = section.querySelector('[data-key="info_stat_type"]')?.value || '';
-        const eleType = section.querySelector('[data-key="info_ele_type"]')?.value || '';
+    // 칭호/외형칭호 통합 처리
+    if (selectedSlot === "칭호/외형칭호") {
+        sections.forEach(section => {
+            const charId = section.id;
+            const job = section.querySelector('[data-key="info_job"]')?.value || '미정';
+            const name = section.querySelector('[data-key="info_name"]')?.value || '이름없음';
+            const statType = section.querySelector('[data-key="info_stat_type"]')?.value || '';
+            const eleType = section.querySelector('[data-key="info_ele_type"]')?.value || '';
 
-        const slotData = getSlotDataForSearch(section, selectedSlot);
+            // 칭호 데이터
+            const titleData = getSlotDataForSearch(section, "칭호");
+            searchResults.push({
+                charId,
+                job,
+                name,
+                statType,
+                eleType,
+                slotType: "칭호",
+                ...titleData
+            });
 
-        searchResults.push({
-            charId,
-            job,
-            name,
-            statType,
-            eleType,
-            ...slotData
+            // 외형칭호 데이터
+            const appearTitleData = getSlotDataForSearch(section, "외형칭호");
+            searchResults.push({
+                charId,
+                job,
+                name,
+                statType,
+                eleType,
+                slotType: "외형칭호",
+                ...appearTitleData
+            });
         });
-    });
+    } else {
+        // 모든 캐릭터에서 해당 슬롯 데이터 수집
+        sections.forEach(section => {
+            const charId = section.id;
+            const job = section.querySelector('[data-key="info_job"]')?.value || '미정';
+            const name = section.querySelector('[data-key="info_name"]')?.value || '이름없음';
+            const statType = section.querySelector('[data-key="info_stat_type"]')?.value || '';
+            const eleType = section.querySelector('[data-key="info_ele_type"]')?.value || '';
+
+            const slotData = getSlotDataForSearch(section, selectedSlot);
+
+            searchResults.push({
+                charId,
+                job,
+                name,
+                statType,
+                eleType,
+                ...slotData
+            });
+        });
+    }
 
     // 검색 결과 테이블 생성
     displaySearchResults(selectedSlot, searchResults);
@@ -105,7 +148,33 @@ function getSlotDataForSearch(section, slot) {
             isSpecial: true,
             specialType: 'creature',
             rarity: section.querySelector(`select[data-key="${slot}_rarity"]`)?.value || '',
-            name: section.querySelector(`input[data-key="${slot}_name"]`)?.value || ''
+            name: section.querySelector(`input[data-key="${slot}_name"]`)?.value || '',
+            // 아티팩트 정보 수집
+            art_red_top_rarity: section.querySelector(`select[data-key="${slot}_art_red_top_rarity"]`)?.value || '',
+            art_red_top_text: section.querySelector(`input[data-key="${slot}_art_red_top_text"]`)?.value || '',
+            art_red_bg_1: section.querySelector(`select[data-key="${slot}_art_red_bg_1"]`)?.value || '',
+            art_red_text_1: section.querySelector(`input[data-key="${slot}_art_red_text_1"]`)?.value || '',
+            art_red_bg_2: section.querySelector(`select[data-key="${slot}_art_red_bg_2"]`)?.value || '',
+            art_red_text_2: section.querySelector(`input[data-key="${slot}_art_red_text_2"]`)?.value || '',
+            art_yellow_top_rarity: section.querySelector(`select[data-key="${slot}_art_yellow_top_rarity"]`)?.value || '',
+            art_yellow_top_text: section.querySelector(`input[data-key="${slot}_art_yellow_top_text"]`)?.value || '',
+            art_yellow_bg_1: section.querySelector(`select[data-key="${slot}_art_yellow_bg_1"]`)?.value || '',
+            art_yellow_text_1: section.querySelector(`input[data-key="${slot}_art_yellow_text_1"]`)?.value || '',
+            art_yellow_bg_2: section.querySelector(`select[data-key="${slot}_art_yellow_bg_2"]`)?.value || '',
+            art_yellow_text_2: section.querySelector(`input[data-key="${slot}_art_yellow_text_2"]`)?.value || '',
+            art_blue_top_rarity: section.querySelector(`select[data-key="${slot}_art_blue_top_rarity"]`)?.value || '',
+            art_blue_top_text: section.querySelector(`input[data-key="${slot}_art_blue_top_text"]`)?.value || '',
+            art_blue_bg_1: section.querySelector(`select[data-key="${slot}_art_blue_bg_1"]`)?.value || '',
+            art_blue_text_1: section.querySelector(`input[data-key="${slot}_art_blue_text_1"]`)?.value || '',
+            art_blue_bg_2: section.querySelector(`select[data-key="${slot}_art_blue_bg_2"]`)?.value || '',
+            art_blue_text_2: section.querySelector(`input[data-key="${slot}_art_blue_text_2"]`)?.value || '',
+            art_green_top_rarity: section.querySelector(`select[data-key="${slot}_art_green_top_rarity"]`)?.value || '',
+            art_green_top_text: section.querySelector(`input[data-key="${slot}_art_green_top_text"]`)?.value || '',
+            art_green_bg_1: section.querySelector(`select[data-key="${slot}_art_green_bg_1"]`)?.value || '',
+            art_green_text_1: section.querySelector(`input[data-key="${slot}_art_green_text_1"]`)?.value || '',
+            art_green_bg_2: section.querySelector(`select[data-key="${slot}_art_green_bg_2"]`)?.value || '',
+            art_green_text_2: section.querySelector(`input[data-key="${slot}_art_green_text_2"]`)?.value || '',
+            desc: section.querySelector(`[data-key="${slot}_desc"]`)?.value || ''
         };
     }
 
@@ -146,6 +215,12 @@ function displaySearchResults(slot, results) {
         return;
     }
 
+    // 칭호/외형칭호 통합 처리
+    if (slot === "칭호/외형칭호") {
+        createTitleSearchTable(container, results);
+        return;
+    }
+
     // 일반 슬롯 테이블 생성
     const table = document.createElement('table');
     table.className = 'compare-table search-result-table search-table-custom';
@@ -179,7 +254,8 @@ function displaySearchResults(slot, results) {
         'compare-option-col',
         'compare-option-col',
         'compare-option-col',
-        'compare-value-col'
+        'compare-value-col',
+        'compare-option-col'  // 설명
     ];
 
     colClasses.forEach((cls) => {
@@ -199,6 +275,7 @@ function displaySearchResults(slot, results) {
             <th colspan="4">마법봉인</th>
             <th colspan="2">엠블렘</th>
             <th colspan="2">마법부여</th>
+            <th rowspan="2">설명</th>
         </tr>
         <tr>
             <th>희귀도</th>
@@ -278,6 +355,7 @@ function createSearchResultRow(slot, result) {
         <td class="${embClass}">${result.emb2}</td>
         <td>${result.enchant}</td>
         <td>${result.enchant_val}</td>
+        <td>${result.desc || ''}</td>
     `;
 
     return tr;
@@ -378,6 +456,72 @@ function createRuneSearchTable(results) {
 }
 
 /**
+ * 칭호/외형칭호 검색 테이블 생성
+ */
+function createTitleSearchTable(container, results) {
+    const table = document.createElement('table');
+    table.className = 'compare-table search-result-table search-table-custom';
+    table.style.width = 'auto';
+    table.style.fontWeight = '900';
+
+    // CSS 변수 사용
+    const style = document.createElement('style');
+    style.textContent = `
+        .search-table-custom,
+        .search-table-custom th,
+        .search-table-custom td {
+            font-size: var(--fs-search) !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // colgroup
+    const colgroup = document.createElement('colgroup');
+    ['auto', 'auto', 'auto', 'auto', 'auto', 'auto'].forEach(() => {
+        const col = document.createElement('col');
+        col.style.width = 'auto';
+        colgroup.appendChild(col);
+    });
+    table.appendChild(colgroup);
+
+    // thead
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th>직업/이름</th>
+            <th>슬롯</th>
+            <th>희귀도</th>
+            <th>아이템명</th>
+            <th>강화</th>
+            <th>설명</th>
+        </tr>
+    `;
+    table.appendChild(thead);
+
+    // tbody
+    const tbody = document.createElement('tbody');
+    results.forEach(result => {
+        const tr = document.createElement('tr');
+        const rarityClass = result.rarity ? `rare-${result.rarity}` : '';
+
+        tr.innerHTML = `
+            <td style="white-space: nowrap;">${result.job}(${result.name})</td>
+            <td>${result.slotType || ''}</td>
+            <td class="${rarityClass}">${result.rarity || ''}</td>
+            <td>${result.itemname || ''}</td>
+            <td>${result.reinforce || ''}</td>
+            <td style="text-align: left; padding: 4px 8px;">${result.desc || ''}</td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+
+    container.innerHTML = '';
+    container.appendChild(table);
+}
+
+/**
  * 크리쳐 검색 테이블 생성
  */
 function createCreatureSearchTable(results) {
@@ -387,12 +531,25 @@ function createCreatureSearchTable(results) {
                 <col style="width: auto;">
                 <col style="width: auto;">
                 <col style="width: auto;">
+                <col style="width: auto;">
+                <col style="width: auto;">
+                <col style="width: auto;">
+                <col style="width: auto;">
+                <col style="width: auto;">
             </colgroup>
             <thead>
                 <tr>
-                    <th>직업/이름</th>
-                    <th>희귀도</th>
-                    <th>크리쳐 이름</th>
+                    <th rowspan="2">직업/이름</th>
+                    <th rowspan="2">희귀도</th>
+                    <th rowspan="2">크리쳐 이름</th>
+                    <th colspan="4">아티팩트</th>
+                    <th rowspan="2">설명</th>
+                </tr>
+                <tr>
+                    <th>Red</th>
+                    <th>Yellow</th>
+                    <th>Blue</th>
+                    <th>Green</th>
                 </tr>
             </thead>
             <tbody>
@@ -401,11 +558,33 @@ function createCreatureSearchTable(results) {
     results.forEach(result => {
         const rarityClass = result.rarity ? `rare-${result.rarity}` : '';
 
+        // 아티팩트 정보 요약
+        const getArtifactSummary = (color) => {
+            const topRarity = result[`art_${color}_top_rarity`] || '';
+            const topText = result[`art_${color}_top_text`] || '';
+            const bg1 = result[`art_${color}_bg_1`] || '';
+            const text1 = result[`art_${color}_text_1`] || '';
+            const bg2 = result[`art_${color}_bg_2`] || '';
+            const text2 = result[`art_${color}_text_2`] || '';
+
+            let summary = [];
+            if (topText) summary.push(`상: ${topText}(${topRarity})`);
+            if (text1) summary.push(`하1: ${text1}(${bg1})`);
+            if (text2) summary.push(`하2: ${text2}(${bg2})`);
+
+            return summary.length > 0 ? summary.join('<br>') : '-';
+        };
+
         html += `
             <tr>
                 <td style="white-space: nowrap;">${result.job}(${result.name})</td>
                 <td class="${rarityClass}">${result.rarity}</td>
                 <td>${result.name || '-'}</td>
+                <td style="text-align: left; padding: 4px 8px;">${getArtifactSummary('red')}</td>
+                <td style="text-align: left; padding: 4px 8px;">${getArtifactSummary('yellow')}</td>
+                <td style="text-align: left; padding: 4px 8px;">${getArtifactSummary('blue')}</td>
+                <td style="text-align: left; padding: 4px 8px;">${getArtifactSummary('green')}</td>
+                <td style="text-align: left; padding: 4px 8px;">${result.desc || '-'}</td>
             </tr>
         `;
     });
