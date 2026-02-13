@@ -103,9 +103,17 @@
     --btn-lock: #2563eb;
 
     /* ===== 폰트 크기 ===== */
-    --fs: 11px;
-    --fs-xs: 11px; /* 맨 위 버튼과 표 폰트 크기 */
-    --fs-sm: 12px; /* 비교 선택지 폰트 크기 */
+    --fs: 14px;
+
+    /* 4가지 독립 관리 */
+    --fs-button: 11px;      /* 상단 버튼 전용 */
+    --fs-table: 14px;       /* 기본 테이블 전용 */
+    --fs-compare: 12px;     /* 비교 모드 전용 */
+    --fs-search: 14px;      /* 검색 결과 전용 (JavaScript에서 사용) */
+
+    /* 기타 */
+    --fs-xs: 11px; /* 하위 호환용 */
+    --fs-sm: 12px; /* 하위 호환용 */
     --fs-md: 13px;
     --fs-lg: 1.1rem;
 
@@ -226,7 +234,7 @@
     }
 
     .control-bar button {
-        font-size: var(--fs-xs);
+        font-size: var(--fs-button);
         padding: var(--padding-sm);
     }
 
@@ -1218,7 +1226,7 @@ table {
     border-collapse: collapse;
     background-color: var(--table-bg);
     width: max-content;
-    font-size: var(--fs);
+    font-size: var(--fs-table);
     border: var(--border-width-heavy) var(--border-style) var(--gold);
 }
 
@@ -1265,7 +1273,7 @@ input {
     border: var(--border-width) var(--border-style) var(--border);
     padding: var(--padding-xs);
     width: 100%;
-    font-size: var(--fs);
+    font-size: var(--fs-table);
     box-sizing: border-box;
     height: var(--height-input);
     outline: none;
@@ -1278,7 +1286,7 @@ select {
     border: var(--border-width) var(--border-style) var(--color-gray-medium);
     padding: 1px 0px;
     width: 100%;
-    font-size: var(--fs);
+    font-size: var(--fs-table);
     box-sizing: border-box;
     height: var(--height-select);
     outline: none;
@@ -1315,7 +1323,7 @@ textarea {
     padding: var(--padding-textarea);
     resize: none;
     font-family: sans-serif;
-    font-size: var(--fs-xs);
+    font-size: var(--fs-table);
     box-sizing: border-box;
     text-align: left;
     outline: none;
@@ -1332,7 +1340,7 @@ textarea {
     cursor: pointer;
     border-radius: var(--border-radius);
     font-weight: bold;
-    font-size: var(--fs-xs);
+    font-size: var(--fs-button);
 }
 
 .btn-add {
@@ -1355,7 +1363,7 @@ textarea {
     color: var(--color-white);
     padding: var(--padding-button);
     cursor: pointer;
-    font-size: var(--fs-xs);
+    font-size: var(--fs-button);
     border: none;
     margin-bottom: var(--spacing-xs);
 }
@@ -1365,7 +1373,7 @@ textarea {
     color: var(--color-white);
     padding: var(--padding-button);
     cursor: pointer;
-    font-size: var(--fs-xs);
+    font-size: var(--fs-button);
     border: none;
 }
 
@@ -1381,7 +1389,7 @@ textarea {
     cursor: pointer;
     border-radius: var(--border-radius);
     font-weight: bold;
-    font-size: var(--fs-xs);
+    font-size: var(--fs-button);
 }
 
 .btn-mode.active {
@@ -1406,7 +1414,7 @@ textarea {
     border: none;
     padding: var(--padding-button);
     cursor: pointer;
-    font-size: var(--fs-xs);
+    font-size: var(--fs-button);
     border-radius: var(--border-radius-sm);
 }
 
@@ -1625,7 +1633,7 @@ select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
 }
 
 #historyList {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-table);
     color: var(--color-gray-lightest);
     line-height: var(--line-height-history);
 }
@@ -1684,7 +1692,7 @@ select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
     border: var(--border-width) var(--border-style) var(--border);
     background: var(--bg-dark);
     color: var(--color-white);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-button);
     height: var(--height-select);
 }
 
@@ -1725,7 +1733,7 @@ select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
 
 #compareCharSelectionContainer p {
     color: var(--color-gray-lighter);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-compare);
     margin: var(--spacing-xl) 0;
 }
 
@@ -1805,14 +1813,14 @@ select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
     color: var(--gold);
     padding: var(--spacing-lg) var(--spacing-sm);
     border: var(--border-width) var(--border-style) var(--border);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-compare);
     font-weight: bold;
 }
 
 .compare-table td {
     border: var(--border-width) var(--border-style) var(--border);
     padding: 6px var(--spacing-sm);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-compare);
     height: auto;
 }
 
@@ -1865,7 +1873,7 @@ select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
     background-color: var(--bg-header-alt) !important;
     font-weight: bold;
     color: var(--gold) !important;
-    font-size: var(--fs-sm);
+    font-size: var(--fs-compare);
 }
 
 .compare-table td.compare-diff {
@@ -1875,7 +1883,7 @@ select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
     text-align: center;
     border-left: var(--border-width-heavy) var(--border-style) var(--gold) !important;
     border-right: var(--border-width-heavy) var(--border-style) var(--gold) !important;
-    font-size: var(--fs-sm);
+    font-size: var(--fs-compare);
 }
 
 .compare-table td.compare-diff.same {

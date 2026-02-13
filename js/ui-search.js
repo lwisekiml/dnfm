@@ -152,13 +152,13 @@ function displaySearchResults(slot, results) {
     table.style.width = 'auto';
     table.style.fontWeight = '900';
 
-    // 모든 셀에 직접 스타일 적용
+    // CSS 변수 사용 (--fs-search)
     const style = document.createElement('style');
     style.textContent = `
         .search-table-custom,
         .search-table-custom th,
         .search-table-custom td {
-            font-size: 14px !important;
+            font-size: var(--fs-search) !important;
         }
     `;
     document.head.appendChild(style);
