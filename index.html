@@ -481,12 +481,16 @@
                 <option>커먼</option>
             </select>
         </td>
-        <td colspan="2">-</td>
+        <td>-</td>
+        <td>-</td>
         <td>
             <input type="text" data-key="칭호_itemname" class="rare-에픽 itemname-color-sync" oninput="autoSave()">
         </td>
         <td class="col-val-short">-</td>
-        <td colspan="4">-</td>
+        <td>-</td>
+        <td class="col-val-short">-</td>
+        <td>-</td>
+        <td class="col-val-short">-</td>
         <td class="col-emblem">
             <select data-key="칭호_emb1" class="emb-bg-gray" onchange="autoSave()">
                 <option></option>
@@ -514,7 +518,37 @@
     </tr>
 </template>
 
-<!-- 6. 외형칭호/오라/아바타 행 템플릿 -->
+<!-- 6-1. 외형칭호 행 템플릿 (설명 칸 없음 - 칭호와 rowspan 공유) -->
+<template id="appearance-title-row-template">
+    <tr>
+        <td class="col-slot v-border-heavy">외형칭호</td>
+        <td class="col-rarity">
+            <select tabindex="-1" data-key="외형칭호_rarity" data-slot="외형칭호" onchange="updateStyle(this, 'rarity')" class="rare-에픽">
+                <option>에픽</option>
+                <option>유니크</option>
+                <option>레어</option>
+                <option>언커먼</option>
+                <option>커먼</option>
+            </select>
+        </td>
+        <td>-</td>
+        <td>-</td>
+        <td>
+            <input tabindex="-1" type="text" data-key="외형칭호_itemname" class="rare-에픽 itemname-color-sync" oninput="autoSave()">
+        </td>
+        <td class="col-val-short">-</td>
+        <td>-</td>
+        <td class="col-val-short">-</td>
+        <td>-</td>
+        <td class="col-val-short">-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td class="col-val-short">-</td>
+    </tr>
+</template>
+
+<!-- 6-2. 오라/아바타 행 템플릿 (설명 칸 있음) -->
 <template id="simple-row-template">
     <tr>
         <td class="col-slot v-border-heavy">{SLOT_NAME}</td>
@@ -527,11 +561,23 @@
                 <option>커먼</option>
             </select>
         </td>
-        <td colspan="2">-</td>
+        <td>-</td>
+        <td>-</td>
         <td>
             <input tabindex="-1" type="text" data-key="{SLOT}_itemname" class="rare-에픽 itemname-color-sync" oninput="autoSave()">
         </td>
-        <td colspan="9">-</td>
+        <td class="col-val-short">-</td>
+        <td>-</td>
+        <td class="col-val-short">-</td>
+        <td>-</td>
+        <td class="col-val-short">-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td class="col-val-short">-</td>
+        <td class="v-border-heavy">
+            <input type="text" data-key="{SLOT}_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;">
+        </td>
     </tr>
 </template>
 

@@ -118,8 +118,13 @@ function createSlotContent(slot, index, charId, savedData) {
         return TemplateHelper.createTitleRow();
     }
 
-    // 외형칭호/오라/아바타
-    if (["외형칭호", "오라", "아바타"].includes(slot)) {
+    // 외형칭호 (설명 칸 없음)
+    if (slot === "외형칭호") {
+        return TemplateHelper.clone('appearance-title-row-template');
+    }
+
+    // 오라/아바타 (설명 칸 있음)
+    if (["오라", "아바타"].includes(slot)) {
         return TemplateHelper.createSimpleRow(slot);
     }
 
