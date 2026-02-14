@@ -155,7 +155,7 @@
 
     /* ===== 너비 ===== */
     --width-char-info: 120px;
-    --width-slot: 45px;
+    --width-slot: 60px; /* 슬롯 가로 길이 */
     --width-rarity: 42px;
     --width-exceed: 45px;
     --width-prefix: 38px;
