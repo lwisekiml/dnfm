@@ -106,7 +106,7 @@
     --fs: 14px;
 
     /* 4가지 독립 관리 */
-    --fs-button: 11px;      /* 상단 버튼 전용 */
+    --fs-button: 14px;      /* 버튼 전용 */
     --fs-table: 14px;       /* 기본 테이블 전용 */
     --fs-compare: 12px;     /* 비교 모드 전용 */
     --fs-search: 14px;      /* 검색 결과 전용 (JavaScript에서 사용) */
@@ -1345,7 +1345,7 @@ textarea {
     cursor: pointer;
     border-radius: var(--border-radius);
     font-weight: bold;
-    font-size: var(--fs-button);
+    font-size: var(--fs-button); /* 스킬룬 옆에 있는 수정, 초기화 글자 크기 */
 }
 
 .btn-add {
