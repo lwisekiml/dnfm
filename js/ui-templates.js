@@ -86,7 +86,7 @@ window.TemplateHelper = {
             defaultEnchantVal = ''
         } = options;
 
-        return this.clone('equipment-row-template', {
+        const fragment = this.clone('equipment-row-template', {
             SLOT: slot,
             SLOT_NAME: slot,
             CHAR_ID: charId,
@@ -94,6 +94,32 @@ window.TemplateHelper = {
             DEFAULT_ENCHANT: defaultEnchant,
             DEFAULT_ENCHANT_VAL: defaultEnchantVal
         });
+
+        // 보조장비, 귀걸이, 마법석은 첫 번째 엠블렘을 select로 변경
+        const elementSlots = ['보조장비', '귀걸이', '마법석'];
+        if (elementSlots.includes(slot)) {
+            const emb1Input = fragment.querySelector(`[data-key="${slot}_emb1"]`);
+            if (emb1Input && emb1Input.tagName === 'INPUT') {
+                const td = emb1Input.parentElement;
+                const tdClass = td.className;
+
+                // select 엘리먼트로 교체
+                td.innerHTML = `
+                    <select data-key="${slot}_emb1" class="${tdClass}" onchange="autoSave()">
+                        <option></option>
+                        <option>모속강</option>
+                        <option>화속강</option>
+                        <option>수속강</option>
+                        <option>명속강</option>
+                        <option>암속강</option>
+                        <option>힘</option>
+                        <option>지능</option>
+                    </select>
+                `;
+            }
+        }
+
+        return fragment;
     },
 
     /**
