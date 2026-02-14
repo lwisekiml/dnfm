@@ -1118,10 +1118,15 @@ button:focus-visible {
 /* 10. 비활성화된 요소 명확히 표시 */
 button:disabled,
 input:disabled,
-select:disabled {
-    opacity: 0.5;
+select:disabled,
+textarea:disabled {
     cursor: not-allowed;
-    filter: grayscale(50%);
+}
+
+/* readOnly 상태도 disabled와 동일하게 처리 */
+input:read-only,
+textarea:read-only {
+    cursor: not-allowed;
 }
 
 /* 11. 에러/성공 메시지 접근성 */
