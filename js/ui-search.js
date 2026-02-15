@@ -215,6 +215,12 @@ function displaySearchResults(slot, results) {
         return;
     }
 
+    // ⭐ 오라/아바타 간소화 처리 추가
+    if (slot === "오라" || slot === "아바타") {
+        createSimpleSlotSearchTable(container, results, slot);
+        return;
+    }
+
     // 일반 슬롯 테이블 생성
     const table = document.createElement('table');
     table.className = 'compare-table search-result-table search-table-custom';
@@ -360,6 +366,59 @@ function getEmblemHighlight(slot, embValue, eleType) {
         return 'highlight-yellow';
     }
     return '';
+}
+
+/**
+ * 간소화된 슬롯 검색 테이블 생성 (오라, 아바타)
+ */
+function createSimpleSlotSearchTable(container, results, slot) {
+    const table = document.createElement('table');
+    table.className = 'compare-table search-result-table search-table-custom';
+    table.style.tableLayout = 'auto';
+    table.style.width = 'auto';
+    table.style.fontWeight = '900';
+
+    const style = document.createElement('style');
+    style.textContent = `
+        .search-table-custom,
+        .search-table-custom th,
+        .search-table-custom td {
+            font-size: var(--fs-search) !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // thead - 간소화된 구조
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th>직업/이름</th>
+            <th>희귀도</th>
+            <th>아이템명</th>
+            <th>설명</th>
+        </tr>
+    `;
+    table.appendChild(thead);
+
+    // tbody
+    const tbody = document.createElement('tbody');
+    results.forEach(result => {
+        const tr = document.createElement('tr');
+        const rarityClass = result.rarity ? `rare-${result.rarity}` : '';
+
+        tr.innerHTML = `
+            <td style="white-space: nowrap;">${result.job}(${result.name})</td>
+            <td class="${rarityClass}">${result.rarity || ''}</td>
+            <td>${result.itemname || ''}</td>
+            <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || ''}</td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+
+    container.innerHTML = '';
+    container.appendChild(table);
 }
 
 /**
