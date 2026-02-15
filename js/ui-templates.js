@@ -95,6 +95,17 @@ window.TemplateHelper = {
             DEFAULT_ENCHANT_VAL: defaultEnchantVal
         });
 
+        // 익시드는 무기, 상의, 팔찌, 귀걸이만 가능
+        const exceedSlots = ['상의', '팔찌', '귀걸이'];
+        if (!exceedSlots.includes(slot)) {
+            // 익시드가 없는 슬롯은 select를 "-"로 교체
+            const exceedSelect = fragment.querySelector(`[data-key="${slot}_exceed"]`);
+            if (exceedSelect) {
+                const td = exceedSelect.parentElement;
+                td.innerHTML = '<span style="color: #666;">-</span>';
+            }
+        }
+
         // 보조장비, 귀걸이, 마법석은 첫 번째 엠블렘을 select로 변경
         const elementSlots = ['보조장비', '귀걸이', '마법석'];
         if (elementSlots.includes(slot)) {
