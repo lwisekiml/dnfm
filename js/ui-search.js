@@ -431,11 +431,10 @@ function createRuneSearchTable(results) {
 function createTitleSearchTable(container, results) {
     const table = document.createElement('table');
     table.className = 'compare-table search-result-table search-table-custom';
-    table.style.tableLayout = 'auto';  // 내용에 맞춰 자동 조정
+    table.style.tableLayout = 'auto';
     table.style.width = 'auto';
     table.style.fontWeight = '900';
 
-    // CSS 변수 사용
     const style = document.createElement('style');
     style.textContent = `
         .search-table-custom,
@@ -443,41 +442,85 @@ function createTitleSearchTable(container, results) {
         .search-table-custom td {
             font-size: var(--fs-search) !important;
         }
+        /* ⭐ 슬롯 열 너비 조정 */
+        .search-table-custom th:nth-child(2),
+        .search-table-custom td:nth-child(2) {
+            min-width: 80px;
+        }
     `;
     document.head.appendChild(style);
 
-    // colgroup 제거 - 자동 너비 조정
-
-    // thead
+    // thead - rowspan 추가
     const thead = document.createElement('thead');
     thead.innerHTML = `
-        <tr>
-            <th>직업/이름</th>
-            <th>슬롯</th>
-            <th>희귀도</th>
-            <th>아이템명</th>
-            <th>강화</th>
-            <th>설명</th>
-        </tr>
-    `;
+    <tr>
+        <th rowspan="2">직업/이름</th>
+        <th rowspan="2">슬롯</th>
+        <th colspan="2">기본 정보</th>
+        <th colspan="2">엠블렘</th>
+        <th colspan="2">마법부여</th>
+        <th rowspan="2">설명</th>
+    </tr>
+    <tr>
+        <th>희귀도</th>
+        <th>아이템명</th>
+        <th>엠블렘1</th>
+        <th>엠블렘2</th>
+        <th>마법부여</th>
+        <th>수치</th>
+    </tr>
+`;
     table.appendChild(thead);
 
-    // tbody
+    // tbody - 같은 캐릭터는 직업/이름 셀 합치기
     const tbody = document.createElement('tbody');
+
+    // 캐릭터별로 그룹화
+    const groupedResults = {};
     results.forEach(result => {
-        const tr = document.createElement('tr');
-        const rarityClass = result.rarity ? `rare-${result.rarity}` : '';
+        const key = `${result.job}(${result.name})`;
+        if (!groupedResults[key]) {
+            groupedResults[key] = [];
+        }
+        groupedResults[key].push(result);
+    });
 
-        tr.innerHTML = `
-            <td style="white-space: nowrap;">${result.job}(${result.name})</td>
-            <td>${result.slotType || ''}</td>
-            <td class="${rarityClass}">${result.rarity || ''}</td>
-            <td>${result.itemname || ''}</td>
-            <td>${result.reinforce || ''}</td>
-            <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || ''}</td>
-        `;
+    // 그룹별로 행 생성
+    Object.entries(groupedResults).forEach(([charKey, charResults]) => {
+        charResults.forEach((result, index) => {
+            const tr = document.createElement('tr');
+            const rarityClass = result.rarity ? `rare-${result.rarity}` : '';
+            const embClass = getEmblemHighlight('칭호', result.emb1, result.eleType);
 
-        tbody.appendChild(tr);
+            // 첫 번째 행에만 직업/이름 셀 추가 (rowspan)
+            if (index === 0) {
+                tr.innerHTML = `
+                    <td rowspan="${charResults.length}" style="white-space: nowrap;">${charKey}</td>
+                    <td>${result.slotType || ''}</td>
+                    <td class="${rarityClass}">${result.rarity || ''}</td>
+                    <td>${result.itemname || ''}</td>
+                    <td class="${embClass}">${result.emb1 || ''}</td>
+                    <td class="${embClass}">${result.emb2 || ''}</td>
+                    <td>${result.enchant || ''}</td>
+                    <td>${result.enchant_val || ''}</td>
+                    <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || ''}</td>
+                `;
+            } else {
+                // 두 번째 행부터는 직업/이름 셀 제외
+                tr.innerHTML = `
+                    <td>${result.slotType || ''}</td>
+                    <td class="${rarityClass}">${result.rarity || ''}</td>
+                    <td>${result.itemname || ''}</td>
+                    <td class="${embClass}">${result.emb1 || ''}</td>
+                    <td class="${embClass}">${result.emb2 || ''}</td>
+                    <td>${result.enchant || ''}</td>
+                    <td>${result.enchant_val || ''}</td>
+                    <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || ''}</td>
+                `;
+            }
+
+            tbody.appendChild(tr);
+        });
     });
     table.appendChild(tbody);
 
