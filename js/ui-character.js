@@ -20,6 +20,14 @@ function createCharacterTable(savedData = null) {
         gakin: ['', '']
     };
 
+    // ⭐ 태그 데이터 초기화 추가 (안전한 방식)
+    if (!AppState.charTags) {
+        AppState.charTags = {};  // 객체가 없으면 생성
+    }
+    if (savedData?.tags) {
+        AppState.charTags[charId] = savedData.tags;
+    }
+
     // 4) 테이블 기본 구조 생성
     section.innerHTML = `
         <div class="table-container">
@@ -270,6 +278,11 @@ function restoreSavedData(section, savedData, charId) {
         });
 
         applySealHighlight(charId);
+
+        // ⭐ 태그 복원 추가
+        if (savedData?.tags && typeof loadTags === 'function') {
+            loadTags(charId);
+        }
     }, 0);
 }
 
@@ -291,6 +304,7 @@ function deleteCharacter(charId) {
     if (confirm("정말로 이 캐릭터를 삭제하시겠습니까? 삭제된 데이터는 복구할 수 없습니다.")) {
         section.remove();
         delete AppState.charRuneData[charId];
+        delete AppState.charTags[charId];  // ⭐ 추가
         autoSave();
 
         const statusMsg = document.getElementById('statusMsg');

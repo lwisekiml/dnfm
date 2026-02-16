@@ -20,7 +20,8 @@ function autoSave() {
                 id: sec.id,
                 locked: sec.querySelector('.lock-btn')?.classList.contains('btn-active'),
                 inputs: inputsObj,
-                runeData: AppState.charRuneData[sec.id]
+                runeData: AppState.charRuneData[sec.id],
+                tags: AppState.charTags?.[sec.id] || []  // ⭐ 추가
             };
         });
 
@@ -151,6 +152,7 @@ function importFromJSON(input) {
 
             document.getElementById('characterContainer').innerHTML = "";
             AppState.charRuneData = {};
+            AppState.charTags = {};  // ⭐ 추가
             charactersToRestore.forEach(d => createCharacterTable(d));
 
             AppState.changeHistory = historyToRestore;

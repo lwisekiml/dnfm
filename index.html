@@ -173,6 +173,38 @@
 
             <div class="divider-gold"></div>
 
+            <!-- ⭐ 메모 영역 추가 -->
+            <div>
+                <label class="memo-tag-label">📝 메모</label>
+                <textarea
+                        data-key="info_memo"
+                        placeholder="메모를 입력하세요..."
+                        style="width: 100%; height: 60px; resize: vertical;"
+                        oninput="autoSave()"></textarea>
+            </div>
+
+            <!-- ⭐ 태그 영역 추가 -->
+            <div>
+                <label class="memo-tag-label">🏷️ 태그</label>
+                <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                    <input
+                            data-key="info_tag_input"
+                            type="text"
+                            placeholder="#태그"
+                            style="flex: 1; font-size: 13px;"
+                            onkeypress="handleTagInput(event, '{CHAR_ID}')">
+                    <button
+                            class="btn-action"
+                            onclick="addTag('{CHAR_ID}')"
+                            style="padding: 4px 8px; font-size: 12px; background: var(--btn-success);">
+                        +
+                    </button>
+                </div>
+                <div id="{CHAR_ID}_tags" class="tag-container"></div>
+            </div>
+
+            <div class="divider-gold"></div>
+
             <!-- 잠금 버튼 -->
             <button onclick="toggleEdit('{CHAR_ID}', true)" class="btn-char-lock lock-btn">잠금</button>
             <button onclick="toggleEdit('{CHAR_ID}', false)" class="btn-char-unlock unlock-btn">해제</button>
@@ -614,7 +646,10 @@
 <!-- 11. 검색 모드 -->
 <script src="js/ui-search.js"></script>
 
-<script src="js/ui-templates.js"></script>  <!-- ✨ 새로 추가 -->
+<script src="js/ui-templates.js"></script>
+
+<!-- 메모/태그 기능 -->
+<script src="js/ui-memo-tag.js"></script>
 
 <!-- 12. 메인 초기화 & 이벤트 -->
 <script src="js/main.js"></script>
