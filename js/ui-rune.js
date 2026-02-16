@@ -113,8 +113,7 @@ function saveRuneData() {
     });
     const section = document.getElementById(AppState.currentEditingCharId);
     const charName = section.querySelector('[data-key="info_name"]').value || "이름없음";
-    const now = new Date();
-    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+    const timeStr = getCurrentDateTime();
 
     AppState.changeHistory.unshift({time: timeStr, charName: charName, slot: "스킬룬", old: "기존 설정", new: "새로운 설정으로 변경됨"});
     if (AppState.changeHistory.length > 10) AppState.changeHistory.pop();
