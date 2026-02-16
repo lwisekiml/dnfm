@@ -423,6 +423,7 @@ function createSimpleSlotSearchTable(container, results, slot) {
 
 /**
  * 스킬룬 검색 테이블 생성
+ * | 구분자는 무조건 연하게
  */
 function createRuneSearchTable(results) {
     let html = `
@@ -459,12 +460,22 @@ function createRuneSearchTable(results) {
                 }
             });
 
+            // | 구분자는 무조건 연하게
             const summaryArray = [];
             runeMap.forEach((val) => {
                 const skillLv = (AppConstants.NO_SKILL_LV_RUNES.includes(val.name) || !val.skillLv) ? "" : `[${val.skillLv}]`;
-                summaryArray.push(`${val.name}${val.lv}${skillLv} ${val.count}개`);
+                const text = `${val.name}${val.lv}${skillLv} ${val.count}개`;
+
+                // IV 룬만 연한 글자로 표시
+                if (val.lv === 'IV') {
+                    summaryArray.push(`<span style="opacity: 0.5;">${text}</span>`);
+                } else {
+                    summaryArray.push(text);
+                }
             });
-            runeDetail = summaryArray.join(' | ');
+
+            // | 구분자는 무조건 연하게
+            runeDetail = summaryArray.join(' <span style="opacity: 0.5;">|</span> ');
         }
 
         html += `
