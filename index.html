@@ -20,6 +20,7 @@
     <button class="btn-mode active" id="btnBasicMode" onclick="switchToBasicMode()">📋 기본</button>
     <button class="btn-mode" id="btnCompareMode" onclick="enterCompareMode()">⚖️ 비교</button>
     <button class="btn-mode" id="btnSearchMode" onclick="enterSearchMode()">🔍 검색</button>
+    <button class="btn-mode" id="btnTagFilter" onclick="toggleTagFilterPanel()">🏷️ 태그</button>
 
     <input type="file" id="fileInput" class="d-none" accept=".json" onchange="importFromJSON(this)">
     <span id="statusMsg" class="status-msg"></span>
@@ -206,6 +207,8 @@
                             type="text"
                             placeholder="#태그"
                             style="flex: 1; font-size: 13px;"
+                            oninput="showTagAutocomplete('{CHAR_ID}', this.value)"
+                            onkeydown="handleAutocompleteKeyboard(event, '{CHAR_ID}')"
                             onkeypress="handleTagInput(event, '{CHAR_ID}')">
                     <button
                             class="btn-action"
@@ -664,6 +667,8 @@
 
 <!-- 메모/태그 기능 -->
 <script src="js/ui-memo-tag.js"></script>
+
+<script src="js/ui-tag-filter.js"></script>
 
 <!-- 12. 메인 초기화 & 이벤트 -->
 <script src="js/main.js"></script>

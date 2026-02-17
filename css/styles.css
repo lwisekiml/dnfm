@@ -2093,3 +2093,7 @@ select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
     color: #fff;
     font-style: normal;
 }
+
+.tag-remove {
+    cursor: pointer;
+}

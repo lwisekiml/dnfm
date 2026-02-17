@@ -45,6 +45,7 @@ function createTagChip(tag, charId) {
     const chip = document.createElement('div');
     chip.className = 'tag-chip';
     chip.dataset.tag = tag;
+    chip.style.cursor = 'default';
 
     // 태그 타입별 색상
     const tagType = getTagType(tag);
@@ -54,7 +55,7 @@ function createTagChip(tag, charId) {
 
     chip.innerHTML = `
         <span>${tag}</span>
-        <span class="tag-remove" onclick="removeTag('${charId}', '${escapeQuotes(tag)}')">×</span>
+        <span class="tag-remove" style="cursor: pointer;" onclick="removeTag('${charId}', '${escapeQuotes(tag)}'); event.stopPropagation();">×</span>
     `;
 
     return chip;
