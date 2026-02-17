@@ -2053,3 +2053,43 @@ select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
 .flex-column { flex-direction: column; }
 .align-center { align-items: center; }
 .justify-center { justify-content: center; }
+
+/* 메모 */
+.memo-popup {
+    width: 400px;  /* ← 이 값 변경 */
+}
+
+.memo-popup textarea {
+    height: 150px;  /* ← 이 값 변경 */
+}
+
+/* 메모 버튼 스타일 */
+.memo-edit-button {
+    width: 100%;
+    text-align: left;
+    padding: 6px 10px;
+    background: rgba(255, 215, 0, 0.1);
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    color: #aaa;
+    font-size: 12px;
+    font-style: italic;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.memo-edit-button:hover {
+    background: rgba(255, 215, 0, 0.2);
+    border-color: var(--gold);
+    transform: translateY(-1px);
+}
+
+.memo-edit-button:active {
+    transform: translateY(0);
+}
+
+.memo-edit-button.has-memo {
+    color: #fff;
+    font-style: normal;
+}

@@ -283,6 +283,11 @@ function restoreSavedData(section, savedData, charId) {
         if (savedData?.tags && typeof loadTags === 'function') {
             loadTags(charId);
         }
+
+        // ⭐ 메모 미리보기 업데이트 추가
+        if (typeof updateMemoPreview === 'function') {
+            updateMemoPreview(charId);
+        }
     }, 0);
 }
 
