@@ -1083,6 +1083,48 @@
         return total;
     }
 
+    // ✅ <br> 태그를 처리하는 개선된 필터 함수
+    function calculateSlotCountByFilterFixed(char, setName, slot, filter) {
+        const prefixes = ALL_PREFIX[setName] || [];
+        let total = 0;
+
+        const baseGroup = setName;
+        const prefixedGroups = prefixes.map(p => `${p}: ${setName}`);
+        let exceedGroups = prefixes.flatMap(p =>
+            EXCEED_TAGS.map(tag => `[${tag}] ${p}: ${setName}`)
+        );
+
+        // ✅ 레거시 장비 익시드 처리
+        const isExceedOnlyArmor = (typeof ARMOR_EXCEED_ONLY !== 'undefined' && ARMOR_EXCEED_ONLY.includes(setName));
+        const isExceedOnlyAccessory = (typeof ACCESSORY_EXCEED_ONLY !== 'undefined' && ACCESSORY_EXCEED_ONLY.includes(setName));
+
+        if (isExceedOnlyArmor || isExceedOnlyAccessory) {
+            EXCEED_TAGS.forEach(tag => {
+                exceedGroups.push(`[${tag}] ${setName}`);
+            });
+        }
+
+        let groupsToSearch = [];
+
+        if (filter === 'ALL') {
+            groupsToSearch = [baseGroup, ...prefixedGroups, ...exceedGroups];
+        } else if (filter === 'NORMAL') {
+            groupsToSearch = [baseGroup];
+        } else if (filter === 'PREFIX') {
+            groupsToSearch = prefixedGroups;
+        } else if (filter === 'EXCEED') {
+            groupsToSearch = exceedGroups;
+        }
+
+        groupsToSearch.forEach(group => {
+            // ✅ 슬롯명은 <br> 포함된 실제 키 그대로 사용
+            const fullKey = `${group} ${slot}`;
+            total += char.armorCounts[fullKey] || 0;
+        });
+
+        return total;
+    }
+
     /* ========================================
        5. 캐릭터 관리
        ======================================== */
@@ -1549,16 +1591,14 @@
         const panel = document.getElementById("panel");
 
         // 1. [토글 로직]
-        // 새로고침(isRefresh=true)이 아닐 때만 '이미 열린 캐릭터'를 누르면 닫히게 합니다.
         if (!isRefresh && activeCharacterId === char.id) {
             activeCharacterId = null;
             setList.innerHTML = "";
             panel.innerHTML = "";
-            renderCharacterList(); // 선택 표시(노란불) 해제
+            renderCharacterList();
             return;
         }
 
-        // 캐릭터 선택 상태 업데이트 및 노란색 불 켜기
         activeCharacterId = char.id;
         renderCharacterList();
 
@@ -1578,7 +1618,9 @@
             const slot = parts.pop();
             const name = parts.join(' ');
 
-            const groupKey = getGroupKey(name);
+            // ✅ <br> 태그 제거 후 그룹 키 생성
+            const cleanName = name.replace(/<br>/g, '');
+            const groupKey = getGroupKey(cleanName);
             const setType = getSetType(groupKey);
 
             if (setType === "ARMOR") totalArmor += count;
@@ -1719,9 +1761,15 @@
 
         const slots = ALL_SETS[setName] || [];
         const table = document.createElement("table");
+
+        // ✅ 테이블 헤더 크기 조정
         table.innerHTML = `<thead>
- <tr><th>세트 이름</th>${slots.map(s => `<th>${s}</th>`).join("")}</tr>
+ <tr>
+   <th style="max-width: 200px; white-space: normal;">세트 이름</th>
+   ${slots.map(s => `<th style="max-width: 150px; white-space: normal; font-size: 0.9em; line-height: 1.3; padding: 8px;">${s}</th>`).join("")}
+ </tr>
 </thead><tbody></tbody>`;
+
         const tbody = table.querySelector("tbody");
 
         tbody.appendChild(makeRow(setName, setName, char));
@@ -1734,15 +1782,12 @@
 
         // 💡 익시드 행 추가 로직 수정
         if (prefixes.length > 0) {
-            // 접두어가 있는 경우: 기존 로직대로 [태그] 접두어: 세트명
             prefixes.forEach(pref => {
                 EXCEED_TAGS.forEach(ex => {
                     tbody.appendChild(makeRow(`[${ex}] ${pref}: ${setName}`, setName, char));
                 });
             });
         } else {
-            // 💡 신규 추가: 접두어가 없는 경우 (레거시 장비)
-            // ARMOR_EXCEED_ONLY 또는 ACCESSORY_EXCEED_ONLY에 해당하면 익시드만 추가
             const isExceedOnlyArmor = (typeof ARMOR_EXCEED_ONLY !== 'undefined' && ARMOR_EXCEED_ONLY.includes(setName));
             const isExceedOnlyAccessory = (typeof ACCESSORY_EXCEED_ONLY !== 'undefined' && ACCESSORY_EXCEED_ONLY.includes(setName));
 
@@ -1951,7 +1996,6 @@
                     type: 'PREFIX'
                 }));
                 if (mode === 'EXCEED' || mode === 'ALL') {
-                    // 💡 기존 로직 (접두어 있는 익시드)
                     if (prefixes.length > 0) {
                         prefixes.forEach(p => {
                             EXCEED_TAGS.forEach(tag => targetGroupKeys.push({
@@ -1962,7 +2006,7 @@
                             }));
                         });
                     } else {
-                        // 💡 신규 추가: 접두어 없는 익시드 (레거시 장비)
+                        // ✅ 레거시 장비
                         const isExceedOnlyArmor = (typeof ARMOR_EXCEED_ONLY !== 'undefined' && ARMOR_EXCEED_ONLY.includes(baseSetName));
                         const isExceedOnlyAccessory = (typeof ACCESSORY_EXCEED_ONLY !== 'undefined' && ACCESSORY_EXCEED_ONLY.includes(baseSetName));
 
@@ -1985,11 +2029,11 @@
                 let displaySlots = slots;
                 if (mode === 'EXCEED') {
                     if (setType === "ARMOR") {
-                        displaySlots = ["상의"];
+                        displaySlots = slots.filter(s => s.includes("상의"));
                     } else if (setType === "ACCESSORY") {
-                        displaySlots = ["팔찌"];
+                        displaySlots = slots.filter(s => s.includes("팔찌") || s.includes("<br>"));
                     } else if (setType === "SPECIAL") {
-                        displaySlots = ["귀걸이"];
+                        displaySlots = slots.filter(s => s.includes("귀걸이") || s.includes("<br>"));
                     }
                 }
 
@@ -1999,20 +2043,18 @@
                 <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">이름</th>
                 ${(mode === 'ALL' || mode === 'EXCEED') ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">익시드</th>' : ''}
                 ${mode !== 'NORMAL' ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">접두어</th>' : ''}
-                ${displaySlots.map(s => `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">${s}</th>`).join('')}
+                ${displaySlots.map(s => `<th style="padding:10px; border:1px solid #2a3158; white-space:normal; max-width:120px; font-size:0.85em; line-height:1.2;">${s}</th>`).join('')}
                 ${mode !== 'EXCEED' ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">달성</th>' : ''}
             </tr></thead><tbody>`;
 
                 characters.forEach(char => {
                     const totalDistinct = calcTotalDistinctParts(char, baseSetName);
 
-                    // 해당 캐릭터가 가진 현재 세트의 아이템 데이터 그룹들
                     const charGroups = targetGroupKeys.filter(group =>
                         slots.some(s => (char.armorCounts?.[`${group.full} ${s}`] || 0) > 0)
                     );
 
                     charGroups.forEach((group, gIdx) => {
-                        // 각 모드별로 달성도 계산
                         let displayDistinct = totalDistinct;
                         let statusColor = "#fff";
 
@@ -2034,7 +2076,6 @@
                             });
                         }
 
-                        // 색상 결정
                         if (setType === "ARMOR") {
                             if (displayDistinct === 5) statusColor = "#ffd700";
                             else if (displayDistinct >= 3) statusColor = "#2ecc71";
@@ -2042,15 +2083,15 @@
                             if (displayDistinct === 3) statusColor = "#2ecc71";
                         }
 
+                        // ✅ 개선된 함수 사용
                         let slotsHtml = displaySlots.map(s => {
-                            const count = char.armorCounts?.[`${group.full} ${s}`] || 0;
+                            const count = calculateSlotCountByFilterFixed(char, baseSetName, s, mode);
                             return `<td style="padding:10px; border:1px solid #2a3158; text-align:center; color:${count > 0 ? '#fff' : '#444'}; font-weight:bold;">${count}</td>`;
                         }).join('');
 
                         let rowInfo = "";
                         const tagColor = EXCEED_COLOR_MAP[group.tag] || "#ffd700";
 
-                        // 💡 일반 모드가 아닐 때만 접두어(display) 셀을 생성
                         if (mode === 'ALL' || mode === 'EXCEED') {
                             const tagCol = group.tag ? `<td style="padding:10px; border:1px solid #2a3158; color:${tagColor}; font-weight:bold; white-space:nowrap;">[${group.tag}]</td>` : `<td style="border:1px solid #2a3158;"></td>`;
                             rowInfo = tagCol + `<td style="padding:10px; border:1px solid #2a3158; color:#ffd700; font-weight:bold; white-space:nowrap;">${group.display}</td>`;
@@ -2058,7 +2099,6 @@
                             rowInfo = `<td style="padding:10px; border:1px solid #2a3158; color:#ffd700; font-weight:bold; white-space:nowrap;">${group.display}</td>`;
                         }
 
-                        // 💡 [모두] 버튼일 때만 캐릭터 경계선에 진한 선 적용
                         const isLastRowOfChar = (gIdx === charGroups.length - 1);
                         const borderStyle = (mode === 'ALL' && isLastRowOfChar) ? "border-bottom: 3px solid #666;" : "border-bottom: 1px solid #2a3158;";
 
@@ -2073,7 +2113,7 @@
                 fullHtml += `</tbody></table>`;
             });
 
-            fullHtml += `</div>`; // 카테고리 닫는 태그 추가
+            fullHtml += `</div>`;
         });
 
         displayArea.innerHTML = fullHtml;
@@ -2126,10 +2166,18 @@
                         type: 'PREFIX'
                     }));
                 } else if (mode === 'EXCEED') {
-                    slots = slots.filter(s => s === "상의" || s === "팔찌" || s === "귀걸이");
+                    // ✅ 익시드 슬롯 필터링 개선
+                    const setType = getSetType(baseSetName);
+                    if (setType === "ARMOR") {
+                        slots = slots.filter(s => s.includes("상의"));
+                    } else if (setType === "ACCESSORY") {
+                        slots = slots.filter(s => s.includes("팔찌") || s.includes("<br>"));
+                    } else if (setType === "SPECIAL") {
+                        slots = slots.filter(s => s.includes("귀걸이") || s.includes("<br>"));
+                    }
+
                     if (slots.length === 0) return;
 
-                    // 💡 기존 로직 (접두어 있는 익시드)
                     if (prefixes.length > 0) {
                         prefixes.forEach(p => {
                             EXCEED_TAGS.forEach(tag => targetGroups.push({
@@ -2140,7 +2188,7 @@
                             }));
                         });
                     } else {
-                        // 💡 신규 추가: 접두어 없는 익시드 (레거시 장비)
+                        // ✅ 레거시 장비
                         const isExceedOnlyArmor = (typeof ARMOR_EXCEED_ONLY !== 'undefined' && ARMOR_EXCEED_ONLY.includes(baseSetName));
                         const isExceedOnlyAccessory = (typeof ACCESSORY_EXCEED_ONLY !== 'undefined' && ACCESSORY_EXCEED_ONLY.includes(baseSetName));
 
@@ -2157,7 +2205,6 @@
 
                 if (targetGroups.length === 0) return;
 
-                // 해당 세트 데이터 존재 여부 확인
                 const hasData = targetGroups.some(group => {
                     const searchKeyBase = group.tag ? `[${group.tag}] ${group.full}` : group.full;
                     return characters.some(c => slots.some(slot => (c.armorCounts?.[`${searchKeyBase} ${slot}`] || 0) > 0));
@@ -2169,13 +2216,12 @@
                 fullHtml += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #2a3158;">
                 <thead style="background:#181c33;"><tr>
                     <th style="padding:10px; border:1px solid #2a3158; color:#fff; text-align:center; white-space:nowrap;">아이템 세트 이름</th>
-                    ${slots.map(s => `<th style="padding:10px; border:1px solid #2a3158; color:#fff; text-align:center; white-space:nowrap; min-width:180px;">${s}</th>`).join('')}
+                    ${slots.map(s => `<th style="padding:10px; border:1px solid #2a3158; color:#fff; text-align:center; white-space:normal; min-width:180px; max-width:200px; font-size:0.85em; line-height:1.2;">${s}</th>`).join('')}
                 </tr></thead><tbody>`;
 
                 targetGroups.forEach(group => {
                     const searchKeyBase = group.tag ? `[${group.tag}] ${group.full}` : group.full;
 
-                    // 💡 접두어 장비일 때만 모든 슬롯 보유 여부를 체크
                     const isFullPrefixSet = (group.type === 'PREFIX') && slots.every(slot =>
                         characters.some(c => (c.armorCounts?.[`${searchKeyBase} ${slot}`] || 0) > 0)
                     );
@@ -2205,7 +2251,6 @@
                         fullHtml += `<td style="padding:8px; border:1px solid #2a3158; vertical-align:middle; text-align:center;">`;
 
                         if (mode === 'EXCEED') {
-                            // 💡 익시드: 가로줄 맞추지 않고 데이터가 있는 캐릭터만 촘촘하게 출력
                             const ownersWithItem = characters.filter(c => (c.armorCounts?.[`${searchKeyBase} ${slot}`] || 0) > 0);
                             if (ownersWithItem.length > 0) {
                                 ownersWithItem.forEach(owner => {
@@ -2220,7 +2265,6 @@
                                 fullHtml += `<span style="color:#444;">0</span>`;
                             }
                         } else {
-                            // 💡 일반/접두어: 모든 캐릭터의 자리를 만들어 가로줄 라인을 맞춤 (30px 고정)
                             relevantOwners.forEach(owner => {
                                 const count = owner.armorCounts?.[`${searchKeyBase} ${slot}`] || 0;
                                 fullHtml += `<div style="height:30px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; justify-content:center; align-items:center; gap:8px; white-space:nowrap; padding: 0 10px; font-size:14px;">`;
@@ -2240,7 +2284,7 @@
                 });
                 fullHtml += `</tbody></table>`;
             });
-            fullHtml += `</div>`; // 카테고리 닫는 태그 추가
+            fullHtml += `</div>`;
         });
 
         displayArea.innerHTML = fullHtml;
