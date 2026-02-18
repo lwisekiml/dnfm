@@ -597,6 +597,9 @@
         <input type="text" id="newCharName" placeholder="이름 입력">
         <input type="text" id="newCharJob" placeholder="직업 입력">
         <button class="add-btn" onclick="addCharacter()">➕ 추가</button>
+        <!-- ✅ 새로 추가 -->
+        <button id="edit-order-btn" class="add-btn" style="background: linear-gradient(135deg, #3399cc, #2a6f9e);"
+                onclick="toggleEditMode()">✏️편집</button>
     </div>
 
     <!-- 💡 순서 초기화 버튼 추가 -->
@@ -4027,7 +4030,6 @@
 </script>
 
 </div>
-</div>
 
 <div id="actionModal" class="modal-overlay" style="display:none;">
     <div class="modal-content"></div>
@@ -4045,14 +4047,14 @@
         </div>
     </div>
 </div>
-
-<div class="scroll-buttons" style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 1000;">
+<!--gap 값: 화살표 사이 간격-->
+<div class="scroll-buttons" style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 5px; z-index: 1000;">
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
-            style="width: 50px; height: 50px; border-radius: 50%; background: #4a33cc; color: white; border: 2px solid #fff; cursor: pointer; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+            style="width: 40px; height: 40px; border-radius: 50%; background: #4a33cc; color: white; border: 2px solid #fff; cursor: pointer; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
         ▲
     </button>
     <button onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})"
-            style="width: 50px; height: 50px; border-radius: 50%; background: #4a33cc; color: white; border: 2px solid #fff; cursor: pointer; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+            style="width: 40px; height: 40px; border-radius: 50%; background: #4a33cc; color: white; border: 2px solid #fff; cursor: pointer; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
         ▼
     </button>
 </div>
