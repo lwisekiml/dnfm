@@ -675,13 +675,6 @@
     const ITEMS_PER_PAGE = 10;
     const TOTAL_PAGES = 5;
 
-    // 드래그 앤 드롭 관련
-    let draggedElement = null;
-    let draggedCharId = null;
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchElement = null;
-
     let currentActionCharId = null;
 
     // ===== 전역 상태 변수 =====
@@ -697,6 +690,8 @@
 
     let craftLocked = true;
 
+    // ✅ 추가: 캐릭터 순서 편집 모드
+    let isEditingCharacterOrder = false;
 
     // 세트 정의
     const ARMOR_SETS = {
@@ -1227,7 +1222,7 @@
         const listEl = document.getElementById("characterList");
         if (!listEl) return;
 
-        listEl.innerHTML = ""; // 기존 목록 비우기
+        listEl.innerHTML = "";
 
         characters.forEach((c, index) => {
             const wrapper = document.createElement("div");
@@ -1237,27 +1232,6 @@
             wrapper.style.marginRight = "10px";
             wrapper.style.marginBottom = "10px";
 
-            // 💡 드래그 앤 드롭 속성 추가
-            wrapper.draggable = true;                    // HTML5 드래그 활성화
-            wrapper.dataset.charId = c.id;               // 데이터 속성에 ID 저장
-            wrapper.dataset.charIndex = index;           // 데이터 속성에 인덱스 저장
-
-            // 💡 드래그 핸들 (⋮⋮) 추가
-            const dragHandle = document.createElement("span");
-            dragHandle.className = "drag-handle";
-            dragHandle.textContent = "⋮⋮";
-            dragHandle.title = "드래그하여 순서 변경";
-
-            // ⚙️ 설정 버튼
-            const settingsBtn = document.createElement("button");
-            settingsBtn.textContent = "⚙️";
-            settingsBtn.className = "settings-btn";
-            settingsBtn.style.cursor = "pointer";
-            settingsBtn.onclick = (e) => {
-                e.stopPropagation();
-                openActionModal(c.id, c.name, c.job);
-            };
-
             // 캐릭터 버튼
             const btn = document.createElement("button");
             btn.className = "char-btn" + (c.id === activeCharacterId ? " active" : "");
@@ -1266,21 +1240,90 @@
                 if (typeof showSetButtons === "function") showSetButtons(c);
             };
 
-            // 💡 드래그 이벤트 핸들러 등록
-            wrapper.addEventListener('dragstart', handleDragStart);
-            wrapper.addEventListener('dragend', handleDragEnd);
-            wrapper.addEventListener('dragover', handleDragOver);
-            wrapper.addEventListener('drop', handleDrop);
-            wrapper.addEventListener('dragleave', handleDragLeave);
+            // ⚙️ 설정 버튼
+            const settingsBtn = document.createElement("button");
+            settingsBtn.textContent = "⚙️";
+            settingsBtn.className = "settings-btn";
+            settingsBtn.onclick = (e) => {
+                e.stopPropagation();
+                openActionModal(c.id, c.name, c.job);
+            };
 
-            // 💡 터치 이벤트 (모바일 지원) - 선택사항
-            wrapper.addEventListener('touchstart', handleTouchStart, { passive: false });
-            wrapper.addEventListener('touchmove', handleTouchMove, { passive: false });
-            wrapper.addEventListener('touchend', handleTouchEnd);
-
-            wrapper.appendChild(dragHandle);
-            wrapper.appendChild(settingsBtn);
             wrapper.appendChild(btn);
+            wrapper.appendChild(settingsBtn);
+
+            // // ✅ 편집 모드일 때만 ⬆️⬇️ 버튼 표시
+            // if (isEditingCharacterOrder) {
+            //     // ⬆️ 위로 버튼
+            //     const upBtn = document.createElement("button");
+            //     upBtn.textContent = "⬆️";
+            //     upBtn.className = "settings-btn";
+            //     upBtn.title = "위로 이동";
+            //     upBtn.onclick = (e) => {
+            //         e.stopPropagation();
+            //         moveCharacterUp(index);
+            //     };
+            //     if (index === 0) {
+            //         upBtn.disabled = true;
+            //         upBtn.style.opacity = "0.3";
+            //         upBtn.style.cursor = "not-allowed";
+            //     }
+            //
+            //     // ⬇️ 아래로 버튼
+            //     const downBtn = document.createElement("button");
+            //     downBtn.textContent = "⬇️";
+            //     downBtn.className = "settings-btn";
+            //     downBtn.title = "아래로 이동";
+            //     downBtn.onclick = (e) => {
+            //         e.stopPropagation();
+            //         moveCharacterDown(index);
+            //     };
+            //     if (index === characters.length - 1) {
+            //         downBtn.disabled = true;
+            //         downBtn.style.opacity = "0.3";
+            //         downBtn.style.cursor = "not-allowed";
+            //     }
+            //
+            //     wrapper.appendChild(upBtn);
+            //     wrapper.appendChild(downBtn);
+            // }
+            // ✅ 편집 모드일 때만 ⬅️➡️ 버튼 표시
+            if (isEditingCharacterOrder) {
+                // ⬅️ 왼쪽(위로) 버튼
+                const leftBtn = document.createElement("button");
+                leftBtn.textContent = "⬅️";
+                leftBtn.className = "settings-btn";
+                leftBtn.title = "왼쪽으로 이동";
+                leftBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    moveCharacterUp(index);
+                };
+                if (index === 0) {
+                    leftBtn.disabled = true;
+                    leftBtn.style.opacity = "0.3";
+                    leftBtn.style.cursor = "not-allowed";
+                }
+
+                // ➡️ 오른쪽(아래로) 버튼
+                const rightBtn = document.createElement("button");
+                rightBtn.textContent = "➡️";
+                rightBtn.className = "settings-btn";
+                rightBtn.title = "오른쪽으로 이동";
+                rightBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    moveCharacterDown(index);
+                };
+                if (index === characters.length - 1) {
+                    rightBtn.disabled = true;
+                    rightBtn.style.opacity = "0.3";
+                    rightBtn.style.cursor = "not-allowed";
+                }
+
+                wrapper.appendChild(leftBtn);
+                wrapper.appendChild(rightBtn);
+            }
+
+
             listEl.appendChild(wrapper);
         });
     }
@@ -1356,158 +1399,61 @@
         alert('직업순으로 정렬되었습니다.');
     }
 
-    // 5-4. 드래그 앤 드롭 (PC)
-    // 드래그 시작
-    function handleDragStart(e) {
-        draggedElement = e.currentTarget;                    // 드래그 중인 요소 저장
-        draggedCharId = e.currentTarget.dataset.charId;      // 캐릭터 ID 저장
+    // 5-4. 캐릭터 순서 변경 (↑↓ 버튼)
+    function moveCharacterUp(index) {
+        if (index === 0) return; // 첫 번째는 위로 갈 수 없음
 
-        e.currentTarget.classList.add('dragging');           // 시각적 효과 (투명도)
-        e.dataTransfer.effectAllowed = 'move';               // 커서 스타일 설정
-        e.dataTransfer.setData('text/html', e.currentTarget.innerHTML);
+        // 배열에서 위치 교환
+        [characters[index], characters[index - 1]] = [characters[index - 1], characters[index]];
+
+        saveLocalData();
+        renderCharacterList();
+
+        // 현재 선택된 캐릭터 유지
+        if (activeCharacterId) {
+            const activeChar = characters.find(c => c.id === activeCharacterId);
+            if (activeChar) showSetButtons(activeChar, true);
+        }
     }
 
-    // 드래그 끝
-    function handleDragEnd(e) {
-        e.currentTarget.classList.remove('dragging');        // 투명 효과 제거
+    function moveCharacterDown(index) {
+        if (index === characters.length - 1) return; // 마지막은 아래로 갈 수 없음
 
-        // 모든 drag-over 클래스 제거
-        document.querySelectorAll('.character-wrapper').forEach(wrapper => {
-            wrapper.classList.remove('drag-over');
-        });
+        // 배열에서 위치 교환
+        [characters[index], characters[index + 1]] = [characters[index + 1], characters[index]];
 
-        draggedElement = null;                               // 변수 초기화
-        draggedCharId = null;
+        saveLocalData();
+        renderCharacterList();
+
+        // 현재 선택된 캐릭터 유지
+        if (activeCharacterId) {
+            const activeChar = characters.find(c => c.id === activeCharacterId);
+            if (activeChar) showSetButtons(activeChar, true);
+        }
     }
 
-    // 드래그 오버 (다른 캐릭터 위로 드래그할 때)
-    function handleDragOver(e) {
-        if (e.preventDefault) {
-            e.preventDefault();                              // 기본 동작 방지 (필수!)
-        }
+    // 5-5. 편집 모드 토글
+    function toggleEditMode() {
+        const editBtn = document.getElementById("edit-order-btn");
 
-        e.dataTransfer.dropEffect = 'move';                  // 커서 모양 변경
+        isEditingCharacterOrder = !isEditingCharacterOrder;
 
-        const targetElement = e.currentTarget;
-        if (targetElement !== draggedElement) {
-            targetElement.classList.add('drag-over');        // 노란색 경계선 표시
-        }
+        if (isEditingCharacterOrder) {
+            // 편집 모드 활성화
+            editBtn.textContent = "✅ 변경완료";
+            editBtn.style.background = "linear-gradient(135deg, #25c2a0, #1a8c7d)";
+        } else {
+            // 편집 모드 비활성화
+            editBtn.textContent = "✏️ 편집";
+            editBtn.style.background = "linear-gradient(135deg, #3399cc, #2a6f9e)";
 
-        return false;
-    }
-
-    // 드래그 리브 (다른 캐릭터에서 벗어날 때)
-    function handleDragLeave(e) {
-        e.currentTarget.classList.remove('drag-over');       // 노란색 경계선 제거
-    }
-
-    // 드롭 (놓기)
-    function handleDrop(e) {
-        if (e.stopPropagation) {
-            e.stopPropagation();                             // 이벤트 전파 중지
-        }
-
-        e.currentTarget.classList.remove('drag-over');       // 경계선 제거
-
-        const targetCharId = e.currentTarget.dataset.charId; // 드롭한 위치의 캐릭터 ID
-
-        // 같은 위치에 드롭하면 무시
-        if (draggedCharId === targetCharId) {
-            return false;
-        }
-
-        // 🎯 핵심: 배열에서 순서 변경 (캐릭터 순서 변경)
-        const draggedIndex = characters.findIndex(c => c.id === draggedCharId);
-        const targetIndex = characters.findIndex(c => c.id === targetCharId);
-
-        if (draggedIndex !== -1 && targetIndex !== -1) {
-            // 1. 드래그한 캐릭터를 배열에서 제거
-            const [draggedChar] = characters.splice(draggedIndex, 1);
-
-            // 2. 타겟 위치에 삽입
-            characters.splice(targetIndex, 0, draggedChar);
-
-            // 3. 로컬 스토리지에 저장
+            // 데이터 저장
             saveLocalData();
-
-            // 4. 화면 갱신
-            renderCharacterList();
-
-            // 5. 현재 선택된 캐릭터가 있다면 유지
-            if (activeCharacterId) {
-                const activeChar = characters.find(c => c.id === activeCharacterId);
-                if (activeChar && typeof showSetButtons === "function") {
-                    showSetButtons(activeChar, true);
-                }
-            }
+            alert("순서 변경이 완료되었습니다!");
         }
 
-        return false;
-    }
-
-    // 5-5. 터치 드래그 (모바일)
-    function handleTouchStart(e) {
-        touchElement = e.currentTarget;                      // 터치한 요소 저장
-        touchStartX = e.touches[0].clientX;                  // 시작 X 좌표
-        touchStartY = e.touches[0].clientY;                  // 시작 Y 좌표
-
-        touchElement.style.opacity = '0.5';                  // 반투명 효과
-    }
-
-    function handleTouchMove(e) {
-        if (!touchElement) return;
-
-        e.preventDefault();                                  // 스크롤 방지 (중요!)
-
-        const touch = e.touches[0];
-        const deltaX = touch.clientX - touchStartX;          // X 이동 거리
-        const deltaY = touch.clientY - touchStartY;          // Y 이동 거리
-
-        // 요소를 손가락 따라 이동 (시각적 효과)
-        touchElement.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-    }
-
-    function handleTouchEnd(e) {
-        if (!touchElement) return;
-
-        const touch = e.changedTouches[0];                   // 마지막 터치 위치
-        const elementAtTouch = document.elementFromPoint(
-            touch.clientX,
-            touch.clientY
-        );                                                   // 손가락 아래의 요소 찾기
-
-        // 원래 스타일 복원
-        touchElement.style.opacity = '1';
-        touchElement.style.transform = 'translate(0, 0)';
-
-        // 드롭 대상 찾기
-        const targetWrapper = elementAtTouch?.closest('.character-wrapper');
-
-        if (targetWrapper && targetWrapper !== touchElement) {
-            const draggedCharId = touchElement.dataset.charId;
-            const targetCharId = targetWrapper.dataset.charId;
-
-            const draggedIndex = characters.findIndex(c => c.id === draggedCharId);
-            const targetIndex = characters.findIndex(c => c.id === targetCharId);
-
-            if (draggedIndex !== -1 && targetIndex !== -1) {
-                // 🎯 PC 드래그와 동일한 순서 변경 로직
-                const [draggedChar] = characters.splice(draggedIndex, 1);
-                characters.splice(targetIndex, 0, draggedChar);
-
-                saveLocalData();
-                renderCharacterList();
-
-                if (activeCharacterId) {
-                    const activeChar = characters.find(c => c.id === activeCharacterId);
-                    if (activeChar && typeof showSetButtons === "function") {
-                        showSetButtons(activeChar, true);
-                    }
-                }
-            }
-        }
-
-        touchElement = null;
+        // 캐릭터 리스트 다시 렌더링
+        renderCharacterList();
     }
 
     /* ========================================
