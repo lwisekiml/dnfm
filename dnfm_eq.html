@@ -1144,6 +1144,16 @@
     /* ========================================
        4. 유틸리티 함수
        ======================================== */
+
+    // 표에 들어갈 행 이름 배열을 받아 가장 긴 이름 기준으로 너비(px) 계산
+    function calcNameWidth(names) {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        ctx.font = "14px sans-serif";
+        const max = Math.max(...names.map(n => ctx.measureText(n).width));
+        return Math.ceil(max) + 24; // 좌우 패딩 여유
+    }
+
     function isExceedName(name) {
         return /^\[(선봉|의지|이상)\]\s/.test(name);
     }
@@ -1985,11 +1995,18 @@
             panel.appendChild(document.createElement("br"));
             panel.appendChild(table2);
 
-            // 첫 번째 열(세트 이름) 너비만 공통 적용, 나머지는 내용 너비 자동
-            [table1, table2].forEach(t => {
-                t.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
-                    cell.style.width = globalSetNameWidth + "px";
-                });
+            // 표1(위) 너비: 일반/접두어 행 이름 기준
+            const normalNames = ["일반", ...prefixes];
+            const w1 = calcNameWidth(normalNames);
+            table1.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+                cell.style.width = w1 + "px";
+            });
+
+            // 표2(아래) 너비: 익시드 행 이름 기준
+            const exceedNames = prefixes.flatMap(p => EXCEED_TAGS.map(ex => `[${ex}] ${p}`));
+            const w2 = calcNameWidth(exceedNames.length ? exceedNames : ["일반"]);
+            table2.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+                cell.style.width = w2 + "px";
             });
 
         } else if (setType === "ACCESSORY" && ACCESSORY_DISPLAY_NAMES[setName]) {
@@ -2090,10 +2107,20 @@
             panel.appendChild(document.createElement("br"));
             panel.appendChild(accTable2);
 
-            [accTable1, accTable2].forEach(t => {
-                t.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
-                    cell.style.width = globalSetNameWidth + "px";
-                });
+            // 표1(위) 너비: 일반/접두어 행 이름 기준
+            const accNormalNames = ["일반", ...prefixes];
+            const accW1 = calcNameWidth(accNormalNames);
+            accTable1.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+                cell.style.width = accW1 + "px";
+            });
+
+            // 표2(아래) 너비: 익시드 행 이름 기준
+            const accExceedNames = prefixes.length > 0
+                ? prefixes.flatMap(p => EXCEED_TAGS.map(ex => `[${ex}] ${p}`))
+                : EXCEED_TAGS.map(ex => `[${ex}]`);
+            const accW2 = calcNameWidth(accExceedNames);
+            accTable2.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+                cell.style.width = accW2 + "px";
             });
 
         } else if (setType === "ARMOR" && ARMOR_DISPLAY_NAMES[setName]) {
@@ -2198,10 +2225,20 @@
             panel.appendChild(document.createElement("br"));
             panel.appendChild(armTable1);
 
-            [armTable1, armTable2].forEach(t => {
-                t.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
-                    cell.style.width = globalSetNameWidth + "px";
-                });
+            // 표1(위) 너비: 일반/접두어 행 이름 기준
+            const armNormalNames = ["일반", ...prefixes];
+            const armW1 = calcNameWidth(armNormalNames);
+            armTable2.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+                cell.style.width = armW1 + "px";
+            });
+
+            // 표2(아래) 너비: 익시드 행 이름 기준
+            const armExceedNames = prefixes.length > 0
+                ? prefixes.flatMap(p => EXCEED_TAGS.map(ex => `[${ex}] ${p}`))
+                : EXCEED_TAGS.map(ex => `[${ex}]`);
+            const armW2 = calcNameWidth(armExceedNames);
+            armTable1.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+                cell.style.width = armW2 + "px";
             });
 
         } else {
