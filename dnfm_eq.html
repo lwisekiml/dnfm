@@ -1954,7 +1954,7 @@
                 });
                 const tr = document.createElement("tr");
                 if (hasAnyPart && totalDistinct === 3) tr.className = "set3";
-                let html = `<td style="text-align:left;">${labelText}</td>`;
+                let html = `<td style="text-align:center;">${labelText}</td>`;
                 allSlots1.forEach(slot => {
                     const key = `${nameKey} ${slot}`;
                     const val = char.armorCounts[key] || 0;
@@ -1986,7 +1986,7 @@
                     const color = EXCEED_COLOR_MAP[ex] || "#fff";
                     const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> ${pref}`;
                     const tr = document.createElement("tr");
-                    tr.innerHTML = `<td style="text-align:left;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
+                    tr.innerHTML = `<td style="text-align:center;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
                     tbody2.appendChild(tr);
                 });
             });
@@ -2051,7 +2051,7 @@
                 });
                 const tr = document.createElement("tr");
                 if (hasAnyPart && totalDistinct === 3) tr.className = "set3";
-                let html = `<td style="text-align:left;">${labelText}</td>`;
+                let html = `<td style="text-align:center;">${labelText}</td>`;
                 allSlots1.forEach(slot => {
                     const key = `${nameKey} ${slot}`;
                     const val = char.armorCounts[key] || 0;
@@ -2086,7 +2086,7 @@
                         const color = EXCEED_COLOR_MAP[ex] || "#fff";
                         const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> ${pref}`;
                         const tr = document.createElement("tr");
-                        tr.innerHTML = `<td style="text-align:left;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
+                        tr.innerHTML = `<td style="text-align:center;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
                         tbody2.appendChild(tr);
                     });
                 });
@@ -2098,7 +2098,7 @@
                     const color = EXCEED_COLOR_MAP[ex] || "#fff";
                     const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span>`;
                     const tr = document.createElement("tr");
-                    tr.innerHTML = `<td style="text-align:left;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
+                    tr.innerHTML = `<td style="text-align:center;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
                     tbody2.appendChild(tr);
                 });
             }
@@ -2156,7 +2156,7 @@
                         const color = EXCEED_COLOR_MAP[ex] || "#fff";
                         const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> ${pref}`;
                         const tr = document.createElement("tr");
-                        tr.innerHTML = `<td style="text-align:left;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
+                        tr.innerHTML = `<td style="text-align:center;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
                         tbody1.appendChild(tr);
                     });
                 });
@@ -2168,7 +2168,7 @@
                     const color = EXCEED_COLOR_MAP[ex] || "#fff";
                     const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span>`;
                     const tr = document.createElement("tr");
-                    tr.innerHTML = `<td style="text-align:left;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
+                    tr.innerHTML = `<td style="text-align:center;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
                     tbody1.appendChild(tr);
                 });
             }
@@ -2205,7 +2205,7 @@
                     if (totalDistinct === fullSize) tr.className = "set5";
                     else if (totalDistinct >= 3) tr.className = "set3";
                 }
-                let html = `<td style="text-align:left;">${labelText}</td>`;
+                let html = `<td style="text-align:center;">${labelText}</td>`;
                 allSlots2.forEach(slot => {
                     const key = `${nameKey} ${slot}`;
                     const val = char.armorCounts[key] || 0;
