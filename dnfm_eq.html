@@ -777,6 +777,108 @@
         "이상": "#2ecc71"
     };
 
+    // 방어구 표시용 이름 매핑
+    const ARMOR_DISPLAY_NAMES = {
+        "어느 말괄량이의 탐사복": {
+            "상의": ["못말리는 말괄량이의 가죽", "어느 말괄량이의 가죽 자켓"],
+            "하의": "어느 말괄량이의 버블 반바지",
+            "어깨": "어느 말괄량이의 특수 고글",
+            "벨트": "어느 말괄량이의 벨트",
+            "신발": "어느 말괄량이의 신발"
+        },
+        "포이즈닝 퀸 스파이더": {
+            "상의": ["엠프리스 스파이더 상의", "퀸 스파이더 상의"],
+            "하의": "퀸 스파이더 하의",
+            "어깨": "퀸 스파이더 머리",
+            "벨트": "퀸 스파이더 벨트 장식",
+            "신발": "퀸 스파이더 신발"
+        },
+        "거인의 스펙쿨룸 아이언": {
+            "상의": ["거신의 스펙쿨룸 상의", "거인의 스펙쿨룸 상의"],
+            "하의": "거인의 스펙쿨룸 하의",
+            "어깨": "거인의 스펙쿨룸 어깨 장식",
+            "벨트": "거인의 스펙쿨룸 허리띠",
+            "신발": "거인의 스펙쿨룸 신발"
+        },
+        "어둠을 쏘아 내리는 자": {
+            "상의": ["밤을 쏘아 내리는 자의 상의", "어둠을 쏘아 내리는 자의 상의"],
+            "하의": "어둠을 쏘아 내리는 자의 하의",
+            "어깨": "어둠을 쏘아 내리는 자의 어깨 덧댐",
+            "벨트": "어둠을 쏘아 내리는 자의 허리띠",
+            "신발": "어둠을 쏘아 내리는 자의 신발"
+        },
+        "수호자의 초합금": {
+            "상의": ["수호군주의 초합금 상의", "수호자의 초합금 상의"],
+            "하의": "수호자의 초합금 하의",
+            "어깨": "수호자의 초합금 어깨",
+            "벨트": "수호자의 초합금 벨트",
+            "신발": "수호자의 초합금 신발"
+        },
+        "스틱키 애시드 웨펀": {
+            "상의": ["네트 스파이더 상의", "웹 스파이더의 상의"],
+            "하의": "웹 스파이더의 하의",
+            "어깨": "웹 스파이더의 어깨",
+            "벨트": "웹 스파이더의 허리",
+            "신발": "웹 스파이더의 신발"
+        },
+        "섬뜩한 강철 용": {
+            "상의": ["강철 용의 스케일 재킷", "강철 용의 가죽 재킷"],
+            "하의": "강철 용의 가죽 그리브",
+            "어깨": "강철 용의 뿔 장식",
+            "벨트": "강철 용의 휴대용 벨트",
+            "신발": "강철 용의 가죽 신발"
+        },
+        "익스플로시브 버닝 스톤": {
+            "상의": ["블레이징 기어 플레이트 메일", "버닝 기어 플레이트 메일"],
+            "하의": "버닝 기어 플레이트 레깅스",
+            "어깨": "버닝 기어 플레이트 햇",
+            "벨트": "버닝 기어 플레이트 코일",
+            "신발": "버닝 기어 플레이트 사바톤"
+        },
+        "빛의 헌신자": {
+            "상의": ["빛의 수호자의 상의", "빛의 헌신자의 상의"],
+            "하의": "빛의 헌신자의 하의",
+            "어깨": "빛의 헌신자의 모자",
+            "벨트": "빛의 헌신자의 허리장식",
+            "신발": "빛의 헌신자의 신발"
+        },
+        "여명을 쏘아 올리는 자": {
+            "상의": ["여명을 밝힌 자의 상의", "여명을 쏘아 올리는 자의 상의"],
+            "하의": "여명을 쏘아 올리는 자의 바지",
+            "어깨": "여명을 쏘아 올리는 자의 어깨 덧댐",
+            "벨트": "여명을 쏘아 올리는 자의 허리띠",
+            "신발": "여명을 쏘아 올리는 자의 신발"
+        },
+        "콰트로 카시테움": {
+            "상의": ["콰트로 카시테움 아머Mk2", "콰트로 카시테움 아머"],
+            "하의": "콰트로 카시테움 각반",
+            "어깨": "콰트로 카시테움 새로운 손",
+            "벨트": "콰트로 카시테움 코일",
+            "신발": "콰트로 카시테움 그리브"
+        },
+        "그란테 전투기갑 파츠": {
+            "상의": ["그런데 마누스 전투기갑 상의", "그란데 전투기갑 상의"],
+            "하의": "그란데 전투기갑 하의",
+            "어깨": "그란데 전투기갑 헤드기어",
+            "벨트": "그란데 전투기갑 허리",
+            "신발": "그란데 전투기갑 신발"
+        },
+        "레거시: 마력의 소용돌이": {
+            "상의": ["레거시: 휘몰아치는 마력의 태풍", "레거시: 마력의 폭풍우"],
+            "하의": "레거시: 영력의 회오리",
+            "어깨": "레거시: 마법의 대격변",
+            "벨트": "레거시: 마나의 소용돌이",
+            "신발": "레거시: 정수의 태풍"
+        },
+        "레거시: 자연의 수호자": {
+            "상의": ["레거시: 루미너스 오토 상의", "레거시: 라이트니스 오토 상의"],
+            "하의": "레거시: 파이어니스 오토 하의",
+            "어깨": "레거시: 블랙니스 오토 어깨",
+            "벨트": "레거시: 아이니스 오토 벨트",
+            "신발": "레거시: 윈드니스 오토 신발"
+        }
+    };
+
     // 악세 표시용 이름 매핑
     const ACCESSORY_DISPLAY_NAMES = {
         "엘팅 메모리얼의 기억": {
@@ -1802,8 +1904,8 @@
         if (setType === "SPECIAL") {
             // ====================================================
             // 특장 전용: 표 2개로 나누어 렌더링
-            // 표1: 귀걸이(첫 번째 이름)만 - exceed+프리픽스 행
-            // 표2: 귀걸이(두 번째 이름)+나머지슬롯 - 일반/프리픽스 행
+            // 표1(위): 귀걸이(두 번째 이름)+나머지슬롯 - 일반/프리픽스 행
+            // 표2(아래): 귀걸이(첫 번째 이름)만 - 익시드+프리픽스 행
             // ====================================================
             const displayNames = SPECIAL_DISPLAY_NAMES[setName] || null;
             const prefixes = ALL_PREFIX[setName] || [];
@@ -1894,7 +1996,7 @@
             // ====================================================
             // 악세 전용: 표 2개로 나누어 렌더링 (특장과 동일한 방식)
             // 표1(위): 일반/프리픽스 - 팔찌 두번째 이름 + 목걸이 + 반지
-            // 표2(아래): exceed 전용 - 팔찌 첫번째 이름만
+            // 표2(아래): 익시드 전용 - 팔찌 첫번째 이름만
             // ====================================================
             const displayNames = ACCESSORY_DISPLAY_NAMES[setName];
             const prefixes = ALL_PREFIX[setName] || [];
@@ -1948,7 +2050,7 @@
                 tbody1.appendChild(makeAccRow(styledPref, `${pref}: ${setName}`));
             });
 
-            // ── 표2(아래): exceed 전용 (팔찌 첫번째 이름만) ──
+            // ── 표2(아래): 익시드 전용 (팔찌 첫번째 이름만) ──
             const accTable2 = document.createElement("table");
             accTable2.innerHTML = `<thead><tr>
   <th style="white-space:nowrap; padding:8px;">세트 이름</th>
@@ -1984,9 +2086,9 @@
                 });
             }
 
-            panel.appendChild(accTable2);
-            panel.appendChild(document.createElement("br"));
             panel.appendChild(accTable1);
+            panel.appendChild(document.createElement("br"));
+            panel.appendChild(accTable2);
 
             [accTable1, accTable2].forEach(t => {
                 t.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
@@ -1994,8 +2096,116 @@
                 });
             });
 
+        } else if (setType === "ARMOR" && ARMOR_DISPLAY_NAMES[setName]) {
+            // ====================================================
+            // 방어구 전용: 표 2개로 나누어 렌더링
+            // 표1(위): 일반/프리픽스 - 상의 두번째 이름 + 나머지 슬롯
+            // 표2(아래): 익시드 전용 - 상의 첫번째 이름만
+            // ====================================================
+            const displayNames = ARMOR_DISPLAY_NAMES[setName];
+            const prefixes = ALL_PREFIX[setName] || [];
+            const exceedSlot = EXCEED_SLOTS["ARMOR"][0]; // 상의
+
+            const topRaw = displayNames[exceedSlot] || exceedSlot;
+            const topName1 = Array.isArray(topRaw) ? topRaw[0] : topRaw; // 표2(아래): 익시드 상의
+            const topName2 = Array.isArray(topRaw) ? topRaw[1] : topRaw; // 표1(위): 일반/접두어 상의
+
+            // ── 표1(위): 일반/프리픽스 (상의 두번째 이름 + 나머지 슬롯) ──
+            const armTable1 = document.createElement("table");
+            armTable1.innerHTML = `<thead><tr>
+  <th style="white-space:nowrap; padding:8px;">세트 이름</th>
+  <th style="white-space:nowrap; font-size:0.9em; padding:8px;">${topName1}</th>
+</tr></thead><tbody></tbody>`;
+            const tbody1 = armTable1.querySelector("tbody");
+
+            const isExceedOnlyArmor = (typeof ARMOR_EXCEED_ONLY !== 'undefined' && ARMOR_EXCEED_ONLY.includes(setName));
+
+            if (prefixes.length > 0) {
+                prefixes.forEach(pref => {
+                    EXCEED_TAGS.forEach(ex => {
+                        const name = `[${ex}] ${pref}: ${setName}`;
+                        const key = `${name} ${exceedSlot}`;
+                        const val = char.armorCounts[key] || 0;
+                        const color = EXCEED_COLOR_MAP[ex] || "#fff";
+                        const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> ${pref}`;
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `<td style="text-align:left;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
+                        tbody1.appendChild(tr);
+                    });
+                });
+            } else if (isExceedOnlyArmor) {
+                EXCEED_TAGS.forEach(ex => {
+                    const name = `[${ex}] ${setName}`;
+                    const key = `${name} ${exceedSlot}`;
+                    const val = char.armorCounts[key] || 0;
+                    const color = EXCEED_COLOR_MAP[ex] || "#fff";
+                    const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span>`;
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `<td style="text-align:left;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
+                    tbody1.appendChild(tr);
+                });
+            }
+
+            // ── 표2(아래): 익시드 전용 (상의 첫번째 이름만) ──
+            const armTable2 = document.createElement("table");
+            const otherSlots = slots.filter(s => s !== exceedSlot);
+            const allSlots2 = [exceedSlot, ...otherSlots];
+
+            const headerSlots2 = allSlots2.map(s => {
+                let displayName;
+                if (s === exceedSlot) {
+                    displayName = topName2;
+                } else {
+                    displayName = displayNames[s] || s;
+                }
+                return `<th style="white-space:nowrap; font-size:0.9em; padding:8px;">${displayName}</th>`;
+            }).join("");
+            armTable2.innerHTML = `<thead><tr>
+  <th style="white-space:nowrap; padding:8px;">세트 이름</th>
+  ${headerSlots2}
+</tr></thead><tbody></tbody>`;
+            const tbody2 = armTable2.querySelector("tbody");
+
+            const makeArmRow = (labelText, nameKey) => {
+                const totalDistinct = calcTotalDistinctParts(char, setName);
+                const fullSize = slots.length;
+                let hasAnyPart = false;
+                allSlots2.forEach(slot => {
+                    if ((char.armorCounts[`${nameKey} ${slot}`] || 0) > 0) hasAnyPart = true;
+                });
+                const tr = document.createElement("tr");
+                if (hasAnyPart) {
+                    if (totalDistinct === fullSize) tr.className = "set5";
+                    else if (totalDistinct >= 3) tr.className = "set3";
+                }
+                let html = `<td style="text-align:left;">${labelText}</td>`;
+                allSlots2.forEach(slot => {
+                    const key = `${nameKey} ${slot}`;
+                    const val = char.armorCounts[key] || 0;
+                    html += `<td>${makeNumberButton(char.id, key, val)}</td>`;
+                });
+                tr.innerHTML = html;
+                return tr;
+            };
+
+            tbody2.appendChild(makeArmRow("일반", setName));
+            prefixes.forEach(pref => {
+                const styledPref = `<span style="color:#e6b800; font-weight:bold;">${pref}</span>`;
+                tbody2.appendChild(makeArmRow(styledPref, `${pref}: ${setName}`));
+            });
+
+            panel.appendChild(armTable2);
+            panel.appendChild(document.createElement("br"));
+            panel.appendChild(armTable1);
+
+            [armTable1, armTable2].forEach(t => {
+                t.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+                    cell.style.width = globalSetNameWidth + "px";
+                });
+            });
+
         } else {
-            // 방어구 기존 로직
+            // 방어구 기존 로직 (ARMOR_DISPLAY_NAMES 없는 경우)
             const headerSlots = slots.map(s => {
                 return `<th style="max-width:150px; white-space:normal; font-size:0.9em; line-height:1.3; padding:8px;">${s}</th>`;
             }).join("");
@@ -2264,10 +2474,12 @@
                         ? SPECIAL_DISPLAY_NAMES[baseSetName][s]
                         : (setType === "ACCESSORY" && ACCESSORY_DISPLAY_NAMES[baseSetName] && ACCESSORY_DISPLAY_NAMES[baseSetName][s])
                             ? ACCESSORY_DISPLAY_NAMES[baseSetName][s]
-                            : s;
+                            : (setType === "ARMOR" && ARMOR_DISPLAY_NAMES[baseSetName] && ARMOR_DISPLAY_NAMES[baseSetName][s])
+                                ? ARMOR_DISPLAY_NAMES[baseSetName][s]
+                                : s;
                     let displayName;
                     if (Array.isArray(rawName)) {
-                        // 익시드 모드: [0](익시드 팔찌/귀걸이), 일반/접두어 모드: [1](일반 팔찌/귀걸이), ALL: 둘 다 표시
+                        // 익시드 모드: [0](익시드), 일반/접두어 모드: [1](일반), ALL: 둘 다 표시
                         if (mode === 'EXCEED') displayName = rawName[0];
                         else if (mode === 'ALL') displayName = rawName[0] + "<br>" + rawName[1];
                         else displayName = rawName[1];
@@ -2454,10 +2666,12 @@
                         ? SPECIAL_DISPLAY_NAMES[baseSetName][s]
                         : (setType === "ACCESSORY" && ACCESSORY_DISPLAY_NAMES[baseSetName] && ACCESSORY_DISPLAY_NAMES[baseSetName][s])
                             ? ACCESSORY_DISPLAY_NAMES[baseSetName][s]
-                            : s;
+                            : (setType === "ARMOR" && ARMOR_DISPLAY_NAMES[baseSetName] && ARMOR_DISPLAY_NAMES[baseSetName][s])
+                                ? ARMOR_DISPLAY_NAMES[baseSetName][s]
+                                : s;
                     let displayName;
                     if (Array.isArray(rawName)) {
-                        // 익시드 모드: [0](익시드 팔찌/귀걸이), 일반/접두어 모드: [1](일반 팔찌/귀걸이)
+                        // 익시드 모드: [0](익시드), 일반/접두어 모드: [1](일반)
                         displayName = (mode === 'EXCEED') ? rawName[0] : rawName[1];
                     } else {
                         displayName = rawName;
