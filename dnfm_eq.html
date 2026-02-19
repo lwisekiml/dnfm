@@ -4397,6 +4397,44 @@
     //     }
     // };
 
+
+    /* ========================================
+   [테스트용 export]
+   Node.js(logic.js 브릿지)에서 이 HTML을 파싱할 때만 사용됨.
+   브라우저에서는 typeof exports === 'undefined' 이므로 무시됨.
+   ======================================== */
+    if (typeof exports !== 'undefined') {
+        Object.assign(exports, {
+            // 상수
+            ARMOR_SETS, ACCESSORY_SETS, SPECIAL_SETS, ALL_SETS,
+            ARMOR_PREFIX, ACCESSORY_PREFIX, SPECIAL_PREFIX, ALL_PREFIX,
+            ARMOR_EXCEED_ONLY, ACCESSORY_EXCEED_ONLY,
+            LEGACY_PREFIX_SETS, EXCEED_TAGS, EXCEED_SLOTS,
+            // 순수 로직 함수
+            makePrefixKey, isExceedName, getGroupKey, getSetType,
+            calcTotalDistinctParts,
+            // 정렬 (DOM 의존 부분 제거한 순수 로직만)
+            _sortByName: (chars) => [...chars].sort((a, b) => a.name.localeCompare(b.name, 'ko-KR')),
+            _sortByJob:  (chars) => [...chars].sort((a, b) => {
+                const j = a.job.localeCompare(b.job, 'ko-KR');
+                return j !== 0 ? j : a.name.localeCompare(b.name, 'ko-KR');
+            }),
+            // 카운트 증감 (DOM 의존 부분 제거한 순수 로직만)
+            _incrementCount: (char, key) => { char.armorCounts[key] = (char.armorCounts[key] || 0) + 1; },
+            _decrementCount: (char, key) => { char.armorCounts[key] = Math.max(0, (char.armorCounts[key] || 0) - 1); },
+            // 세트 완성도
+            _getSetType3or5: (count, setName) => {
+                const slots = ALL_SETS[setName] || [];
+                const total = slots.length;
+                if (total === 0) return null;
+                const ratio = count / total;
+                if (ratio >= 1.0) return 5;
+                if (ratio >= 0.6) return 3;
+                return null;
+            },
+        });
+    }
+
 </script>
 
 </div>
