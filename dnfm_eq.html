@@ -2641,7 +2641,15 @@
 
                     let displayName = "";
                     if (group.type === 'EXCEED' || group.type === 'PREFIX') {
-                        displayName = `<span style="color:#ffd700; font-weight:bold;">${group.display}</span>: <span style="color:#fff;">${baseSetName}</span>`;
+                        // 레거시 세트: baseSetName이 이미 "레거시: 마력의 소용돌이" 형태
+                        // group.full도 "레거시: 마력의 소용돌이"이므로 중복 방지
+                        if (LEGACY_PREFIX_SETS.includes(baseSetName)) {
+                            // baseSetName에서 "레거시: " 부분 제거
+                            const pureSetName = baseSetName.replace(/^레거시:\s*/, '');
+                            displayName = `<span style="color:#ffd700; font-weight:bold;">레거시</span>: <span style="color:#fff;">${pureSetName}</span>`;
+                        } else {
+                            displayName = `<span style="color:#ffd700; font-weight:bold;">${group.display}</span>: <span style="color:#fff;">${baseSetName}</span>`;
+                        }
                         if (group.tag) {
                             const tagColor = EXCEED_COLOR_MAP[group.tag] || "#ffd700";
                             displayName = `<span style="color:${tagColor}; font-weight:bold;">[${group.tag}]</span> ` + displayName;
