@@ -726,19 +726,20 @@
         "여명을 쏘아 올리는 자": ["자상", "쇄도"],
         "콰트로 카시테움": ["작열", "보호"],
         "그란테 전투기갑 파츠": ["신속", "전격"],
-        "레거시: 마력의 소용돌이": [],
-        "레거시: 자연의 수호자": []
+        "레거시: 마력의 소용돌이": ["레거시"],
+        "레거시: 자연의 수호자": ["레거시"]
     };
-    const ARMOR_EXCEED_ONLY = ["레거시: 마력의 소용돌이", "레거시: 자연의 수호자"];
+    // 레거시 장비는 접두어만 있고 일반 장비가 없음 (빈 배열)
+    const ARMOR_EXCEED_ONLY = [];
     const ACCESSORY_SETS = {
-        "엘팅 메모리얼의 기억": ["선명한 기억의 팔찌<br>묻힌 시간의 팔찌", "흐릿한 과거의 목걸이", "덮어둔 기억의 반지"],
-        "섬뜩한 빛의 관리자": ["이심전심<br>무언의 연결", "숨겨진 맥락", "감춰진 결"],
-        "부식된 메탈기어": ["기계의 심박<br>기계의 맥박", "사라진 동력", "정지된 흐름"],
-        "화력 개조 탄띠": ["멀티플 툴즈<br>트리플 툴즈", "피어싱 드릴 네클레스", "오토매틱 실린더"],
-        "신비로운 빛의 소용돌이": ["시린 달빛<br>푸른 달빛", "은색의 별빛", "붉은 햇빛"],
-        "콰트로 마누스 연산장치": ["기계의 주시<br>기계의 시선", "에너지의 눈", "응시의 흔적"],
-        "레거시: 에테리얼 리베넌트": ["레거시: 아이언 엠벨리시드 밴드<br>레거시: 강철 리스트 가드", "레거시: 영혼 추적장치", "레거시: 할기의 본링"],
-        "레거시: 지나온 영광의 시대": ["레거시: 세이트 루멘아이트 렐릭<br>레거시: 홀리 미스릴 렐릭", "레거시: 펠 로스 글로리", "레거시: 에이션트 엘븐 링"]
+        "엘팅 메모리얼의 기억": ["팔찌", "목걸이", "반지"],
+        "섬뜩한 빛의 관리자": ["팔찌", "목걸이", "반지"],
+        "부식된 메탈기어": ["팔찌", "목걸이", "반지"],
+        "화력 개조 탄띠": ["팔찌", "목걸이", "반지"],
+        "신비로운 빛의 소용돌이": ["팔찌", "목걸이", "반지"],
+        "콰트로 마누스 연산장치": ["팔찌", "목걸이", "반지"],
+        "레거시: 에테리얼 리베넌트": ["팔찌", "목걸이", "반지"],
+        "레거시: 지나온 영광의 시대": ["팔찌", "목걸이", "반지"]
     };
     const ACCESSORY_PREFIX = {
         "엘팅 메모리얼의 기억": ["견고", "혈독"],
@@ -747,16 +748,18 @@
         "화력 개조 탄띠": ["혈독", "견고"],
         "신비로운 빛의 소용돌이": ["조화", "초석"],
         "콰트로 마누스 연산장치": ["가속", "조화"],
-        "레거시: 에테리얼 리베넌트": [],
-        "레거시: 지나온 영광의 시대": []
+        "레거시: 에테리얼 리베넌트": ["레거시"],
+        "레거시: 지나온 영광의 시대": ["레거시"]
     };
+    // 레거시 장비는 접두어만 있고 일반 장비가 없음 (빈 배열)
+    const ACCESSORY_EXCEED_ONLY = [];
     const SPECIAL_SETS = {
-        "개구쟁이 호문쿨루스": ["말괄량이의 문양 귀걸이<br>베키의 문양 귀걸이", "베키의 새총", "베키의 장갑"],
-        "라이트닝 에너지 코어": ["거신의 스펙쿨룸 이어링<br>거인의 스펙쿨룸 이어링", "거인의 스펙쿨룸 코어", "거인의 건들릿"],
-        "철갑을 두른 탑의 수호꾼": ["메탈기어의 초합금 태엽<br>메탈기어의 태엽 귀걸이", "메탈기어의 두뇌", "메탈기어의 조작부"],
-        "깊은 불구덩이의 섬멸자": ["강철 용의 기관총 이어링<br>강철 용의 기총 이어링", "강철 용의 천공기", "강철 용의 칼날 외골격"],
-        "허영 속 어둠의 피조물": ["골드 크라운의 서커스 장식<br>골드 크라운의 머리 장식", "골드 크라운의 핵심 부품", "골드 크라운의 에너지 방출기"],
-        "부정한 빛의 우상": ["콰트로 마누스의 기억<br>콰트로 마누스의 태엽 장식", "콰트로 마누스의 두뇌", "콰트로 마누스의 에너지 코어"]
+        "개구쟁이 호문쿨루스": ["귀걸이", "마법석", "보장"],
+        "라이트닝 에너지 코어": ["귀걸이", "마법석", "보장"],
+        "철갑을 두른 탑의 수호꾼": ["귀걸이", "마법석", "보장"],
+        "깊은 불구덩이의 섬멸자": ["귀걸이", "마법석", "보장"],
+        "허영 속 어둠의 피조물": ["귀걸이", "마법석", "보장"],
+        "부정한 빛의 우상": ["귀걸이", "마법석", "보장"]
     };
     const SPECIAL_PREFIX = {
         "개구쟁이 호문쿨루스": ["불굴", "숙련"],
@@ -768,12 +771,174 @@
     };
     const ALL_SETS = {...ARMOR_SETS, ...ACCESSORY_SETS, ...SPECIAL_SETS};
     const ALL_PREFIX = {...ARMOR_PREFIX, ...ACCESSORY_PREFIX, ...SPECIAL_PREFIX};
+
+    // ★ 레거시 세트: 접두어는 "레거시"지만 키는 setName 자체를 그대로 사용
+    // e.g., makePrefixKey("레거시", "레거시: 마력의 소용돌이") => "레거시: 마력의 소용돌이"
+    // (NOT "레거시: 레거시: 마력의 소용돌이")
+    const LEGACY_PREFIX_SETS = [
+        "레거시: 마력의 소용돌이",
+        "레거시: 자연의 수호자",
+        "레거시: 에테리얼 리베넌트",
+        "레거시: 지나온 영광의 시대"
+    ];
+
+    function makePrefixKey(pref, setName) {
+        if (LEGACY_PREFIX_SETS.includes(setName)) return setName;
+        return `${pref}: ${setName}`;
+    }
+
     const EXCEED_TAGS = ["선봉", "의지", "이상"];
     const EXCEED_SLOTS = {"ARMOR": ["상의"], "ACCESSORY": ["팔찌"], "SPECIAL": ["귀걸이"]};
     const EXCEED_COLOR_MAP = {
         "선봉": "#ff4d4d",
         "의지": "#4d94ff",
         "이상": "#2ecc71"
+    };
+
+    // 방어구 표시용 이름 매핑 (레거시 아이템은 "레거시: " 접두어 제거)
+    const ARMOR_DISPLAY_NAMES = {
+        "어느 말괄량이의 탐사복": {
+            "상의": ["못말리는 말괄량이의 가죽", "어느 말괄량이의 가죽 자켓"],
+            "하의": "어느 말괄량이의 버블 반바지",
+            "어깨": "어느 말괄량이의 특수 고글",
+            "벨트": "어느 말괄량이의 벨트",
+            "신발": "어느 말괄량이의 신발"
+        },
+        "포이즈닝 퀸 스파이더": {
+            "상의": ["엠프리스 스파이더 상의", "퀸 스파이더 상의"],
+            "하의": "퀸 스파이더 하의",
+            "어깨": "퀸 스파이더 머리",
+            "벨트": "퀸 스파이더 벨트 장식",
+            "신발": "퀸 스파이더 신발"
+        },
+        "거인의 스펙쿨룸 아이언": {
+            "상의": ["거신의 스펙쿨룸 상의", "거인의 스펙쿨룸 상의"],
+            "하의": "거인의 스펙쿨룸 하의",
+            "어깨": "거인의 스펙쿨룸 어깨 장식",
+            "벨트": "거인의 스펙쿨룸 허리띠",
+            "신발": "거인의 스펙쿨룸 신발"
+        },
+        "어둠을 쏘아 내리는 자": {
+            "상의": ["밤을 쏘아 내리는 자의 상의", "어둠을 쏘아 내리는 자의 상의"],
+            "하의": "어둠을 쏘아 내리는 자의 하의",
+            "어깨": "어둠을 쏘아 내리는 자의 어깨 덧댐",
+            "벨트": "어둠을 쏘아 내리는 자의 허리띠",
+            "신발": "어둠을 쏘아 내리는 자의 신발"
+        },
+        "수호자의 초합금": {
+            "상의": ["수호군주의 초합금 상의", "수호자의 초합금 상의"],
+            "하의": "수호자의 초합금 하의",
+            "어깨": "수호자의 초합금 어깨",
+            "벨트": "수호자의 초합금 벨트",
+            "신발": "수호자의 초합금 신발"
+        },
+        "스틱키 애시드 웨펀": {
+            "상의": ["네트 스파이더 상의", "웹 스파이더의 상의"],
+            "하의": "웹 스파이더의 하의",
+            "어깨": "웹 스파이더의 어깨",
+            "벨트": "웹 스파이더의 허리",
+            "신발": "웹 스파이더의 신발"
+        },
+        "섬뜩한 강철 용": {
+            "상의": ["강철 용의 스케일 재킷", "강철 용의 가죽 재킷"],
+            "하의": "강철 용의 가죽 그리브",
+            "어깨": "강철 용의 뿔 장식",
+            "벨트": "강철 용의 휴대용 벨트",
+            "신발": "강철 용의 가죽 신발"
+        },
+        "익스플로시브 버닝 스톤": {
+            "상의": ["블레이징 기어 플레이트 메일", "버닝 기어 플레이트 메일"],
+            "하의": "버닝 기어 플레이트 레깅스",
+            "어깨": "버닝 기어 플레이트 햇",
+            "벨트": "버닝 기어 플레이트 코일",
+            "신발": "버닝 기어 플레이트 사바톤"
+        },
+        "빛의 헌신자": {
+            "상의": ["빛의 수호자의 상의", "빛의 헌신자의 상의"],
+            "하의": "빛의 헌신자의 하의",
+            "어깨": "빛의 헌신자의 모자",
+            "벨트": "빛의 헌신자의 허리장식",
+            "신발": "빛의 헌신자의 신발"
+        },
+        "여명을 쏘아 올리는 자": {
+            "상의": ["여명을 밝힌 자의 상의", "여명을 쏘아 올리는 자의 상의"],
+            "하의": "여명을 쏘아 올리는 자의 바지",
+            "어깨": "여명을 쏘아 올리는 자의 어깨 덧댐",
+            "벨트": "여명을 쏘아 올리는 자의 허리띠",
+            "신발": "여명을 쏘아 올리는 자의 신발"
+        },
+        "콰트로 카시테움": {
+            "상의": ["콰트로 카시테움 아머Mk2", "콰트로 카시테움 아머"],
+            "하의": "콰트로 카시테움 각반",
+            "어깨": "콰트로 카시테움 새로운 손",
+            "벨트": "콰트로 카시테움 코일",
+            "신발": "콰트로 카시테움 그리브"
+        },
+        "그란테 전투기갑 파츠": {
+            "상의": ["그런데 마누스 전투기갑 상의", "그란데 전투기갑 상의"],
+            "하의": "그란데 전투기갑 하의",
+            "어깨": "그란데 전투기갑 헤드기어",
+            "벨트": "그란데 전투기갑 허리",
+            "신발": "그란데 전투기갑 신발"
+        },
+        "레거시: 마력의 소용돌이": {
+            "상의": ["휘몰아치는 마력의 태풍", "마력의 폭풍우"],
+            "하의": "영력의 회오리",
+            "어깨": "마법의 대격변",
+            "벨트": "마나의 소용돌이",
+            "신발": "정수의 태풍"
+        },
+        "레거시: 자연의 수호자": {
+            "상의": ["루미너스 오토 상의", "라이트니스 오토 상의"],
+            "하의": "파이어니스 오토 하의",
+            "어깨": "블랙니스 오토 어깨",
+            "벨트": "아이니스 오토 벨트",
+            "신발": "윈드니스 오토 신발"
+        }
+    };
+
+    // 악세 표시용 이름 매핑 (레거시 아이템은 "레거시: " 접두어 제거)
+    const ACCESSORY_DISPLAY_NAMES = {
+        "엘팅 메모리얼의 기억": {
+            "팔찌": ["선명한 기억의 팔찌", "묻힌 시간의 팔찌"],
+            "목걸이": "흐릿한 과거의 목걸이",
+            "반지": "덮어둔 기억의 반지"
+        },
+        "섬뜩한 빛의 관리자": {
+            "팔찌": ["이심전심", "무언의 연결"],
+            "목걸이": "숨겨진 맥락",
+            "반지": "감춰진 결"
+        },
+        "부식된 메탈기어": {
+            "팔찌": ["기계의 심박", "기계의 맥박"],
+            "목걸이": "사라진 동력",
+            "반지": "정지된 흐름"
+        },
+        "화력 개조 탄띠": {
+            "팔찌": ["멀티플 툴즈", "트리플 툴즈"],
+            "목걸이": "피어싱 드릴 네클레스",
+            "반지": "오토매틱 실린더"
+        },
+        "신비로운 빛의 소용돌이": {
+            "팔찌": ["시린 달빛", "푸른 달빛"],
+            "목걸이": "은색의 별빛",
+            "반지": "붉은 햇빛"
+        },
+        "콰트로 마누스 연산장치": {
+            "팔찌": ["기계의 주시", "기계의 시선"],
+            "목걸이": "에너지의 눈",
+            "반지": "응시의 흔적"
+        },
+        "레거시: 에테리얼 리베넌트": {
+            "팔찌": ["아이언 엠벨리시드 밴드", "강철 리스트 가드"],
+            "목걸이": "영혼 추적장치",
+            "반지": "할기의 본링"
+        },
+        "레거시: 지나온 영광의 시대": {
+            "팔찌": ["세이트 루멘아이트 렐릭", "홀리 미스릴 렐릭"],
+            "목걸이": "펠 로스 글로리",
+            "반지": "에이션트 엘븐 링"
+        }
     };
 
     // 악세 추가 정보
@@ -798,6 +963,39 @@
         "부정한 빛의 우상": "콰트로"
     };
 
+    // ✅ 새로 추가: 특수장비 표시용 이름 매핑
+    const SPECIAL_DISPLAY_NAMES = {
+        "개구쟁이 호문쿨루스": {
+            "귀걸이": ["말괄량이의 문양 귀걸이", "베키의 문양 귀걸이"],
+            "마법석": "베키의 새총",
+            "보장": "베키의 장갑"
+        },
+        "라이트닝 에너지 코어": {
+            "귀걸이": ["거신의 스펙쿨룸 이어링", "거인의 스펙쿨룸 이어링"],
+            "마법석": "거인의 스펙쿨룸 코어",
+            "보장": "거인의 건들릿"
+        },
+        "철갑을 두른 탑의 수호꾼": {
+            "귀걸이": ["메탈기어의 초합금 태엽", "메탈기어의 태엽 귀걸이"],
+            "마법석": "메탈기어의 두뇌",
+            "보장": "메탈기어의 조작부"
+        },
+        "깊은 불구덩이의 섬멸자": {
+            "귀걸이": ["강철 용의 기관총 이어링", "강철 용의 기총 이어링"],
+            "마법석": "강철 용의 천공기",
+            "보장": "강철 용의 칼날 외골격"
+        },
+        "허영 속 어둠의 피조물": {
+            "귀걸이": ["골드 크라운의 서커스 장식", "골드 크라운의 머리 장식"],
+            "마법석": "골드 크라운의 핵심 부품",
+            "보장": "골드 크라운의 에너지 방출기"
+        },
+        "부정한 빛의 우상": {
+            "귀걸이": ["콰트로 마누스의 기억", "콰트로 마누스의 태엽 장식"],
+            "마법석": "콰트로 마누스의 두뇌",
+            "보장": "콰트로 마누스의 에너지 코어"
+        }
+    };
 
     // 무기 데이터
     const WEAPON_DATA_SLAYER = {
@@ -836,16 +1034,8 @@
         "배틀엑스": ["대서사의 탄생 - 배틀엑스", "행성파괴자", "오만의 끝"]
     };
     const WEAPON_DATA_WARRIOR = {
-        "락소드": [
-            "대서사의 탄생 - 락소드",
-            "우주적 기운의 락소드",
-            "라이프 파인더"
-        ],
-        "윙블레이드": [
-            "대서사의 탄생 - 윙블레이드",
-            "프로스트 윙 블레이드",
-            "코카트리스"
-        ]
+        "락소드": ["대서사의 탄생 - 락소드", "우주적 기운의 락소드", "라이프 파인더"],
+        "윙블레이드": ["대서사의 탄생 - 윙블레이드", "프로스트 윙 블레이드", "코카트리스"]
     };
     const WEAPON_DATA_LANCER = {
         "미늘창": ["대서사의 탄생 - 미늘창", "크림슨 로드", "광염의 극"],
@@ -964,6 +1154,16 @@
     /* ========================================
        4. 유틸리티 함수
        ======================================== */
+
+    // 표에 들어갈 행 이름 배열을 받아 가장 긴 이름 기준으로 너비(px) 계산
+    function calcNameWidth(names) {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        ctx.font = "14px sans-serif";
+        const max = Math.max(...names.map(n => ctx.measureText(n).width));
+        return Math.ceil(max) + 24; // 좌우 패딩 여유
+    }
+
     function isExceedName(name) {
         return /^\[(선봉|의지|이상)\]\s/.test(name);
     }
@@ -983,7 +1183,15 @@
         if (ACCESSORY_SETS[baseName]) return "ACCESSORY";
         if (SPECIAL_SETS[baseName]) return "SPECIAL";
 
-        return "ARMOR"; // 기본값
+        // 레거시 세트 판별 (setName 자체가 키)
+        for (const legacyName of LEGACY_PREFIX_SETS) {
+            if (setName === legacyName || setName.endsWith(legacyName)) {
+                if (ARMOR_SETS[legacyName]) return "ARMOR";
+                if (ACCESSORY_SETS[legacyName]) return "ACCESSORY";
+            }
+        }
+
+        return "ARMOR";
     }
 
     function calcTotalDistinctParts(char, baseSetName) {
@@ -993,34 +1201,23 @@
         const exceedSlots = EXCEED_SLOTS[setType] || [];
 
         // 검색할 모든 그룹 이름 (기본, 접두어, 익시드) 생성
-        const namesToSearch = [baseSetName];
+        const namesToSearch = [];
 
-        if (prefixes.length > 0) {
-            // 접두어가 있는 경우: 기존 로직
-            prefixes.forEach(pref => {
-                const prefixedName = `${pref}: ${baseSetName}`;
-                namesToSearch.push(prefixedName);
-                EXCEED_TAGS.forEach(tag => {
-                    namesToSearch.push(`[${tag}] ${prefixedName}`);
-                });
-            });
-        } else {
-            // 💡 신규 추가: 접두어가 없는 경우 (레거시 장비)
-            const isExceedOnlyArmor = (typeof ARMOR_EXCEED_ONLY !== 'undefined' && ARMOR_EXCEED_ONLY.includes(baseSetName));
-            const isExceedOnlyAccessory = (typeof ACCESSORY_EXCEED_ONLY !== 'undefined' && ACCESSORY_EXCEED_ONLY.includes(baseSetName));
-
-            if (isExceedOnlyArmor || isExceedOnlyAccessory) {
-                EXCEED_TAGS.forEach(tag => {
-                    namesToSearch.push(`[${tag}] ${baseSetName}`);
-                });
-            }
+        // 레거시 세트는 일반 행 없음 (접두어만)
+        if (!LEGACY_PREFIX_SETS.includes(baseSetName)) {
+            namesToSearch.push(baseSetName);
         }
+
+        prefixes.forEach(p => {
+            const prefKey = makePrefixKey(p, baseSetName);
+            namesToSearch.push(prefKey);
+            EXCEED_TAGS.forEach(ex => namesToSearch.push(`[${ex}] ${prefKey}`));
+        });
 
         let totalDistinct = 0;
 
         slots.forEach(slot => {
             let hasPartInSlot = false;
-            const slotSuffix = ` ${slot}`;
 
             namesToSearch.forEach(nameComponent => {
                 const isExceedKey = nameComponent.startsWith('[');
@@ -1030,7 +1227,7 @@
                     return;
                 }
 
-                const fullKey = `${nameComponent}${slotSuffix}`;
+                const fullKey = `${nameComponent} ${slot}`;
                 if ((char.armorCounts[fullKey] || 0) > 0) {
                     hasPartInSlot = true;
                 }
@@ -1042,87 +1239,6 @@
         });
 
         return totalDistinct;
-    }
-
-    // ===== 필터별 슬롯 개수 계산 =====
-    function calculateSlotCountByFilter(char, setName, slot, filter) {
-        const prefixes = ALL_PREFIX[setName] || [];
-
-        let total = 0;
-
-        // 검색 대상 그룹 목록 정의
-        const baseGroup = setName;
-        const prefixedGroups = prefixes.map(p => `${p}: ${setName}`);
-        const exceedGroups = prefixes.flatMap(p =>
-            EXCEED_TAGS.map(tag => `[${tag}] ${p}: ${setName}`)
-        );
-
-        let groupsToSearch = [];
-
-        if (filter === 'ALL') {
-            // '모두': 일반, 접두어, 익시드 모두 합산
-            groupsToSearch = [baseGroup, ...prefixedGroups, ...exceedGroups];
-        } else if (filter === 'BASE') {
-            // '일반': 순수 세트 이름만
-            groupsToSearch = [baseGroup];
-        } else if (filter === 'PREFIX') {
-            // '접두어': 접두어 붙은 세트만 (익시드 제외)
-            groupsToSearch = prefixedGroups;
-        } else if (filter === 'EXCEED') {
-            // '익시드': 익시드 붙은 세트만
-            groupsToSearch = exceedGroups;
-        }
-
-        groupsToSearch.forEach(group => {
-            const fullKey = `${group} ${slot}`;
-            // 주의: 'BASE'와 'PREFIX' 필터에서는 익시드가 붙은 키는 제외됩니다.
-            // 'ALL' 필터에서는 익시드가 붙은 키도 포함됩니다. (위의 groupsToSearch 정의에 따름)
-            total += char.armorCounts[fullKey] || 0;
-        });
-
-        return total;
-    }
-
-    // ✅ <br> 태그를 처리하는 개선된 필터 함수
-    function calculateSlotCountByFilterFixed(char, setName, slot, filter) {
-        const prefixes = ALL_PREFIX[setName] || [];
-        let total = 0;
-
-        const baseGroup = setName;
-        const prefixedGroups = prefixes.map(p => `${p}: ${setName}`);
-        let exceedGroups = prefixes.flatMap(p =>
-            EXCEED_TAGS.map(tag => `[${tag}] ${p}: ${setName}`)
-        );
-
-        // ✅ 레거시 장비 익시드 처리
-        const isExceedOnlyArmor = (typeof ARMOR_EXCEED_ONLY !== 'undefined' && ARMOR_EXCEED_ONLY.includes(setName));
-        const isExceedOnlyAccessory = (typeof ACCESSORY_EXCEED_ONLY !== 'undefined' && ACCESSORY_EXCEED_ONLY.includes(setName));
-
-        if (isExceedOnlyArmor || isExceedOnlyAccessory) {
-            EXCEED_TAGS.forEach(tag => {
-                exceedGroups.push(`[${tag}] ${setName}`);
-            });
-        }
-
-        let groupsToSearch = [];
-
-        if (filter === 'ALL') {
-            groupsToSearch = [baseGroup, ...prefixedGroups, ...exceedGroups];
-        } else if (filter === 'NORMAL') {
-            groupsToSearch = [baseGroup];
-        } else if (filter === 'PREFIX') {
-            groupsToSearch = prefixedGroups;
-        } else if (filter === 'EXCEED') {
-            groupsToSearch = exceedGroups;
-        }
-
-        groupsToSearch.forEach(group => {
-            // ✅ 슬롯명은 <br> 포함된 실제 키 그대로 사용
-            const fullKey = `${group} ${slot}`;
-            total += char.armorCounts[fullKey] || 0;
-        });
-
-        return total;
     }
 
     /* ========================================
@@ -1331,6 +1447,7 @@
             //     wrapper.appendChild(upBtn);
             //     wrapper.appendChild(downBtn);
             // }
+
             // ✅ 편집 모드일 때만 ⬅️➡️ 버튼 표시
             if (isEditingCharacterOrder) {
                 // ⬅️ 왼쪽(위로) 버튼
@@ -1366,7 +1483,6 @@
                 wrapper.appendChild(leftBtn);
                 wrapper.appendChild(rightBtn);
             }
-
 
             listEl.appendChild(wrapper);
         });
@@ -1416,11 +1532,7 @@
     // 💡 이름순 정렬
     function sortCharactersByName() {
         if (characters.length === 0) return;
-
-        characters.sort((a, b) => {
-            return a.name.localeCompare(b.name, 'ko-KR');   // 한글 가나다순
-        });
-
+        characters.sort((a, b) => a.name.localeCompare(b.name, 'ko-KR')); // 한글 가나다순
         saveLocalData();
         renderCharacterList();
 
@@ -1591,14 +1703,16 @@
         const panel = document.getElementById("panel");
 
         // 1. [토글 로직]
+        // 새로고침(isRefresh=true)이 아닐 때만 '이미 열린 캐릭터'를 누르면 닫히게 합니다.
         if (!isRefresh && activeCharacterId === char.id) {
             activeCharacterId = null;
             setList.innerHTML = "";
             panel.innerHTML = "";
-            renderCharacterList();
+            renderCharacterList(); // 선택 표시(노란불) 해제
             return;
         }
 
+        // 캐릭터 선택 상태 업데이트 및 노란색 불 켜기
         activeCharacterId = char.id;
         renderCharacterList();
 
@@ -1618,9 +1732,7 @@
             const slot = parts.pop();
             const name = parts.join(' ');
 
-            // ✅ <br> 태그 제거 후 그룹 키 생성
-            const cleanName = name.replace(/<br>/g, '');
-            const groupKey = getGroupKey(cleanName);
+            const groupKey = getGroupKey(name);
             const setType = getSetType(groupKey);
 
             if (setType === "ARMOR") totalArmor += count;
@@ -1672,13 +1784,18 @@
         // 1. 전체 고유 부위 개수 계산 (접두어/익시드 무시)
         const distinctParts = calcTotalDistinctParts(char, setName);
 
-        // 2. 총 부위 개수 (totalParts, x 값) 계산
-        const allGroupKeys = [setName];
+        const allGroupKeys = [];
+
+        // 레거시 세트는 일반 행 없음
+        if (!LEGACY_PREFIX_SETS.includes(setName)) {
+            allGroupKeys.push(setName);
+        }
+
         prefixes.forEach(pref => {
-            const prefixedName = `${pref}: ${setName}`;
-            allGroupKeys.push(prefixedName);
+            const prefKey = makePrefixKey(pref, setName);
+            allGroupKeys.push(prefKey);
             EXCEED_TAGS.forEach(tag => {
-                allGroupKeys.push(`[${tag}] ${prefixedName}`);
+                allGroupKeys.push(`[${tag}] ${prefKey}`);
             });
         });
 
@@ -1686,11 +1803,7 @@
             const isExceedKey = groupKey.startsWith('[');
             slots.forEach(slot => {
                 let key = `${groupKey} ${slot}`;
-
-                if (isExceedKey && !exceedSlots.includes(slot)) {
-                    return;
-                }
-
+                if (isExceedKey && !exceedSlots.includes(slot)) return;
                 totalParts += char.armorCounts[key] || 0;
             });
         });
@@ -1748,7 +1861,6 @@
 
     // ===== 세트 표 열기 =====
     function openSet(setName, char) {
-        // 세트가 변경될 때마다 기본 필터를 'ALL'로 초기화하고 UI 업데이트
         if (currentSetName !== setName || currentChar?.id !== char.id) {
             currentFilter = 'ALL';
         }
@@ -1760,56 +1872,353 @@
         panel.innerHTML = `<h2>[${setName} 세트]</h2>`;
 
         const slots = ALL_SETS[setName] || [];
+        const setType = getSetType(setName);
         const table = document.createElement("table");
 
-        // ✅ 테이블 헤더 크기 조정
-        table.innerHTML = `<thead>
- <tr>
-   <th style="max-width: 200px; white-space: normal;">세트 이름</th>
-   ${slots.map(s => `<th style="max-width: 150px; white-space: normal; font-size: 0.9em; line-height: 1.3; padding: 8px;">${s}</th>`).join("")}
- </tr>
-</thead><tbody></tbody>`;
+        if (setType === "SPECIAL") {
+            // ====================================================
+            // 특장 전용: 표 2개로 나누어 렌더링
+            // 표1(위): 귀걸이(두 번째 이름)+나머지슬롯 - 일반/프리픽스 행
+            // 표2(아래): 귀걸이(첫 번째 이름)만 - 익시드+프리픽스 행
+            // ====================================================
+            const displayNames = SPECIAL_DISPLAY_NAMES[setName] || null;
+            const prefixes = ALL_PREFIX[setName] || [];
+            const exceedSlot = EXCEED_SLOTS["SPECIAL"][0]; // 귀걸이
 
-        const tbody = table.querySelector("tbody");
+            // 귀걸이 표시 이름: 배열[0]=익시드용, 배열[1]=일반/접두어용
+            const earringRaw = displayNames ? (displayNames[exceedSlot] || exceedSlot) : exceedSlot;
+            const earringName1 = Array.isArray(earringRaw) ? earringRaw[0] : earringRaw; // 표2(아래) 헤더: 익시드 귀걸이
+            const earringName2 = Array.isArray(earringRaw) ? earringRaw[1] : earringRaw; // 표1(위) 헤더: 일반/접두어 귀걸이
 
-        tbody.appendChild(makeRow(setName, setName, char));
-        const prefixes = ALL_PREFIX[setName] || [];
+            // ── 표 1 (위): 일반/프리픽스 (귀걸이 두 번째 이름 + 나머지 슬롯) ──
+            const table1 = document.createElement("table");
+            const otherSlots = slots.filter(s => s !== exceedSlot);
+            const allSlots1 = [exceedSlot, ...otherSlots];
 
-        // 💡 일반 접두어 행 추가
-        prefixes.forEach(pref => {
-            tbody.appendChild(makeRow(`${pref}: ${setName}`, setName, char));
-        });
+            const headerSlots1 = allSlots1.map(s => {
+                let displayName;
+                if (s === exceedSlot) {
+                    displayName = earringName2; // 베키의 문양 귀걸이
+                } else {
+                    displayName = displayNames ? (displayNames[s] || s) : s;
+                }
+                return `<th style="white-space:nowrap; font-size:0.9em; padding:8px;">${displayName}</th>`;
+            }).join("");
+            table1.innerHTML = `<thead><tr>
+  <th style="white-space:nowrap; padding:8px;">세트 이름</th>
+  ${headerSlots1}
+</tr></thead><tbody></tbody>`;
+            const tbody1 = table1.querySelector("tbody");
 
-        // 💡 익시드 행 추가 로직 수정
-        if (prefixes.length > 0) {
+            const makeRow2 = (labelText, nameKey) => {
+                const totalDistinct = calcTotalDistinctParts(char, setName);
+                let hasAnyPart = false;
+                allSlots1.forEach(slot => {
+                    if ((char.armorCounts[`${nameKey} ${slot}`] || 0) > 0) hasAnyPart = true;
+                });
+                const tr = document.createElement("tr");
+                if (hasAnyPart && totalDistinct === 3) tr.className = "set3";
+                let html = `<td style="text-align:center;">${labelText}</td>`;
+                allSlots1.forEach(slot => {
+                    const key = `${nameKey} ${slot}`;
+                    const val = char.armorCounts[key] || 0;
+                    html += `<td>${makeNumberButton(char.id, key, val)}</td>`;
+                });
+                tr.innerHTML = html;
+                return tr;
+            };
+
+            tbody1.appendChild(makeRow2("일반", setName));
+            prefixes.forEach(pref => {
+                const styledPref = `<span style="color:#e6b800; font-weight:bold;">${pref}</span>`;
+                tbody1.appendChild(makeRow2(styledPref, `${pref}: ${setName}`));
+            });
+
+            // ── 표 2 (아래): exceed 전용 (귀걸이 첫 번째 이름만) ──
+            const table2 = document.createElement("table");
+            table2.innerHTML = `<thead><tr>
+  <th style="white-space:nowrap; padding:8px;">세트 이름</th>
+  <th style="white-space:nowrap; font-size:0.9em; padding:8px;">${earringName1}</th>
+</tr></thead><tbody></tbody>`;
+            const tbody2 = table2.querySelector("tbody");
+
             prefixes.forEach(pref => {
                 EXCEED_TAGS.forEach(ex => {
-                    tbody.appendChild(makeRow(`[${ex}] ${pref}: ${setName}`, setName, char));
+                    const name = `[${ex}] ${pref}: ${setName}`;
+                    const key = `${name} ${exceedSlot}`;
+                    const val = char.armorCounts[key] || 0;
+                    const color = EXCEED_COLOR_MAP[ex] || "#fff";
+                    const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> ${pref}`;
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `<td style="text-align:center;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
+                    tbody2.appendChild(tr);
                 });
             });
-        } else {
-            const isExceedOnlyArmor = (typeof ARMOR_EXCEED_ONLY !== 'undefined' && ARMOR_EXCEED_ONLY.includes(setName));
-            const isExceedOnlyAccessory = (typeof ACCESSORY_EXCEED_ONLY !== 'undefined' && ACCESSORY_EXCEED_ONLY.includes(setName));
 
-            if (isExceedOnlyArmor || isExceedOnlyAccessory) {
-                EXCEED_TAGS.forEach(ex => {
-                    tbody.appendChild(makeRow(`[${ex}] ${setName}`, setName, char));
+            panel.appendChild(table1);
+            panel.appendChild(document.createElement("br"));
+            panel.appendChild(table2);
+
+            // 표1(위) 너비: 일반/접두어 행 이름 기준
+            const normalNames = ["일반", ...prefixes];
+            const w1 = calcNameWidth(normalNames);
+            table1.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+                cell.style.width = w1 + "px";
+            });
+
+            // 표2(아래) 너비: 익시드 행 이름 기준
+            const exceedNames = prefixes.flatMap(p => EXCEED_TAGS.map(ex => `[${ex}] ${p}`));
+            const w2 = calcNameWidth(exceedNames.length ? exceedNames : ["일반"]);
+            table2.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+                cell.style.width = w2 + "px";
+            });
+
+        } else if (setType === "ACCESSORY" && ACCESSORY_DISPLAY_NAMES[setName]) {
+            // ====================================================
+            // 악세 전용: 표 2개로 나누어 렌더링 (특장과 동일한 방식)
+            // 표1(위): 일반/프리픽스 - 팔찌 두번째 이름 + 목걸이 + 반지
+            // 표2(아래): 익시드 전용 - 팔찌 첫번째 이름만
+            // ====================================================
+            const displayNames = ACCESSORY_DISPLAY_NAMES[setName];
+            const prefixes = ALL_PREFIX[setName] || [];
+            const exceedSlot = EXCEED_SLOTS["ACCESSORY"][0]; // 팔찌
+
+            const braceletRaw = displayNames[exceedSlot] || exceedSlot;
+            const braceletName1 = Array.isArray(braceletRaw) ? braceletRaw[0] : braceletRaw; // 표2(아래): 익시드 팔찌
+            const braceletName2 = Array.isArray(braceletRaw) ? braceletRaw[1] : braceletRaw; // 표1(위): 일반/접두어 팔찌
+
+            // ── 표1(위): 일반/프리픽스 (팔찌 두번째 + 목걸이 + 반지) ──
+            const accTable1 = document.createElement("table");
+            const otherSlots = slots.filter(s => s !== exceedSlot);
+            const allSlots1 = [exceedSlot, ...otherSlots];
+
+            const headerSlots1 = allSlots1.map(s => {
+                let displayName;
+                if (s === exceedSlot) {
+                    displayName = braceletName2;
+                } else {
+                    displayName = displayNames[s] || s;
+                }
+                return `<th style="white-space:nowrap; font-size:0.9em; padding:8px;">${displayName}</th>`;
+            }).join("");
+            accTable1.innerHTML = `<thead><tr>
+  <th style="white-space:nowrap; padding:8px;">세트 이름</th>
+  ${headerSlots1}
+</tr></thead><tbody></tbody>`;
+            const tbody1 = accTable1.querySelector("tbody");
+
+            const makeAccRow = (labelText, nameKey) => {
+                const totalDistinct = calcTotalDistinctParts(char, setName);
+                let hasAnyPart = false;
+                allSlots1.forEach(slot => {
+                    if ((char.armorCounts[`${nameKey} ${slot}`] || 0) > 0) hasAnyPart = true;
+                });
+                const tr = document.createElement("tr");
+                if (hasAnyPart && totalDistinct === 3) tr.className = "set3";
+                let html = `<td style="text-align:center;">${labelText}</td>`;
+                allSlots1.forEach(slot => {
+                    const key = `${nameKey} ${slot}`;
+                    const val = char.armorCounts[key] || 0;
+                    html += `<td>${makeNumberButton(char.id, key, val)}</td>`;
+                });
+                tr.innerHTML = html;
+                return tr;
+            };
+
+            // ★ 레거시 악세: 일반 행 없음, 접두어("레거시") 행만
+            if (!LEGACY_PREFIX_SETS.includes(setName)) {
+                tbody1.appendChild(makeAccRow("일반", setName));
+            }
+            prefixes.forEach(pref => {
+                const styledPref = `<span style="color:#e6b800; font-weight:bold;">${pref}</span>`;
+                const prefKey = makePrefixKey(pref, setName);
+                tbody1.appendChild(makeAccRow(styledPref, prefKey));
+            });
+
+            const accTable2 = document.createElement("table");
+            accTable2.innerHTML = `<thead><tr>
+  <th style="white-space:nowrap; padding:8px;">세트 이름</th>
+  <th style="white-space:nowrap; font-size:0.9em; padding:8px;">${braceletName1}</th>
+</tr></thead><tbody></tbody>`;
+            const tbody2 = accTable2.querySelector("tbody");
+
+            if (prefixes.length > 0) {
+                prefixes.forEach(pref => {
+                    EXCEED_TAGS.forEach(ex => {
+                        const prefKey = makePrefixKey(pref, setName);
+                        const name = `[${ex}] ${prefKey}`;
+                        const key = `${name} ${exceedSlot}`;
+                        const val = char.armorCounts[key] || 0;
+                        const color = EXCEED_COLOR_MAP[ex] || "#fff";
+                        const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> <span style="color:#e6b800; font-weight:bold;">${pref}</span>`;
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `<td style="text-align:center;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
+                        tbody2.appendChild(tr);
+                    });
                 });
             }
+
+            panel.appendChild(accTable1);
+            panel.appendChild(document.createElement("br"));
+            panel.appendChild(accTable2);
+
+            const accNormalNames = LEGACY_PREFIX_SETS.includes(setName) ? [...prefixes] : ["일반", ...prefixes];
+            const accW1 = calcNameWidth(accNormalNames.length ? accNormalNames : ["일반"]);
+            accTable1.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+                cell.style.width = accW1 + "px";
+            });
+
+            const accExceedNames = prefixes.flatMap(p => EXCEED_TAGS.map(ex => `[${ex}] ${p}`));
+            const accW2 = calcNameWidth(accExceedNames.length ? accExceedNames : ["일반"]);
+            accTable2.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+                cell.style.width = accW2 + "px";
+            });
+
+        } else if (setType === "ARMOR" && ARMOR_DISPLAY_NAMES[setName]) {
+            // ====================================================
+            // 방어구 전용: 표 2개로 나누어 렌더링
+            // 표1(위): 일반/프리픽스 - 상의 두번째 이름 + 나머지 슬롯
+            // 표2(아래): 익시드 전용 - 상의 첫번째 이름만
+            // ====================================================
+            const displayNames = ARMOR_DISPLAY_NAMES[setName];
+            const prefixes = ALL_PREFIX[setName] || [];
+            const exceedSlot = EXCEED_SLOTS["ARMOR"][0]; // 상의
+
+            const topRaw = displayNames[exceedSlot] || exceedSlot;
+            const topName1 = Array.isArray(topRaw) ? topRaw[0] : topRaw; // 표2(아래): 익시드 상의
+            const topName2 = Array.isArray(topRaw) ? topRaw[1] : topRaw; // 표1(위): 일반/접두어 상의
+
+            // ── 표1(위): 익시드 전용 (상의 첫번째 이름만) ──
+            const armTable1 = document.createElement("table");
+            armTable1.innerHTML = `<thead><tr>
+  <th style="white-space:nowrap; padding:8px;">세트 이름</th>
+  <th style="white-space:nowrap; font-size:0.9em; padding:8px;">${topName1}</th>
+</tr></thead><tbody></tbody>`;
+            const tbody1 = armTable1.querySelector("tbody");
+
+            if (prefixes.length > 0) {
+                prefixes.forEach(pref => {
+                    EXCEED_TAGS.forEach(ex => {
+                        const prefKey = makePrefixKey(pref, setName);
+                        const name = `[${ex}] ${prefKey}`;
+                        const key = `${name} ${exceedSlot}`;
+                        const val = char.armorCounts[key] || 0;
+                        const color = EXCEED_COLOR_MAP[ex] || "#fff";
+                        const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> <span style="color:#e6b800; font-weight:bold;">${pref}</span>`;
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `<td style="text-align:center;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
+                        tbody1.appendChild(tr);
+                    });
+                });
+            }
+
+            // ── 표2(아래): 일반/접두어 ──
+            const armTable2 = document.createElement("table");
+            const otherSlots = slots.filter(s => s !== exceedSlot);
+            const allSlots2 = [exceedSlot, ...otherSlots];
+
+            const headerSlots2 = allSlots2.map(s => {
+                let displayName;
+                if (s === exceedSlot) {
+                    displayName = topName2;
+                } else {
+                    displayName = displayNames[s] || s;
+                }
+                return `<th style="white-space:nowrap; font-size:0.9em; padding:8px;">${displayName}</th>`;
+            }).join("");
+            armTable2.innerHTML = `<thead><tr>
+  <th style="white-space:nowrap; padding:8px;">세트 이름</th>
+  ${headerSlots2}
+</tr></thead><tbody></tbody>`;
+            const tbody2 = armTable2.querySelector("tbody");
+
+            const makeArmRow = (labelText, nameKey) => {
+                const totalDistinct = calcTotalDistinctParts(char, setName);
+                const fullSize = slots.length;
+                let hasAnyPart = false;
+                allSlots2.forEach(slot => {
+                    if ((char.armorCounts[`${nameKey} ${slot}`] || 0) > 0) hasAnyPart = true;
+                });
+                const tr = document.createElement("tr");
+                if (hasAnyPart) {
+                    if (totalDistinct === fullSize) tr.className = "set5";
+                    else if (totalDistinct >= 3) tr.className = "set3";
+                }
+                let html = `<td style="text-align:center;">${labelText}</td>`;
+                allSlots2.forEach(slot => {
+                    const key = `${nameKey} ${slot}`;
+                    const val = char.armorCounts[key] || 0;
+                    html += `<td>${makeNumberButton(char.id, key, val)}</td>`;
+                });
+                tr.innerHTML = html;
+                return tr;
+            };
+
+            // ★ 레거시 방어구: 일반 행 없음, 접두어("레거시") 행만
+            if (!LEGACY_PREFIX_SETS.includes(setName)) {
+                tbody2.appendChild(makeArmRow("일반", setName));
+            }
+            prefixes.forEach(pref => {
+                const styledPref = `<span style="color:#e6b800; font-weight:bold;">${pref}</span>`;
+                const prefKey = makePrefixKey(pref, setName);
+                tbody2.appendChild(makeArmRow(styledPref, prefKey));
+            });
+
+            panel.appendChild(armTable2);
+            panel.appendChild(document.createElement("br"));
+            panel.appendChild(armTable1);
+
+            const armNormalNames = LEGACY_PREFIX_SETS.includes(setName) ? [...prefixes] : ["일반", ...prefixes];
+            const armW1 = calcNameWidth(armNormalNames.length ? armNormalNames : ["일반"]);
+            armTable2.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+                cell.style.width = armW1 + "px";
+            });
+
+            const armExceedNames = prefixes.flatMap(p => EXCEED_TAGS.map(ex => `[${ex}] ${p}`));
+            const armW2 = calcNameWidth(armExceedNames.length ? armExceedNames : ["일반"]);
+            armTable1.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+                cell.style.width = armW2 + "px";
+            });
+
+        } else {
+            // 방어구 기존 로직 (ARMOR_DISPLAY_NAMES 없는 경우)
+            const headerSlots = slots.map(s => {
+                return `<th style="max-width:150px; white-space:normal; font-size:0.9em; line-height:1.3; padding:8px;">${s}</th>`;
+            }).join("");
+            table.innerHTML = `<thead><tr>
+  <th style="max-width:200px; white-space:normal;">세트 이름</th>
+  ${headerSlots}
+</tr></thead><tbody></tbody>`;
+            const tbody = table.querySelector("tbody");
+
+            if (!LEGACY_PREFIX_SETS.includes(setName)) {
+                tbody.appendChild(makeRow(setName, setName, char));
+            }
+            const prefixes = ALL_PREFIX[setName] || [];
+            prefixes.forEach(pref => {
+                const prefKey = makePrefixKey(pref, setName);
+                tbody.appendChild(makeRow(prefKey, setName, char));
+            });
+            prefixes.forEach(pref => {
+                EXCEED_TAGS.forEach(ex => {
+                    const prefKey = makePrefixKey(pref, setName);
+                    tbody.appendChild(makeRow(`[${ex}] ${prefKey}`, setName, char));
+                });
+            });
+
+            panel.appendChild(table);
+
+            table.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
+                cell.style.width = globalSetNameWidth + "px";
+            });
+            table.querySelectorAll("th:not(:first-child), td:not(:first-child)").forEach(cell => {
+                cell.style.width = globalSlotWidth + "px";
+            });
         }
-
-        panel.appendChild(table);
-
-        table.querySelectorAll("th:first-child, td:first-child").forEach(cell => {
-            cell.style.width = globalSetNameWidth + "px";
-        });
-        table.querySelectorAll("th:not(:first-child), td:not(:first-child)").forEach(cell => {
-            cell.style.width = globalSlotWidth + "px";
-        });
     }
 
     // 7-2. 테이블 행 생성
-    // ===== 표 행 생성 =====
+    // ===== 표 행 생성 (방어구/악세용) =====
     function makeRow(name, setName, char) {
         const slots = ALL_SETS[setName] || [];
         const groupKey = getGroupKey(name);
@@ -1817,14 +2226,12 @@
         const setType = getSetType(setName);
         const exceedSlots = EXCEED_SLOTS[setType];
 
-        // calcTotalDistinctParts로 기본 세트의 전체 고유 부위 개수를 가져옵니다.
         const totalDistinct = calcTotalDistinctParts(char, setName);
         const fullSize = slots.length;
 
         const tr = document.createElement("tr");
-        let hasAnyPartInRow = false; // 🚨 이 행(아이템)에 부위가 장착되었는지 확인
+        let hasAnyPartInRow = false;
 
-        // 1. 장착 여부 확인
         slots.forEach(slot => {
             let key = `${name} ${slot}`;
             if ((char.armorCounts[key] || 0) > 0) {
@@ -1832,7 +2239,6 @@
             }
         });
 
-        // 2. 전체 세트 달성 조건과 장착 여부를 모두 만족할 때만 색상 결정
         if (hasAnyPartInRow) {
             if (setType === "ARMOR") {
                 if (totalDistinct === fullSize) tr.className = "set5";
@@ -1842,55 +2248,38 @@
             }
         }
 
-
-        // =========================================================
-        // 💡 [최종 수정] 아이템 이름 스타일링 로직 시작 (HTML 문자열 조립)
-        // =========================================================
         let itemName = name;
         let finalHtmlName = itemName;
 
-        // 1. 익시드 태그 ([Tag]) 처리 (태그 제거 및 스타일링된 태그 생성)
         const exceedMatch = itemName.match(/^(\[.*?\])\s*(.*)/);
         let exceedTagHtml = '';
         let nameWithoutTag = itemName;
 
         if (exceedMatch) {
-            const tag = exceedMatch[1]; // 예: [이상]
-            nameWithoutTag = exceedMatch[2]; // 예: 전격: 어느 말괄량이의 탐사복
+            const tag = exceedMatch[1];
+            nameWithoutTag = exceedMatch[2];
             let color = '';
 
-            if (tag === '[선봉]') {
-                color = '#ff4d4f'; // 빨간색
-            } else if (tag === '[이상]') {
-                color = '#25c2a0'; // 초록색
-            } else if (tag === '[의지]') {
-                color = '#3399cc'; // 파란색
-            }
+            if (tag === '[선봉]') color = '#ff4d4f';
+            else if (tag === '[이상]') color = '#2ecc71';
+            else if (tag === '[의지]') color = '#3399cc';
 
             exceedTagHtml = `<span style="color:${color}; font-weight:bold;">${tag}</span> `;
         }
 
-        // 2. 접두어 (Prefix:) 처리 (노란색 적용)
-        let baseNameHtml = nameWithoutTag; // 익시드 태그가 있었든 없었든, 나머지 이름
-
+        let baseNameHtml = nameWithoutTag;
         const prefixMatch = nameWithoutTag.match(/(.+?):\s*(.+)/);
 
         if (prefixMatch) {
-            const prefix = prefixMatch[1]; // 예: 전격
-            const baseSet = prefixMatch[2]; // 예: 어느 말괄량이의 탐사복
-
+            const prefix = prefixMatch[1];
+            const baseSet = prefixMatch[2];
             const styledPrefix = `<span style="color:#e6b800; font-weight:bold;">${prefix}</span>`;
-
             baseNameHtml = `${styledPrefix}: ${baseSet}`;
         }
 
-        // 3. 최종 HTML 문자열 조립
         finalHtmlName = exceedTagHtml + baseNameHtml;
-        // =========================================================
-        // 💡 [최종 수정] 아이템 이름 스타일링 로직 끝
-        // =========================================================
 
-        let html = `<td style="text-align:left;">${finalHtmlName}</td>`; // 최종 HTML을 삽입
+        let html = `<td style="text-align:left;">${finalHtmlName}</td>`;
 
         slots.forEach(slot => {
             let key = `${name} ${slot}`;
@@ -1945,8 +2334,9 @@
         }
     }
 
-    // 7-4. 장비 관리 탭
-    // 1. 캐릭터별 현황 렌더링 (익시드 색상 적용)
+    /* ========================================
+       7-4. 장비 관리 탭
+       ======================================== */
     function renderEquipmentTab(mode) {
         // ✅ 상태 초기화
         isCharacterEquipmentViewOpen = false;
@@ -1985,39 +2375,37 @@
                 const setType = getSetType(baseSetName);
                 let targetGroupKeys = [];
 
-                if (mode === 'NORMAL' || mode === 'ALL') targetGroupKeys.push({
-                    full: baseSetName,
-                    display: "일반",
-                    type: 'NORMAL'
-                });
-                if (mode === 'PREFIX' || mode === 'ALL') prefixes.forEach(p => targetGroupKeys.push({
-                    full: `${p}: ${baseSetName}`,
-                    display: p,
-                    type: 'PREFIX'
-                }));
+                // NORMAL: 레거시 세트는 일반 행 없음
+                if ((mode === 'NORMAL' || mode === 'ALL') && !LEGACY_PREFIX_SETS.includes(baseSetName)) {
+                    targetGroupKeys.push({
+                        full: baseSetName,
+                        display: "일반",
+                        type: 'NORMAL'
+                    });
+                }
+
+                if (mode === 'PREFIX' || mode === 'ALL') {
+                    prefixes.forEach(p => {
+                        const prefKey = makePrefixKey(p, baseSetName);
+                        targetGroupKeys.push({
+                            full: prefKey,
+                            display: p,
+                            type: 'PREFIX'
+                        });
+                    });
+                }
+
                 if (mode === 'EXCEED' || mode === 'ALL') {
                     if (prefixes.length > 0) {
                         prefixes.forEach(p => {
+                            const prefKey = makePrefixKey(p, baseSetName);
                             EXCEED_TAGS.forEach(tag => targetGroupKeys.push({
-                                full: `[${tag}] ${p}: ${baseSetName}`,
+                                full: `[${tag}] ${prefKey}`,
                                 display: p,
                                 tag: tag,
                                 type: 'EXCEED'
                             }));
                         });
-                    } else {
-                        // ✅ 레거시 장비
-                        const isExceedOnlyArmor = (typeof ARMOR_EXCEED_ONLY !== 'undefined' && ARMOR_EXCEED_ONLY.includes(baseSetName));
-                        const isExceedOnlyAccessory = (typeof ACCESSORY_EXCEED_ONLY !== 'undefined' && ACCESSORY_EXCEED_ONLY.includes(baseSetName));
-
-                        if (isExceedOnlyArmor || isExceedOnlyAccessory) {
-                            EXCEED_TAGS.forEach(tag => targetGroupKeys.push({
-                                full: `[${tag}] ${baseSetName}`,
-                                display: "레거시",
-                                tag: tag,
-                                type: 'EXCEED'
-                            }));
-                        }
                     }
                 }
 
@@ -2025,36 +2413,52 @@
 
                 fullHtml += `<h3 style="color:#fff; margin-top:30px;">[${baseSetName} 세트]</h3>`;
 
-                // 익시드 모드일 때 슬롯 필터링
                 let displaySlots = slots;
                 if (mode === 'EXCEED') {
-                    if (setType === "ARMOR") {
-                        displaySlots = slots.filter(s => s.includes("상의"));
-                    } else if (setType === "ACCESSORY") {
-                        displaySlots = slots.filter(s => s.includes("팔찌") || s.includes("<br>"));
-                    } else if (setType === "SPECIAL") {
-                        displaySlots = slots.filter(s => s.includes("귀걸이") || s.includes("<br>"));
-                    }
+                    if (setType === "ARMOR") displaySlots = ["상의"];
+                    else if (setType === "ACCESSORY") displaySlots = ["팔찌"];
+                    else if (setType === "SPECIAL") displaySlots = ["귀걸이"];
                 }
 
                 fullHtml += `<table style="width:max-content; border-collapse:collapse; margin-bottom:20px; border:1px solid #2a3158;">
-            <thead style="background:#181c33;"><tr>
-                <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">직업</th>
-                <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">이름</th>
-                ${(mode === 'ALL' || mode === 'EXCEED') ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">익시드</th>' : ''}
-                ${mode !== 'NORMAL' ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">접두어</th>' : ''}
-                ${displaySlots.map(s => `<th style="padding:10px; border:1px solid #2a3158; white-space:normal; max-width:120px; font-size:0.85em; line-height:1.2;">${s}</th>`).join('')}
-                ${mode !== 'EXCEED' ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">달성</th>' : ''}
-            </tr></thead><tbody>`;
+    <thead style="background:#181c33;"><tr>
+        <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">직업</th>
+        <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">이름</th>
+        ${(mode === 'ALL' || mode === 'EXCEED') ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">익시드</th>' : ''}
+        ${mode !== 'NORMAL' ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">접두어</th>' : ''}
+        ${displaySlots.map(s => {
+                    const rawName = (setType === "SPECIAL" && SPECIAL_DISPLAY_NAMES[baseSetName] && SPECIAL_DISPLAY_NAMES[baseSetName][s])
+                        ? SPECIAL_DISPLAY_NAMES[baseSetName][s]
+                        : (setType === "ACCESSORY" && ACCESSORY_DISPLAY_NAMES[baseSetName] && ACCESSORY_DISPLAY_NAMES[baseSetName][s])
+                            ? ACCESSORY_DISPLAY_NAMES[baseSetName][s]
+                            : (setType === "ARMOR" && ARMOR_DISPLAY_NAMES[baseSetName] && ARMOR_DISPLAY_NAMES[baseSetName][s])
+                                ? ARMOR_DISPLAY_NAMES[baseSetName][s]
+                                : s;
+                    let displayName;
+                    if (Array.isArray(rawName)) {
+                        // 익시드 모드: [0](익시드), 일반/접두어 모드: [1](일반), ALL: 둘 다 표시
+                        if (mode === 'EXCEED') displayName = rawName[0];
+                        else if (mode === 'ALL') displayName = rawName[0] + "<br>" + rawName[1];
+                        else displayName = rawName[1];
+                    } else {
+                        displayName = rawName;
+                    }
+                    const thWrap = (Array.isArray(rawName) && mode === 'ALL') ? "normal" : "nowrap";
+                    return `<th style="padding:10px; border:1px solid #2a3158; white-space:${thWrap}; font-size:0.85em; line-height:1.2;">${displayName}</th>`;
+                }).join('')}
+        ${mode !== 'EXCEED' ? '<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">달성</th>' : ''}
+    </tr></thead><tbody>`;
 
                 characters.forEach(char => {
                     const totalDistinct = calcTotalDistinctParts(char, baseSetName);
 
+                    // 해당 캐릭터가 가진 현재 세트의 아이템 데이터 그룹들
                     const charGroups = targetGroupKeys.filter(group =>
                         slots.some(s => (char.armorCounts?.[`${group.full} ${s}`] || 0) > 0)
                     );
 
                     charGroups.forEach((group, gIdx) => {
+                        // 각 모드별로 달성도 계산
                         let displayDistinct = totalDistinct;
                         let statusColor = "#fff";
 
@@ -2062,20 +2466,17 @@
                             displayDistinct = 0;
                             slots.forEach(slot => {
                                 const key = `${baseSetName} ${slot}`;
-                                if ((char.armorCounts[key] || 0) > 0) {
-                                    displayDistinct++;
-                                }
+                                if ((char.armorCounts[key] || 0) > 0) displayDistinct++;
                             });
                         } else if (mode === 'PREFIX') {
                             displayDistinct = 0;
                             slots.forEach(slot => {
                                 const key = `${group.full} ${slot}`;
-                                if ((char.armorCounts[key] || 0) > 0) {
-                                    displayDistinct++;
-                                }
+                                if ((char.armorCounts[key] || 0) > 0) displayDistinct++;
                             });
                         }
 
+                        // 색상 결정
                         if (setType === "ARMOR") {
                             if (displayDistinct === 5) statusColor = "#ffd700";
                             else if (displayDistinct >= 3) statusColor = "#2ecc71";
@@ -2083,15 +2484,15 @@
                             if (displayDistinct === 3) statusColor = "#2ecc71";
                         }
 
-                        // ✅ 개선된 함수 사용
                         let slotsHtml = displaySlots.map(s => {
-                            const count = calculateSlotCountByFilterFixed(char, baseSetName, s, mode);
+                            const count = char.armorCounts?.[`${group.full} ${s}`] || 0;
                             return `<td style="padding:10px; border:1px solid #2a3158; text-align:center; color:${count > 0 ? '#fff' : '#444'}; font-weight:bold;">${count}</td>`;
                         }).join('');
 
                         let rowInfo = "";
                         const tagColor = EXCEED_COLOR_MAP[group.tag] || "#ffd700";
 
+                        // 💡 일반 모드가 아닐 때만 접두어(display) 셀을 생성
                         if (mode === 'ALL' || mode === 'EXCEED') {
                             const tagCol = group.tag ? `<td style="padding:10px; border:1px solid #2a3158; color:${tagColor}; font-weight:bold; white-space:nowrap;">[${group.tag}]</td>` : `<td style="border:1px solid #2a3158;"></td>`;
                             rowInfo = tagCol + `<td style="padding:10px; border:1px solid #2a3158; color:#ffd700; font-weight:bold; white-space:nowrap;">${group.display}</td>`;
@@ -2099,6 +2500,7 @@
                             rowInfo = `<td style="padding:10px; border:1px solid #2a3158; color:#ffd700; font-weight:bold; white-space:nowrap;">${group.display}</td>`;
                         }
 
+                        // 💡 [모두] 버튼일 때만 캐릭터 경계선에 진한 선 적용
                         const isLastRowOfChar = (gIdx === charGroups.length - 1);
                         const borderStyle = (mode === 'ALL' && isLastRowOfChar) ? "border-bottom: 3px solid #666;" : "border-bottom: 1px solid #2a3158;";
 
@@ -2113,7 +2515,7 @@
                 fullHtml += `</tbody></table>`;
             });
 
-            fullHtml += `</div>`;
+            fullHtml += `</div>`; // 카테고리 닫는 태그 추가
         });
 
         displayArea.innerHTML = fullHtml;
@@ -2157,54 +2559,38 @@
                 let slots = [...cat.sets[baseSetName]];
                 let targetGroups = [];
 
-                if (mode === 'NORMAL') {
+                if (mode === 'NORMAL' && !LEGACY_PREFIX_SETS.includes(baseSetName)) {
                     targetGroups.push({display: baseSetName, full: baseSetName, type: 'NORMAL'});
                 } else if (mode === 'PREFIX') {
-                    prefixes.forEach(p => targetGroups.push({
-                        display: p,
-                        full: `${p}: ${baseSetName}`,
-                        type: 'PREFIX'
-                    }));
+                    prefixes.forEach(p => {
+                        const prefKey = makePrefixKey(p, baseSetName);
+                        targetGroups.push({
+                            display: p,
+                            full: prefKey,
+                            type: 'PREFIX'
+                        });
+                    });
                 } else if (mode === 'EXCEED') {
-                    // ✅ 익시드 슬롯 필터링 개선
-                    const setType = getSetType(baseSetName);
-                    if (setType === "ARMOR") {
-                        slots = slots.filter(s => s.includes("상의"));
-                    } else if (setType === "ACCESSORY") {
-                        slots = slots.filter(s => s.includes("팔찌") || s.includes("<br>"));
-                    } else if (setType === "SPECIAL") {
-                        slots = slots.filter(s => s.includes("귀걸이") || s.includes("<br>"));
-                    }
-
+                    slots = slots.filter(s => s === "상의" || s === "팔찌" || s === "귀걸이");
                     if (slots.length === 0) return;
 
+                    // 💡 기존 로직 (접두어 있는 익시드)
                     if (prefixes.length > 0) {
                         prefixes.forEach(p => {
+                            const prefKey = makePrefixKey(p, baseSetName);
                             EXCEED_TAGS.forEach(tag => targetGroups.push({
                                 display: p,
-                                full: `${p}: ${baseSetName}`,
+                                full: prefKey,
                                 tag: tag,
                                 type: 'EXCEED'
                             }));
                         });
-                    } else {
-                        // ✅ 레거시 장비
-                        const isExceedOnlyArmor = (typeof ARMOR_EXCEED_ONLY !== 'undefined' && ARMOR_EXCEED_ONLY.includes(baseSetName));
-                        const isExceedOnlyAccessory = (typeof ACCESSORY_EXCEED_ONLY !== 'undefined' && ACCESSORY_EXCEED_ONLY.includes(baseSetName));
-
-                        if (isExceedOnlyArmor || isExceedOnlyAccessory) {
-                            EXCEED_TAGS.forEach(tag => targetGroups.push({
-                                display: "레거시",
-                                full: baseSetName,
-                                tag: tag,
-                                type: 'EXCEED'
-                            }));
-                        }
                     }
                 }
 
                 if (targetGroups.length === 0) return;
 
+                // 해당 세트 데이터 존재 여부 확인
                 const hasData = targetGroups.some(group => {
                     const searchKeyBase = group.tag ? `[${group.tag}] ${group.full}` : group.full;
                     return characters.some(c => slots.some(slot => (c.armorCounts?.[`${searchKeyBase} ${slot}`] || 0) > 0));
@@ -2213,15 +2599,35 @@
 
                 fullHtml += `<h3 style="color:#fff; margin-top:30px; margin-bottom:10px;">[${baseSetName} 세트]</h3>`;
 
+                // renderFullEquipmentTab() 함수 내부
                 fullHtml += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #2a3158;">
-                <thead style="background:#181c33;"><tr>
-                    <th style="padding:10px; border:1px solid #2a3158; color:#fff; text-align:center; white-space:nowrap;">아이템 세트 이름</th>
-                    ${slots.map(s => `<th style="padding:10px; border:1px solid #2a3158; color:#fff; text-align:center; white-space:normal; min-width:180px; max-width:200px; font-size:0.85em; line-height:1.2;">${s}</th>`).join('')}
-                </tr></thead><tbody>`;
+    <thead style="background:#181c33;"><tr>
+        <th style="padding:10px; border:1px solid #2a3158; color:#fff; text-align:center; white-space:nowrap;">아이템 세트 이름</th>
+        ${slots.map(s => {
+                    // ✅ 표시용 이름 적용
+                    const setType = getSetType(baseSetName);
+                    const rawName = (setType === "SPECIAL" && SPECIAL_DISPLAY_NAMES[baseSetName] && SPECIAL_DISPLAY_NAMES[baseSetName][s])
+                        ? SPECIAL_DISPLAY_NAMES[baseSetName][s]
+                        : (setType === "ACCESSORY" && ACCESSORY_DISPLAY_NAMES[baseSetName] && ACCESSORY_DISPLAY_NAMES[baseSetName][s])
+                            ? ACCESSORY_DISPLAY_NAMES[baseSetName][s]
+                            : (setType === "ARMOR" && ARMOR_DISPLAY_NAMES[baseSetName] && ARMOR_DISPLAY_NAMES[baseSetName][s])
+                                ? ARMOR_DISPLAY_NAMES[baseSetName][s]
+                                : s;
+                    let displayName;
+                    if (Array.isArray(rawName)) {
+                        // 익시드 모드: [0](익시드), 일반/접두어 모드: [1](일반)
+                        displayName = (mode === 'EXCEED') ? rawName[0] : rawName[1];
+                    } else {
+                        displayName = rawName;
+                    }
+                    return `<th style="padding:10px; border:1px solid #2a3158; color:#fff; text-align:center; white-space:nowrap; min-width:180px; max-width:200px; font-size:0.85em; line-height:1.2;">${displayName}</th>`;
+                }).join('')}
+    </tr></thead><tbody>`;
 
                 targetGroups.forEach(group => {
                     const searchKeyBase = group.tag ? `[${group.tag}] ${group.full}` : group.full;
 
+                    // 💡 접두어 장비일 때만 모든 슬롯 보유 여부를 체크
                     const isFullPrefixSet = (group.type === 'PREFIX') && slots.every(slot =>
                         characters.some(c => (c.armorCounts?.[`${searchKeyBase} ${slot}`] || 0) > 0)
                     );
@@ -2235,7 +2641,15 @@
 
                     let displayName = "";
                     if (group.type === 'EXCEED' || group.type === 'PREFIX') {
-                        displayName = `<span style="color:#ffd700; font-weight:bold;">${group.display}</span>: <span style="color:#fff;">${baseSetName}</span>`;
+                        // 레거시 세트: baseSetName이 이미 "레거시: 마력의 소용돌이" 형태
+                        // group.full도 "레거시: 마력의 소용돌이"이므로 중복 방지
+                        if (LEGACY_PREFIX_SETS.includes(baseSetName)) {
+                            // baseSetName에서 "레거시: " 부분 제거
+                            const pureSetName = baseSetName.replace(/^레거시:\s*/, '');
+                            displayName = `<span style="color:#ffd700; font-weight:bold;">레거시</span>: <span style="color:#fff;">${pureSetName}</span>`;
+                        } else {
+                            displayName = `<span style="color:#ffd700; font-weight:bold;">${group.display}</span>: <span style="color:#fff;">${baseSetName}</span>`;
+                        }
                         if (group.tag) {
                             const tagColor = EXCEED_COLOR_MAP[group.tag] || "#ffd700";
                             displayName = `<span style="color:${tagColor}; font-weight:bold;">[${group.tag}]</span> ` + displayName;
@@ -2251,6 +2665,7 @@
                         fullHtml += `<td style="padding:8px; border:1px solid #2a3158; vertical-align:middle; text-align:center;">`;
 
                         if (mode === 'EXCEED') {
+                            // 💡 익시드: 가로줄 맞추지 않고 데이터가 있는 캐릭터만 촘촘하게 출력
                             const ownersWithItem = characters.filter(c => (c.armorCounts?.[`${searchKeyBase} ${slot}`] || 0) > 0);
                             if (ownersWithItem.length > 0) {
                                 ownersWithItem.forEach(owner => {
@@ -2265,6 +2680,7 @@
                                 fullHtml += `<span style="color:#444;">0</span>`;
                             }
                         } else {
+                            // 💡 일반/접두어: 모든 캐릭터의 자리를 만들어 가로줄 라인을 맞춤 (30px 고정)
                             relevantOwners.forEach(owner => {
                                 const count = owner.armorCounts?.[`${searchKeyBase} ${slot}`] || 0;
                                 fullHtml += `<div style="height:30px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; justify-content:center; align-items:center; gap:8px; white-space:nowrap; padding: 0 10px; font-size:14px;">`;
@@ -2284,7 +2700,7 @@
                 });
                 fullHtml += `</tbody></table>`;
             });
-            fullHtml += `</div>`;
+            fullHtml += `</div>`; // 카테고리 닫는 태그 추가
         });
 
         displayArea.innerHTML = fullHtml;
@@ -2397,14 +2813,14 @@
                 title: "방어구",
                 sets: ARMOR_SETS,
                 prefix: ARMOR_PREFIX,
-                exceedOnly: ARMOR_EXCEED_ONLY,
+                exceedOnly: [],
                 exceedSlot: "상의"
             },
             {
                 title: "악세",
                 sets: ACCESSORY_SETS,
                 prefix: ACCESSORY_PREFIX,
-                exceedOnly: ACCESSORY_EXCEED_ONLY,
+                exceedOnly: [],
                 exceedSlot: "팔찌"
             },
             {
@@ -2422,39 +2838,33 @@
             Object.keys(category.sets).forEach(baseSetName => {
                 const setSlots = category.sets[baseSetName];
                 const prefixes = category.prefix[baseSetName] || [];
-                const isExceedOnly = category.exceedOnly.includes(baseSetName);
+                const isLegacy = LEGACY_PREFIX_SETS.includes(baseSetName);
 
-                // 일반 장비 개수
-                setSlots.forEach(slot => {
-                    const normalKey = `${baseSetName} ${slot}`;
-                    categoryTotal += char.armorCounts[normalKey] || 0;
-                });
+                // 일반 장비 개수 (레거시는 없음)
+                if (!isLegacy) {
+                    setSlots.forEach(slot => {
+                        const normalKey = `${baseSetName} ${slot}`;
+                        categoryTotal += char.armorCounts[normalKey] || 0;
+                    });
+                }
 
                 // 접두어 장비 개수
                 prefixes.forEach(pref => {
+                    const prefKey = makePrefixKey(pref, baseSetName);
                     setSlots.forEach(slot => {
-                        const prefixKey = `${pref}: ${baseSetName} ${slot}`;
-                        categoryTotal += char.armorCounts[prefixKey] || 0;
+                        categoryTotal += char.armorCounts[`${prefKey} ${slot}`] || 0;
                     });
                 });
 
                 // 익시드 장비 개수
                 EXCEED_TAGS.forEach(tag => {
-                    if (isExceedOnly) {
-                        // 레거시 장비
+                    prefixes.forEach(pref => {
+                        const prefKey = makePrefixKey(pref, baseSetName);
                         setSlots.forEach(slot => {
-                            const exceedKey = `[${tag}] ${baseSetName} ${slot}`;
+                            const exceedKey = `[${tag}] ${prefKey} ${slot}`;
                             categoryTotal += char.armorCounts[exceedKey] || 0;
                         });
-                    } else {
-                        // 일반 장비
-                        prefixes.forEach(pref => {
-                            setSlots.forEach(slot => {
-                                const exceedKey = `[${tag}] ${pref}: ${baseSetName} ${slot}`;
-                                categoryTotal += char.armorCounts[exceedKey] || 0;
-                            });
-                        });
-                    }
+                    });
                 });
             });
 
@@ -2465,13 +2875,14 @@
 
             // 헤더
             const slots = Object.values(category.sets)[0] || [];
+            // renderCharacterEquipmentDetail() 함수 내부
             html += `<thead style="background: #181c33;"><tr>
-            <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">세트</th>
-            <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">익시드</th>
-            <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">접두어</th>`;
+    <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">세트</th>
+    <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">익시드</th>
+    <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">접두어</th>`;
 
             slots.forEach(slot => {
-                html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">${slot}</th>`;
+                html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: normal; max-width: 120px; font-size: 0.85em; line-height: 1.2;">${slot}</th>`;
             });
 
             html += `</tr></thead><tbody>`;
@@ -2480,56 +2891,33 @@
             Object.keys(category.sets).forEach(baseSetName => {
                 const setSlots = category.sets[baseSetName];
                 const prefixes = category.prefix[baseSetName] || [];
-                const isExceedOnly = category.exceedOnly.includes(baseSetName);
                 const exceedSlot = category.exceedSlot;
+                const isLegacy = LEGACY_PREFIX_SETS.includes(baseSetName);
 
                 // 세트별 데이터 수집
                 let rows = [];
 
-                // 1. 익시드 행들 (접두어별로)
-                if (isExceedOnly) {
-                    // 레거시 장비: 접두어 없이 익시드만
+                // 1. 익시드 행들
+                prefixes.forEach(pref => {
                     EXCEED_TAGS.forEach(tag => {
                         let rowData = {
                             type: 'exceed',
                             exceed: tag,
-                            prefix: '',
+                            prefix: pref,
                             slots: {}
                         };
 
                         setSlots.forEach(slot => {
-                            const key = `[${tag}] ${baseSetName} ${slot}`;
+                            const prefKey = makePrefixKey(pref, baseSetName);
+                            const key = `[${tag}] ${prefKey} ${slot}`;
                             rowData.slots[slot] = char.armorCounts[key] || 0;
                         });
 
-                        // 데이터가 있는 경우만 추가
                         if (Object.values(rowData.slots).some(v => v > 0)) {
                             rows.push(rowData);
                         }
                     });
-                } else if (prefixes.length > 0) {
-                    // 일반 장비: 접두어별 익시드
-                    prefixes.forEach(pref => {
-                        EXCEED_TAGS.forEach(tag => {
-                            let rowData = {
-                                type: 'exceed',
-                                exceed: tag,
-                                prefix: pref,
-                                slots: {}
-                            };
-
-                            setSlots.forEach(slot => {
-                                const key = `[${tag}] ${pref}: ${baseSetName} ${slot}`;
-                                rowData.slots[slot] = char.armorCounts[key] || 0;
-                            });
-
-                            // 데이터가 있는 경우만 추가
-                            if (Object.values(rowData.slots).some(v => v > 0)) {
-                                rows.push(rowData);
-                            }
-                        });
-                    });
-                }
+                });
 
                 // 2. 접두어 행들
                 prefixes.forEach(pref => {
@@ -2541,7 +2929,8 @@
                     };
 
                     setSlots.forEach(slot => {
-                        const key = `${pref}: ${baseSetName} ${slot}`;
+                        const prefKey = makePrefixKey(pref, baseSetName);
+                        const key = `${prefKey} ${slot}`;
                         rowData.slots[slot] = char.armorCounts[key] || 0;
                     });
 
@@ -2551,22 +2940,23 @@
                     }
                 });
 
-                // 3. 일반 행
-                let normalRowData = {
-                    type: 'normal',
-                    exceed: '',
-                    prefix: '',
-                    slots: {}
-                };
+                // 3. 일반 행 (레거시 세트는 없음)
+                if (!isLegacy) {
+                    let normalRowData = {
+                        type: 'normal',
+                        exceed: '',
+                        prefix: '',
+                        slots: {}
+                    };
 
-                setSlots.forEach(slot => {
-                    const key = `${baseSetName} ${slot}`;
-                    normalRowData.slots[slot] = char.armorCounts[key] || 0;
-                });
+                    setSlots.forEach(slot => {
+                        const key = `${baseSetName} ${slot}`;
+                        normalRowData.slots[slot] = char.armorCounts[key] || 0;
+                    });
 
-                // 데이터가 있는 경우만 추가
-                if (Object.values(normalRowData.slots).some(v => v > 0)) {
-                    rows.push(normalRowData);
+                    if (Object.values(normalRowData.slots).some(v => v > 0)) {
+                        rows.push(normalRowData);
+                    }
                 }
 
                 // 행이 하나도 없으면 이 세트는 건너뜀
@@ -2652,30 +3042,20 @@
 
                             if (count > 0) {
                                 hasWeaponsForJob = true;
-                                categoryWeapons.push({
-                                    name: weaponName,
-                                    prefix: prefix,
-                                    count: count
-                                });
+                                categoryWeapons.push({name: weaponName, prefix: prefix, count: count});
                             }
                         });
                     });
 
                     if (categoryWeapons.length > 0) {
-                        weaponRows.push({
-                            category: category,
-                            weapons: categoryWeapons
-                        });
+                        weaponRows.push({category: category, weapons: categoryWeapons});
                     }
                 });
 
-                // 무기가 없으면 이 직업은 건너뜀
                 if (!hasWeaponsForJob) return;
 
-                // 직업명 헤더
                 html += `<h4 style="color: #fff; margin-top: 25px; margin-bottom: 10px;">[${jobName}]</h4>`;
 
-                // 무기 테이블
                 html += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 20px;">`;
                 html += `<thead style="background: #181c33;"><tr>
                 <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center; width: 100px;">종류</th>
@@ -2866,9 +3246,9 @@
         let html = `<h2 style="color: #ffd700; margin-bottom: 20px;">🔍 검색 결과: "${searchTerm}"</h2>`;
 
         const CATEGORIES = [
-            {name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX, exceedOnly: ARMOR_EXCEED_ONLY},
-            {name: "악세", sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX, exceedOnly: ACCESSORY_EXCEED_ONLY},
-            {name: "특장", sets: SPECIAL_SETS, prefix: SPECIAL_PREFIX, exceedOnly: []}
+            {name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX},
+            {name: "악세", sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX},
+            {name: "특장", sets: SPECIAL_SETS, prefix: SPECIAL_PREFIX}
         ];
 
         let foundSets = [];
@@ -2882,7 +3262,7 @@
                         setName: baseSetName,
                         slots: category.sets[baseSetName],
                         prefixes: category.prefix[baseSetName] || [],
-                        exceedOnly: category.exceedOnly
+                        isLegacy: LEGACY_PREFIX_SETS.includes(baseSetName)
                     });
                 }
             });
@@ -2905,7 +3285,7 @@
             <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">접두어</th>`;
 
             set.slots.forEach(slot => {
-                html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">${slot}</th>`;
+                html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: normal; max-width: 120px; font-size: 0.85em; line-height: 1.2;">${slot}</th>`;
             });
 
             html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">합계</th>`;
@@ -2915,47 +3295,29 @@
             characters.forEach(char => {
                 let charRows = [];
 
-                // 익시드 데이터 수집
-                const isExceedOnly = set.exceedOnly.includes(set.setName);
-
-                if (isExceedOnly) {
-                    // 레거시 장비 (접두어 없음)
-                    EXCEED_TAGS.forEach(tag => {
-                        let rowData = {type: 'exceed', exceed: tag, prefix: '', slots: {}, total: 0};
-
-                        set.slots.forEach(slot => {
-                            const key = `[${tag}] ${set.setName} ${slot}`;
-                            const count = char.armorCounts?.[key] || 0;
-                            rowData.slots[slot] = count;
-                            rowData.total += count;
-                        });
-
-                        if (rowData.total > 0) charRows.push(rowData);
-                    });
-                } else if (set.prefixes.length > 0) {
-                    // 일반 장비 (접두어 있음)
+                // 익시드 데이터
+                if (set.prefixes.length > 0) {
                     set.prefixes.forEach(pref => {
                         EXCEED_TAGS.forEach(tag => {
                             let rowData = {type: 'exceed', exceed: tag, prefix: pref, slots: {}, total: 0};
-
+                            const prefKey = makePrefixKey(pref, set.setName);
                             set.slots.forEach(slot => {
-                                const key = `[${tag}] ${pref}: ${set.setName} ${slot}`;
+                                const key = `[${tag}] ${prefKey} ${slot}`;
                                 const count = char.armorCounts?.[key] || 0;
                                 rowData.slots[slot] = count;
                                 rowData.total += count;
                             });
-
                             if (rowData.total > 0) charRows.push(rowData);
                         });
                     });
                 }
 
-                // 접두어 데이터 수집
+                // 접두어 데이터
                 set.prefixes.forEach(pref => {
                     let rowData = {type: 'prefix', exceed: '', prefix: pref, slots: {}, total: 0};
-
+                    const prefKey = makePrefixKey(pref, set.setName);
                     set.slots.forEach(slot => {
-                        const key = `${pref}: ${set.setName} ${slot}`;
+                        const key = `${prefKey} ${slot}`;
                         const count = char.armorCounts?.[key] || 0;
                         rowData.slots[slot] = count;
                         rowData.total += count;
@@ -2964,17 +3326,17 @@
                     if (rowData.total > 0) charRows.push(rowData);
                 });
 
-                // 일반 데이터 수집
-                let normalRow = {type: 'normal', exceed: '', prefix: '', slots: {}, total: 0};
-
-                set.slots.forEach(slot => {
-                    const key = `${set.setName} ${slot}`;
-                    const count = char.armorCounts?.[key] || 0;
-                    normalRow.slots[slot] = count;
-                    normalRow.total += count;
-                });
-
-                if (normalRow.total > 0) charRows.push(normalRow);
+                // 일반 데이터 (레거시 세트는 건너뜀)
+                if (!set.isLegacy) {
+                    let normalRow = {type: 'normal', exceed: '', prefix: '', slots: {}, total: 0};
+                    set.slots.forEach(slot => {
+                        const key = `${set.setName} ${slot}`;
+                        const count = char.armorCounts?.[key] || 0;
+                        normalRow.slots[slot] = count;
+                        normalRow.total += count;
+                    });
+                    if (normalRow.total > 0) charRows.push(normalRow);
+                }
 
                 // 행이 없으면 이 캐릭터는 건너뜀
                 if (charRows.length === 0) return;
@@ -3035,9 +3397,7 @@
         const searchInput = document.getElementById("equipment-search-input");
         if (searchInput) {
             searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    searchEquipment();
-                }
+                if (e.key === 'Enter') searchEquipment();
             });
         }
     });
@@ -3095,7 +3455,7 @@
         }
 
         let html = `<div style="overflow-x: auto; margin-top: 20px; border: 1px solid #2a3158;">`;
-        html += `<table id="weaponDetailTable" style="table-layout: fixed; border-collapse: collapse; width: max-content;">`; // fixed 레이아웃 권장
+        html += `<table id="weaponDetailTable" style="table-layout: fixed; border-collapse: collapse; width: max-content;">`;
         html += `<thead><tr style="background: #181c33;">`;
 
         // 💡 1. 종류 열의 너비를 120px로 고정 (가장 긴 글자인 '자동권총' 등을 고려)
@@ -3455,10 +3815,7 @@
         const firstBtn = document.createElement("button");
         firstBtn.textContent = "⏮ 처음으로";
         firstBtn.disabled = currentPage === 1;
-        firstBtn.onclick = () => {
-            currentUpdatePage = 1;
-            renderUpdatePage(1);
-        };
+        firstBtn.onclick = () => { currentUpdatePage = 1; renderUpdatePage(1); };
         paginationContainer.appendChild(firstBtn);
 
         // 이전 페이지 버튼
@@ -3466,10 +3823,7 @@
         prevBtn.textContent = "◀ 이전";
         prevBtn.disabled = currentPage === 1;
         prevBtn.onclick = () => {
-            if (currentPage > 1) {
-                currentUpdatePage = currentPage - 1;
-                renderUpdatePage(currentUpdatePage);
-            }
+            if (currentPage > 1) { currentUpdatePage = currentPage - 1; renderUpdatePage(currentUpdatePage); }
         };
         paginationContainer.appendChild(prevBtn);
 
@@ -3482,10 +3836,7 @@
             const pageBtn = document.createElement("button");
             pageBtn.textContent = i;
             pageBtn.className = currentPage === i ? "active" : "";
-            pageBtn.onclick = () => {
-                currentUpdatePage = i;
-                renderUpdatePage(i);
-            };
+            pageBtn.onclick = () => { currentUpdatePage = i; renderUpdatePage(i); };
             paginationContainer.appendChild(pageBtn);
         }
 
@@ -3494,10 +3845,7 @@
         nextBtn.textContent = "다음 ▶";
         nextBtn.disabled = currentPage === totalPages;
         nextBtn.onclick = () => {
-            if (currentPage < totalPages) {
-                currentUpdatePage = currentPage + 1;
-                renderUpdatePage(currentUpdatePage);
-            }
+            if (currentPage < totalPages) { currentUpdatePage = currentPage + 1; renderUpdatePage(currentUpdatePage); }
         };
         paginationContainer.appendChild(nextBtn);
 
@@ -3505,10 +3853,7 @@
         const lastBtn = document.createElement("button");
         lastBtn.textContent = "끝으로 ⏭";
         lastBtn.disabled = currentPage === totalPages;
-        lastBtn.onclick = () => {
-            currentUpdatePage = totalPages;
-            renderUpdatePage(totalPages);
-        };
+        lastBtn.onclick = () => { currentUpdatePage = totalPages; renderUpdatePage(totalPages); };
         paginationContainer.appendChild(lastBtn);
 
         // 페이지 검색 입력창 추가
@@ -3529,27 +3874,11 @@
         searchInput.min = "1";
         searchInput.max = totalPages;
         searchInput.placeholder = `1-${totalPages}`;
-        searchInput.style.width = "80px";
-        searchInput.style.padding = "8px";
-        searchInput.style.border = "1px solid #2a3158";
-        searchInput.style.background = "#181c33";
-        searchInput.style.color = "#e6e9ff";
-        searchInput.style.borderRadius = "6px";
-        searchInput.style.textAlign = "center";
+        searchInput.style.cssText = "width:80px; padding:8px; border:1px solid #2a3158; background:#181c33; color:#e6e9ff; border-radius:6px; text-align:center;";
 
         const searchBtn = document.createElement("button");
         searchBtn.textContent = "🔍 이동";
-        searchBtn.style.padding = "8px 15px";
-        searchBtn.style.border = "1px solid #2a3158";
-        searchBtn.style.background = "#25c2a0";
-        searchBtn.style.color = "#fff";
-        searchBtn.style.borderRadius = "6px";
-        searchBtn.style.cursor = "pointer";
-        searchBtn.style.fontWeight = "bold";
-        searchBtn.style.transition = "0.2s";
-        searchBtn.onmouseover = () => searchBtn.style.background = "#1a8c7d";
-        searchBtn.onmouseout = () => searchBtn.style.background = "#25c2a0";
-
+        searchBtn.style.cssText = "padding:8px 15px; border:1px solid #2a3158; background:#25c2a0; color:#fff; border-radius:6px; cursor:pointer; font-weight:bold;";
         searchBtn.onclick = () => {
             const pageNum = parseInt(searchInput.value);
             if (isNaN(pageNum) || pageNum < 1 || pageNum > totalPages) {
@@ -3562,9 +3891,7 @@
 
         // Enter 키로도 검색 가능
         searchInput.onkeypress = (e) => {
-            if (e.key === "Enter") {
-                searchBtn.click();
-            }
+            if (e.key === "Enter") searchBtn.click();
         };
 
         searchDiv.appendChild(searchInput);
@@ -3926,8 +4253,7 @@
                 // 1. 전역 데이터 교체 및 필수 필드 보정
                 characters = imported.map(char => {
                     if (!char.name || !char.job) throw new Error("캐릭터 이름 또는 직업 정보가 누락된 항목이 있습니다.");
-
-                    const migratedChar = {
+                    return {
                         id: char.id || "c" + Date.now() + Math.random().toString(36).substr(2, 5),
                         name: char.name,
                         job: char.job,
@@ -3936,11 +4262,6 @@
                         updateTimes: char.updateTimes || {},
                         craftMaterials: char.craftMaterials || {}
                     };
-
-                    // ✅ 마이그레이션 실행
-                    migrateOldSlotNames(migratedChar);
-
-                    return migratedChar;
                 });
 
                 // 2. 상태 초기화 (UI 꼬임 방지)
@@ -3976,9 +4297,6 @@
                             renderCharacterButtons();
                             renderCharacterEquipmentDetail(char);
                         }
-                    } else if (isStatisticsViewOpen) {
-                        // ✅ 통계 화면 갱신
-                        showEquipmentStatistics();
                     } else {
                         // 일반 장비 관리 화면이면 갱신
                         renderEquipmentTab('ALL');
@@ -3990,7 +4308,7 @@
                     renderCraftTable();
                 }
 
-                alert(`데이터 복구 완료! 총 ${characters.length}명의 데이터가 적용되었습니다.\n\n✅ 구버전 슬롯명이 새 이름으로 자동 변환되었습니다.\n지금 JSON 저장을 하면 새 형식으로 저장됩니다.`);
+                alert(`데이터 복구 완료! 총 ${characters.length}명의 데이터가 적용되었습니다.`);
                 event.target.value = '';
 
             } catch (err) {
@@ -3999,115 +4317,6 @@
             }
         };
         reader.readAsText(file);
-    }
-
-
-
-    // ✅ 마이그레이션 함수: 구버전 슬롯명 → 신버전 슬롯명 변환
-    function migrateOldSlotNames(char) {
-        const oldToNew = {
-            // 악세사리
-            "엘팅 메모리얼의 기억 팔찌": "엘팅 메모리얼의 기억 선명한 기억의 팔찌<br>묻힌 시간의 팔찌",
-            "엘팅 메모리얼의 기억 목걸이": "엘팅 메모리얼의 기억 흐릿한 과거의 목걸이",
-            "엘팅 메모리얼의 기억 반지": "엘팅 메모리얼의 기억 덮어둔 기억의 반지",
-
-            "섬뜩한 빛의 관리자 팔찌": "섬뜩한 빛의 관리자 이심전심<br>무언의 연결",
-            "섬뜩한 빛의 관리자 목걸이": "섬뜩한 빛의 관리자 숨겨진 맥락",
-            "섬뜩한 빛의 관리자 반지": "섬뜩한 빛의 관리자 감춰진 결",
-
-            "부식된 메탈기어 팔찌": "부식된 메탈기어 기계의 심박<br>기계의 맥박",
-            "부식된 메탈기어 목걸이": "부식된 메탈기어 사라진 동력",
-            "부식된 메탈기어 반지": "부식된 메탈기어 정지된 흐름",
-
-            "화력 개조 탄띠 팔찌": "화력 개조 탄띠 멀티플 툴즈<br>트리플 툴즈",
-            "화력 개조 탄띠 목걸이": "화력 개조 탄띠 피어싱 드릴 네클레스",
-            "화력 개조 탄띠 반지": "화력 개조 탄띠 오토매틱 실린더",
-
-            "신비로운 빛의 소용돌이 팔찌": "신비로운 빛의 소용돌이 시린 달빛<br>푸른 달빛",
-            "신비로운 빛의 소용돌이 목걸이": "신비로운 빛의 소용돌이 은색의 별빛",
-            "신비로운 빛의 소용돌이 반지": "신비로운 빛의 소용돌이 붉은 햇빛",
-
-            "콰트로 마누스 연산장치 팔찌": "콰트로 마누스 연산장치 기계의 주시<br>기계의 시선",
-            "콰트로 마누스 연산장치 목걸이": "콰트로 마누스 연산장치 에너지의 눈",
-            "콰트로 마누스 연산장치 반지": "콰트로 마누스 연산장치 응시의 흔적",
-
-            "레거시: 에테리얼 리베넌트 팔찌": "레거시: 에테리얼 리베넌트 레거시: 아이언 엠벨리시드 밴드<br>레거시: 강철 리스트 가드",
-            "레거시: 에테리얼 리베넌트 목걸이": "레거시: 에테리얼 리베넌트 레거시: 영혼 추적장치",
-            "레거시: 에테리얼 리베넌트 반지": "레거시: 에테리얼 리베넌트 레거시: 할기의 본링",
-
-            "레거시: 지나온 영광의 시대 팔찌": "레거시: 지나온 영광의 시대 레거시: 세이트 루멘아이트 렐릭<br>레거시: 홀리 미스릴 렐릭",
-            "레거시: 지나온 영광의 시대 목걸이": "레거시: 지나온 영광의 시대 레거시: 펠 로스 글로리",
-            "레거시: 지나온 영광의 시대 반지": "레거시: 지나온 영광의 시대 레거시: 에이션트 엘븐 링",
-
-            // 특수장비
-            "개구쟁이 호문쿨루스 귀걸이": "개구쟁이 호문쿨루스 말괄량이의 문양 귀걸이<br>베키의 문양 귀걸이",
-            "개구쟁이 호문쿨루스 마법석": "개구쟁이 호문쿨루스 베키의 새총",
-            "개구쟁이 호문쿨루스 보장": "개구쟁이 호문쿨루스 베키의 장갑",
-
-            "라이트닝 에너지 코어 귀걸이": "라이트닝 에너지 코어 거신의 스펙쿨룸 이어링<br>거인의 스펙쿨룸 이어링",
-            "라이트닝 에너지 코어 마법석": "라이트닝 에너지 코어 거인의 스펙쿨룸 코어",
-            "라이트닝 에너지 코어 보장": "라이트닝 에너지 코어 거인의 건들릿",
-
-            "철갑을 두른 탑의 수호꾼 귀걸이": "철갑을 두른 탑의 수호꾼 메탈기어의 초합금 태엽<br>메탈기어의 태엽 귀걸이",
-            "철갑을 두른 탑의 수호꾼 마법석": "철갑을 두른 탑의 수호꾼 메탈기어의 두뇌",
-            "철갑을 두른 탑의 수호꾼 보장": "철갑을 두른 탑의 수호꾼 메탈기어의 조작부",
-
-            "깊은 불구덩이의 섬멸자 귀걸이": "깊은 불구덩이의 섬멸자 강철 용의 기관총 이어링<br>강철 용의 기총 이어링",
-            "깊은 불구덩이의 섬멸자 마법석": "깊은 불구덩이의 섬멸자 강철 용의 천공기",
-            "깊은 불구덩이의 섬멸자 보장": "깊은 불구덩이의 섬멸자 강철 용의 칼날 외골격",
-
-            "허영 속 어둠의 피조물 귀걸이": "허영 속 어둠의 피조물 골드 크라운의 서커스 장식<br>골드 크라운의 머리 장식",
-            "허영 속 어둠의 피조물 마법석": "허영 속 어둠의 피조물 골드 크라운의 핵심 부품",
-            "허영 속 어둠의 피조물 보장": "허영 속 어둠의 피조물 골드 크라운의 에너지 방출기",
-
-            "부정한 빛의 우상 귀걸이": "부정한 빛의 우상 콰트로 마누스의 기억<br>콰트로 마누스의 태엽 장식",
-            "부정한 빛의 우상 마법석": "부정한 빛의 우상 콰트로 마누스의 두뇌",
-            "부정한 빛의 우상 보장": "부정한 빛의 우상 콰트로 마누스의 에너지 코어"
-        };
-
-        // 접두어 포함 변환
-        const newArmorCounts = {};
-        const newUpdateTimes = {};
-
-        Object.entries(char.armorCounts || {}).forEach(([oldKey, value]) => {
-            let newKey = oldKey;
-
-            // 직접 매칭 시도
-            if (oldToNew[oldKey]) {
-                newKey = oldToNew[oldKey];
-            } else {
-                // 접두어나 익시드 태그가 있는 경우 처리
-                for (const [oldPattern, newPattern] of Object.entries(oldToNew)) {
-                    if (oldKey.includes(oldPattern)) {
-                        newKey = oldKey.replace(oldPattern, newPattern);
-                        break;
-                    }
-                }
-            }
-
-            newArmorCounts[newKey] = value;
-        });
-
-        // updateTimes도 동일하게 변환
-        Object.entries(char.updateTimes || {}).forEach(([oldKey, value]) => {
-            let newKey = oldKey;
-
-            if (oldToNew[oldKey]) {
-                newKey = oldToNew[oldKey];
-            } else {
-                for (const [oldPattern, newPattern] of Object.entries(oldToNew)) {
-                    if (oldKey.includes(oldPattern)) {
-                        newKey = oldKey.replace(oldPattern, newPattern);
-                        break;
-                    }
-                }
-            }
-
-            newUpdateTimes[newKey] = value;
-        });
-
-        char.armorCounts = newArmorCounts;
-        char.updateTimes = newUpdateTimes;
     }
 
     /* ========================================
