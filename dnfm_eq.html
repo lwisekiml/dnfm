@@ -2357,31 +2357,315 @@
       onclick="increment('${charId}','${key}')">${val}</button>`;
     }
 
+    // 장비 개수 버튼만 업데이트 (재렌더링 없이)
+    function updateEquipmentButton(charId, key, newValue) {
+        // ✅ 1단계: 테이블에서 모든 버튼 검색
+        const tables = document.querySelectorAll("#panel table");
+        if (!tables || tables.length === 0) return;
+
+        let buttonFound = false;
+
+        // ✅ 2단계: 모든 테이블 순회 (익시드는 별도 테이블)
+        tables.forEach(table => {
+            const buttons = table.querySelectorAll('.num-btn');
+            buttons.forEach(btn => {
+                const onclickStr = btn.getAttribute('onclick') || '';
+                const oncontextmenuStr = btn.getAttribute('oncontextmenu') || '';
+
+                // ✅ 3단계: onclick 또는 oncontextmenu에서 매치 확인
+                const matchInClick = onclickStr.includes(`'${charId}'`) && onclickStr.includes(`'${key}'`);
+                const matchInContext = oncontextmenuStr.includes(`'${charId}'`) && oncontextmenuStr.includes(`'${key}'`);
+
+                if (matchInClick || matchInContext) {
+                    buttonFound = true;
+
+                    // 버튼 업데이트
+                    btn.textContent = newValue;
+                    if (newValue > 0) {
+                        btn.classList.add('positive');
+                    } else {
+                        btn.classList.remove('positive');
+                    }
+
+                    // 행 색상 업데이트
+                    const row = btn.closest('tr');
+                    if (row && currentSetName && currentChar) {
+                        updateRowColor(row, currentChar, currentSetName);
+                    }
+                }
+            });
+        });
+
+        // ✅ 4단계: 디버깅 (개발자 도구에서 확인용, 나중에 제거 가능)
+        if (!buttonFound) {
+            console.log('버튼을 찾지 못했습니다:', key);
+        }
+    }
+
+    // 테이블 행의 세트 색상 업데이트
+    function updateRowColor(row, char, setName) {
+        const totalDistinct = calcTotalDistinctParts(char, setName);
+        const setType = getSetType(setName);
+        const slots = ALL_SETS[setName] || [];
+        const fullSize = slots.length;
+
+        // 기존 색상 제거
+        row.classList.remove('set3', 'set5');
+
+        const firstCell = row.querySelector('td');
+        if (!firstCell) return;
+
+        const rowText = firstCell.textContent || firstCell.innerText;
+
+        // 행 이름에서 그룹키 추출
+        let rowGroupKey = '';
+
+        // 익시드 + 접두어
+        const exceedMatch = rowText.match(/\[(선봉|의지|이상)\]/);
+        const prefixMatch = rowText.match(/(전격|허상|작열|침식|수호|왜곡|자상|맹독|보호|쇄도|신속|연격|레거시|견고|혈독|초석|각오|가속|조화|불굴|숙련|결의|격변|촉진|질주)/);
+
+        if (rowText.includes('일반')) {
+            // 일반 행
+            rowGroupKey = setName;
+        } else if (exceedMatch && prefixMatch) {
+            // 익시드 행: [선봉] 전격
+            const tag = exceedMatch[1];
+            const prefix = prefixMatch[1];
+            const prefKey = makePrefixKey(prefix, setName);
+            rowGroupKey = `[${tag}] ${prefKey}`;
+        } else if (prefixMatch) {
+            // 접두어 행: 전격
+            const prefix = prefixMatch[1];
+            rowGroupKey = makePrefixKey(prefix, setName);
+        }
+
+        if (!rowGroupKey) return;
+
+        // ✅ 이 행이 실제로 데이터를 가지고 있는지 확인
+        let hasAnyPartInRow = false;
+        const exceedSlots = EXCEED_SLOTS[setType] || [];
+        const isExceedRow = rowGroupKey.startsWith('[');
+
+        slots.forEach(slot => {
+            // 익시드 행은 특정 슬롯만 체크
+            if (isExceedRow && !exceedSlots.includes(slot)) return;
+
+            const key = `${rowGroupKey} ${slot}`;
+            if ((char.armorCounts[key] || 0) > 0) {
+                hasAnyPartInRow = true;
+            }
+        });
+
+        // ✅ 이 행에 데이터가 있으면 전체 세트 기준으로 색상 적용
+        if (hasAnyPartInRow) {
+            if (setType === "ARMOR") {
+                if (totalDistinct === fullSize) {
+                    row.classList.add('set5');
+                } else if (totalDistinct >= 3) {
+                    row.classList.add('set3');
+                }
+            } else {
+                if (totalDistinct === 3) {
+                    row.classList.add('set3');
+                }
+            }
+        }
+    }
+
+    // 테이블의 모든 행 색상을 업데이트 (세트 효과 변경 시)
+    function updateAllRowColors(char, setName) {
+        // ✅ 모든 테이블 선택 (일반/접두어 + 익시드)
+        const tables = document.querySelectorAll("#panel table");
+        if (!tables || tables.length === 0) return;
+
+        // ✅ 각 테이블의 모든 행 업데이트
+        tables.forEach(table => {
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                updateRowColor(row, char, setName);
+            });
+        });
+    }
+
+    // 세트 버튼의 개수만 업데이트 (재렌더링 없이)
+    function updateSetButtonCount(setName, char) {
+        const setButtons = document.querySelectorAll('.set-btn');
+        setButtons.forEach(btn => {
+            const btnText = btn.textContent || btn.innerText;
+            if (!btnText.includes(setName)) return;
+
+            const slots = ALL_SETS[setName] || [];
+            const prefixes = ALL_PREFIX[setName] || [];
+            const setType = getSetType(setName);
+            const exceedSlots = EXCEED_SLOTS[setType] || [];
+
+            const allGroupKeys = [];
+            if (!LEGACY_PREFIX_SETS.includes(setName)) {
+                allGroupKeys.push(setName);
+            }
+            prefixes.forEach(pref => {
+                const prefKey = makePrefixKey(pref, setName);
+                allGroupKeys.push(prefKey);
+                EXCEED_TAGS.forEach(tag => {
+                    allGroupKeys.push(`[${tag}] ${prefKey}`);
+                });
+            });
+
+            let totalParts = 0;
+            allGroupKeys.forEach(groupKey => {
+                const isExceedKey = groupKey.startsWith('[');
+                slots.forEach(slot => {
+                    if (isExceedKey && !exceedSlots.includes(slot)) return;
+                    const key = `${groupKey} ${slot}`;
+                    totalParts += char.armorCounts[key] || 0;
+                });
+            });
+
+            const newText = btnText.replace(/\(\d+\)/, `(${totalParts})`);
+            btn.innerHTML = btn.innerHTML.replace(btnText, newText);
+
+            const distinctParts = calcTotalDistinctParts(char, setName);
+            const fullSize = slots.length;
+
+            btn.classList.remove('set3', 'set5');
+            if (fullSize === 5) {
+                if (distinctParts === fullSize) btn.classList.add('set5');
+                else if (distinctParts >= 3) btn.classList.add('set3');
+            } else {
+                if (distinctParts === 3) btn.classList.add('set3');
+            }
+        });
+    }
+
+    // 카테고리별 총 개수 업데이트 (방어구, 악세, 특장)
+    function updateCategoryTotals(char) {
+        const setList = document.getElementById("setList");
+        if (!setList) return;
+
+        // 1. 방어구 총 개수
+        let totalArmor = 0;
+        Object.keys(ARMOR_SETS).forEach(setName => {
+            const slots = ARMOR_SETS[setName];
+            const prefixes = ARMOR_PREFIX[setName] || [];
+
+            if (!LEGACY_PREFIX_SETS.includes(setName)) {
+                slots.forEach(slot => {
+                    totalArmor += char.armorCounts[`${setName} ${slot}`] || 0;
+                });
+            }
+
+            prefixes.forEach(pref => {
+                const prefKey = makePrefixKey(pref, setName);
+                slots.forEach(slot => {
+                    totalArmor += char.armorCounts[`${prefKey} ${slot}`] || 0;
+                });
+
+                EXCEED_TAGS.forEach(tag => {
+                    slots.forEach(slot => {
+                        totalArmor += char.armorCounts[`[${tag}] ${prefKey} ${slot}`] || 0;
+                    });
+                });
+            });
+        });
+
+        // 2. 악세 총 개수
+        let totalAccessory = 0;
+        Object.keys(ACCESSORY_SETS).forEach(setName => {
+            const slots = ACCESSORY_SETS[setName];
+            const prefixes = ACCESSORY_PREFIX[setName] || [];
+
+            if (!LEGACY_PREFIX_SETS.includes(setName)) {
+                slots.forEach(slot => {
+                    totalAccessory += char.armorCounts[`${setName} ${slot}`] || 0;
+                });
+            }
+
+            prefixes.forEach(pref => {
+                const prefKey = makePrefixKey(pref, setName);
+                slots.forEach(slot => {
+                    totalAccessory += char.armorCounts[`${prefKey} ${slot}`] || 0;
+                });
+
+                EXCEED_TAGS.forEach(tag => {
+                    slots.forEach(slot => {
+                        totalAccessory += char.armorCounts[`[${tag}] ${prefKey} ${slot}`] || 0;
+                    });
+                });
+            });
+        });
+
+        // 3. 특장 총 개수
+        let totalSpecial = 0;
+        Object.keys(SPECIAL_SETS).forEach(setName => {
+            const slots = SPECIAL_SETS[setName];
+            const prefixes = SPECIAL_PREFIX[setName] || [];
+
+            slots.forEach(slot => {
+                totalSpecial += char.armorCounts[`${setName} ${slot}`] || 0;
+            });
+
+            prefixes.forEach(pref => {
+                const prefKey = makePrefixKey(pref, setName);
+                slots.forEach(slot => {
+                    totalSpecial += char.armorCounts[`${prefKey} ${slot}`] || 0;
+                });
+
+                EXCEED_TAGS.forEach(tag => {
+                    slots.forEach(slot => {
+                        totalSpecial += char.armorCounts[`[${tag}] ${prefKey} ${slot}`] || 0;
+                    });
+                });
+            });
+        });
+
+        // 4. 헤더 텍스트 업데이트
+        const headers = setList.querySelectorAll('h2');
+        headers.forEach(header => {
+            const text = header.textContent;
+            if (text.includes('방어구')) {
+                header.textContent = `[방어구 (${totalArmor}개)]`;
+            } else if (text.includes('악세')) {
+                header.textContent = `[악세 (${totalAccessory}개)]`;
+            } else if (text.includes('특장')) {
+                header.textContent = `[특장 (${totalSpecial}개)]`;
+            }
+        });
+    }
+
     // ===== 증가/감소 =====
     function increment(charId, key) {
         const char = characters.find(c => c.id === charId);
-        char.armorCounts[key] = (char.armorCounts[key] || 0) + 1;
-        // 💡 업데이트 시간 추가/갱신
+        const oldValue = char.armorCounts[key] || 0;
+        const newValue = oldValue + 1;
+
+        char.armorCounts[key] = newValue;
         char.updateTimes[key] = Date.now();
-        saveLocalData(); // [로컬 스토리지] 데이터 변경 후 저장
-        showSetButtons(char, true);
-        if (currentSetName && currentChar) {
-            openSet(currentSetName, currentChar); // ✅ 저장된 값으로 다시 열기
+        saveLocalData();
+
+        updateEquipmentButton(charId, key, newValue);
+        if (currentSetName) {
+            updateSetButtonCount(currentSetName, char);
+            updateAllRowColors(char, currentSetName); // ✅ 전체 행 색상 업데이트
         }
+        updateCategoryTotals(char);
     }
 
     // 🚨 감소 함수 (우클릭 시 호출)
     function decrement(charId, key) {
         const char = characters.find(c => c.id === charId);
         const cur = char.armorCounts[key] || 0;
-        char.armorCounts[key] = Math.max(0, cur - 1); // 0보다 작아지지 않게
-        // 💡 업데이트 시간 추가/갱신 (0이 되어도 마지막 수정 시간은 남김)
+        const newValue = Math.max(0, cur - 1);
+
+        char.armorCounts[key] = newValue;
         char.updateTimes[key] = Date.now();
-        saveLocalData(); // [로컬 스토리지] 데이터 변경 후 저장
-        showSetButtons(char, true);
-        if (currentSetName && currentChar) {
-            openSet(currentSetName, currentChar); // ✅ 저장된 값으로 다시 열기
+        saveLocalData();
+
+        updateEquipmentButton(charId, key, newValue);
+        if (currentSetName) {
+            updateSetButtonCount(currentSetName, char);
+            updateAllRowColors(char, currentSetName); // ✅ 전체 행 색상 업데이트
         }
+        updateCategoryTotals(char);
     }
 
     /* ========================================
