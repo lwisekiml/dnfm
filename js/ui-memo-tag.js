@@ -25,6 +25,7 @@ const MEMO_POPUP = {
 
     // 읽기전용 div (잠금 모드)
     readonlyMinHeight:  '120px',
+    readonlyMaxHeight:  '200px',  // 이 높이 초과 시 스크롤
     readonlyBg:         '#0a0a0a',
     readonlyBorder:     '2px solid #333',
 };
@@ -48,6 +49,7 @@ const DESC_POPUP = {
 
     // 읽기전용 div (잠금 모드)
     readonlyMinHeight:  '60px',
+    readonlyMaxHeight:  '200px',  // 이 높이 초과 시 스크롤
     readonlyBg:         '#0a0a0a',
     readonlyBorder:     '2px solid #333',
 };
@@ -264,7 +266,7 @@ function openMemoModal(charId) {
                 <span style="color: #888; font-size: 12px; margin-left: 8px;">${charName}</span>
                 <span style="color: #f90; font-size: 11px; margin-left: 8px;">🔒 잠금</span>
             </div>
-            <div style="width: 100%; min-height: ${MEMO_POPUP.readonlyMinHeight}; padding: 10px;
+            <div style="width: 100%; min-height: ${MEMO_POPUP.readonlyMinHeight}; max-height: ${MEMO_POPUP.readonlyMaxHeight}; overflow-y: auto; padding: 10px;
                        background: ${MEMO_POPUP.readonlyBg}; color: #fff; border: ${MEMO_POPUP.readonlyBorder};
                        border-radius: 4px; font-size: ${MEMO_POPUP.textareaFontSize}; line-height: 1.5;
                        box-sizing: border-box; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word;">${currentMemo || '(메모 없음)'}</div>
@@ -410,7 +412,7 @@ function openDescModal(inputEl) {
                 <span style="font-weight: bold; color: #ffd700; font-size: 14px;">📋 설명</span>
                 <span style="color: #f90; font-size: 11px; margin-left: 8px;">🔒 잠금</span>
             </div>
-            <div style="width: 100%; min-height: ${DESC_POPUP.readonlyMinHeight}; padding: 10px;
+            <div style="width: 100%; min-height: ${DESC_POPUP.readonlyMinHeight}; max-height: ${DESC_POPUP.readonlyMaxHeight}; overflow-y: auto; padding: 10px;
                        background: ${DESC_POPUP.readonlyBg}; color: #fff; border: ${DESC_POPUP.readonlyBorder};
                        border-radius: 4px; font-size: ${DESC_POPUP.textareaFontSize}; line-height: 1.5;
                        box-sizing: border-box; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word;">${currentVal || '(설명 없음)'}</div>
