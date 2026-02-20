@@ -2,6 +2,56 @@
 // ui-memo-tag.js - 메모/태그 기능
 // ============================================
 
+// ============================================
+// 팝업 설정 (여기서 한 번에 관리)
+// ============================================
+
+// 메모 팝업 설정
+const MEMO_POPUP = {
+    // 팝업 모달 크기/스타일
+    width:        '350px',
+    background:   '#1a1a1a',
+    border:       '3px solid #ffd700',
+    borderRadius: '8px',
+    padding:      '15px',
+    boxShadow:    '0 8px 32px rgba(0, 0, 0, 0.9)',
+    zIndex:       '1000',
+
+    // 입력창 (편집 모드)
+    textareaHeight:     '120px',
+    textareaBg:         '#0a0a0a',
+    textareaBorder:     '2px solid #444',
+    textareaFontSize:   '13px',
+
+    // 읽기전용 div (잠금 모드)
+    readonlyMinHeight:  '120px',
+    readonlyBg:         '#0a0a0a',
+    readonlyBorder:     '2px solid #333',
+};
+
+// 설명 팝업 설정
+const DESC_POPUP = {
+    // 팝업 모달 크기/스타일
+    width:        '350px',
+    background:   '#1a1a1a',
+    border:       '3px solid #ffd700',
+    borderRadius: '8px',
+    padding:      '15px',
+    boxShadow:    '0 8px 32px rgba(0, 0, 0, 0.9)',
+    zIndex:       '1000',
+
+    // 입력창 (편집 모드)
+    textareaHeight:     '100px',
+    textareaBg:         '#0a0a0a',
+    textareaBorder:     '2px solid #444',
+    textareaFontSize:   '13px',
+
+    // 읽기전용 div (잠금 모드)
+    readonlyMinHeight:  '60px',
+    readonlyBg:         '#0a0a0a',
+    readonlyBorder:     '2px solid #333',
+};
+
 /**
  * 태그 추가
  */
@@ -197,14 +247,14 @@ function openMemoModal(charId) {
     modal.className = 'memo-popup';
 
     // 인라인 스타일 직접 추가
-    modal.style.position = 'absolute';
-    modal.style.background = '#1a1a1a';
-    modal.style.border = '3px solid #ffd700';
-    modal.style.borderRadius = '8px';
-    modal.style.padding = '15px';
-    modal.style.width = '350px';
-    modal.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.9)';
-    modal.style.zIndex = '1000';
+    modal.style.position    = 'absolute';
+    modal.style.background  = MEMO_POPUP.background;
+    modal.style.border      = MEMO_POPUP.border;
+    modal.style.borderRadius= MEMO_POPUP.borderRadius;
+    modal.style.padding     = MEMO_POPUP.padding;
+    modal.style.width       = MEMO_POPUP.width;
+    modal.style.boxShadow   = MEMO_POPUP.boxShadow;
+    modal.style.zIndex      = MEMO_POPUP.zIndex;
 
     if (isLocked) {
         // 잠금 상태: 읽기 전용
@@ -214,9 +264,9 @@ function openMemoModal(charId) {
                 <span style="color: #888; font-size: 12px; margin-left: 8px;">${charName}</span>
                 <span style="color: #f90; font-size: 11px; margin-left: 8px;">🔒 잠금</span>
             </div>
-            <div style="width: 100%; min-height: 120px; padding: 10px;
-                       background: #0a0a0a; color: #fff; border: 2px solid #333;
-                       border-radius: 4px; font-size: 13px; line-height: 1.5;
+            <div style="width: 100%; min-height: ${MEMO_POPUP.readonlyMinHeight}; padding: 10px;
+                       background: ${MEMO_POPUP.readonlyBg}; color: #fff; border: ${MEMO_POPUP.readonlyBorder};
+                       border-radius: 4px; font-size: ${MEMO_POPUP.textareaFontSize}; line-height: 1.5;
                        box-sizing: border-box; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word;">${currentMemo || '(메모 없음)'}</div>
             <div style="display: flex; gap: 8px;">
                 <button class="btn-action" style="background:var(--btn-secondary); padding: 8px 20px; font-size: 13px;" onclick="closeMemoModal()">닫기</button>
@@ -231,9 +281,9 @@ function openMemoModal(charId) {
             <textarea 
                 id="memoModalTextarea" 
                 placeholder="메모를 입력하세요..."
-                style="width: 100%; height: 120px; resize: vertical; padding: 10px;
-                       background: #0a0a0a; color: #fff; border: 2px solid #444;
-                       border-radius: 4px; font-size: 13px; line-height: 1.5;
+                style="width: 100%; height: ${MEMO_POPUP.textareaHeight}; resize: vertical; padding: 10px;
+                       background: ${MEMO_POPUP.textareaBg}; color: #fff; border: ${MEMO_POPUP.textareaBorder};
+                       border-radius: 4px; font-size: ${MEMO_POPUP.textareaFontSize}; line-height: 1.5;
                        font-family: inherit; box-sizing: border-box; margin-bottom: 10px;">${currentMemo}</textarea>
             <div style="display: flex; gap: 8px;">
                 <button class="btn-action" style="background:var(--btn-success); padding: 8px 20px; font-size: 13px;" onclick="saveMemoFromModal()">💾 저장</button>
@@ -345,14 +395,14 @@ function openDescModal(inputEl) {
 
     const modal = document.createElement('div');
     modal.id = 'descModal';
-    modal.style.position = 'absolute';
-    modal.style.background = '#1a1a1a';
-    modal.style.border = '3px solid #ffd700';
-    modal.style.borderRadius = '8px';
-    modal.style.padding = '15px';
-    modal.style.width = '350px';
-    modal.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.9)';
-    modal.style.zIndex = '1000';
+    modal.style.position    = 'absolute';
+    modal.style.background  = DESC_POPUP.background;
+    modal.style.border      = DESC_POPUP.border;
+    modal.style.borderRadius= DESC_POPUP.borderRadius;
+    modal.style.padding     = DESC_POPUP.padding;
+    modal.style.width       = DESC_POPUP.width;
+    modal.style.boxShadow   = DESC_POPUP.boxShadow;
+    modal.style.zIndex      = DESC_POPUP.zIndex;
 
     if (isLocked) {
         modal.innerHTML = `
@@ -360,9 +410,9 @@ function openDescModal(inputEl) {
                 <span style="font-weight: bold; color: #ffd700; font-size: 14px;">📋 설명</span>
                 <span style="color: #f90; font-size: 11px; margin-left: 8px;">🔒 잠금</span>
             </div>
-            <div style="width: 100%; min-height: 60px; padding: 10px;
-                       background: #0a0a0a; color: #fff; border: 2px solid #333;
-                       border-radius: 4px; font-size: 13px; line-height: 1.5;
+            <div style="width: 100%; min-height: ${DESC_POPUP.readonlyMinHeight}; padding: 10px;
+                       background: ${DESC_POPUP.readonlyBg}; color: #fff; border: ${DESC_POPUP.readonlyBorder};
+                       border-radius: 4px; font-size: ${DESC_POPUP.textareaFontSize}; line-height: 1.5;
                        box-sizing: border-box; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word;">${currentVal || '(설명 없음)'}</div>
             <div style="display: flex; gap: 8px;">
                 <button class="btn-action" style="background:var(--btn-secondary); padding: 8px 20px; font-size: 13px;" onclick="closeDescModal()">닫기</button>
@@ -376,9 +426,9 @@ function openDescModal(inputEl) {
             <textarea 
                 id="descModalTextarea" 
                 placeholder="설명을 입력하세요..."
-                style="width: 100%; height: 100px; resize: vertical; padding: 10px;
-                       background: #0a0a0a; color: #fff; border: 2px solid #444;
-                       border-radius: 4px; font-size: 13px; line-height: 1.5;
+                style="width: 100%; height: ${DESC_POPUP.textareaHeight}; resize: vertical; padding: 10px;
+                       background: ${DESC_POPUP.textareaBg}; color: #fff; border: ${DESC_POPUP.textareaBorder};
+                       border-radius: 4px; font-size: ${DESC_POPUP.textareaFontSize}; line-height: 1.5;
                        font-family: inherit; box-sizing: border-box; margin-bottom: 10px;">${currentVal}</textarea>
             <div style="display: flex; gap: 8px;">
                 <button class="btn-action" style="background:var(--btn-success); padding: 8px 20px; font-size: 13px;" onclick="saveDescFromModal()">💾 저장</button>
