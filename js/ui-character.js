@@ -410,5 +410,9 @@ function toggleEdit(charId, isLock) {
         unlockBtn?.classList.add('btn-active');
     }
 
+    // 설명/메모 팝업이 열려있으면 닫기
+    if (typeof closeDescModal === 'function') closeDescModal();
+    if (typeof closeMemoModal === 'function') closeMemoModal();
+
     autoSave();
 }
