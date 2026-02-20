@@ -312,7 +312,7 @@
             <input type="text" data-key="{SLOT}_enchant_val" value="{DEFAULT_ENCHANT_VAL}" oninput="autoSave()">
         </td>
         <td class="v-border-heavy">
-            <input type="text" data-key="{SLOT}_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;">
+            <input type="text" data-key="{SLOT}_desc" readonly onclick="openDescModal(this)" style="text-align: left; padding-left: 6px; cursor: pointer;">
         </td>
     </tr>
 </template>
@@ -329,7 +329,7 @@
             설정된 룬 없음
         </td>
         <td class="v-border-heavy">
-            <input type="text" data-key="스킬룬_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;">
+            <input type="text" data-key="스킬룬_desc" readonly onclick="openDescModal(this)" style="text-align: left; padding-left: 6px; cursor: pointer;">
         </td>
     </tr>
 </template>
@@ -512,7 +512,7 @@
             </div>
         </td>
         <td class="v-border-heavy">
-            <input type="text" data-key="크리쳐_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;">
+            <input type="text" data-key="크리쳐_desc" readonly onclick="openDescModal(this)" style="text-align: left; padding-left: 6px; cursor: pointer;">
         </td>
     </tr>
 </template>
@@ -562,7 +562,7 @@
             <input type="text" data-key="칭호_enchant_val" oninput="autoSave()">
         </td>
         <td rowspan="2" class="v-border-heavy" style="padding: var(--spacing-xs); vertical-align: middle;">
-            <textarea data-key="칭호_desc" oninput="autoSave()" style="width:calc(100% - 4px); height:calc(100% - 2px); min-height: var(--height-textarea-min);"></textarea>
+            <textarea data-key="칭호_desc" readonly onclick="openDescModal(this)" style="width:calc(100% - 4px); height:calc(100% - 2px); min-height: var(--height-textarea-min); cursor: pointer;"></textarea>
         </td>
     </tr>
 </template>
@@ -625,7 +625,7 @@
         <td>-</td>
         <td class="col-val-short">-</td>
         <td class="v-border-heavy">
-            <input type="text" data-key="{SLOT}_desc" oninput="autoSave()" style="text-align: left; padding-left: 6px;">
+            <input type="text" data-key="{SLOT}_desc" readonly onclick="openDescModal(this)" style="text-align: left; padding-left: 6px; cursor: pointer;">
         </td>
     </tr>
 </template>

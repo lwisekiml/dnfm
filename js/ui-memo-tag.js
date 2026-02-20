@@ -176,13 +176,9 @@ let currentMemoCharId = null;
 function openMemoModal(charId) {
     const section = document.getElementById(charId);
 
-    // 잠금 상태 체크 (조용히 무시)
+    // 잠금 상태 체크
     const lockBtn = section.querySelector('.lock-btn');
     const isLocked = lockBtn?.classList.contains('btn-active');
-
-    if (isLocked) {
-        return;  // 그냥 아무것도 안 함
-    }
 
     currentMemoCharId = charId;
     const charName = section.querySelector('[data-key="info_job"]')?.value || '미정';
@@ -210,23 +206,41 @@ function openMemoModal(charId) {
     modal.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.9)';
     modal.style.zIndex = '1000';
 
-    modal.innerHTML = `
-        <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #444;">
-            <span style="font-weight: bold; color: #ffd700; font-size: 14px;">📝 메모</span>
-            <span style="color: #888; font-size: 12px; margin-left: 8px;">${charName}</span>
-        </div>
-        <textarea 
-            id="memoModalTextarea" 
-            placeholder="메모를 입력하세요..."
-            style="width: 100%; height: 120px; resize: vertical; padding: 10px;
-                   background: #0a0a0a; color: #fff; border: 2px solid #444;
-                   border-radius: 4px; font-size: 13px; line-height: 1.5;
-                   font-family: inherit; box-sizing: border-box; margin-bottom: 10px;">${currentMemo}</textarea>
-        <div style="display: flex; gap: 8px;">
-            <button class="btn-action" style="background:var(--btn-success); padding: 8px 20px; font-size: 13px;" onclick="saveMemoFromModal()">💾 저장</button>
-            <button class="btn-action" style="background:var(--btn-secondary); padding: 8px 20px; font-size: 13px;" onclick="closeMemoModal()">닫기</button>
-        </div>
-    `;
+    if (isLocked) {
+        // 잠금 상태: 읽기 전용
+        modal.innerHTML = `
+            <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #444;">
+                <span style="font-weight: bold; color: #ffd700; font-size: 14px;">📝 메모</span>
+                <span style="color: #888; font-size: 12px; margin-left: 8px;">${charName}</span>
+                <span style="color: #f90; font-size: 11px; margin-left: 8px;">🔒 잠금</span>
+            </div>
+            <div style="width: 100%; min-height: 120px; padding: 10px;
+                       background: #0a0a0a; color: #fff; border: 2px solid #333;
+                       border-radius: 4px; font-size: 13px; line-height: 1.5;
+                       box-sizing: border-box; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word;">${currentMemo || '(메모 없음)'}</div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-action" style="background:var(--btn-secondary); padding: 8px 20px; font-size: 13px;" onclick="closeMemoModal()">닫기</button>
+            </div>
+        `;
+    } else {
+        modal.innerHTML = `
+            <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #444;">
+                <span style="font-weight: bold; color: #ffd700; font-size: 14px;">📝 메모</span>
+                <span style="color: #888; font-size: 12px; margin-left: 8px;">${charName}</span>
+            </div>
+            <textarea 
+                id="memoModalTextarea" 
+                placeholder="메모를 입력하세요..."
+                style="width: 100%; height: 120px; resize: vertical; padding: 10px;
+                       background: #0a0a0a; color: #fff; border: 2px solid #444;
+                       border-radius: 4px; font-size: 13px; line-height: 1.5;
+                       font-family: inherit; box-sizing: border-box; margin-bottom: 10px;">${currentMemo}</textarea>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-action" style="background:var(--btn-success); padding: 8px 20px; font-size: 13px;" onclick="saveMemoFromModal()">💾 저장</button>
+                <button class="btn-action" style="background:var(--btn-secondary); padding: 8px 20px; font-size: 13px;" onclick="closeMemoModal()">닫기</button>
+            </div>
+        `;
+    }
 
     // 메모 미리보기 위치 찾기
     const memoPreview = document.getElementById(`${charId}_memo_preview`);
@@ -242,10 +256,12 @@ function openMemoModal(charId) {
 
     document.body.appendChild(modal);
 
-    // textarea에 포커스
-    setTimeout(() => {
-        document.getElementById('memoModalTextarea').focus();
-    }, 100);
+    // textarea에 포커스 (잠금 아닐 때만)
+    if (!isLocked) {
+        setTimeout(() => {
+            document.getElementById('memoModalTextarea').focus();
+        }, 100);
+    }
 }
 
 /**
@@ -304,6 +320,135 @@ function updateMemoPreview(charId) {
         previewDiv.style.color = '#aaa';
         previewDiv.style.fontStyle = 'italic';
     }
+}
+
+// ============================================
+// 설명칸 팝업 기능
+// ============================================
+
+let currentDescInput = null;
+
+/**
+ * 설명칸 팝업 열기
+ */
+function openDescModal(inputEl) {
+    // 해당 캐릭터 섹션 찾기
+    const section = inputEl.closest('.char-section');
+    const isLocked = section?.querySelector('.lock-btn')?.classList.contains('btn-active');
+    const currentVal = inputEl.value || '';
+
+    currentDescInput = inputEl;
+
+    // 기존 모달 제거
+    const existingModal = document.getElementById('descModal');
+    if (existingModal) existingModal.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'descModal';
+    modal.style.position = 'absolute';
+    modal.style.background = '#1a1a1a';
+    modal.style.border = '3px solid #ffd700';
+    modal.style.borderRadius = '8px';
+    modal.style.padding = '15px';
+    modal.style.width = '350px';
+    modal.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.9)';
+    modal.style.zIndex = '1000';
+
+    if (isLocked) {
+        modal.innerHTML = `
+            <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #444;">
+                <span style="font-weight: bold; color: #ffd700; font-size: 14px;">📋 설명</span>
+                <span style="color: #f90; font-size: 11px; margin-left: 8px;">🔒 잠금</span>
+            </div>
+            <div style="width: 100%; min-height: 60px; padding: 10px;
+                       background: #0a0a0a; color: #fff; border: 2px solid #333;
+                       border-radius: 4px; font-size: 13px; line-height: 1.5;
+                       box-sizing: border-box; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word;">${currentVal || '(설명 없음)'}</div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-action" style="background:var(--btn-secondary); padding: 8px 20px; font-size: 13px;" onclick="closeDescModal()">닫기</button>
+            </div>
+        `;
+    } else {
+        modal.innerHTML = `
+            <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #444;">
+                <span style="font-weight: bold; color: #ffd700; font-size: 14px;">📋 설명</span>
+            </div>
+            <textarea 
+                id="descModalTextarea" 
+                placeholder="설명을 입력하세요..."
+                style="width: 100%; height: 100px; resize: vertical; padding: 10px;
+                       background: #0a0a0a; color: #fff; border: 2px solid #444;
+                       border-radius: 4px; font-size: 13px; line-height: 1.5;
+                       font-family: inherit; box-sizing: border-box; margin-bottom: 10px;">${currentVal}</textarea>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-action" style="background:var(--btn-success); padding: 8px 20px; font-size: 13px;" onclick="saveDescFromModal()">💾 저장</button>
+                <button class="btn-action" style="background:var(--btn-secondary); padding: 8px 20px; font-size: 13px;" onclick="closeDescModal()">닫기</button>
+            </div>
+        `;
+    }
+
+    // 일단 body에 붙여서 실제 크기 측정
+    modal.style.visibility = 'hidden';
+    document.body.appendChild(modal);
+
+    const rect = inputEl.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const modalW = modal.offsetWidth;
+    const modalH = modal.offsetHeight;
+    const viewW = window.innerWidth;
+    const viewH = window.innerHeight;
+
+    // 기본: input 아래, input 왼쪽 정렬
+    let top = rect.bottom + scrollTop + 5;
+    let left = rect.left + scrollLeft;
+
+    // 오른쪽 벗어나면 왼쪽으로 당기기
+    if (rect.left + modalW > viewW) {
+        left = scrollLeft + viewW - modalW - 10;
+    }
+
+    // 아래 벗어나면 input 위로 올리기
+    if (rect.bottom + modalH + 5 > viewH) {
+        top = rect.top + scrollTop - modalH - 5;
+    }
+
+    // 화면 왼쪽 밖으로 나가면 보정
+    if (left < scrollLeft + 5) {
+        left = scrollLeft + 5;
+    }
+
+    modal.style.top = top + 'px';
+    modal.style.left = left + 'px';
+    modal.style.visibility = 'visible';
+
+    if (!isLocked) {
+        setTimeout(() => {
+            const ta = document.getElementById('descModalTextarea');
+            if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+        }, 100);
+    }
+}
+
+/**
+ * 설명칸 저장
+ */
+function saveDescFromModal() {
+    const ta = document.getElementById('descModalTextarea');
+    if (currentDescInput && ta) {
+        currentDescInput.value = ta.value;
+        autoSave();
+    }
+    closeDescModal();
+}
+
+/**
+ * 설명칸 모달 닫기
+ */
+function closeDescModal() {
+    const modal = document.getElementById('descModal');
+    if (modal) modal.remove();
+    currentDescInput = null;
 }
 
 console.log("✅ ui-memo-tag.js 로드 완료");
