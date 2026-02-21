@@ -1345,8 +1345,18 @@ textarea {
     cursor: pointer;
     border-radius: var(--border-radius);
     font-weight: bold;
-    font-size: var(--fs-button); /* 스킬룬 옆에 있는 수정, 초기화 글자 크기 */
+    font-size: var(--fs-button);
 }
+
+.set-apply-btn {
+    background: none;
+    border: none;
+    padding: 0 2px;
+    cursor: pointer;
+    font-size: 11px;
+    opacity: 0.5;
+}
+.set-apply-btn:hover { opacity: 1; }
 
 .btn-add {
     background: var(--btn-add);

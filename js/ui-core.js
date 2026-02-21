@@ -416,3 +416,120 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
         newEl.classList.add('ex-itemname-light');
     }
 }
+
+// ============================================
+// 세트 아이템 메뉴
+// ============================================
+
+/**
+ * 아이템이름 헤더 버튼 클릭 시 세트 목록 표시
+ */
+function openSetMenuFromHeader(event, charId) {
+    closeSetContextMenu();
+
+    const menu = document.createElement('div');
+    menu.id = 'setContextMenu';
+    menu.style.cssText = `
+        position: fixed;
+        z-index: 9999;
+        background: #1a1a1a;
+        border: 2px solid #ffd700;
+        border-radius: 6px;
+        padding: 6px 0;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.9);
+        min-width: 220px;
+        max-height: 500px;
+        overflow-y: auto;
+    `;
+
+    const sections = [
+        { label: '🛡️ 방어구', setsMap: armorSets,    slotType: 'armor' },
+        { label: '💍 악세서리', setsMap: accSets,     slotType: 'accessory' },
+        { label: '⚙️ 특수장비', setsMap: specialSets, slotType: 'special' },
+    ];
+
+    sections.forEach(({ label, setsMap, slotType }) => {
+        const header = document.createElement('div');
+        header.textContent = label;
+        header.style.cssText = `
+            padding: 6px 14px; color: #ffd700; font-weight: bold;
+            font-size: 12px; border-bottom: 1px solid #333; margin-top: 4px;
+        `;
+        menu.appendChild(header);
+
+        Object.keys(setsMap).forEach(setName => {
+            const item = document.createElement('div');
+            item.textContent = setName;
+            item.style.cssText = `padding: 7px 20px; color: #fff; font-size: 12px; cursor: pointer;`;
+            item.onmouseenter = () => item.style.background = '#333';
+            item.onmouseleave = () => item.style.background = '';
+            item.onclick = () => { applySetItems(charId, slotType, setsMap, setName); closeSetContextMenu(); };
+            item.ontouchend = (e) => { e.preventDefault(); applySetItems(charId, slotType, setsMap, setName); closeSetContextMenu(); };
+            menu.appendChild(item);
+        });
+    });
+
+    menu.style.left = event.clientX + 'px';
+    menu.style.top  = event.clientY + 'px';
+    document.body.appendChild(menu);
+
+    const rect = menu.getBoundingClientRect();
+    if (rect.right  > window.innerWidth)  menu.style.left = (event.clientX - rect.width)  + 'px';
+    if (rect.bottom > window.innerHeight) menu.style.top  = (event.clientY - rect.height) + 'px';
+
+    const outsideHandler = (e) => {
+        if (!menu.contains(e.target)) {
+            closeSetContextMenu();
+            document.removeEventListener('click', outsideHandler);
+        }
+    };
+    setTimeout(() => document.addEventListener('click', outsideHandler), 0);
+}
+
+/**
+ * 세트 메뉴 닫기
+ */
+function closeSetContextMenu() {
+    const menu = document.getElementById('setContextMenu');
+    if (menu) menu.remove();
+}
+
+/**
+ * 슬롯에 맞는 아이템 찾기 (itemOptions 기반 - 마지막 매칭 반환)
+ */
+function getMatchedItemForSlot(slot, itemList) {
+    const slotOptions = itemOptions[slot] || [];
+    let matched = null;
+    itemList.forEach(item => {
+        if (slotOptions.includes(item)) matched = item;
+    });
+    return matched;
+}
+
+/**
+ * 세트 아이템 전체 적용
+ */
+function applySetItems(charId, slotType, setsMap, setName) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    const itemList = setsMap[setName];
+    const slots = slotType === 'armor'     ? SlotUtils.ARMOR_SLOTS
+        : slotType === 'accessory' ? SlotUtils.ACCESSORY_SLOTS
+            : SlotUtils.SPECIAL_SLOTS;
+
+    slots.forEach(slot => {
+        const matched = getMatchedItemForSlot(slot, itemList);
+        if (!matched) return;
+        const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
+        if (nameEl) {
+            nameEl.value = matched;
+            nameEl.dispatchEvent(new Event('change'));
+        }
+    });
+
+    runSetCheck(slots[0], charId);
+    autoSave();
+}
+
+console.log("✅ ui-core.js 로드 완료");

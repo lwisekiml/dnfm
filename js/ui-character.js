@@ -39,7 +39,7 @@ function createCharacterTable(savedData = null) {
                         <th rowspan="2" class="col-rarity">희귀도</th>
                         <th rowspan="2" class="col-exceed">익시드</th>
                         <th rowspan="2" class="col-prefix">접두어</th>
-                        <th rowspan="2" style="min-width:120px;">아이템이름</th>
+                        <th rowspan="2" style="min-width:120px;">아이템이름 <button class="set-apply-btn" onclick="event.stopPropagation(); openSetMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
                         <th rowspan="2" class="col-val-short">강화</th>
                         <th colspan="4" class="group-header">마법봉인</th>
                         <th colspan="2" class="group-header">엠블렘</th>
