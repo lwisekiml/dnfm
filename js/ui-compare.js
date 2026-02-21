@@ -266,14 +266,14 @@ function buildSealCompare(section1, section2, name1, name2, isSeal1) {
 
         leftRows.push({ cells: [{ text: slot, cls: 'compare-slot-name' }, { text: d1[sealKey], cls: sc1 }, { text: d1[sealValKey], cls: sc1 }] });
         centerRows.push({ text: diff });
-        rightRows.push({ cells: [{ text: d2[sealValKey], cls: sc2 }, { text: d2[sealKey], cls: sc2 }, { text: slot, cls: 'compare-slot-name' }] });
+        rightRows.push({ cells: [{ text: slot, cls: 'compare-slot-name' }, { text: d2[sealKey], cls: sc2 }, { text: d2[sealValKey], cls: sc2 }] });
     });
 
     return createCompareSection(
         `*마법봉인 비교 (${label})*`,
         [[{ text: name1, colspan: 3 }], [{ text: '슬롯' }, { text: label }, { text: '수치' }]],
         name1 + ' vs ' + name2,
-        [[{ text: name2, colspan: 3 }], [{ text: '수치' }, { text: label }, { text: '슬롯' }]],
+        [[{ text: name2, colspan: 3 }], [{ text: '슬롯' }, { text: label }, { text: '수치' }]],
         leftRows, centerRows, rightRows
     );
 }
@@ -310,14 +310,14 @@ function buildEmblemCompare(section1, section2, name1, name2) {
 
         leftRows.push({ cells: [{ text: slot, cls: 'compare-slot-name' }, { text: d1.emb1, cls: ec1 }, { text: d1.emb2, cls: ec1 }] });
         centerRows.push({ text: diff });
-        rightRows.push({ cells: [{ text: d2.emb2, cls: ec2 }, { text: d2.emb1, cls: ec2 }, { text: slot, cls: 'compare-slot-name' }] });
+        rightRows.push({ cells: [{ text: slot, cls: 'compare-slot-name' }, { text: d2.emb1, cls: ec2 }, { text: d2.emb2, cls: ec2 }] });
     });
 
     return createCompareSection(
         '*엠블렘 비교*',
         [[{ text: name1, colspan: 3 }], [{ text: '슬롯' }, { text: '엠블렘1' }, { text: '엠블렘2' }]],
         name1 + ' vs ' + name2,
-        [[{ text: name2, colspan: 3 }], [{ text: '엠블렘2' }, { text: '엠블렘1' }, { text: '슬롯' }]],
+        [[{ text: name2, colspan: 3 }], [{ text: '슬롯' }, { text: '엠블렘1' }, { text: '엠블렘2' }]],
         leftRows, centerRows, rightRows
     );
 }
@@ -342,14 +342,14 @@ function buildEnchantCompare(section1, section2, name1, name2) {
 
         leftRows.push({ cells: [{ text: slot, cls: 'compare-slot-name' }, { text: d1.enchant }, { text: d1.enchant_val }] });
         centerRows.push({ text: diff });
-        rightRows.push({ cells: [{ text: d2.enchant_val }, { text: d2.enchant }, { text: slot, cls: 'compare-slot-name' }] });
+        rightRows.push({ cells: [{ text: slot, cls: 'compare-slot-name' }, { text: d2.enchant }, { text: d2.enchant_val }] });
     });
 
     return createCompareSection(
         '*마법부여 비교*',
         [[{ text: name1, colspan: 3 }], [{ text: '슬롯' }, { text: '마법부여' }, { text: '수치' }]],
         name1 + ' vs ' + name2,
-        [[{ text: name2, colspan: 3 }], [{ text: '수치' }, { text: '마법부여' }, { text: '슬롯' }]],
+        [[{ text: name2, colspan: 3 }], [{ text: '슬롯' }, { text: '마법부여' }, { text: '수치' }]],
         leftRows, centerRows, rightRows
     );
 }
