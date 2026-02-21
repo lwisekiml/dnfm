@@ -693,6 +693,10 @@
 
     let craftLocked = true;
 
+    // calcTotalDistinctParts 결과 캐시
+    // 구조: { "charId|setName": distinctParts }
+    let distinctPartsCache = {};
+
     // ✅ 추가: 캐릭터 순서 편집 모드
     let isEditingCharacterOrder = false;
 
@@ -1172,7 +1176,7 @@
             char, setName, nameKey, labelText, slots, fullSize
         } = config;
 
-        const totalDistinct = calcTotalDistinctParts(char, setName);
+        const totalDistinct = getCachedDistinctParts(char, setName);
         let hasAnyPart = false;
 
         slots.forEach(slot => {
@@ -1266,6 +1270,42 @@
         }
 
         return "ARMOR";
+    }
+
+    // 캐시 키 생성
+    function makeDistinctCacheKey(char, setName) {
+        return `${char.id}|${setName}`;
+    }
+
+    // 캐시 무효화 (데이터 변경 시)
+    function invalidateDistinctCache(charId, setName) {
+        if (setName) {
+            // 특정 세트만 무효화
+            const key = `${charId}|${setName}`;
+            delete distinctPartsCache[key];
+        } else {
+            // 해당 캐릭터의 모든 캐시 무효화
+            Object.keys(distinctPartsCache).forEach(key => {
+                if (key.startsWith(`${charId}|`)) {
+                    delete distinctPartsCache[key];
+                }
+            });
+        }
+    }
+
+    // 캐시된 결과 가져오기
+    function getCachedDistinctParts(char, setName) {
+        const cacheKey = makeDistinctCacheKey(char, setName);
+
+        // 캐시에 있으면 반환
+        if (distinctPartsCache[cacheKey] !== undefined) {
+            return distinctPartsCache[cacheKey];
+        }
+
+        // 없으면 계산 후 저장
+        const result = calcTotalDistinctParts(char, setName);
+        distinctPartsCache[cacheKey] = result;
+        return result;
     }
 
     function calcTotalDistinctParts(char, baseSetName) {
@@ -1856,7 +1896,7 @@
         const exceedSlots = EXCEED_SLOTS[setType] || [];
 
         // 1. 전체 고유 부위 개수 계산 (접두어/익시드 무시)
-        const distinctParts = calcTotalDistinctParts(char, setName);
+        const distinctParts = getCachedDistinctParts(char, setName);
 
         const allGroupKeys = [];
 
@@ -1941,6 +1981,9 @@
 
         currentSetName = setName;
         currentChar = char;
+
+        // ✅ 세트 열 때 해당 캐릭터의 캐시 미리 계산
+        getCachedDistinctParts(char, setName);
 
         const panel = document.getElementById("panel");
         panel.innerHTML = `<h2>[${setName} 세트]</h2>`;
@@ -2281,7 +2324,7 @@
         const setType = getSetType(setName);
         const exceedSlots = EXCEED_SLOTS[setType];
 
-        const totalDistinct = calcTotalDistinctParts(char, setName);
+        const totalDistinct = getCachedDistinctParts(char, setName);
         const fullSize = slots.length;
 
         const tr = document.createElement("tr");
@@ -2404,7 +2447,7 @@
 
     // 테이블 행의 세트 색상 업데이트
     function updateRowColor(row, char, setName) {
-        const totalDistinct = calcTotalDistinctParts(char, setName);
+        const totalDistinct = getCachedDistinctParts(char, setName);
         const setType = getSetType(setName);
         const slots = ALL_SETS[setName] || [];
         const fullSize = slots.length;
@@ -2524,7 +2567,7 @@
             const newText = btnText.replace(/\(\d+\)/, `(${totalParts})`);
             btn.innerHTML = btn.innerHTML.replace(btnText, newText);
 
-            const distinctParts = calcTotalDistinctParts(char, setName);
+            const distinctParts = getCachedDistinctParts(char, setName);
             const fullSize = slots.length;
 
             btn.classList.remove('set3', 'set5');
@@ -2642,10 +2685,15 @@
         char.updateTimes[key] = Date.now();
         saveLocalData();
 
+        // ✅ 캐시 무효화 (데이터 변경되었으므로)
+        if (currentSetName) {
+            invalidateDistinctCache(charId, currentSetName);
+        }
+
         updateEquipmentButton(charId, key, newValue);
         if (currentSetName) {
             updateSetButtonCount(currentSetName, char);
-            updateAllRowColors(char, currentSetName); // ✅ 전체 행 색상 업데이트
+            updateAllRowColors(char, currentSetName);
         }
         updateCategoryTotals(char);
     }
@@ -2660,10 +2708,15 @@
         char.updateTimes[key] = Date.now();
         saveLocalData();
 
+        // ✅ 캐시 무효화
+        if (currentSetName) {
+            invalidateDistinctCache(charId, currentSetName);
+        }
+
         updateEquipmentButton(charId, key, newValue);
         if (currentSetName) {
             updateSetButtonCount(currentSetName, char);
-            updateAllRowColors(char, currentSetName); // ✅ 전체 행 색상 업데이트
+            updateAllRowColors(char, currentSetName);
         }
         updateCategoryTotals(char);
     }
