@@ -533,3 +533,95 @@ function applySetItems(charId, slotType, setsMap, setName) {
 }
 
 console.log("✅ ui-core.js 로드 완료");
+
+// ============================================
+// 접두어 일괄 적용 메뉴
+// ============================================
+
+/**
+ * 접두어 헤더 버튼 클릭 시 접두어 목록 표시
+ */
+function openPrefixMenuFromHeader(event, charId) {
+    closeSetContextMenu();
+
+    const menu = document.createElement('div');
+    menu.id = 'setContextMenu';
+    menu.style.cssText = `
+        position: fixed;
+        z-index: 9999;
+        background: #1a1a1a;
+        border: 2px solid #ffd700;
+        border-radius: 6px;
+        padding: 6px 0;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.9);
+        min-width: 180px;
+        max-height: 500px;
+        overflow-y: auto;
+    `;
+
+    const sections = [
+        { label: '🛡️ 방어구', prefixList: armorPrefixes, slots: SlotUtils.ARMOR_SLOTS },
+        { label: '💍 악세서리', prefixList: accPrefixes, slots: SlotUtils.ACCESSORY_SLOTS },
+        { label: '⚙️ 특수장비', prefixList: specPrefixes, slots: SlotUtils.SPECIAL_SLOTS },
+    ];
+
+    sections.forEach(({ label, prefixList, slots }) => {
+        const header = document.createElement('div');
+        header.textContent = label;
+        header.style.cssText = `
+            padding: 6px 14px; color: #ffd700; font-weight: bold;
+            font-size: 12px; border-bottom: 1px solid #333; margin-top: 4px;
+        `;
+        menu.appendChild(header);
+
+        prefixList.filter(p => p !== '').forEach(prefix => {
+            const item = document.createElement('div');
+            item.textContent = prefix;
+            item.style.cssText = `padding: 7px 20px; color: #fff; font-size: 12px; cursor: pointer;`;
+            item.onmouseenter = () => item.style.background = '#333';
+            item.onmouseleave = () => item.style.background = '';
+
+            const apply = () => {
+                applyPrefixToSlots(charId, slots, prefix);
+                closeSetContextMenu();
+            };
+            item.onclick = apply;
+            item.ontouchend = (e) => { e.preventDefault(); apply(); };
+            menu.appendChild(item);
+        });
+    });
+
+    menu.style.left = event.clientX + 'px';
+    menu.style.top  = event.clientY + 'px';
+    document.body.appendChild(menu);
+
+    const rect = menu.getBoundingClientRect();
+    if (rect.right  > window.innerWidth)  menu.style.left = (event.clientX - rect.width)  + 'px';
+    if (rect.bottom > window.innerHeight) menu.style.top  = (event.clientY - rect.height) + 'px';
+
+    const outsideHandler = (e) => {
+        if (!menu.contains(e.target)) {
+            closeSetContextMenu();
+            document.removeEventListener('click', outsideHandler);
+        }
+    };
+    setTimeout(() => document.addEventListener('click', outsideHandler), 0);
+}
+
+/**
+ * 해당 슬롯들에 접두어 일괄 적용
+ */
+function applyPrefixToSlots(charId, slots, prefix) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    slots.forEach(slot => {
+        const prefixSel = section.querySelector(`select[data-key="${slot}_prefix"]`);
+        if (prefixSel) {
+            prefixSel.value = prefix;
+            prefixSel.dispatchEvent(new Event('change'));
+        }
+    });
+
+    autoSave();
+}
