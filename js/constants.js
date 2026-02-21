@@ -11,7 +11,7 @@ const AppConstants = {
     HEAVY_BORDER_SLOTS: ["무기", "벨트", "반지", "마법석", "아바타", "스킬룬", "크리쳐"],
 
     // 접두어
-    PREFIXES: ["", "전격", "허상", "작열", "침식", "수호", "왜곡", "자상", "맹독", "보호", "쇄도", "신속", "연격"],
+    ARMOR_PREFIXES: ["", "전격", "허상", "작열", "침식", "수호", "왜곡", "자상", "맹독", "보호", "쇄도", "신속", "연격"],
     TIER_PREFIXES: ["", "T1", "T2", "T3", "T4", "T5", "T6", "T7"],
     ACC_PREFIXES: ["", "견고", "혈독", "초석", "각오", "가속", "조화"],
     SPEC_PREFIXES: ["", "불굴", "숙련", "결의", "격변", "촉진", "질주"],
@@ -48,7 +48,7 @@ const AppConstants = {
 // 원본: AppConstants.*
 const slots = AppConstants.SLOTS;
 const heavyBorderSlots = AppConstants.HEAVY_BORDER_SLOTS;
-const prefixes = AppConstants.PREFIXES;
+const armorPrefixes  = AppConstants.ARMOR_PREFIXES;
 const tierPrefixes = AppConstants.TIER_PREFIXES;
 const accPrefixes = AppConstants.ACC_PREFIXES;
 const specPrefixes = AppConstants.SPEC_PREFIXES;

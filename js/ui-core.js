@@ -306,7 +306,7 @@ function updateStyle(el, type, isInitial = false) {
                 } else if (specialSlots.includes(slot)) {
                     optionsHTML = specPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
                 } else {
-                    optionsHTML = prefixes.map(p => `<option value="${p}">${p}</option>`).join('');
+                    optionsHTML = armorPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
                 }
 
                 prefixSel.innerHTML = optionsHTML;
