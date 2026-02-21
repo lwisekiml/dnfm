@@ -215,3 +215,52 @@ function applyPrefixToSlots(charId, slots, prefix) { ... }
 function openReinforceMenuFromHeader(event, charId) { ... }
 function applyReinforceToSlots(charId, slots, value) { ... }
 ```
+
+---
+
+## 11. 비교 캐릭터 선택지 분류 (ui-compare.js)
+
+- 기존 단순 목록 → 힘/지능 × 화/수/명/암속강 기준으로 그룹 분류
+- disabled option으로 구분선 표시 (`── 힘 ──`, `  화속강`)
+- 스탯/속강 미설정 캐릭터는 `── 기타 ──` 그룹으로 분류
+- 힘/지능 헤더 앞에 빈 줄 추가하여 시각적 구분
+
+---
+
+## 12. 비교 레이아웃 3열 구조로 전면 재작성 (ui-compare.js, styles.css)
+
+### 구조 변경
+- 기존: 단일 테이블 (좌측 데이터 | 비교값 | 우측 데이터)
+- 변경: **3열 Flex 레이아웃** (좌측 div | 중앙 고정 div | 우측 div)
+- 비교값(차이) 칸이 화면 정중앙 고정, 양옆 테이블이 화면 크기에 따라 반응형으로 축소
+
+### 주요 함수 (ui-compare.js)
+```javascript
+function createCompareSection(...) { ... }  // 3열 섹션 생성
+function buildSideTable(headers, rows, side) { ... }  // 좌/우 테이블 생성
+function buildCenterTable(label, rows) { ... }  // 중앙 비교값 테이블 생성
+function syncRowHeights(leftTable, centerTable, rightTable) { ... }  // 행 높이 동기화
+function buildEquipmentCompare(...) { ... }
+function buildSealCompare(...) { ... }
+function buildEmblemCompare(...) { ... }
+function buildEnchantCompare(...) { ... }
+```
+
+### 열 순서
+- 장비: 좌 `슬롯|희귀도|익시드|접두어|아이템이름|강화` / 우 `강화|아이템이름|접두어|익시드|희귀도|슬롯` (대칭)
+- 마법봉인: 좌 `슬롯|옵션|수치` / 우 `수치|옵션|슬롯` (대칭)
+- 엠블렘: 좌우 모두 `슬롯|엠블렘1|엠블렘2` (동일)
+- 마법부여: 좌 `슬롯|마법부여|수치` / 우 `수치|마법부여|슬롯` (대칭)
+
+### CSS 추가 (styles.css)
+```css
+.compare-three-col { display: flex; align-items: flex-start; width: 100%; }
+.compare-side { flex: 1; min-width: 0; overflow-x: auto; }
+.compare-center { flex: 0 0 130px; width: 130px; }
+```
+
+### 겪었던 문제
+- 단일 테이블에서 컬럼 수가 달라 `width: 8%`가 섹션별로 다르게 렌더링됨
+- `table-layout: fixed` + `width: 100%` 조합에서 px 고정도 효과 없음
+- HTML 테이블 구조 한계 → Flex 3열 레이아웃으로 근본 해결
+- `requestAnimationFrame`으로 DOM 렌더링 후 행 높이 동기화하여 좌/중/우 행 높이 일치
