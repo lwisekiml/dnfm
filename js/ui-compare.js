@@ -310,14 +310,14 @@ function buildEmblemCompare(section1, section2, name1, name2) {
 
         leftRows.push({ cells: [{ text: slot, cls: 'compare-slot-name' }, { text: d1.emb1, cls: ec1 }, { text: d1.emb2, cls: ec1 }] });
         centerRows.push({ text: diff });
-        rightRows.push({ cells: [{ text: slot, cls: 'compare-slot-name' }, { text: d2.emb1, cls: ec2 }, { text: d2.emb2, cls: ec2 }] });
+        rightRows.push({ cells: [{ text: d2.emb2, cls: ec2 }, { text: d2.emb1, cls: ec2 }, { text: slot, cls: 'compare-slot-name' }] });
     });
 
     return createCompareSection(
         '*엠블렘 비교*',
         [[{ text: name1, colspan: 3 }], [{ text: '슬롯' }, { text: '엠블렘1' }, { text: '엠블렘2' }]],
         name1 + ' vs ' + name2,
-        [[{ text: name2, colspan: 3 }], [{ text: '슬롯' }, { text: '엠블렘1' }, { text: '엠블렘2' }]],
+        [[{ text: name2, colspan: 3 }], [{ text: '엠블렘2' }, { text: '엠블렘1' }, { text: '슬롯' }]],
         leftRows, centerRows, rightRows
     );
 }
