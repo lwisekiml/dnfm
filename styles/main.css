@@ -1,0 +1,461 @@
+/* ========================================
+1. 기본 스타일 (Body, 헤딩)
+======================================== */
+body {
+    font-family: sans-serif;
+    background: #0f1222;
+    color: #e6e9ff;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+h2 {
+    margin: 24px 0 8px;
+}
+
+/* ========================================
+   2. 공통 버튼 스타일
+   ======================================== */
+.action-btn, .file-label {
+    min-width: 140px;
+    text-align: center;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.action-btn {
+    background: linear-gradient(135deg, #25c2a0, #1a8c7d);
+    border: none;
+    color: #fff;
+}
+
+.action-btn:hover {
+    background: linear-gradient(135deg, #1a8c7d, #25c2a0);
+}
+
+.file-label {
+    background: #4a3f7a;
+    color: #fff;
+    border: none;
+}
+
+.file-label:hover {
+    background: #5a4f8a;
+}
+
+.file-label input {
+    display: none;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #ffd700, #e6b800);
+    border: none;
+    color: #000;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.add-btn:hover {
+    background: linear-gradient(135deg, #e6b800, #ffd700);
+}
+
+/* ========================================
+   3. 툴바 영역
+   ======================================== */
+.toolbar {
+    margin: 15px 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* ========================================
+   4. 폼 (입력창)
+   ======================================== */
+.form-box {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.form-box input {
+    width: 20ch;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #2a3158;
+    background: #181c33;
+    color: #e6e9ff;
+}
+
+/* ========================================
+   5. 캐릭터 관련 스타일
+   ======================================== */
+/* 5-1. 캐릭터 래퍼 (드래그 앤 드롭) */
+.character-wrapper {
+    display: inline-flex;
+    align-items: center;
+    margin: 5px;
+    cursor: move;
+    transition: all 0.2s ease;
+}
+
+.character-wrapper.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.character-wrapper.drag-over {
+    border-left: 3px solid #ffd700;
+    padding-left: 5px;
+}
+
+/* 5-2. 드래그 핸들 */
+.drag-handle {
+    cursor: grab;
+    padding: 4px 8px;
+    color: #888;
+    font-size: 18px;
+    user-select: none;
+}
+
+.drag-handle:hover {
+    color: #ffd700;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+/* 5-3. 캐릭터 버튼 */
+.char-btn {
+    margin: 5px;
+    padding: 10px 16px;
+    background: #2a3158;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.char-btn:hover {
+    background: #3a4270;
+}
+
+.char-btn.active {
+    border-color: #ffd700 !important;
+    color: #ffd700 !important;
+    background: rgba(255, 215, 0, 0.1) !important;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    font-weight: bold;
+}
+
+/* 5-4. 설정 버튼 */
+.settings-btn {
+    background: #4a3f7a;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 8px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 5px;
+    transition: background 0.2s;
+}
+
+.settings-btn:hover {
+    background: #6254a8;
+}
+
+/* 5-5. 삭제 버튼 */
+.delete-btn {
+    padding: 4px 8px;
+    background: linear-gradient(135deg, #8c1a1a, #b22222);
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.delete-btn:hover {
+    background: linear-gradient(135deg, #b22222, #8c1a1a);
+    transform: scale(1.05);
+}
+
+/* ========================================
+   6. 세트 버튼 (장비 세트)
+   ======================================== */
+.set-btn {
+    margin: 5px;
+    padding: 8px 14px;
+    min-width: 180px;
+    background: #181c33;
+    border: 3px solid transparent;
+    border-radius: 6px;
+    color: #e6e9ff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.set-btn:hover {
+    background: #2a3158;
+    border-color: #3a4270;
+}
+
+.set-btn.selected {
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+}
+
+.set-btn.set3 {
+    background-color: #25c2a0;
+    color: #fff;
+}
+
+.set-btn.set5 {
+    background-color: #ffd700;
+    color: #000;
+}
+
+/* 세트 버튼 내 숫자 색상 */
+.set-btn .count-3 {
+    color: #000000;
+    font-weight: bold;
+}
+
+.set-btn .count-5 {
+    color: #ff4d4f;
+    font-weight: bold;
+}
+
+/* ========================================
+   7. 테이블 (장비 목록)
+   ======================================== */
+table {
+    border-collapse: collapse;
+    margin-top: 6px;
+    table-layout: fixed;
+}
+
+th, td {
+    border: 1px solid #2a3158;
+    padding: 6px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+th {
+    background: #181c33;
+}
+
+tr.set3 {
+    background-color: rgba(37, 194, 160, 0.35);
+}
+
+tr.set5 {
+    background-color: rgba(255, 215, 0, 0.45);
+}
+
+/* ========================================
+   8. 숫자 버튼 (장비 개수)
+   ======================================== */
+.num-btn {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #2a3158;
+    background: #181c33;
+    color: #e6e9ff;
+    cursor: pointer;
+}
+
+.num-btn.positive {
+    background: linear-gradient(135deg, #3399cc, #2a6f9e);
+    color: #fff;
+    font-weight: bold;
+    border: 1px solid #3399cc;
+}
+
+/* ========================================
+   9. 태그 색상 (익시드, 접두어)
+   ======================================== */
+.exceed-tag {
+    color: #25c2a0;
+    font-weight: bold;
+}
+
+.prefix-tag {
+    color: #e6b800;
+    font-weight: bold;
+}
+
+/* ========================================
+   10. 모달 (팝업창)
+   ======================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #181c33;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    min-width: 300px;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    color: #ffd700;
+}
+
+.modal-options {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+/* 모달 버튼 공통 */
+.modal-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+/* 모달 버튼 종류별 */
+.modal-delete-btn {
+    background: #b22222;
+    color: #fff;
+}
+
+.modal-delete-btn:hover {
+    background: #8c1a1a;
+}
+
+.modal-reset-btn {
+    background: #3399cc;
+    color: #fff;
+}
+
+.modal-reset-btn:hover {
+    background: #2a6f9e;
+}
+
+.modal-cancel-btn {
+    background: #4a3f7a;
+    color: #fff;
+}
+
+.modal-cancel-btn:hover {
+    background: #5a4f8a;
+}
+
+.modal-edit-btn {
+    background: #25c2a0 !important;
+    color: white;
+}
+
+/* ========================================
+   11. 페이지네이션
+   ======================================== */
+.pagination {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 25px 0;
+    flex-wrap: wrap;
+}
+
+.pagination button {
+    padding: 10px 15px;
+    border: 1px solid #2a3158;
+    background: #181c33;
+    color: #e6e9ff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+    min-width: 40px;
+}
+
+.pagination button:hover {
+    background: #2a3158;
+    border-color: #3a4270;
+}
+
+.pagination button.active {
+    background: #4a33cc;
+    border-color: #ffd700;
+    color: #ffd700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+    font-weight: bold;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   12. 제작 시스템
+   ======================================== */
+.craft-input {
+    background: #1b1e33;
+    color: #e0e0e0;
+    border: 1px solid #444a7a;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.craft-input:focus {
+    outline: none;
+    border-color: #6b5cff;
+    background: #20244a;
+}
+
+/* 숫자 입력 증감 버튼 제거 */
+.craft-input::-webkit-inner-spin-button,
+.craft-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.craft-lock-btn {
+    background: #2a3158;
+    color: #fff;
+    border: 2px solid transparent;
+    padding: 4px 10px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.craft-lock-btn.active {
+    border: 2px solid #ffffff;
+}
