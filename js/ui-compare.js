@@ -592,24 +592,70 @@ function enterCompareMode() {
     selectRight.innerHTML = '<option value="">캐릭터 선택...</option>';
     AppState.compareSelection = { left: null, right: null };
 
+    // 캐릭터 정보 수집
+    const charList = [];
     sections.forEach(section => {
-        const charId = section.id;
-        const jobEl = section.querySelector('[data-key="info_job"]');
-        const nameEl = section.querySelector('[data-key="info_name"]');
-        const job = jobEl ? jobEl.value : '미정';
-        const name = nameEl ? nameEl.value : '이름없음';
-        const displayName = `${job}(${name})`;
-
-        const optionLeft = document.createElement('option');
-        optionLeft.value = charId;
-        optionLeft.textContent = displayName;
-        selectLeft.appendChild(optionLeft);
-
-        const optionRight = document.createElement('option');
-        optionRight.value = charId;
-        optionRight.textContent = displayName;
-        selectRight.appendChild(optionRight);
+        const charId  = section.id;
+        const job     = section.querySelector('[data-key="info_job"]')?.value  || '미정';
+        const name    = section.querySelector('[data-key="info_name"]')?.value || '이름없음';
+        const stat    = section.querySelector('[data-key="info_stat_type"]')?.value || '';
+        const ele     = section.querySelector('[data-key="info_ele_type"]')?.value || '';
+        charList.push({ charId, displayName: `${job}(${name})`, stat, ele });
     });
+
+    const stats = ['힘', '지능'];
+    const eles  = ['화속강', '수속강', '명속강', '암속강'];
+
+    const addOption = (select, charId, displayName) => {
+        const opt = document.createElement('option');
+        opt.value = charId;
+        opt.textContent = displayName;
+        select.appendChild(opt);
+    };
+
+    const addDisabled = (select, text) => {
+        const opt = document.createElement('option');
+        opt.disabled = true;
+        opt.textContent = text;
+        opt.style.color = '#ffd700';
+        opt.style.fontWeight = 'bold';
+        select.appendChild(opt);
+    };
+
+    stats.forEach(stat => {
+        let statHeaderAdded = false;
+
+        eles.forEach(ele => {
+            const matched = charList.filter(c => c.stat === stat && c.ele === ele);
+            if (matched.length === 0) return;
+
+            if (!statHeaderAdded) {
+                addDisabled(selectLeft,  '');
+                addDisabled(selectRight, '');
+                addDisabled(selectLeft,  `── ${stat} ──`);
+                addDisabled(selectRight, `── ${stat} ──`);
+                statHeaderAdded = true;
+            }
+
+            addDisabled(selectLeft,  `  ${ele}`);
+            addDisabled(selectRight, `  ${ele}`);
+            matched.forEach(({ charId, displayName }) => {
+                addOption(selectLeft,  charId, `    ${displayName}`);
+                addOption(selectRight, charId, `    ${displayName}`);
+            });
+        });
+    });
+
+    // 스탯/속강 미설정 캐릭터
+    const others = charList.filter(c => !c.stat && !c.ele);
+    if (others.length > 0) {
+        addDisabled(selectLeft,  '── 기타 ──');
+        addDisabled(selectRight, '── 기타 ──');
+        others.forEach(({ charId, displayName }) => {
+            addOption(selectLeft,  charId, `  ${displayName}`);
+            addOption(selectRight, charId, `  ${displayName}`);
+        });
+    }
 
     selectLeft.addEventListener('change', (e) => {
         AppState.compareSelection.left = e.target.value || null;
