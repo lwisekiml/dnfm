@@ -609,8 +609,83 @@ function openPrefixMenuFromHeader(event, charId) {
 }
 
 /**
- * 해당 슬롯들에 접두어 일괄 적용
+ * 강화 헤더 버튼 클릭 시 숫자 목록 표시
  */
+function openReinforceMenuFromHeader(event, charId) {
+    closeSetContextMenu();
+
+    const menu = document.createElement('div');
+    menu.id = 'setContextMenu';
+    menu.style.cssText = `
+        position: fixed;
+        z-index: 9999;
+        background: #1a1a1a;
+        border: 2px solid #ffd700;
+        border-radius: 6px;
+        padding: 6px 0;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.9);
+        min-width: 120px;
+        max-height: 500px;
+        overflow-y: auto;
+    `;
+
+    const header = document.createElement('div');
+    header.textContent = '⚔️ 강화 일괄 적용';
+    header.style.cssText = `
+        padding: 6px 14px; color: #ffd700; font-weight: bold;
+        font-size: 12px; border-bottom: 1px solid #333; margin-bottom: 4px;
+    `;
+    menu.appendChild(header);
+
+    const allSlots = [...SlotUtils.ARMOR_SLOTS, ...SlotUtils.ACCESSORY_SLOTS, ...SlotUtils.SPECIAL_SLOTS];
+
+    for (let i = 1; i <= 20; i++) {
+        const item = document.createElement('div');
+        item.textContent = `+${i}`;
+        item.style.cssText = `padding: 7px 20px; color: #fff; font-size: 12px; cursor: pointer;`;
+        item.onmouseenter = () => item.style.background = '#333';
+        item.onmouseleave = () => item.style.background = '';
+
+        const apply = () => {
+            applyReinforceToSlots(charId, allSlots, String(i));
+            closeSetContextMenu();
+        };
+        item.onclick = apply;
+        item.ontouchend = (e) => { e.preventDefault(); apply(); };
+        menu.appendChild(item);
+    }
+
+    menu.style.left = event.clientX + 'px';
+    menu.style.top  = event.clientY + 'px';
+    document.body.appendChild(menu);
+
+    const rect = menu.getBoundingClientRect();
+    if (rect.right  > window.innerWidth)  menu.style.left = (event.clientX - rect.width)  + 'px';
+    if (rect.bottom > window.innerHeight) menu.style.top  = (event.clientY - rect.height) + 'px';
+
+    const outsideHandler = (e) => {
+        if (!menu.contains(e.target)) {
+            closeSetContextMenu();
+            document.removeEventListener('click', outsideHandler);
+        }
+    };
+    setTimeout(() => document.addEventListener('click', outsideHandler), 0);
+}
+
+/**
+ * 해당 슬롯들에 강화 수치 일괄 적용
+ */
+function applyReinforceToSlots(charId, slots, value) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    slots.forEach(slot => {
+        const el = section.querySelector(`input[data-key="${slot}_reinforce"]`);
+        if (el) el.value = value;
+    });
+
+    autoSave();
+}
 function applyPrefixToSlots(charId, slots, prefix) {
     const section = document.getElementById(charId);
     if (!section) return;
