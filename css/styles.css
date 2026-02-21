@@ -187,8 +187,8 @@
     --compare-item-min: 140px;
     --compare-reinforce-width: 6%;
     --compare-reinforce-min: 50px;
-    --compare-diff-width: 8%;
-    --compare-diff-min: 70px;
+    --compare-diff-width: 130px;
+    --compare-diff-min: 130px;
 
     /* ===== 그림자 ===== */
     --shadow-text: 0 0 2px rgba(0, 0, 0, 0.8);
@@ -1732,6 +1732,95 @@ select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
     display: none;
 }
 
+/* 3열 비교 레이아웃 */
+.compare-three-col {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.compare-side {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+.compare-left table {
+    width: 100%;
+    margin-left: auto; /* 오른쪽 정렬 */
+}
+
+.compare-right table {
+    width: 100%;
+    margin-right: auto; /* 왼쪽 정렬 */
+}
+
+.compare-center {
+    flex: 0 0 130px;
+    width: 130px;
+}
+
+.compare-side-table,
+.compare-center-table {
+    border-collapse: collapse;
+    background-color: var(--table-bg);
+    border: var(--border-width-heavy) var(--border-style) var(--gold);
+    margin-bottom: var(--spacing-4xl);
+    table-layout: auto;
+    width: 100%;
+}
+
+.compare-side-table th,
+.compare-side-table td,
+.compare-center-table th,
+.compare-center-table td {
+    padding: var(--spacing-lg) var(--spacing-sm);
+    border: var(--border-width) var(--border-style) var(--border);
+    font-size: var(--fs-compare);
+    white-space: nowrap;
+    height: 28px;
+    box-sizing: border-box;
+}
+
+.compare-side-table th,
+.compare-center-table th {
+    background-color: var(--bg-header);
+    color: var(--gold);
+    text-align: center;
+}
+
+.compare-side-table td {
+    text-align: center;
+}
+
+.compare-center-table {
+    border-left: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+    border-right: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+    margin-bottom: var(--spacing-4xl);
+}
+
+.compare-center-table th {
+    background-color: var(--bg-header-alt) !important;
+    color: var(--gold) !important;
+    font-weight: bold;
+    text-align: center;
+}
+
+.compare-center-table td {
+    text-align: center;
+    background-color: var(--bg-highlight) !important;
+    color: var(--highlight-yellow) !important;
+    font-weight: bold;
+}
+
+.compare-center-table td.same   { color: var(--color-gray-lighter) !important; }
+.compare-center-table td.positive { color: #69db7c !important; }
+.compare-center-table td.negative { color: #ff6b6b !important; }
+
+.compare-section-wrapper {
+    margin-bottom: var(--spacing-3xl);
+}
+
 #compareCharSelectionContainer {
     display: none;
     margin-bottom: var(--spacing-3xl);
@@ -1815,12 +1904,16 @@ select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
 
 /* 비교 테이블 */
 .compare-table {
-    width: 100%;
-    table-layout: fixed !important;
+    width: max-content;
+    table-layout: auto;
     border-collapse: collapse;
     background-color: var(--table-bg);
     border: var(--border-width-heavy) var(--border-style) var(--gold);
     margin-bottom: var(--spacing-4xl);
+}
+
+#compareContent {
+    overflow-x: auto;
 }
 
 .compare-table th {

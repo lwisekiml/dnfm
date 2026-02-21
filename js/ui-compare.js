@@ -6,545 +6,356 @@
  * 비교 유틸리티 함수
  */
 const CompareUtils = {
-    /**
-     * 희귀도 클래스 반환
-     */
-    getRarityClass(rarity) {
-        return rarity ? `rare-${rarity}` : '';
-    },
-
-    /**
-     * 익시드 클래스 반환
-     */
-    getExceedClass(exceed) {
-        return exceed ? `ex-${exceed}` : '';
-    },
-
-    /**
-     * 접두어 클래스 반환
-     */
+    getRarityClass(rarity) { return rarity ? `rare-${rarity}` : ''; },
+    getExceedClass(exceed) { return exceed ? `ex-${exceed}` : ''; },
     getPrefixClass(slot, prefix) {
         if (!prefix) return '';
-
-        if (prefix.startsWith('T')) {
-            return 'prefix-tier';
-        }
-
+        if (prefix.startsWith('T')) return 'prefix-tier';
         let classes = 'prefix-selected';
-
         if (slot === "무기") {
             if (prefix === "광채") classes += ' p-blue';
             else if (prefix === "분쇄") classes += ' p-red';
             else if (prefix === "선명") classes += ' p-green';
             else if (prefix === "강타") classes += ' p-yellow';
         }
-
         return classes;
     },
-
-    /**
-     * 봉인 하이라이트 클래스 반환
-     */
     getSealHighlightClass(slot, sealValue, statType, eleType, isSeal1 = true) {
         const armorSlots = ["상의", "어깨", "하의", "신발", "벨트"];
         const accSlots = ["목걸이", "팔찌", "반지"];
         const specialSlots = ["보조장비", "귀걸이", "마법석"];
-
         if (isSeal1) {
-            // seal1 하이라이트
-            if (slot === "무기" && sealValue === "데미지 증가") {
-                return 'highlight-yellow';
-            }
-            if ((armorSlots.includes(slot) || specialSlots.includes(slot)) && sealValue === statType) {
-                return 'highlight-yellow';
-            }
-            if (accSlots.includes(slot) && sealValue === eleType) {
-                return 'highlight-yellow';
-            }
+            if (slot === "무기" && sealValue === "데미지 증가") return 'highlight-yellow';
+            if ((armorSlots.includes(slot) || specialSlots.includes(slot)) && sealValue === statType) return 'highlight-yellow';
+            if (accSlots.includes(slot) && sealValue === eleType) return 'highlight-yellow';
         } else {
-            // seal2 하이라이트
-            if ((armorSlots.includes(slot) || slot === "무기" || specialSlots.includes(slot)) && sealValue === statType) {
-                return 'highlight-yellow';
-            }
-            if (accSlots.includes(slot) && sealValue === eleType) {
-                return 'highlight-yellow';
-            }
+            if ((armorSlots.includes(slot) || slot === "무기" || specialSlots.includes(slot)) && sealValue === statType) return 'highlight-yellow';
+            if (accSlots.includes(slot) && sealValue === eleType) return 'highlight-yellow';
         }
-
         return '';
     },
-
-    /**
-     * 엠블렘 하이라이트 클래스 반환
-     */
     getEmblemHighlightClass(slot, embValue, eleType) {
-        const embHighlightSlots = ["보조장비", "귀걸이", "마법석", "칭호"];
-
-        if (embHighlightSlots.includes(slot) && (embValue === eleType || embValue === "모속강")) {
-            return 'highlight-yellow';
-        }
-
+        if (!embValue || !eleType) return '';
+        if (embValue === eleType) return 'highlight-yellow';
+        if (embValue === '모속강') return 'highlight-yellow';
         return '';
     },
-
-    /**
-     * 차이값 클래스 반환
-     */
     getDiffClass(diffValue) {
-        if (!diffValue || diffValue === '-' || diffValue === '') {
-            return 'same';
-        }
-        if (diffValue.includes('+') || diffValue.includes('⬆')) {
-            return 'positive';
-        }
-        return 'negative';
+        if (!diffValue || diffValue === '-' || diffValue === '') return 'same';
+        if (diffValue.includes('+') || diffValue.includes('⬆')) return 'positive';
+        if (diffValue.includes('-') || diffValue.includes('⬇')) return 'negative';
+        return 'same';
     }
 };
 
+// ============================================
+// 3열 레이아웃 비교 빌더
+// ============================================
+
 /**
- * 비교 행 생성 함수
+ * 비교 섹션(3열) 생성
+ * leftRows: [{cells}], centerRows: [{text, cls}], rightRows: [{cells}]
  */
-const CompareRow = {
-    /**
-     * 장비 비교 행 생성
-     */
-    createEquipmentRow(slot, data1, data2, reinforceDiff) {
-        const tr = document.createElement('tr');
+function createCompareSection(title, leftHeader, centerLabel, rightHeader, leftRows, centerRows, rightRows) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'compare-section-wrapper';
 
-        const rarityClass1 = CompareUtils.getRarityClass(data1.rarity);
-        const rarityClass2 = CompareUtils.getRarityClass(data2.rarity);
-        const exceedClass1 = CompareUtils.getExceedClass(data1.exceed);
-        const exceedClass2 = CompareUtils.getExceedClass(data2.exceed);
-        const prefixClass1 = CompareUtils.getPrefixClass(slot, data1.prefix);
-        const prefixClass2 = CompareUtils.getPrefixClass(slot, data2.prefix);
-        const diffClass = CompareUtils.getDiffClass(reinforceDiff);
+    const titleEl = document.createElement('div');
+    titleEl.className = 'compare-section-title';
+    titleEl.textContent = title;
+    wrapper.appendChild(titleEl);
 
-        tr.innerHTML = `
-            <td class="compare-slot-name">${slot}</td>
-            <td class="${rarityClass1}">${data1.rarity}</td>
-            <td class="${exceedClass1}">${data1.exceed}</td>
-            <td class="${prefixClass1}">${data1.prefix}</td>
-            <td>${data1.itemname}</td>
-            <td>${data1.reinforce}</td>
-            <td class="compare-diff ${diffClass}">${reinforceDiff}</td>
-            <td>${data2.reinforce}</td>
-            <td>${data2.itemname}</td>
-            <td class="${prefixClass2}">${data2.prefix}</td>
-            <td class="${exceedClass2}">${data2.exceed}</td>
-            <td class="${rarityClass2}">${data2.rarity}</td>
-        `;
+    const row = document.createElement('div');
+    row.className = 'compare-three-col';
 
-        return tr;
-    },
+    const leftWrap = document.createElement('div');
+    leftWrap.className = 'compare-side compare-left';
+    const leftTable = buildSideTable(leftHeader, leftRows, 'left');
+    leftWrap.appendChild(leftTable);
 
-    /**
-     * 봉인 비교 행 생성
-     */
-    createSealRow(slot, data1, data2, sealDiff, statType1, eleType1, statType2, eleType2, isSeal1 = true) {
-        const tr = document.createElement('tr');
+    const centerWrap = document.createElement('div');
+    centerWrap.className = 'compare-center';
+    const centerTable = buildCenterTable(centerLabel, centerRows);
+    centerWrap.appendChild(centerTable);
 
-        const sealKey = isSeal1 ? 'seal1' : 'seal2';
-        const sealValKey = isSeal1 ? 'seal1_val' : 'seal2_val';
+    const rightWrap = document.createElement('div');
+    rightWrap.className = 'compare-side compare-right';
+    const rightTable = buildSideTable(rightHeader, rightRows, 'right');
+    rightWrap.appendChild(rightTable);
 
-        const sealClass1 = CompareUtils.getSealHighlightClass(slot, data1[sealKey], statType1, eleType1, isSeal1);
-        const sealClass2 = CompareUtils.getSealHighlightClass(slot, data2[sealKey], statType2, eleType2, isSeal1);
-        const diffClass = CompareUtils.getDiffClass(sealDiff);
+    row.appendChild(leftWrap);
+    row.appendChild(centerWrap);
+    row.appendChild(rightWrap);
+    wrapper.appendChild(row);
 
-        tr.innerHTML = `
-            <td class="compare-slot-name">${slot}</td>
-            <td class="${sealClass1}">${data1[sealKey]}</td>
-            <td class="${sealClass1}">${data1[sealValKey]}</td>
-            <td class="compare-diff ${diffClass}">${sealDiff}</td>
-            <td class="${sealClass2}">${data2[sealKey]}</td>
-            <td class="${sealClass2}">${data2[sealValKey]}</td>
-        `;
+    // 나중에 동기화할 수 있도록 테이블 참조 저장
+    wrapper._tables = { leftTable, centerTable, rightTable };
 
-        return tr;
-    },
+    return wrapper;
+}
 
-    /**
-     * 엠블렘 비교 행 생성
-     */
-    createEmblemRow(slot, data1, data2, embDiff, eleType1, eleType2) {
-        const tr = document.createElement('tr');
+function syncRowHeights(leftTable, centerTable, rightTable) {
+    const leftRows  = leftTable.querySelectorAll('tr');
+    const centerRows = centerTable.querySelectorAll('tr');
+    const rightRows = rightTable.querySelectorAll('tr');
 
-        const emb1Class1 = CompareUtils.getEmblemHighlightClass(slot, data1.emb1, eleType1);
-        const emb1Class2 = CompareUtils.getEmblemHighlightClass(slot, data2.emb1, eleType2);
-        const diffClass = CompareUtils.getDiffClass(embDiff);
-
-        tr.innerHTML = `
-            <td class="compare-slot-name">${slot}</td>
-            <td class="${emb1Class1}">${data1.emb1}</td>
-            <td class="${emb1Class1}">${data1.emb2}</td>
-            <td class="compare-diff ${diffClass}">${embDiff}</td>
-            <td class="${emb1Class2}">${data2.emb1}</td>
-            <td class="${emb1Class2}">${data2.emb2}</td>
-        `;
-
-        return tr;
-    },
-
-    /**
-     * 마법부여 비교 행 생성
-     */
-    createEnchantRow(slot, data1, data2, enchantDiff) {
-        const tr = document.createElement('tr');
-
-        const diffClass = CompareUtils.getDiffClass(enchantDiff);
-
-        tr.innerHTML = `
-            <td class="compare-slot-name">${slot}</td>
-            <td>${data1.enchant}</td>
-            <td>${data1.enchant_val}</td>
-            <td class="compare-diff ${diffClass}">${enchantDiff}</td>
-            <td>${data2.enchant}</td>
-            <td>${data2.enchant_val}</td>
-        `;
-
-        return tr;
-    },
-
-    /**
-     * 구분선 행 생성
-     */
-    createDividerRow(colspan) {
-        const tr = document.createElement('tr');
-        tr.className = 'compare-divider-row';
-        tr.innerHTML = `<td colspan="${colspan}"></td>`;
-        return tr;
+    const maxLen = Math.max(leftRows.length, centerRows.length, rightRows.length);
+    for (let i = 0; i < maxLen; i++) {
+        const heights = [];
+        if (leftRows[i])   heights.push(leftRows[i].getBoundingClientRect().height);
+        if (centerRows[i]) heights.push(centerRows[i].getBoundingClientRect().height);
+        if (rightRows[i])  heights.push(rightRows[i].getBoundingClientRect().height);
+        const maxH = Math.max(...heights);
+        if (leftRows[i])   leftRows[i].style.height   = maxH + 'px';
+        if (centerRows[i]) centerRows[i].style.height = maxH + 'px';
+        if (rightRows[i])  rightRows[i].style.height  = maxH + 'px';
     }
-};
+}
 
-/**
- * 비교 테이블 생성 함수
- */
-const CompareTable = {
-    /**
-     * 테이블 구조 생성
-     */
-    createTableStructure(colgroup, headers) {
-        const table = document.createElement('table');
-        table.className = 'compare-table';
+function buildSideTable(headers, rows, side) {
+    const table = document.createElement('table');
+    table.className = `compare-side-table compare-side-${side}`;
 
-        // colgroup 추가
-        const colgroupEl = document.createElement('colgroup');
-        colgroup.forEach(col => {
-            const colEl = document.createElement('col');
-            colEl.className = col;
-            colgroupEl.appendChild(colEl);
+    const thead = document.createElement('thead');
+    headers.forEach(headerRow => {
+        const tr = document.createElement('tr');
+        headerRow.forEach(cell => {
+            const th = document.createElement('th');
+            th.textContent = cell.text;
+            if (cell.colspan) th.colSpan = cell.colspan;
+            if (cell.cls) th.className = cell.cls;
+            tr.appendChild(th);
         });
-        table.appendChild(colgroupEl);
+        thead.appendChild(tr);
+    });
+    table.appendChild(thead);
 
-        // thead 추가
-        const thead = document.createElement('thead');
-        headers.forEach(headerRow => {
+    const tbody = document.createElement('tbody');
+    rows.forEach(row => {
+        if (row.divider) {
             const tr = document.createElement('tr');
-            headerRow.forEach(cell => {
-                const th = document.createElement('th');
-                if (cell.colspan) th.colSpan = cell.colspan;
-                if (cell.className) th.className = cell.className;
-                th.textContent = cell.text;
-                tr.appendChild(th);
-            });
-            thead.appendChild(tr);
+            tr.className = 'compare-divider-row';
+            tr.innerHTML = `<td colspan="99"></td>`;
+            tbody.appendChild(tr);
+            return;
+        }
+        const tr = document.createElement('tr');
+        row.cells.forEach(cell => {
+            const td = document.createElement('td');
+            td.textContent = cell.text ?? '';
+            if (cell.cls) td.className = cell.cls;
+            tr.appendChild(td);
         });
-        table.appendChild(thead);
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    return table;
+}
 
-        // tbody 추가
-        const tbody = document.createElement('tbody');
-        table.appendChild(tbody);
+function buildCenterTable(label, rows) {
+    const table = document.createElement('table');
+    table.className = 'compare-center-table';
 
-        return table;
-    },
+    const thead = document.createElement('thead');
+    thead.innerHTML = `<tr><th>비교값</th></tr><tr><th>차이</th></tr>`;
+    table.appendChild(thead);
 
-    /**
-     * 장비 비교 테이블 생성
-     */
-    createEquipmentTable(section1, section2, displayName1, displayName2) {
-        const equipSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호", "외형칭호", "오라", "아바타"];
-        const groupSlots = {
-            group1: ["무기", "상의", "어깨", "하의", "신발", "벨트"],
-            group2: ["목걸이", "팔찌", "반지"],
-            group3: ["보조장비", "귀걸이", "마법석"],
-            group4: ["칭호", "외형칭호", "오라", "아바타"]
-        };
+    const tbody = document.createElement('tbody');
+    rows.forEach(row => {
+        if (row.divider) {
+            const tr = document.createElement('tr');
+            tr.className = 'compare-divider-row';
+            tr.innerHTML = `<td></td>`;
+            tbody.appendChild(tr);
+            return;
+        }
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.textContent = row.text ?? '-';
+        td.className = `compare-diff ${CompareUtils.getDiffClass(row.text)}`;
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    return table;
+}
 
-        const colgroup = [
-            'compare-slot-col', 'compare-attr-col', 'compare-attr-col', 'compare-attr-col',
-            'compare-item-col', 'compare-reinforce-col', 'compare-diff-col', 'compare-reinforce-col',
-            'compare-item-col', 'compare-attr-col', 'compare-attr-col', 'compare-attr-col'
-        ];
+// ============================================
+// 각 비교 섹션 데이터 생성
+// ============================================
 
-        const headers = [
-            [
-                { text: '' },
-                { text: displayName1, colspan: 5 },
-                { text: '비교값', className: 'compare-diff-col' },
-                { text: displayName2, colspan: 5 }
-            ],
-            [
-                { text: '슬롯' },
-                { text: '희귀도' },
-                { text: '익시드' },
-                { text: '접두어' },
-                { text: '아이템이름' },
-                { text: '강화' },
-                { text: '차이' },
-                { text: '강화' },
-                { text: '아이템이름' },
-                { text: '접두어' },
-                { text: '익시드' },
-                { text: '희귀도' }
-            ]
-        ];
+function buildEquipmentCompare(section1, section2, name1, name2) {
+    const slots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호", "외형칭호", "오라", "아바타"];
+    const groups = { group1: ["무기"], group2: ["상의"], group3: ["목걸이"], group4: ["보조장비"], group5: ["칭호"] };
+    const dividerBefore = ["상의", "목걸이", "보조장비", "칭호"];
 
-        const table = this.createTableStructure(colgroup, headers);
-        const tbody = table.querySelector('tbody');
+    const leftRows = [], centerRows = [], rightRows = [];
 
-        let currentGroup = '';
-        equipSlots.forEach(slot => {
-            // 그룹 구분선
-            for (const [groupName, groupArray] of Object.entries(groupSlots)) {
-                if (groupArray[0] === slot && currentGroup !== groupName) {
-                    if (currentGroup !== '') {
-                        tbody.appendChild(CompareRow.createDividerRow(12));
-                    }
-                    currentGroup = groupName;
-                    break;
-                }
-            }
+    slots.forEach(slot => {
+        if (dividerBefore.includes(slot)) {
+            leftRows.push({ divider: true });
+            centerRows.push({ divider: true });
+            rightRows.push({ divider: true });
+        }
 
-            const data1 = getSlotData(section1, slot);
-            const data2 = getSlotData(section2, slot);
-            const reinforceDiff = calculateReinforceDiff(slot, data1.reinforce, data2.reinforce);
+        const d1 = getSlotData(section1, slot);
+        const d2 = getSlotData(section2, slot);
+        const diff = calculateReinforceDiff(slot, d1.reinforce, d2.reinforce);
 
-            const row = CompareRow.createEquipmentRow(slot, data1, data2, reinforceDiff);
-            tbody.appendChild(row);
-        });
+        leftRows.push({ cells: [
+                { text: slot, cls: 'compare-slot-name' },
+                { text: d1.rarity, cls: CompareUtils.getRarityClass(d1.rarity) },
+                { text: d1.exceed, cls: CompareUtils.getExceedClass(d1.exceed) },
+                { text: d1.prefix, cls: CompareUtils.getPrefixClass(slot, d1.prefix) },
+                { text: d1.itemname },
+                { text: d1.reinforce },
+            ]});
+        centerRows.push({ text: diff });
+        rightRows.push({ cells: [
+                { text: d2.reinforce },
+                { text: d2.itemname },
+                { text: d2.prefix, cls: CompareUtils.getPrefixClass(slot, d2.prefix) },
+                { text: d2.exceed, cls: CompareUtils.getExceedClass(d2.exceed) },
+                { text: d2.rarity, cls: CompareUtils.getRarityClass(d2.rarity) },
+                { text: slot, cls: 'compare-slot-name' },
+            ]});
+    });
 
-        return table;
-    },
+    return createCompareSection(
+        '*장비 비교*',
+        [
+            [{ text: name1, colspan: 6 }],
+            [{ text: '슬롯' }, { text: '희귀도' }, { text: '익시드' }, { text: '접두어' }, { text: '아이템이름' }, { text: '강화' }]
+        ],
+        name1 + ' vs ' + name2,
+        [
+            [{ text: name2, colspan: 6 }],
+            [{ text: '강화' }, { text: '아이템이름' }, { text: '접두어' }, { text: '익시드' }, { text: '희귀도' }, { text: '슬롯' }]
+        ],
+        leftRows, centerRows, rightRows
+    );
+}
 
-    /**
-     * 봉인 비교 테이블 생성
-     */
-    createSealTable(section1, section2, displayName1, displayName2, isSeal1 = true) {
-        const equipSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석"];
-        const groupSlots = {
-            group1: ["무기", "상의", "어깨", "하의", "신발", "벨트"],
-            group2: ["목걸이", "팔찌", "반지"],
-            group3: ["보조장비", "귀걸이", "마법석"]
-        };
+function buildSealCompare(section1, section2, name1, name2, isSeal1) {
+    const slots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석"];
+    const dividerBefore = ["목걸이", "보조장비"];
+    const sealKey = isSeal1 ? 'seal1' : 'seal2';
+    const sealValKey = isSeal1 ? 'seal1_val' : 'seal2_val';
+    const label = isSeal1 ? '고유 옵션' : '일반 옵션';
 
-        const colgroup = [
-            'compare-slot-col', 'compare-option-col', 'compare-value-col',
-            'compare-diff-col', 'compare-option-col', 'compare-value-col'
-        ];
+    const statType1 = section1.querySelector(`select[data-key="info_stat_type"]`)?.value || "";
+    const eleType1  = section1.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
+    const statType2 = section2.querySelector(`select[data-key="info_stat_type"]`)?.value || "";
+    const eleType2  = section2.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
 
-        const optionLabel = isSeal1 ? '고유 옵션' : '일반 옵션';
-        const headers = [
-            [
-                { text: '' },
-                { text: displayName1, colspan: 2 },
-                { text: '비교값', className: 'compare-diff-col' },
-                { text: displayName2, colspan: 2 }
-            ],
-            [
-                { text: '슬롯' },
-                { text: optionLabel },
-                { text: '수치' },
-                { text: '차이' },
-                { text: optionLabel },
-                { text: '수치' }
-            ]
-        ];
+    const leftRows = [], centerRows = [], rightRows = [];
 
-        const table = this.createTableStructure(colgroup, headers);
-        const tbody = table.querySelector('tbody');
+    slots.forEach(slot => {
+        if (dividerBefore.includes(slot)) {
+            leftRows.push({ divider: true }); centerRows.push({ divider: true }); rightRows.push({ divider: true });
+        }
 
-        const statType1 = section1.querySelector(`select[data-key="info_stat_type"]`)?.value || "";
-        const eleType1 = section1.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
-        const statType2 = section2.querySelector(`select[data-key="info_stat_type"]`)?.value || "";
-        const eleType2 = section2.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
+        const d1 = getSlotData(section1, slot);
+        const d2 = getSlotData(section2, slot);
+        const sc1 = CompareUtils.getSealHighlightClass(slot, d1[sealKey], statType1, eleType1, isSeal1);
+        const sc2 = CompareUtils.getSealHighlightClass(slot, d2[sealKey], statType2, eleType2, isSeal1);
 
-        let currentGroup = '';
-        equipSlots.forEach(slot => {
-            // 그룹 구분선
-            for (const [groupName, groupArray] of Object.entries(groupSlots)) {
-                if (groupArray[0] === slot && currentGroup !== groupName) {
-                    if (currentGroup !== '') {
-                        tbody.appendChild(CompareRow.createDividerRow(6));
-                    }
-                    currentGroup = groupName;
-                    break;
-                }
-            }
+        let diff = '-';
+        if (d1[sealKey] === d2[sealKey] && d1[sealKey] !== '') diff = calculateNumDiff(d1[sealValKey], d2[sealValKey]);
+        else if (d1[sealKey] !== d2[sealKey] && (d1[sealKey] !== '' || d2[sealKey] !== '')) diff = isSeal1 ? '고유옵션 값이 다름' : '일반옵션 값이 다름';
 
-            const data1 = getSlotData(section1, slot);
-            const data2 = getSlotData(section2, slot);
+        leftRows.push({ cells: [{ text: slot, cls: 'compare-slot-name' }, { text: d1[sealKey], cls: sc1 }, { text: d1[sealValKey], cls: sc1 }] });
+        centerRows.push({ text: diff });
+        rightRows.push({ cells: [{ text: d2[sealValKey], cls: sc2 }, { text: d2[sealKey], cls: sc2 }, { text: slot, cls: 'compare-slot-name' }] });
+    });
 
-            const sealKey = isSeal1 ? 'seal1' : 'seal2';
-            const sealValKey = isSeal1 ? 'seal1_val' : 'seal2_val';
+    return createCompareSection(
+        `*마법봉인 비교 (${label})*`,
+        [[{ text: name1, colspan: 3 }], [{ text: '슬롯' }, { text: label }, { text: '수치' }]],
+        name1 + ' vs ' + name2,
+        [[{ text: name2, colspan: 3 }], [{ text: '수치' }, { text: label }, { text: '슬롯' }]],
+        leftRows, centerRows, rightRows
+    );
+}
 
-            let sealDiff = '-';
-            if (data1[sealKey] === data2[sealKey] && data1[sealKey] !== '') {
-                sealDiff = calculateNumDiff(data1[sealValKey], data2[sealValKey]);
-            } else if (data1[sealKey] !== data2[sealKey] && (data1[sealKey] !== '' || data2[sealKey] !== '')) {
-                sealDiff = isSeal1 ? '고유옵션 값이 다름' : '일반옵션 값이 다름';
-            }
+function buildEmblemCompare(section1, section2, name1, name2) {
+    const slots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호"];
+    const selectSlots = ["보조장비", "귀걸이", "마법석", "칭호"];
+    const dividerBefore = ["목걸이", "보조장비", "칭호"];
 
-            const row = CompareRow.createSealRow(slot, data1, data2, sealDiff, statType1, eleType1, statType2, eleType2, isSeal1);
-            tbody.appendChild(row);
-        });
+    const eleType1 = section1.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
+    const eleType2 = section2.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
 
-        return table;
-    },
+    const leftRows = [], centerRows = [], rightRows = [];
 
-    /**
-     * 엠블렘 비교 테이블 생성
-     */
-    createEmblemTable(section1, section2, displayName1, displayName2) {
-        const emblemSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호"];
-        const selectEmblemSlots = ["보조장비", "귀걸이", "마법석", "칭호"];
-        const groupSlots = {
-            group1: ["무기", "상의", "어깨", "하의", "신발", "벨트"],
-            group2: ["목걸이", "팔찌", "반지"],
-            group3: ["보조장비", "귀걸이", "마법석"],
-            group4: ["칭호"]
-        };
+    slots.forEach(slot => {
+        if (dividerBefore.includes(slot)) {
+            leftRows.push({ divider: true }); centerRows.push({ divider: true }); rightRows.push({ divider: true });
+        }
 
-        const colgroup = [
-            'compare-slot-col', 'compare-option-col', 'compare-option-col',
-            'compare-diff-col', 'compare-option-col', 'compare-option-col'
-        ];
+        const d1 = getSlotData(section1, slot);
+        const d2 = getSlotData(section2, slot);
+        const ec1 = CompareUtils.getEmblemHighlightClass(slot, d1.emb1, eleType1);
+        const ec2 = CompareUtils.getEmblemHighlightClass(slot, d2.emb1, eleType2);
 
-        const headers = [
-            [
-                { text: '' },
-                { text: displayName1, colspan: 2 },
-                { text: '비교값', className: 'compare-diff-col' },
-                { text: displayName2, colspan: 2 }
-            ],
-            [
-                { text: '슬롯' },
-                { text: '엠블렘1' },
-                { text: '엠블렘2' },
-                { text: '차이' },
-                { text: '엠블렘1' },
-                { text: '엠블렘2' }
-            ]
-        ];
+        let diff = '-';
+        if (selectSlots.includes(slot)) {
+            if (d1.emb1 === d2.emb1 && d1.emb1 !== '') diff = calculateNumDiff(extractNumber(d1.emb2), extractNumber(d2.emb2));
+            else if (d1.emb1 !== d2.emb1 && (d1.emb1 !== '' || d2.emb1 !== '')) diff = '값이 다름';
+        } else {
+            const e1 = calculateNumDiff(extractNumber(d1.emb1), extractNumber(d2.emb1));
+            const e2 = calculateNumDiff(extractNumber(d1.emb2), extractNumber(d2.emb2));
+            diff = `${e1} / ${e2}`;
+        }
 
-        const table = this.createTableStructure(colgroup, headers);
-        const tbody = table.querySelector('tbody');
+        leftRows.push({ cells: [{ text: slot, cls: 'compare-slot-name' }, { text: d1.emb1, cls: ec1 }, { text: d1.emb2, cls: ec1 }] });
+        centerRows.push({ text: diff });
+        rightRows.push({ cells: [{ text: d2.emb2, cls: ec2 }, { text: d2.emb1, cls: ec2 }, { text: slot, cls: 'compare-slot-name' }] });
+    });
 
-        const eleType1 = section1.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
-        const eleType2 = section2.querySelector(`select[data-key="info_ele_type"]`)?.value || "";
+    return createCompareSection(
+        '*엠블렘 비교*',
+        [[{ text: name1, colspan: 3 }], [{ text: '슬롯' }, { text: '엠블렘1' }, { text: '엠블렘2' }]],
+        name1 + ' vs ' + name2,
+        [[{ text: name2, colspan: 3 }], [{ text: '엠블렘2' }, { text: '엠블렘1' }, { text: '슬롯' }]],
+        leftRows, centerRows, rightRows
+    );
+}
 
-        let currentGroup = '';
-        emblemSlots.forEach(slot => {
-            // 그룹 구분선
-            for (const [groupName, groupArray] of Object.entries(groupSlots)) {
-                if (groupArray[0] === slot && currentGroup !== groupName) {
-                    if (currentGroup !== '') {
-                        tbody.appendChild(CompareRow.createDividerRow(6));
-                    }
-                    currentGroup = groupName;
-                    break;
-                }
-            }
+function buildEnchantCompare(section1, section2, name1, name2) {
+    const slots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호"];
+    const dividerBefore = ["목걸이", "보조장비", "칭호"];
 
-            const data1 = getSlotData(section1, slot);
-            const data2 = getSlotData(section2, slot);
+    const leftRows = [], centerRows = [], rightRows = [];
 
-            let embDiff = '-';
+    slots.forEach(slot => {
+        if (dividerBefore.includes(slot)) {
+            leftRows.push({ divider: true }); centerRows.push({ divider: true }); rightRows.push({ divider: true });
+        }
 
-            if (selectEmblemSlots.includes(slot)) {
-                if (data1.emb1 === data2.emb1 && data1.emb1 !== '') {
-                    embDiff = calculateNumDiff(extractNumber(data1.emb2), extractNumber(data2.emb2));
-                } else if (data1.emb1 !== data2.emb1 && (data1.emb1 !== '' || data2.emb1 !== '')) {
-                    embDiff = '값이 다름';
-                }
-            } else {
-                const emb1Diff = calculateNumDiff(extractNumber(data1.emb1), extractNumber(data2.emb1));
-                const emb2Diff = calculateNumDiff(extractNumber(data1.emb2), extractNumber(data2.emb2));
-                embDiff = `${emb1Diff} / ${emb2Diff}`;
-            }
+        const d1 = getSlotData(section1, slot);
+        const d2 = getSlotData(section2, slot);
 
-            const row = CompareRow.createEmblemRow(slot, data1, data2, embDiff, eleType1, eleType2);
-            tbody.appendChild(row);
-        });
+        let diff = '-';
+        if (d1.enchant === d2.enchant && d1.enchant !== '') diff = calculateNumDiff(d1.enchant_val, d2.enchant_val);
+        else if (d1.enchant !== d2.enchant && (d1.enchant !== '' || d2.enchant !== '')) diff = '값이 다름';
 
-        return table;
-    },
+        leftRows.push({ cells: [{ text: slot, cls: 'compare-slot-name' }, { text: d1.enchant }, { text: d1.enchant_val }] });
+        centerRows.push({ text: diff });
+        rightRows.push({ cells: [{ text: d2.enchant_val }, { text: d2.enchant }, { text: slot, cls: 'compare-slot-name' }] });
+    });
 
-    /**
-     * 마법부여 비교 테이블 생성
-     */
-    createEnchantTable(section1, section2, displayName1, displayName2) {
-        const enchantSlots = ["무기", "상의", "어깨", "하의", "신발", "벨트", "목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "칭호"];
-        const groupSlots = {
-            group1: ["무기", "상의", "어깨", "하의", "신발", "벨트"],
-            group2: ["목걸이", "팔찌", "반지"],
-            group3: ["보조장비", "귀걸이", "마법석"],
-            group4: ["칭호"]
-        };
+    return createCompareSection(
+        '*마법부여 비교*',
+        [[{ text: name1, colspan: 3 }], [{ text: '슬롯' }, { text: '마법부여' }, { text: '수치' }]],
+        name1 + ' vs ' + name2,
+        [[{ text: name2, colspan: 3 }], [{ text: '수치' }, { text: '마법부여' }, { text: '슬롯' }]],
+        leftRows, centerRows, rightRows
+    );
+}
 
-        const colgroup = [
-            'compare-slot-col', 'compare-option-col', 'compare-value-col',
-            'compare-diff-col', 'compare-option-col', 'compare-value-col'
-        ];
-
-        const headers = [
-            [
-                { text: '' },
-                { text: displayName1, colspan: 2 },
-                { text: '비교값', className: 'compare-diff-col' },
-                { text: displayName2, colspan: 2 }
-            ],
-            [
-                { text: '슬롯' },
-                { text: '마법부여' },
-                { text: '수치' },
-                { text: '차이' },
-                { text: '마법부여' },
-                { text: '수치' }
-            ]
-        ];
-
-        const table = this.createTableStructure(colgroup, headers);
-        const tbody = table.querySelector('tbody');
-
-        let currentGroup = '';
-        enchantSlots.forEach(slot => {
-            // 그룹 구분선
-            for (const [groupName, groupArray] of Object.entries(groupSlots)) {
-                if (groupArray[0] === slot && currentGroup !== groupName) {
-                    if (currentGroup !== '') {
-                        tbody.appendChild(CompareRow.createDividerRow(6));
-                    }
-                    currentGroup = groupName;
-                    break;
-                }
-            }
-
-            const data1 = getSlotData(section1, slot);
-            const data2 = getSlotData(section2, slot);
-
-            let enchantDiff = '-';
-            if (data1.enchant === data2.enchant && data1.enchant !== '') {
-                enchantDiff = calculateNumDiff(data1.enchant_val, data2.enchant_val);
-            } else if (data1.enchant !== data2.enchant && (data1.enchant !== '' || data2.enchant !== '')) {
-                enchantDiff = '값이 다름';
-            }
-
-            const row = CompareRow.createEnchantRow(slot, data1, data2, enchantDiff);
-            tbody.appendChild(row);
-        });
-
-        return table;
-    }
-};
+// 기존 CompareTable은 호환성을 위해 빈 객체로 유지
+const CompareTable = {};
 
 // ============================================
 // 메인 함수들
@@ -702,34 +513,25 @@ function displayComparison() {
     const container = document.getElementById('compareContent');
     container.innerHTML = '';
 
-    // 장비 비교
-    const titleEquip = document.createElement('div');
-    titleEquip.className = 'compare-section-title';
-    titleEquip.textContent = '*장비 비교*';
-    container.appendChild(titleEquip);
-    container.appendChild(CompareTable.createEquipmentTable(section1, section2, displayName1, displayName2));
+    const sections = [
+        buildEquipmentCompare(section1, section2, displayName1, displayName2),
+        buildSealCompare(section1, section2, displayName1, displayName2, true),
+        buildSealCompare(section1, section2, displayName1, displayName2, false),
+        buildEmblemCompare(section1, section2, displayName1, displayName2),
+        buildEnchantCompare(section1, section2, displayName1, displayName2),
+    ];
 
-    // 마법봉인 비교
-    const titleSeal = document.createElement('div');
-    titleSeal.className = 'compare-section-title';
-    titleSeal.textContent = '*마법봉인 비교*';
-    container.appendChild(titleSeal);
-    container.appendChild(CompareTable.createSealTable(section1, section2, displayName1, displayName2, true));
-    container.appendChild(CompareTable.createSealTable(section1, section2, displayName1, displayName2, false));
+    sections.forEach(s => container.appendChild(s));
 
-    // 엠블렘 비교
-    const titleEmb = document.createElement('div');
-    titleEmb.className = 'compare-section-title';
-    titleEmb.textContent = '*엠블렘 비교*';
-    container.appendChild(titleEmb);
-    container.appendChild(CompareTable.createEmblemTable(section1, section2, displayName1, displayName2));
-
-    // 마법부여 비교
-    const titleEnchant = document.createElement('div');
-    titleEnchant.className = 'compare-section-title';
-    titleEnchant.textContent = '*마법부여 비교*';
-    container.appendChild(titleEnchant);
-    container.appendChild(CompareTable.createEnchantTable(section1, section2, displayName1, displayName2));
+    // DOM에 추가된 후 행 높이 동기화
+    requestAnimationFrame(() => {
+        sections.forEach(s => {
+            if (s._tables) {
+                const { leftTable, centerTable, rightTable } = s._tables;
+                syncRowHeights(leftTable, centerTable, rightTable);
+            }
+        });
+    });
 }
 
 /**
@@ -765,47 +567,3 @@ function getSlotData(section, slot) {
 }
 
 // ============================================
-// 레거시 함수 (호환성 유지)
-// ============================================
-
-/**
- * @deprecated CompareTable.createEquipmentTable() 사용 권장
- */
-function generateEquipmentComparisonTable(section1, section2, displayName1, displayName2) {
-    const table = CompareTable.createEquipmentTable(section1, section2, displayName1, displayName2);
-    const wrapper = document.createElement('div');
-    wrapper.appendChild(table);
-    return wrapper.innerHTML;
-}
-
-/**
- * @deprecated CompareTable.createSealTable() 사용 권장
- */
-function generateSealComparisonTable(section1, section2, displayName1, displayName2) {
-    const table1 = CompareTable.createSealTable(section1, section2, displayName1, displayName2, true);
-    const table2 = CompareTable.createSealTable(section1, section2, displayName1, displayName2, false);
-    const wrapper = document.createElement('div');
-    wrapper.appendChild(table1);
-    wrapper.appendChild(table2);
-    return wrapper.innerHTML;
-}
-
-/**
- * @deprecated CompareTable.createEmblemTable() 사용 권장
- */
-function generateEmblemComparisonTable(section1, section2, displayName1, displayName2) {
-    const table = CompareTable.createEmblemTable(section1, section2, displayName1, displayName2);
-    const wrapper = document.createElement('div');
-    wrapper.appendChild(table);
-    return wrapper.innerHTML;
-}
-
-/**
- * @deprecated CompareTable.createEnchantTable() 사용 권장
- */
-function generateEnchantComparisonTable(section1, section2, displayName1, displayName2) {
-    const table = CompareTable.createEnchantTable(section1, section2, displayName1, displayName2);
-    const wrapper = document.createElement('div');
-    wrapper.appendChild(table);
-    return wrapper.innerHTML;
-}
