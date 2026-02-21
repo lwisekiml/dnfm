@@ -44,6 +44,9 @@ function enterSearchMode() {
 
     slotSelect.innerHTML = optionsHTML;
 
+    // 메모/태그 옵션 추가 (마지막)
+    slotSelect.innerHTML += `<option value="메모/태그">메모/태그</option>`;
+
     // 검색 결과 초기화
     document.getElementById('searchResultContent').innerHTML =
         '<div style="text-align: center; padding: 40px; color: #888; font-size: 18px;">슬롯을 선택하여 검색하세요.</div>';
@@ -66,6 +69,19 @@ function performSearch() {
 
     const sections = document.querySelectorAll('.char-section');
     const searchResults = [];
+
+    // 메모/태그
+    if (selectedSlot === "메모/태그") {
+        sections.forEach(section => {
+            const job  = section.querySelector('[data-key="info_job"]')?.value  || '미정';
+            const name = section.querySelector('[data-key="info_name"]')?.value || '이름없음';
+            const memo = section.querySelector('[data-key="info_memo"]')?.value || '';
+            const tags = (AppState.charTags?.[section.id] || []).join('\n');
+            searchResults.push({ job, name, memo, tags });
+        });
+        displaySearchResults(selectedSlot, searchResults);
+        return;
+    }
 
     // 칭호/외형칭호 통합 처리
     if (selectedSlot === "칭호/외형칭호") {
@@ -215,9 +231,15 @@ function displaySearchResults(slot, results) {
         return;
     }
 
-    // ⭐ 오라/아바타 간소화 처리 추가
+    // 오라/아바타 간소화 처리 추가
     if (slot === "오라" || slot === "아바타") {
         createSimpleSlotSearchTable(container, results, slot);
+        return;
+    }
+
+    // 메모/태그
+    if (slot === "메모/태그") {
+        createMemoTagSearchTable(container, results);
         return;
     }
 
@@ -720,6 +742,39 @@ function createCreatureSearchTable(results) {
     `;
 
     return html;
+}
+
+/**
+ * 메모/태그 검색 테이블 생성
+ */
+function createMemoTagSearchTable(container, results) {
+    const table = document.createElement('table');
+    table.className = 'compare-table search-result-table search-table-custom';
+    table.style.tableLayout = 'auto';
+    table.style.width = 'auto';
+    table.style.fontWeight = '900';
+
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>직업/이름</th>
+                <th>메모</th>
+                <th>태그</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${results.map(r => `
+                <tr>
+                    <td style="white-space: nowrap;">${r.job}(${r.name})</td>
+                    <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${r.memo || ''}</td>
+                    <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${r.tags || ''}</td>
+                </tr>
+            `).join('')}
+        </tbody>
+    `;
+
+    container.innerHTML = '';
+    container.appendChild(table);
 }
 
 console.log("✅ ui-search.js 로드 완료");
