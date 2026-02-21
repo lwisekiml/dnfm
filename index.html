@@ -2,16 +2,247 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>페이지 제목</title>
+    <title>캐릭터 장비 관리</title>
+
+    <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
 
+<h1>캐릭터 장비 관리</h1>
 
-    <h1>안녕하세요! 반갑습니다.</h1>
-    <p>여기에 웹사이트의 내용을 작성합니다.</p>
-	
-	<a href="dnfm_eq.html">테스트 페이지(test.html) 열기</a>
+<div class="toolbar" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 0;">
+    <button class="action-btn" style="background: linear-gradient(135deg, #6a5acd, #483d8b);" onclick="exportJSON()">
+        💎 JSON 저장 (백업)
+    </button>
+    <button onclick="saveJsonWithLocation()" class="char-btn" style="background: #e67e22;">📂 JSON 경로 지정 저장</button>
+    <label class="file-label" style="background: #2c3e50; margin: 0; cursor: pointer;">
+        📥 JSON 불러오기
+        <input type="file" id="jsonFile" accept=".json" onchange="importJSON(event)" style="display:none;">
+    </label>
+
+    <div style="width: 1px; height: 25px; background: #444; margin: 0 5px;"></div>
+
+    <button id="tab-char" class="modal-btn"
+            style="background: #4a33cc; color: #ffffff; border: 1px solid #fff; font-weight: bold;"
+            onclick="switchTo('char')">캐릭터 관리
+    </button>
+    <button id="tab-weapon" class="modal-btn"
+            style="background: #2a3158; color: #ffffff; border: 1px solid transparent;" onclick="switchTo('weapon')">무기
+        관리
+    </button>
+    <button id="tab-equipment" class="modal-btn"
+            style="background: #2a3158; color: #ffffff; border: 1px solid transparent;" onclick="switchTo('equipment')">
+        장비 관리
+    </button>
+    <button id="tab-craft" class="modal-btn"
+            style="background: #2a3158; color: #ffffff; border: 1px solid transparent;"
+            onclick="switchTo('craft')">
+        제작
+    </button>
+
+</div>
+
+<button class="action-btn" onclick="showRecentUpdates()">🌟 최근 업데이트</button>
+
+<div id="section-equipment-view" style="display:none; padding: 20px;">
+    <div class="toolbar"
+         style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
+
+        <div class="equipment-button-row"
+             style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 8px; overflow-x: auto; width: 100%;">
+            <button class="char-btn active" style="white-space: nowrap; min-width: 100px;"
+                    onclick="renderEquipmentTab('ALL'); setActiveEquipmentButton(this)">모두
+            </button>
+            <button class="char-btn" style="white-space: nowrap; min-width: 100px;"
+                    onclick="renderEquipmentTab('NORMAL'); setActiveEquipmentButton(this)">일반
+            </button>
+            <button class="char-btn" style="white-space: nowrap; min-width: 100px;"
+                    onclick="renderEquipmentTab('PREFIX'); setActiveEquipmentButton(this)">접두어
+            </button>
+            <button class="char-btn" style="white-space: nowrap; min-width: 100px;"
+                    onclick="renderEquipmentTab('EXCEED'); setActiveEquipmentButton(this)">익시드
+            </button>
+        </div>
+
+        <div class="equipment-button-row"
+             style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 8px; overflow-x: auto; width: 100%;">
+            <button class="char-btn" style="white-space: nowrap; min-width: 100px; border-color: #ffd700;"
+                    onclick="renderFullEquipmentTab('NORMAL'); setActiveEquipmentButton(this)">일반장비
+            </button>
+            <button class="char-btn" style="white-space: nowrap; min-width: 100px; border-color: #ffd700;"
+                    onclick="renderFullEquipmentTab('PREFIX'); setActiveEquipmentButton(this)">접두어장비
+            </button>
+            <button class="char-btn" style="white-space: nowrap; min-width: 100px; border-color: #ffd700;"
+                    onclick="renderFullEquipmentTab('EXCEED'); setActiveEquipmentButton(this)">익시드장비
+            </button>
+        </div>
+
+        <!-- ✅ 세 번째 줄도 equipment-button-row 클래스 추가 -->
+        <div class="equipment-button-row"
+             style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button class="char-btn" style="white-space: nowrap; min-width: 180px; border-color: #ffd700;"
+                    onclick="toggleCharacterEquipmentView(); setActiveEquipmentButton(this)">📋 캐릭터별 장비 보유 현황
+            </button>
+            <button class="char-btn" style="white-space: nowrap; min-width: 100px; border-color: #ffd700;"
+                    onclick="showEquipmentStatistics(); setActiveEquipmentButton(this)">📊 통계
+            </button>
+
+            <!-- ✅ 검색 기능 추가 -->
+            <div style="display: flex; gap: 5px; align-items: center;">
+                <input type="text" id="equipment-search-input" placeholder="세트명 검색 (예: 말괄량이)"
+                       style="padding: 8px 12px; border-radius: 6px; border: 1px solid #2a3158; background: #181c33; color: #e6e9ff; width: 200px;">
+                <button class="char-btn" style="white-space: nowrap; min-width: 80px; background: #25c2a0;"
+                        onclick="searchEquipment(); setActiveEquipmentButton(this)">🔍 검색
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="equipment-display-area"
+         style="overflow-x: auto; background: #0f1222; padding: 15px; border-radius: 8px; border: 1px solid #2a3158;">
+    </div>
+
+    <!-- ✅ 새로 추가: 캐릭터 선택 영역 -->
+    <div id="character-selection-area" style="display: none; margin-top: 20px;">
+        <h3 style="color: #ffd700;">캐릭터 선택</h3>
+        <div id="character-buttons-area" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+        </div>
+    </div>
+
+    <!-- ✅ 새로 추가: 캐릭터 장비 현황 표시 영역 -->
+    <div id="character-equipment-detail" style="display: none; margin-top: 20px;">
+    </div>
+</div>
+
+
+<div id="updateModal" class="modal-overlay">
+    <div class="modal-content" style="width: 1200px; max-width: 90vw; max-height: 85vh; overflow-y: auto;">
+        <h3>🌟 최근 장비 업데이트</h3>
+
+        <div id="updateModalContent"></div>
+
+        <div id="updatePagination" class="pagination"></div>
+
+        <div class="modal-options" style="margin-top: 30px;">
+            <button class="modal-btn modal-cancel-btn" onclick="closeUpdateModal()">닫기</button>
+        </div>
+    </div>
+</div>
+
+
+<div id="section-character-view">
+    <h2>[캐릭터]</h2>
+    <div class="form-box">
+        <input type="text" id="newCharName" placeholder="이름 입력">
+        <input type="text" id="newCharJob" placeholder="직업 입력">
+        <button class="add-btn" onclick="addCharacter()">➕ 추가</button>
+        <!-- ✅ 새로 추가 -->
+        <button id="edit-order-btn" class="add-btn" style="background: linear-gradient(135deg, #3399cc, #2a6f9e);"
+                onclick="toggleEditMode()">✏️편집</button>
+    </div>
+
+    <!-- 💡 순서 초기화 버튼 추가 -->
+    <div style="margin-bottom: 10px;">
+        <button class="char-btn" style="background: #e67e22; font-size: 0.9em; font-weight: bold;"
+                onclick="saveCurrentOrder()">
+            💾 순서 등록
+        </button>
+        <button class="char-btn" style="background: #25c2a0; font-size: 0.9em;"
+                onclick="resetToOriginalOrder()">
+            🔄 등록 순서로 복원
+        </button>
+        <button class="char-btn" style="background: #666; font-size: 0.9em;"
+                onclick="sortCharactersByName()">
+            🔤 이름순 정렬
+        </button>
+        <button class="char-btn" style="background: #666; font-size: 0.9em;"
+                onclick="sortCharactersByJob()">
+            💼 직업순 정렬
+        </button>
+    </div>
+
+    <div id="characterList" class="char-grid"></div>
+    <div id="characterDetail" class="detail-container" style="display:none;"></div>
+
+    <div id="setList"></div>
+    <div id="panel"></div>
+</div>
+
+<div id="section-weapon-view" style="display: none; padding-top: 0;">
+    <h2>[무기]</h2>
+    <div class="toolbar" id="weaponJobButtons">
+        <button class="char-btn" onclick="selectWeaponJob('귀검사')">귀검사</button>
+        <button class="char-btn" onclick="selectWeaponJob('격투가')">격투가</button>
+        <button class="char-btn" onclick="selectWeaponJob('거너')">거너</button>
+        <button class="char-btn" onclick="selectWeaponJob('마법사')">마법사</button>
+        <button class="char-btn" onclick="selectWeaponJob('프리스트')">프리스트</button>
+        <button class="char-btn" onclick="selectWeaponJob('워리어')">워리어</button>
+        <button class="char-btn" onclick="selectWeaponJob('마창사')">마창사</button>
+        <button class="char-btn" onclick="selectWeaponJob('도적')">도적</button>
+    </div>
+    <div id="weaponPanel"></div>
+</div>
+
+<div id="section-craft-view" style="display:none; padding:20px;">
+    <div style="display:flex; align-items:center; gap:10px;">
+        <h2 style="margin:0;">[제작]</h2>
+
+        <button id="craft-lock-btn"
+                onclick="setCraftLock(true)"
+                class="craft-lock-btn active">
+            잠금
+        </button>
+
+        <button id="craft-unlock-btn"
+                onclick="setCraftLock(false)"
+                class="craft-lock-btn">
+            해제
+        </button>
+    </div>
+    <div id="craft-table-area"
+         style="overflow-x:auto; background:#0f1222; padding:15px;
+                border-radius:8px; border:1px solid #2a3158;">
+    </div>
+</div>
+
+
+
+</div>
+
+<div id="actionModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content"></div>
+</div>
+
+<div id="confirmModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="min-width: 300px; text-align: center;">
+        <h3 id="confirmTitle" style="color: #fff; margin-bottom: 15px;"></h3>
+        <p id="confirmMessage" style="color: #ccc; margin-bottom: 25px;"></p>
+
+        <div class="modal-options" style="display: flex; gap: 10px; justify-content: center;">
+            <button id="confirmYes" class="modal-btn" style="background: #e74c3c; flex: 1; color: #fff;">확인</button>
+            <button class="modal-btn" style="background: #444; flex: 1; color: #fff;" onclick="closeConfirmModal()">취소
+            </button>
+        </div>
+    </div>
+</div>
+<!--gap 값: 화살표 사이 간격-->
+<div class="scroll-buttons" style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 5px; z-index: 1000;">
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+            style="width: 40px; height: 40px; border-radius: 50%; background: #4a33cc; color: white; border: 2px solid #fff; cursor: pointer; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+        ▲
+    </button>
+    <button onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})"
+            style="width: 40px; height: 40px; border-radius: 50%; background: #4a33cc; color: white; border: 2px solid #fff; cursor: pointer; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+        ▼
+    </button>
+</div>
+
+<script src="scripts/data.js"></script>
+<script src="scripts/core.js"></script>
+<script src="scripts/character.js"></script>
+<script src="scripts/equipment.js"></script>
+<script src="scripts/weapon.js"></script>
+<script src="scripts/main.js"></script>
 
 </body>
 </html>
