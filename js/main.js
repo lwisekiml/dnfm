@@ -9,7 +9,7 @@
  */
 let _p1Initialized = false;
 
-function restoreSavedData() {
+function initProject1() {
     if (_p1Initialized) return; // 이미 초기화됐으면 중복 실행 방지
     _p1Initialized = true;
 
@@ -50,9 +50,9 @@ window.addEventListener('load', () => {
     const isIntegrated = !!document.getElementById('section-detail-view');
     if (!isIntegrated) {
         // 단독 실행 환경 (기존 index.html)
-        restoreSavedData();
+        initProject1();
     }
-    // 통합 환경에서는 switchTo('detail') 호출 시 restoreSavedData() 실행
+    // 통합 환경에서는 switchTo('detail') 호출 시 initProject1() 실행
 });
 
 /**

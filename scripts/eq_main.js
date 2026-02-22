@@ -50,7 +50,7 @@ function switchTo(view) {
     if (view === 'craft') renderCraftTable();
     if (view === 'detail') {
         // project1 초기화 - 저장 데이터 복원
-        if (typeof restoreSavedData === 'function') restoreSavedData();
+        if (typeof initProject1 === 'function') initProject1();
     }
 
     window.scrollTo(0, 0);

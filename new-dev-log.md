@@ -316,3 +316,39 @@ merged.css = :root { ... }                        ← 전역 (CSS 변수)
 
 ---
 
+## 2026-02-22 (4차)
+
+### 버그 수정: JSON 불러오기 후 데이터가 화면에 안 그려지는 문제 (근본 원인)
+
+---
+
+### 문제
+
+`main.js`와 `ui-character.js`에 `restoreSavedData`라는 **동일한 함수명**이 존재.
+
+| 파일 | 함수 시그니처 | 역할 |
+|---|---|---|
+| `main.js` | `restoreSavedData()` | 통합 환경 초기화 (localStorage → 화면 렌더) |
+| `ui-character.js` | `restoreSavedData(section, savedData, charId)` | 캐릭터 테이블에 저장 데이터 채워넣기 |
+
+스크립트 로드 순서: `ui-character.js` → `main.js` 순서로 로드되므로
+`main.js`의 함수가 `ui-character.js`의 함수를 **덮어씀**.
+
+결과: `createCharacterTable(savedData)` 내부에서 `restoreSavedData(section, savedData, charId)` 호출 시
+실제로는 인자를 무시하는 `main.js` 버전이 실행되어 **데이터가 DOM에 채워지지 않음**.
+alert는 뜨지만 화면에 데이터가 안 나타나는 현상의 원인.
+
+---
+
+### 수정 내용
+
+`main.js`의 함수명을 `initProject1()`으로 변경하여 충돌 해소.
+
+**수정된 파일: `main.js`**
+- `function restoreSavedData()` → `function initProject1()`
+- `window.addEventListener` 내 호출도 `initProject1()`으로 변경
+
+**수정된 파일: `eq_main.js`**
+- `switchTo('detail')` 내 호출: `restoreSavedData()` → `initProject1()`
+
+---
