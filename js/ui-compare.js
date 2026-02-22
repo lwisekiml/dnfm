@@ -354,9 +354,6 @@ function buildEnchantCompare(section1, section2, name1, name2) {
     );
 }
 
-// 기존 CompareTable은 호환성을 위해 빈 객체로 유지
-const CompareTable = {};
-
 // ============================================
 // 메인 함수들
 // ============================================

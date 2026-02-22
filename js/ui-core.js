@@ -49,7 +49,7 @@ function runSetCheck(slot, charId) {
 }
 
 /**
- * 세트 색상 체크 (통합 버전) ⭐
+ * 세트 색상 체크 (통합 버전)
  * 3개 함수를 1개로 통합하여 중복 제거
  */
 function checkSetColor(charId, setType) {
@@ -532,8 +532,6 @@ function applySetItems(charId, slotType, setsMap, setName) {
     autoSave();
 }
 
-console.log("✅ ui-core.js 로드 완료");
-
 // ============================================
 // 접두어 일괄 적용 메뉴
 // ============================================
@@ -607,6 +605,28 @@ function openPrefixMenuFromHeader(event, charId) {
     };
     setTimeout(() => document.addEventListener('click', outsideHandler), 0);
 }
+
+/**
+ * 해당 슬롯들에 접두어 일괄 적용
+ */
+function applyPrefixToSlots(charId, slots, prefix) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    slots.forEach(slot => {
+        const prefixSel = section.querySelector(`select[data-key="${slot}_prefix"]`);
+        if (prefixSel) {
+            prefixSel.value = prefix;
+            prefixSel.dispatchEvent(new Event('change'));
+        }
+    });
+
+    autoSave();
+}
+
+// ============================================
+// 강화 일괄 적용 메뉴
+// ============================================
 
 /**
  * 강화 헤더 버튼 클릭 시 숫자 목록 표시
@@ -686,17 +706,5 @@ function applyReinforceToSlots(charId, slots, value) {
 
     autoSave();
 }
-function applyPrefixToSlots(charId, slots, prefix) {
-    const section = document.getElementById(charId);
-    if (!section) return;
 
-    slots.forEach(slot => {
-        const prefixSel = section.querySelector(`select[data-key="${slot}_prefix"]`);
-        if (prefixSel) {
-            prefixSel.value = prefix;
-            prefixSel.dispatchEvent(new Event('change'));
-        }
-    });
-
-    autoSave();
-}
+console.log("✅ ui-core.js 로드 완료");

@@ -20,9 +20,9 @@ function createCharacterTable(savedData = null) {
         gakin: ['', '']
     };
 
-    // ⭐ 태그 데이터 초기화 추가 (안전한 방식)
+    // 태그 데이터 초기화 (AppState.charTags가 없으면 생성)
     if (!AppState.charTags) {
-        AppState.charTags = {};  // 객체가 없으면 생성
+        AppState.charTags = {};
     }
     if (savedData?.tags) {
         AppState.charTags[charId] = savedData.tags;
@@ -63,27 +63,27 @@ function createCharacterTable(savedData = null) {
 
     const tbody = section.querySelector('.tbody-content');
 
-    // 5) 각 슬롯별 행 생성 (템플릿 사용) ✅ 수정됨!
+    // 5) 각 슬롯별 행 생성 (템플릿 사용)
     slots.forEach((slot, index) => {
-        // ✅ 슬롯 컨텐츠에서 <tr> 가져오기
+        // 슬롯 컨텐츠에서 <tr> 가져오기
         const slotFragment = createSlotContent(slot, index, charId, savedData);
-        const tr = slotFragment.querySelector('tr');  // ✅ 템플릿의 <tr> 추출
+        const tr = slotFragment.querySelector('tr');  // 템플릿의 <tr> 추출
 
         if (!tr) {
             console.error(`템플릿에서 <tr>을 찾을 수 없습니다: ${slot}`);
             return;
         }
 
-        // ✅ 첫 번째 행: 캐릭터 정보 칸 추가
+        // 첫 번째 행: 캐릭터 정보 칸 추가
         if (index === 0) {
             const charInfoFragment = TemplateHelper.createCharacterInfo(charId);
             const charInfoCell = charInfoFragment.firstElementChild;  // <td>
 
-            // ✅ tr의 맨 앞에 캐릭터 정보 td 삽입
+            // tr의 맨 앞에 캐릭터 정보 td 삽입
             tr.insertBefore(charInfoCell, tr.firstChild);
         }
 
-        // ✅ 테두리 적용
+        // 테두리 적용
         if (heavyBorderSlots.includes(slot)) {
             tr.style.borderBottom = "2px solid var(--border-heavy)";
         }
@@ -279,12 +279,12 @@ function restoreSavedData(section, savedData, charId) {
 
         applySealHighlight(charId);
 
-        // ⭐ 태그 복원 추가
+        // 태그 복원
         if (savedData?.tags && typeof loadTags === 'function') {
             loadTags(charId);
         }
 
-        // ⭐ 메모 미리보기 업데이트 추가
+        // 메모 미리보기 업데이트
         if (typeof updateMemoPreview === 'function') {
             updateMemoPreview(charId);
         }
@@ -309,7 +309,7 @@ function deleteCharacter(charId) {
     if (confirm("정말로 이 캐릭터를 삭제하시겠습니까? 삭제된 데이터는 복구할 수 없습니다.")) {
         section.remove();
         delete AppState.charRuneData[charId];
-        delete AppState.charTags[charId];  // ⭐ 추가
+        delete AppState.charTags[charId];
         autoSave();
 
         const statusMsg = document.getElementById('statusMsg');

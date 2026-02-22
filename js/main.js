@@ -9,9 +9,7 @@ window.onload = () => {
     console.log("페이지 로딩 완료: 데이터 복구를 시작합니다.");
 
     // AppState 초기화
-    if (typeof AppState !== 'undefined' && typeof AppState.init === 'function') {
-        AppState.init();
-    }
+    AppState.init();
 
     const storageData = localStorage.getItem(AppConstants.STORAGE_KEY);
     let parsedList = [];
@@ -34,9 +32,7 @@ window.onload = () => {
         createCharacterTable();
     }
 
-    if (typeof AppState !== 'undefined' && typeof AppState.updateSnapshot === 'function') {
-        AppState.updateSnapshot();
-    }
+    AppState.updateSnapshot();
 };
 
 /**
@@ -95,30 +91,24 @@ document.addEventListener('change', function (e) {
     const charName = section.querySelector('[data-key="info_name"]').value || "이름없음";
     const slot = key.split('_')[0];
 
-    const prevChar = (typeof AppState !== 'undefined' ? AppState.lastSnapshot : lastSnapshot).find(c => c.id === section.id);
+    const prevChar = AppState.lastSnapshot.find(c => c.id === section.id);
     const oldVal = (prevChar && prevChar.inputs && prevChar.inputs[key]) ? prevChar.inputs[key].val : "";
     const newVal = el.value;
 
     if (oldVal !== newVal) {
         const timeStr = getCurrentDateTime();
 
-        const history = typeof AppState !== 'undefined' ? AppState.changeHistory : changeHistory;
-        history.unshift({
+        AppState.changeHistory.unshift({
             time: timeStr,
             charName: charName,
             slot: slot,
             old: (oldVal === "" ? "(빈칸)" : oldVal),
             new: (newVal === "" ? "(빈칸)" : newVal)
         });
-        if (history.length > 10) history.pop();
+        if (AppState.changeHistory.length > 10) AppState.changeHistory.pop();
 
-        if (typeof AppState !== 'undefined' && typeof AppState.saveHistory === 'function') {
-            AppState.saveHistory();
-        }
-
-        if (typeof AppState !== 'undefined' && typeof AppState.updateSnapshot === 'function') {
-            AppState.updateSnapshot();
-        }
+        AppState.saveHistory();
+        AppState.updateSnapshot();
 
         if (key.includes('info_stat_type') ||
             key.includes('info_ele_type') ||
