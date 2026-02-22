@@ -1,25 +1,6 @@
 /* ========================================
 [섹션 4] 데이터 관리 (로컬 스토리지)
 ======================================== */
-// 데이터 저장 시
-/*
-[
-{
-    "id": "c1234567890",
-    "name": "강의",
-    "job": "검귀",
-    "armorCounts": {...},
-    "updateTimes": {...},
-    "createdOrder": 0
-},
-{
-    "id": "c1234567891",
-    "name": "철수",
-    "job": "격투가",
-    "createdOrder": 1
-}
-]
-*/
 function saveLocalData() {
     localStorage.setItem("dnfm_eq", JSON.stringify(characters));
 }

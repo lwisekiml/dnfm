@@ -5,6 +5,7 @@
 // ─────────────────────────────────────────
 // 7.1 캐릭터 CRUD
 // ─────────────────────────────────────────
+// Create
 function addCharacter() {
     const name = document.getElementById("newCharName").value.trim();
     const job = document.getElementById("newCharJob").value.trim();
@@ -19,7 +20,7 @@ function addCharacter() {
         name: name,
         armorCounts: {},
         updateTimes: {},
-        craftMaterials: {}  // 👈 추가
+        craftMaterials: {}
     };
 
     characters.push(newChar);
@@ -29,118 +30,7 @@ function addCharacter() {
     document.getElementById("newCharJob").value = "";
 }
 
-// 인자 순서가 중요합니다: (캐릭터ID, 수정된이름, 수정된직업)
-function updateCharacterInfo(charId) {
-    // 🚨 787번 줄 수정: charName 대신 edit-charName을 찾습니다.
-    const nameInput = document.getElementById("edit-charName");
-    const jobInput = document.getElementById("edit-charJob");
-
-    // 요소가 존재하는지 확인하여 null 에러 방지
-    if (!nameInput || !jobInput) {
-        alert("수정 입력창을 찾을 수 없습니다.");
-        return;
-    }
-
-    const newName = nameInput.value.trim();
-    const newJob = jobInput.value.trim();
-
-    if (!newName || !newJob) {
-        alert("이름과 직업을 모두 입력해 주세요.");
-        return;
-    }
-
-    const char = characters.find(c => c.id === charId);
-    if (char) {
-        char.name = newName;
-        char.job = newJob;
-
-        saveLocalData();
-        renderCharacterList(); // 리스트 갱신
-        closeActionModal();    // 모달 닫기
-        alert("정보가 수정되었습니다.");
-    }
-}
-
-
-function deleteCharacterConfirmed() {
-    openConfirmModal(
-        "캐릭터 삭제",
-        "정말로 이 캐릭터를 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.",
-        function () {
-            // 1. 전역 배열에서 해당 캐릭터 제외 (필터링)
-            characters = characters.filter(c => String(c.id) !== String(currentActionCharId));
-
-            // 2. 💡 수정 포인트: saveData 대신 실제 존재하는 saveLocalData 호출
-            saveLocalData();
-
-            // 3. 화면 UI 갱신 (리스트 다시 그리기)
-            renderCharacterList();
-
-            // 4. 삭제한 캐릭터가 현재 선택된 캐릭터였다면 상세 화면도 비우기
-            if (activeCharacterId === currentActionCharId) {
-                const setListEl = document.getElementById("setList");
-                const panelEl = document.getElementById("panel");
-                if (setListEl) setListEl.innerHTML = "";
-                if (panelEl) panelEl.innerHTML = "";
-                activeCharacterId = null;
-            }
-
-            // 5. 마무리
-            closeActionModal();
-            alert("삭제되었습니다.");
-        }
-    );
-}
-
-function resetCharacterStatsConfirmed() {
-    const targetId = currentActionCharId;
-
-    if (!targetId) {
-        alert("대상 캐릭터를 선택할 수 없습니다.");
-        return;
-    }
-
-    openConfirmModal(
-        "수치 초기화",
-        "이 캐릭터의 모든 장비 보유 현황 및 업데이트 기록을 초기화하시겠습니까?",
-        function () {
-            // 1. 캐릭터 데이터 찾기
-            const char = characters.find(c => String(c.id) === String(targetId));
-
-            if (char) {
-                // 2. 💡 핵심: 사용자님의 데이터 필드명(armorCounts, updateTimes)을 초기화합니다.
-                char.armorCounts = {};
-                char.updateTimes = {};
-
-                // 무기 정보가 있다면 함께 초기화
-                if (char.weaponCounts) char.weaponCounts = {};
-
-                // 3. 로컬 스토리지에 즉시 저장
-                saveLocalData();
-
-                // 4. 화면 UI 갱신
-                if (typeof renderCharacterList === "function") renderCharacterList();
-
-                // 5. 상세 보기 영역 비우기 (초기화되었으므로 이전 정보를 지웁니다)
-                const setListEl = document.getElementById("setList");
-                const panelEl = document.getElementById("panel");
-                if (setListEl) setListEl.innerHTML = "";
-                if (panelEl) panelEl.innerHTML = "";
-
-                activeCharacterId = null; // 선택 상태 해제
-
-                alert("모든 수치가 초기화되었습니다.");
-                closeActionModal(); // 설정 창 닫기
-            } else {
-                alert("캐릭터 데이터를 찾을 수 없습니다.");
-            }
-        }
-    );
-}
-
-// ─────────────────────────────────────────
-// 7.2 캐릭터 렌더링
-// ─────────────────────────────────────────
+// Read
 function renderCharacterList() {
     const listEl = document.getElementById("characterList");
     if (!listEl) return;
@@ -249,6 +139,113 @@ function renderCharacterList() {
 
         listEl.appendChild(wrapper);
     });
+}
+
+// Update
+function updateCharacterInfo(charId) {
+    const nameInput = document.getElementById("edit-charName");
+    const jobInput = document.getElementById("edit-charJob");
+
+    if (!nameInput || !jobInput) {
+        alert("수정 입력창을 찾을 수 없습니다.");
+        return;
+    }
+
+    const newName = nameInput.value.trim();
+    const newJob = jobInput.value.trim();
+
+    if (!newName || !newJob) {
+        alert("이름과 직업을 모두 입력해 주세요.");
+        return;
+    }
+
+    const char = characters.find(c => c.id === charId);
+    if (char) {
+        char.name = newName;
+        char.job = newJob;
+
+        saveLocalData();
+        renderCharacterList(); // 리스트 갱신
+        closeActionModal();    // 모달 닫기
+        alert("정보가 수정되었습니다.");
+    }
+}
+
+// Delete
+function deleteCharacterConfirmed() {
+    openConfirmModal(
+        "캐릭터 삭제",
+        "정말로 이 캐릭터를 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.",
+        function () {
+            // 1. 전역 배열에서 해당 캐릭터 제외 (필터링)
+            characters = characters.filter(c => String(c.id) !== String(currentActionCharId));
+
+            // 2. 💡 수정 포인트: saveData 대신 실제 존재하는 saveLocalData 호출
+            saveLocalData();
+
+            // 3. 화면 UI 갱신 (리스트 다시 그리기)
+            renderCharacterList();
+
+            // 4. 삭제한 캐릭터가 현재 선택된 캐릭터였다면 상세 화면도 비우기
+            if (activeCharacterId === currentActionCharId) {
+                const setListEl = document.getElementById("setList");
+                const panelEl = document.getElementById("panel");
+                if (setListEl) setListEl.innerHTML = "";
+                if (panelEl) panelEl.innerHTML = "";
+                activeCharacterId = null;
+            }
+
+            // 5. 마무리
+            closeActionModal();
+            alert("삭제되었습니다.");
+        }
+    );
+}
+
+function resetCharacterStatsConfirmed() {
+    const targetId = currentActionCharId;
+
+    if (!targetId) {
+        alert("대상 캐릭터를 선택할 수 없습니다.");
+        return;
+    }
+
+    openConfirmModal(
+        "수치 초기화",
+        "이 캐릭터의 모든 장비 보유 현황 및 업데이트 기록을 초기화하시겠습니까?",
+        function () {
+            // 1. 캐릭터 데이터 찾기
+            const char = characters.find(c => String(c.id) === String(targetId));
+
+            if (char) {
+                // 2. 💡 핵심: 사용자님의 데이터 필드명(armorCounts, updateTimes)을 초기화합니다.
+                char.armorCounts = {};
+                char.updateTimes = {};
+
+                // 무기 정보가 있다면 함께 초기화
+                if (char.weaponCounts) char.weaponCounts = {};
+
+                // 3. 로컬 스토리지에 즉시 저장
+                saveLocalData();
+
+                // 4. 화면 UI 갱신
+                if (typeof renderCharacterList === "function") renderCharacterList();
+
+                // 5. 상세 보기 영역 비우기 (초기화되었으므로 이전 정보를 지웁니다)
+                const setListEl = document.getElementById("setList");
+                const panelEl = document.getElementById("panel");
+                if (setListEl) setListEl.innerHTML = "";
+                if (panelEl) panelEl.innerHTML = "";
+
+                activeCharacterId = null; // 선택 상태 해제
+
+                alert("모든 수치가 초기화되었습니다.");
+                closeActionModal(); // 설정 창 닫기
+            } else {
+                alert("캐릭터 데이터를 찾을 수 없습니다.");
+            }
+        }
+    );
 }
 
 // ─────────────────────────────────────────

@@ -1,20 +1,18 @@
 /* ========================================
 [섹션 13] 탭 전환
 ======================================== */
-
-// 3-1. 화면 전환 함수 수정
 function switchTo(view) {
     const sections = {
         'char': document.getElementById("section-character-view"),
         'weapon': document.getElementById("section-weapon-view"),
         'equipment': document.getElementById("section-equipment-view"),
-        'craft': document.getElementById("section-craft-view") // ✅ 추가
+        'craft': document.getElementById("section-craft-view")
     };
     const buttons = {
         'char': document.getElementById("tab-char"),
         'weapon': document.getElementById("tab-weapon"),
         'equipment': document.getElementById("tab-equipment"),
-        'craft': document.getElementById("tab-craft") // ✅ 추가
+        'craft': document.getElementById("tab-craft")
     };
 
     // 모든 섹션 숨기고 버튼 스타일 초기화

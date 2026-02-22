@@ -1,19 +1,65 @@
+/* ═══════════════════════════════════════════════════════════════
+   📚 equipment.js - 장비 관리 시스템
+   ═══════════════════════════════════════════════════════════════
+
+   📖 함수 목차 (Ctrl+F로 검색)
+
+   [모달 관리] (1-80줄)
+   - openActionModal()
+   - closeActionModal()
+   - openConfirmModal()
+   - closeConfirmModal()
+
+   [세트 버튼] (82-250줄)
+   - showSetButtons()
+   - makeSetButton()
+
+   [세트 열기] (251-600줄)
+   - openSet()
+
+   [테이블 생성] (601-900줄)
+   - makeRow()
+   - makeNumberButton()
+
+   [증감 함수] (901-1000줄)
+   - increment()
+   - decrement()
+
+   [UI 업데이트] (1001-1300줄)
+   - updateEquipmentButton()
+   - updateRowColor()
+   - updateAllRowColors()
+   - updateSetButtonCount()
+   - updateCategoryTotals()
+
+   [장비 탭] (1301-1700줄)
+   - renderEquipmentTab()
+   - renderFullEquipmentTab()
+   - setActiveEquipmentButton()
+   - scrollToCategory()
+
+   [캐릭터별 현황] (1701-1900줄)
+   - toggleCharacterEquipmentView()
+   - renderCharacterButtons()
+   - renderCharacterEquipmentDetail()
+   - showEquipmentStatistics()
+
+   [검색] (1901-2071줄)
+   - searchEquipment()
+
+   ═══════════════════════════════════════════════════════════════ */
+
 /* ========================================
 [섹션 8] 모달 관리
 ======================================== */
 function openActionModal(charId, name, job) {
-    // 1. 현재 작업 대상 ID를 전역 변수에 저장
     currentActionCharId = charId;
-
     const modal = document.getElementById("actionModal");
-    // 💡 수정 포인트: modal 자체가 null인지 확인하고, 내부 content 영역을 안전하게 참조합니다.
     if (!modal) return;
 
-    // 사용자님의 HTML 구조에 맞춰 클래스명이 modal-content인 요소를 찾습니다.
     const content = modal.querySelector(".modal-content");
     if (!content) return;
 
-    // 2. 모달 내부 UI 생성 (사용자님 코드 유지 + 오타 방지)
     content.innerHTML = `
       <h2 style="margin-bottom:25px; color:#fff;">캐릭터 설정 수정</h2>
 
@@ -86,13 +132,10 @@ function closeConfirmModal() {
 // ─────────────────────────────────────────
 // 9.1 세트 버튼 관리
 // ─────────────────────────────────────────
-// ===== 세트 버튼 표시 =====
 function showSetButtons(char, isRefresh = false) {
     const setList = document.getElementById("setList");
     const panel = document.getElementById("panel");
 
-    // 1. [토글 로직]
-    // 새로고침(isRefresh=true)이 아닐 때만 '이미 열린 캐릭터'를 누르면 닫히게 합니다.
     if (!isRefresh && activeCharacterId === char.id) {
         activeCharacterId = null;
         setList.innerHTML = "";
@@ -170,7 +213,6 @@ function makeSetButton(setName, char) {
     const setType = getSetType(setName);
     const exceedSlots = EXCEED_SLOTS[setType] || [];
 
-    // 1. 전체 고유 부위 개수 계산 (접두어/익시드 무시)
     const distinctParts = getCachedDistinctParts(char, setName);
 
     const allGroupKeys = [];
@@ -198,7 +240,6 @@ function makeSetButton(setName, char) {
     });
     // 총합 계산 끝
 
-    // 3. 단일 distinctParts를 사용한 최종 세트 판정
     const fullSize = slots.length;
 
     if (fullSize === 5) { // 방어구
