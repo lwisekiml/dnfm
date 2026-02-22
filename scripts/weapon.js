@@ -298,8 +298,25 @@ function showRecentUpdates() {
                 if (setType === "ACCESSORY") category = "악세";
                 else if (setType === "SPECIAL") category = "특장";
 
+                // 실제 아이템 이름 조회 (표시용, JSON 데이터는 변경 없음)
+                let realItemName = null;
+                const isExceedItem = fullKey.startsWith('[');
+                try {
+                    if (setType === "ARMOR" && ARMOR_DISPLAY_NAMES[baseName] && ARMOR_DISPLAY_NAMES[baseName][slot]) {
+                        const raw = ARMOR_DISPLAY_NAMES[baseName][slot];
+                        realItemName = Array.isArray(raw) ? (isExceedItem ? raw[0] : raw[1]) : raw;
+                    } else if (setType === "ACCESSORY" && ACCESSORY_DISPLAY_NAMES[baseName] && ACCESSORY_DISPLAY_NAMES[baseName][slot]) {
+                        const raw = ACCESSORY_DISPLAY_NAMES[baseName][slot];
+                        realItemName = Array.isArray(raw) ? (isExceedItem ? raw[0] : raw[1]) : raw;
+                    } else if (setType === "SPECIAL" && SPECIAL_DISPLAY_NAMES[baseName] && SPECIAL_DISPLAY_NAMES[baseName][slot]) {
+                        const raw = SPECIAL_DISPLAY_NAMES[baseName][slot];
+                        realItemName = Array.isArray(raw) ? (isExceedItem ? raw[0] : raw[1]) : raw;
+                    }
+                } catch(e) { realItemName = null; }
+
                 allUpdatesData.push({
                     name: char.name, job: char.job, itemName: itemName,
+                    realItemName: realItemName,
                     category: category, slot: slot, count: char.armorCounts[fullKey], timestamp: timestamp
                 });
             } else if (char.weaponCounts && char.weaponCounts[fullKey] !== undefined) {
@@ -383,11 +400,42 @@ function renderUpdatePage(pageNum) {
             if (pMatch) styledItemName = `<span style="color:#e6b800; font-weight:bold;">${pMatch[1]}</span>: ${pMatch[2]}`;
         }
 
+        // 실제 아이템 이름이 있으면 "접두어/익시드: 아이템이름 (세트이름)" 형식으로 표시
+        let displayItemCell;
+        if (item.realItemName) {
+            // 앞에 붙일 태그/접두어 파트 추출 (styledItemName에서 세트명 제거)
+            const rawName = item.itemName; // 예: "[의지] 조화: 신비로운 빛의 소용돌이"
+            let prefixPart = '';
+
+            const tagMatch2 = rawName.match(/^(\[.*?\])\s*(.*)/);
+            if (tagMatch2) {
+                const tag = tagMatch2[1];
+                const rest = tagMatch2[2];
+                const tagColor = tag.includes('선봉') || tag.includes('분쇄') ? '#ff4d4f'
+                    : tag.includes('의지') || tag.includes('광채') ? '#3399cc'
+                        : tag.includes('이상') ? '#25c2a0' : '#ffd700';
+                // rest = "조화: 신비로운 빛의 소용돌이" → 접두어만 추출
+                const pMatch2 = rest.match(/^(.+?):\s*/);
+                const prefLabel = pMatch2 ? `<span style="color:#e6b800; font-weight:bold;">${pMatch2[1]}</span>: ` : '';
+                prefixPart = `<span style="color:${tagColor}; font-weight:bold;">${tag}</span> ${prefLabel}`;
+            } else if (rawName.includes(':')) {
+                const pMatch2 = rawName.match(/^(.+?):\s*/);
+                if (pMatch2) prefixPart = `<span style="color:#e6b800; font-weight:bold;">${pMatch2[1]}</span>: `;
+            }
+
+            // 세트 이름만 추출 (접두어/익시드 제거)
+            const baseSetName = rawName.split(':').pop().trim();
+
+            displayItemCell = `${prefixPart}${item.realItemName} <span style="color:#888; font-size:0.85em;">(${baseSetName})</span>`;
+        } else {
+            displayItemCell = styledItemName;
+        }
+
         const tr = document.createElement("tr");
         tr.innerHTML = `
         <td style="white-space:nowrap;">${item.job} / ${item.name}</td>
         <td>[${item.category}] ${item.slot}</td>
-        <td style="text-align:left;">${styledItemName}</td>
+        <td style="text-align:left;">${displayItemCell}</td>
         <td style="font-weight:bold; color:${item.count > 0 ? '#ffcc00' : '#888'};">${item.count}</td>
         <td style="font-size:0.9em;">${formatTime}</td>
     `;
