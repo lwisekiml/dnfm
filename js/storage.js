@@ -71,8 +71,17 @@ function exportToJSON() {
  * 경로 지정 저장
  */
 async function saveJsonWithLocation() {
-    const charData = localStorage.getItem(AppConstants.STORAGE_KEY);
-    const historyData = localStorage.getItem(AppConstants.STORAGE_KEY + "_history");
+    // 통합 환경: 현재 활성 탭에 따라 저장할 스토리지 키 결정
+    // - 상세입력 탭(project1): STORAGE_KEYS.PROJECT1
+    // - 나머지 탭(project2):   STORAGE_KEYS.PROJECT2
+    const activeSection = document.getElementById('section-detail-view');
+    const isDetailTab = activeSection && activeSection.style.display !== 'none';
+
+    const storageKey = isDetailTab ? STORAGE_KEYS.PROJECT1 : STORAGE_KEYS.PROJECT2;
+    const historyKey = storageKey + "_history";
+
+    const charData = localStorage.getItem(storageKey);
+    const historyData = localStorage.getItem(historyKey);
 
     if (!charData) return alert("저장된 데이터가 없습니다.");
 
@@ -80,12 +89,12 @@ async function saveJsonWithLocation() {
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
-    const defaultFileName = `dnfm_character_equipment_backup_${year}-${month}-${day}.json`;
+    const prefix = isDetailTab ? 'dnfm_character_equipment_backup' : 'dnfm_eq_backup';
+    const defaultFileName = `${prefix}_${year}-${month}-${day}.json`;
 
-    const backup = {
-        characters: JSON.parse(charData),
-        history: historyData ? JSON.parse(historyData) : []
-    };
+    const backup = isDetailTab
+        ? { characters: JSON.parse(charData), history: historyData ? JSON.parse(historyData) : [] }
+        : JSON.parse(charData);
 
     if ('showSaveFilePicker' in window) {
         try {

@@ -1,0 +1,2666 @@
+/* ========================================
+            CSS 변수 정의 (100% 완성)
+        ======================================== */
+:root {
+    /* ===== 기본 색상 팔레트 ===== */
+    --color-white: #ffffff;
+    --color-black: #000000;
+
+    /* 그레이 스케일 */
+    --color-gray-darkest: #121216;
+    --color-gray-darker: #222;
+    --color-gray-dark: #333;
+    --color-gray: #444;
+    --color-gray-medium: #555;
+    --color-gray-light: #666;
+    --color-gray-lighter: #888;
+    --color-gray-lightest: #ccc;
+
+    /* 골드 */
+    --gold: #c5a678;
+    --border-heavy: #c5a678;
+
+    /* ===== 배경 색상 ===== */
+    --bg: #0f0f12;
+    --bg-dark: #000;
+    --bg-section: #121216;
+    --bg-row: #1a1a1f;
+    --table-bg: #1a1a1f;
+    --bg-header: #2a2a32;
+    --bg-header-alt: #3a3a42;
+    --bg-compare: #2a2a32;
+    --bg-highlight: #4a3f12;
+    --bg-compare-diff: #2a2a32;
+    --input-bg: #000;
+
+    /* ===== 테두리 ===== */
+    --border: #444;
+    --border-width: 1px;
+    --border-width-heavy: 2px;
+    --border-width-thick: 3px;
+    --border-radius: 3px;
+    --border-radius-sm: 2px;
+    --border-radius-md: 4px;
+    --border-style: solid;
+    --border-style-dashed: dashed;
+
+    /* ===== 텍스트 색상 ===== */
+    --text: #ddd;
+
+    /* 등급 색상 */
+    --txt-epic: #fcc419;
+    --txt-unique: #ff80ab;
+    --txt-rare: #b197fc;
+    --txt-uncom: #4dabf7;
+    --txt-common: #888;
+
+    /* 익시드 색상 */
+    --ex-sunbong: #ff5252;
+    --ex-uiji: #448aff;
+    --ex-isang: #40c057;
+    --ex-itemname-light: #85EFAD;
+
+    /* 강조 색상 */
+    --highlight-yellow: #fcc419;
+    --highlight-green: #4ade80;
+    --highlight-red: #f87171;
+    --highlight-green-dark: #1a4a2a;
+    --highlight-red-dark: #4a1a1a;
+    --highlight-cyan: #71D2E5;
+
+    /* 접두어 색상 */
+    --prefix-blue: #3b82f6;
+    --prefix-red: #ef4444;
+    --prefix-green: #22c55e;
+    --prefix-yellow: #facc15;
+
+    /* ===== 엠블렘 배경 ===== */
+    --emb-red: #4a1212;
+    --emb-yellow: #4a3f12;
+    --emb-blue: #121d4a;
+    --emb-green: #124a1d;
+    --emb-gray: #2d2d2d;
+
+    /* 각인 */
+    --gakin-2: #fff5f5bb;
+
+    /* ===== 그라디언트 ===== */
+    --gradient-emb-red: linear-gradient(to bottom, #6a1a1a 0%, var(--emb-red) 100%);
+    --gradient-emb-yellow: linear-gradient(to bottom, #6a5a1a 0%, var(--emb-yellow) 100%);
+    --gradient-emb-blue: linear-gradient(to bottom, #1a2a6a 0%, var(--emb-blue) 100%);
+    --gradient-emb-green: linear-gradient(to bottom, #1a6a2a 0%, var(--emb-green) 100%);
+    --gradient-emb-gray: linear-gradient(to bottom, #444 0%, var(--emb-gray) 100%);
+    --gradient-select: linear-gradient(to bottom, #2a2a32 0%, #000000 100%);
+
+    /* ===== 버튼 색상 ===== */
+    --btn-primary: #1d4ed8;
+    --btn-add: #7c3aed;
+    --btn-success: #059669;
+    --btn-info: #0ea5e9;
+    --btn-warning: #f59e0b;
+    --btn-danger: #ff4d4d;
+    --btn-secondary: #4b5563;
+    --btn-lock: #2563eb;
+
+    /* ===== 폰트 크기 ===== */
+    --fs: 14px;
+
+    /* 4가지 독립 관리 */
+    --fs-button: 14px;      /* 버튼 전용 */
+    --fs-table: 14px;       /* 기본 테이블 전용 */
+    --fs-compare: 14px;     /* 비교 모드 전용 */
+    --fs-search: 14px;      /* 검색 결과 전용 (JavaScript에서 사용) */
+
+    /* 기타 */
+    --fs-xs: 11px; /* 하위 호환용 */
+    --fs-sm: 12px; /* 하위 호환용 */
+    --fs-md: 13px;
+    --fs-lg: 1.1rem;
+
+    /* ===== 간격 ===== */
+    --spacing-xs: 2px;
+    --spacing-sm: 4px;
+    --spacing-md: 5px;
+    --spacing-lg: 8px;
+    --spacing-xl: 10px;
+    --spacing-2xl: 15px;
+    --spacing-3xl: 20px;
+    --spacing-4xl: 30px;
+    --spacing-5xl: 50px;
+
+    /* ===== 패딩 ===== */
+    --padding-xs: 1px 2px;
+    --padding-sm: 2px 4px;
+    --padding-md: 4px 8px;
+    --padding-lg: 5px 15px;
+    --padding-xl: 15px;
+    --padding-section: 5px;
+    --padding-cell: 1px 2px;
+    --padding-button: 4px;
+    --padding-button-sm: 2px 8px;
+    --padding-button-md: 6px 12px;
+    --padding-input: 8px;
+    --padding-modal: 15px;
+    --padding-textarea: 4px 6px;
+
+    /* ===== 높이 ===== */
+    --height-input: 22px;
+    --height-select: 22px;
+    --height-button: 30px;
+    --height-row: 26px;
+    --height-button-tall: 38px;
+    --height-divider: 8px;
+    --height-vline: 12px;
+    --height-textarea-min: 44px;
+
+    /* ===== 너비 ===== */
+    --width-char-info: 120px;
+    --width-slot: 60px; /* 슬롯 가로 길이 */
+    --width-rarity: 42px;
+    --width-exceed: 45px;
+    --width-prefix: 38px;
+    --width-val-short: 35px;
+    --width-emblem: 40px;
+    --width-enchant: 55px;
+    --width-itemname-min: 120px;
+    --width-desc-min: 230px;
+    --width-modal: 310px;
+    --width-modal-history: 450px;
+    --width-rune-name: 68px;
+    --width-rune-lv: 48px;
+    --width-rune-skill: 50px;
+    --width-col-num: 30px;
+    --width-art-color: 65px;
+    --width-art-opt: 110px;
+    --width-full: 100%;
+
+    /* 비교 테이블 너비 */
+    --compare-slot-width: 6%;
+    --compare-slot-min: 60px;
+    --compare-option-width: 20%;
+    --compare-option-min: 120px;
+    --compare-value-width: 10%;
+    --compare-value-min: 60px;
+    --compare-attr-width: 7%;
+    --compare-attr-min: 70px;
+    --compare-item-width: 17%;
+    --compare-item-min: 140px;
+    --compare-reinforce-width: 6%;
+    --compare-reinforce-min: 50px;
+    --compare-diff-width: 130px;
+    --compare-diff-min: 130px;
+
+    /* ===== 그림자 ===== */
+    --shadow-text: 0 0 2px rgba(0, 0, 0, 0.8);
+    --shadow-highlight: 0 0 10px var(--gold);
+
+    /* ===== 투명도 ===== */
+    --opacity-disabled: 0.5;
+    --opacity-overlay: 0.7;
+    --opacity-tap: 0.1;
+    --opacity-full: 1;
+
+    /* ===== z-index ===== */
+    --z-sticky: 1000;
+    --z-overlay: 1999;
+    --z-modal: 2000;
+
+    /* ===== 기타 ===== */
+    --max-height-modal: 85vh;
+    --max-height-modal-history: 80vh;
+    --max-height-modal-xl: 80vh;
+    --line-height-normal: 1.5;
+    --line-height-history: 1.6;
+
+    /* ===== Position 값 ===== */
+    --position-center-x: 50%;
+    --position-center-y: 50%;
+    --transform-center: translate(-50%, -50%);
+}
+
+/* ========================================
+   반응형 디자인 (Responsive Design)
+======================================== */
+
+/* 태블릿 (768px ~ 1024px) */
+@media screen and (max-width: 1024px) {
+    body {
+        padding: var(--spacing-md);
+    }
+
+    .control-bar {
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+    }
+
+    .control-bar button {
+        font-size: var(--fs-button);
+        padding: var(--padding-sm);
+    }
+
+    table {
+        font-size: 10px;
+    }
+
+    th, td {
+        padding: 1px;
+    }
+
+    .col-char-info {
+        width: 100px !important;
+    }
+}
+
+/* 모바일 가로 (481px ~ 767px) */
+@media screen and (max-width: 767px) {
+    body {
+        padding: var(--spacing-sm);
+    }
+
+    h2 {
+        font-size: var(--fs-md);
+        padding-bottom: var(--spacing-sm);
+    }
+
+    .control-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .control-bar button {
+        width: 100%;
+        margin-left: 0 !important;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        font-size: 9px;
+        min-width: 800px;
+    }
+
+    .col-char-info {
+        min-width: 80px;
+    }
+
+    /* 비교 모드 */
+    .compare-select-container {
+        flex-direction: column;
+    }
+
+    .compare-table {
+        font-size: 9px;
+    }
+
+    /* 모달 */
+    #skillRunemodal,
+    #historyModal {
+        width: 90%;
+        max-width: 320px;
+    }
+}
+
+/* 모바일 세로 (~ 480px) */
+@media screen and (max-width: 480px) {
+    body {
+        padding: var(--spacing-xs);
+    }
+
+    h2 {
+        font-size: var(--fs-sm);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .control-bar {
+        gap: var(--spacing-sm);
+    }
+
+    .control-bar button {
+        font-size: 10px;
+        padding: 6px 8px;
+    }
+
+    table {
+        font-size: 8px;
+        min-width: 700px;
+    }
+
+    th, td {
+        padding: 0px 1px;
+    }
+
+    input, select {
+        font-size: 8px;
+        padding: 1px;
+    }
+
+    .btn-action,
+    .btn-mode {
+        padding: 4px 6px;
+        font-size: 10px;
+    }
+
+    /* 비교 테이블 최적화 */
+    .compare-table {
+        font-size: 8px;
+    }
+
+    .compare-table th,
+    .compare-table td {
+        padding: 2px 1px;
+    }
+}
+
+/* 대형 화면 (1920px 이상) */
+@media screen and (min-width: 1920px) {
+    body {
+        max-width: 1800px;
+        margin: 0 auto;
+    }
+
+    table {
+        font-size: var(--fs-sm);
+    }
+}
+
+/* 프린트 스타일 */
+@media print {
+    .control-bar,
+    .btn-action,
+    .btn-mode,
+    .btn-all-lock,
+    .btn-char-lock,
+    .btn-char-unlock,
+    .btn-move,
+    .del-btn {
+        display: none !important;
+    }
+
+    body {
+        background: white;
+        color: black;
+    }
+
+    table {
+        border-color: black;
+    }
+
+    .char-section {
+        page-break-inside: avoid;
+    }
+}
+
+
+/* ========================================
+   반응형 디자인 (Responsive Design)
+======================================== */
+
+/* 태블릿 (768px ~ 1024px) */
+@media screen and (max-width: 1024px) {
+    body {
+        padding: var(--spacing-md);
+    }
+
+    .control-bar {
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+    }
+
+    .control-bar button {
+        font-size: var(--fs-xs);
+        padding: var(--padding-sm);
+    }
+
+    table {
+        font-size: 10px;
+    }
+
+    th, td {
+        padding: 1px;
+    }
+
+    .col-char-info {
+        width: 100px !important;
+    }
+}
+
+/* 모바일 가로 (481px ~ 767px) */
+@media screen and (max-width: 767px) {
+    body {
+        padding: var(--spacing-sm);
+    }
+
+    h2 {
+        font-size: var(--fs-md);
+        padding-bottom: var(--spacing-sm);
+    }
+
+    .control-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .control-bar button {
+        width: 100%;
+        margin-left: 0 !important;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        font-size: 9px;
+        min-width: 800px;
+    }
+
+    .col-char-info {
+        min-width: 80px;
+    }
+
+    /* 비교 모드 */
+    .compare-select-container {
+        flex-direction: column;
+    }
+
+    .compare-table {
+        font-size: 9px;
+    }
+
+    /* 모달 */
+    #skillRunemodal,
+    #historyModal {
+        width: 90%;
+        max-width: 320px;
+    }
+}
+
+/* 모바일 세로 (~ 480px) */
+@media screen and (max-width: 480px) {
+    body {
+        padding: var(--spacing-xs);
+    }
+
+    h2 {
+        font-size: var(--fs-sm);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .control-bar {
+        gap: var(--spacing-sm);
+    }
+
+    .control-bar button {
+        font-size: 10px;
+        padding: 6px 8px;
+    }
+
+    table {
+        font-size: 8px;
+        min-width: 700px;
+    }
+
+    th, td {
+        padding: 0px 1px;
+    }
+
+    input, select {
+        font-size: 8px;
+        padding: 1px;
+    }
+
+    .btn-action,
+    .btn-mode {
+        padding: 4px 6px;
+        font-size: 10px;
+    }
+
+    /* 비교 테이블 최적화 */
+    .compare-table {
+        font-size: 8px;
+    }
+
+    .compare-table th,
+    .compare-table td {
+        padding: 2px 1px;
+    }
+}
+
+/* 대형 화면 (1920px 이상) */
+@media screen and (min-width: 1920px) {
+    body {
+        max-width: 1800px;
+        margin: 0 auto;
+    }
+
+    table {
+        font-size: var(--fs-sm);
+    }
+}
+
+/* 프린트 스타일 */
+@media print {
+    .control-bar,
+    .btn-action,
+    .btn-mode,
+    .btn-all-lock,
+    .btn-char-lock,
+    .btn-char-unlock,
+    .btn-move,
+    .del-btn {
+        display: none !important;
+    }
+
+    body {
+        background: white;
+        color: black;
+    }
+
+    table {
+        border-color: black;
+    }
+
+    .char-section {
+        page-break-inside: avoid;
+    }
+}
+
+
+/* ========================================
+   반응형 디자인 (Responsive Design)
+======================================== */
+
+/* 태블릿 (768px ~ 1024px) */
+@media screen and (max-width: 1024px) {
+    body {
+        padding: var(--spacing-md);
+    }
+
+    .control-bar {
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+    }
+
+    .control-bar button {
+        font-size: var(--fs-xs);
+        padding: var(--padding-sm);
+    }
+
+    table {
+        font-size: 10px;
+    }
+
+    th, td {
+        padding: 1px;
+    }
+
+    .col-char-info {
+        width: 100px !important;
+    }
+}
+
+/* 모바일 가로 (481px ~ 767px) */
+@media screen and (max-width: 767px) {
+    body {
+        padding: var(--spacing-sm);
+    }
+
+    h2 {
+        font-size: var(--fs-md);
+        padding-bottom: var(--spacing-sm);
+    }
+
+    .control-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .control-bar button {
+        width: 100%;
+        margin-left: 0 !important;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        font-size: 9px;
+        min-width: 800px;
+    }
+
+    .col-char-info {
+        min-width: 80px;
+    }
+
+    /* 비교 모드 */
+    .compare-select-container {
+        flex-direction: column;
+    }
+
+    .compare-table {
+        font-size: 9px;
+    }
+
+    /* 모달 */
+    #skillRunemodal,
+    #historyModal {
+        width: 90%;
+        max-width: 320px;
+    }
+}
+
+/* 모바일 세로 (~ 480px) */
+@media screen and (max-width: 480px) {
+    body {
+        padding: var(--spacing-xs);
+    }
+
+    h2 {
+        font-size: var(--fs-sm);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .control-bar {
+        gap: var(--spacing-sm);
+    }
+
+    .control-bar button {
+        font-size: 10px;
+        padding: 6px 8px;
+    }
+
+    table {
+        font-size: 8px;
+        min-width: 700px;
+    }
+
+    th, td {
+        padding: 0px 1px;
+    }
+
+    input, select {
+        font-size: 8px;
+        padding: 1px;
+    }
+
+    .btn-action,
+    .btn-mode {
+        padding: 4px 6px;
+        font-size: 10px;
+    }
+
+    /* 비교 테이블 최적화 */
+    .compare-table {
+        font-size: 8px;
+    }
+
+    .compare-table th,
+    .compare-table td {
+        padding: 2px 1px;
+    }
+}
+
+/* 대형 화면 (1920px 이상) */
+@media screen and (min-width: 1920px) {
+    body {
+        max-width: 1800px;
+        margin: 0 auto;
+    }
+
+    table {
+        font-size: var(--fs-sm);
+    }
+}
+
+/* 프린트 스타일 */
+
+
+/* ========================================
+   화면 방향 최적화 (Orientation)
+======================================== */
+
+/* 1. 모바일 가로 모드 (Landscape) */
+@media screen and (max-width: 767px) and (orientation: landscape) {
+    /* 가로 모드에서는 높이가 부족하므로 수직 공간 최적화 */
+    body {
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    h2 {
+        font-size: var(--fs-sm);
+        margin-bottom: var(--spacing-sm);
+        padding-bottom: var(--spacing-xs);
+    }
+
+    /* 컨트롤바를 가로로 배치하되 2줄로 */
+    .control-bar {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: var(--spacing-xs);
+        padding: var(--spacing-xs) 0;
+    }
+
+    .control-bar button {
+        flex: 1 1 calc(25% - var(--spacing-xs));
+        min-width: 80px;
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: 10px;
+    }
+
+    /* 테이블 높이 최적화 */
+    table {
+        font-size: 9px;
+    }
+
+    th, td {
+        padding: 0px 2px;
+        height: 22px;
+    }
+
+    /* 캐릭터 정보칸 축소 */
+    .col-char-info {
+        width: 80px !important;
+        min-width: 80px;
+    }
+
+    .col-char-info > div {
+        padding: var(--spacing-xs) !important;
+        gap: 1px !important;
+    }
+
+    .col-char-info input,
+    .col-char-info select,
+    .col-char-info button {
+        font-size: 9px;
+        padding: 1px 2px;
+        height: 18px;
+        margin-bottom: 1px;
+    }
+
+    /* 모달 크기 조정 */
+    #skillRunemodal,
+    #historyModal {
+        max-height: 70vh;
+        width: 85%;
+    }
+
+    /* 비교 모드 최적화 */
+    .compare-select-container {
+        flex-direction: row;
+        gap: var(--spacing-md);
+    }
+
+    .compare-table {
+        font-size: 9px;
+    }
+
+    .compare-table th,
+    .compare-table td {
+        padding: 2px 1px;
+    }
+}
+
+/* 2. 태블릿 가로 모드 (Landscape) */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+    /* 가로 모드에서는 화면을 최대한 활용 */
+    body {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .control-bar {
+        flex-wrap: nowrap;
+        gap: var(--spacing-sm);
+    }
+
+    .control-bar button {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    /* 테이블을 더 넓게 표시 */
+    .table-container {
+        max-width: 100%;
+    }
+
+    table {
+        font-size: 11px;
+    }
+
+    /* 비교 모드 가로 배치 */
+    .compare-header {
+        flex-direction: row;
+    }
+}
+
+/* 3. 모바일 세로 모드 (Portrait) - 추가 최적화 */
+@media screen and (max-width: 767px) and (orientation: portrait) {
+    /* 세로 모드에서는 너비가 부족하므로 수평 스크롤 강화 */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        /* 스크롤바 항상 표시 */
+        scrollbar-width: thin;
+        scrollbar-color: var(--gold) var(--bg-dark);
+    }
+
+    .table-container::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .table-container::-webkit-scrollbar-track {
+        background: var(--bg-dark);
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+        background: var(--gold);
+        border-radius: 4px;
+    }
+
+    /* 테이블 최소 너비 보장 */
+    table {
+        min-width: 800px;
+    }
+
+    /* 컨트롤바 세로 배치 최적화 */
+    .control-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .control-bar button {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* 비교 선택 박스 세로 배치 */
+    .compare-select-container {
+        flex-direction: column;
+    }
+}
+
+/* 4. 태블릿 세로 모드 (Portrait) - 최적화 */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+    /* 세로 모드 태블릿은 데스크톱과 유사하게 처리 */
+    body {
+        padding: var(--spacing-md);
+    }
+
+    .control-bar {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .control-bar button {
+        flex: 0 1 auto;
+    }
+
+    table {
+        font-size: 10px;
+    }
+
+    /* 비교 모드 세로 배치 */
+    .compare-select-container {
+        flex-direction: column;
+        gap: var(--spacing-xl);
+    }
+}
+
+/* 5. 가로/세로 전환 시 부드러운 전환 */
+@media (prefers-reduced-motion: no-preference) {
+    .control-bar,
+    .table-container,
+    .compare-select-container {
+        transition: all 0.3s ease-in-out;
+    }
+}
+
+/* 6. 가로 모드 전용 - 사이드바 레이아웃 (선택적) */
+@media screen and (min-width: 1024px) and (orientation: landscape) {
+    /* 초광각 모니터에서 컨텐츠 중앙 정렬 */
+    body {
+        max-width: 1800px;
+        margin: 0 auto;
+    }
+}
+
+/* 7. 세로 모드 전용 - 스크롤 힌트 */
+@media screen and (max-width: 767px) and (orientation: portrait) {
+    .table-container::after {
+        content: "→ 좌우로 스크롤 →";
+        display: block;
+        text-align: center;
+        color: var(--gold);
+        font-size: 10px;
+        padding: var(--spacing-xs);
+        background: var(--bg-section);
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        opacity: 0.8;
+        pointer-events: none;
+    }
+
+    /* 스크롤 시작하면 힌트 숨김 */
+    .table-container.scrolled::after {
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+}
+
+/* 8. 양쪽 모드 공통 - 터치 영역 확대 */
+@media screen and (max-width: 1024px) {
+    /* 터치 기기에서 모든 인터랙티브 요소 크기 증가 */
+    button:not(.btn-char-lock):not(.btn-char-unlock):not(.btn-move) {
+        min-height: 40px;
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+
+    input,
+    select {
+        min-height: 32px;
+    }
+}
+
+/* ========================================
+   접근성 개선 (Accessibility)
+======================================== */
+
+/* 1. 모션 감소 선호 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* 2. 포커스 가시성 개선 */
+*:focus {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+    outline: none;
+}
+
+*:focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(197, 166, 120, 0.3);
+}
+
+/* 버튼, 입력 필드 포커스 강조 */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid var(--highlight-yellow);
+    outline-offset: 2px;
+    box-shadow: 0 0 8px rgba(252, 196, 25, 0.5);
+}
+
+/* 3. 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+    :root {
+        --text: #ffffff;
+        --bg: #000000;
+        --border: #ffffff;
+        --gold: #ffdd00;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+        border-width: 2px !important;
+    }
+
+    table {
+        border-width: 2px !important;
+    }
+
+    th, td {
+        border-width: 2px !important;
+    }
+}
+
+/* 4. 라이트 모드 지원 (선택적) */
+@media (prefers-color-scheme: light) {
+    /* 현재 다크 테마가 기본이므로,
+       라이트 모드를 원하는 사용자를 위한 옵션 */
+    body[data-theme="light"] {
+        --bg: #f5f5f5;
+        --bg-dark: #ffffff;
+        --bg-section: #e8e8e8;
+        --bg-row: #f0f0f0;
+        --table-bg: #ffffff;
+        --bg-header: #d0d0d0;
+        --text: #1a1a1a;
+        --border: #cccccc;
+        --gold: #b8860b;
+    }
+}
+
+/* 5. 스크린 리더 전용 텍스트 */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* 포커스 시 보이기 (Skip to content 등) */
+.sr-only:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 1rem;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}
+
+/* 6. 키보드 네비게이션 개선 */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    z-index: 10;
+    position: relative;
+}
+
+/* 7. 텍스트 선택 스타일 */
+::selection {
+    background-color: var(--highlight-yellow);
+    color: var(--color-black);
+}
+
+::-moz-selection {
+    background-color: var(--highlight-yellow);
+    color: var(--color-black);
+}
+
+/* 8. 터치 타겟 최소 크기 보장 */
+@media (pointer: coarse) {
+    button,
+    a,
+    input[type="checkbox"],
+    input[type="radio"] {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* 9. 호버/포커스 동시 적용 */
+button:hover,
+button:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* 10. 비활성화된 요소 명확히 표시 */
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+    cursor: not-allowed;
+}
+
+/* readOnly 상태도 disabled와 동일하게 처리 */
+input:read-only,
+textarea:read-only {
+    cursor: not-allowed;
+}
+
+/* 11. 에러/성공 메시지 접근성 */
+[role="alert"],
+[aria-live="polite"],
+[aria-live="assertive"] {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    font-weight: bold;
+}
+
+[role="alert"] {
+    background-color: var(--highlight-red-dark);
+    color: var(--highlight-red);
+    border: 2px solid var(--highlight-red);
+}
+
+/* 12. 숨김 처리된 요소 */
+[hidden],
+[aria-hidden="true"] {
+    display: none !important;
+}
+
+@media print {
+    .control-bar,
+    .btn-action,
+    .btn-mode,
+    .btn-all-lock,
+    .btn-char-lock,
+    .btn-char-unlock,
+    .btn-move,
+    .del-btn {
+        display: none !important;
+    }
+
+    body {
+        background: white;
+        color: black;
+    }
+
+    table {
+        border-color: black;
+    }
+
+    .char-section {
+        page-break-inside: avoid;
+    }
+}
+
+
+/* ========================================
+   기본 스타일
+======================================== */
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Malgun Gothic', sans-serif;
+    margin: 0;
+    padding: var(--spacing-xl);
+}
+
+h2 {
+    color: var(--gold);
+    border-bottom: var(--border-width-heavy) var(--border-style) var(--gold);
+    padding-bottom: var(--spacing-md);
+    margin: 0 0 var(--spacing-xl) 0;
+    font-size: var(--fs-lg);
+}
+
+h3 {
+    color: var(--gold);
+    margin-top: 0;
+}
+
+/* ========================================
+   레이아웃
+======================================== */
+.control-bar {
+    margin-bottom: var(--spacing-xl);
+    display: flex;
+    gap: var(--spacing-xl);
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: var(--z-sticky);
+    padding: var(--spacing-md) 0;
+}
+
+.char-section {
+    margin-bottom: var(--spacing-4xl);
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+/* ========================================
+   테이블 스타일
+======================================== */
+table {
+    border-collapse: collapse;
+    background-color: var(--table-bg);
+    width: max-content;
+    font-size: var(--fs-table);
+    border: var(--border-width-heavy) var(--border-style) var(--gold);
+}
+
+th, td {
+    border: var(--border-width) var(--border-style) var(--border) !important;
+    padding: var(--padding-cell);
+    text-align: center;
+    height: var(--height-row);
+    color: var(--color-gray-lightest);
+}
+
+th {
+    background-color: var(--bg-header);
+    color: var(--gold);
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.v-border-heavy {
+    border-left: var(--border-width-heavy) var(--border-style) var(--border-heavy) !important;
+}
+
+.group-header {
+    border-bottom: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+}
+
+/* 열 너비 */
+.col-char-info { width: var(--width-char-info) !important; }
+.col-slot { width: var(--width-slot) !important; font-weight: bold; color: var(--gold) !important; }
+.col-rarity { width: var(--width-rarity) !important; }
+.col-exceed { width: var(--width-exceed) !important; }
+.col-prefix { width: var(--width-prefix) !important; }
+.col-val-short { width: var(--width-val-short) !important; }
+.col-emblem { width: var(--width-emblem) !important; }
+.col-enchant { width: var(--width-enchant) !important; min-width: var(--width-enchant); }
+.col-m-num { width: var(--width-col-num); }
+
+/* ========================================
+   입력 요소 (Form Controls)
+======================================== */
+input {
+    background: var(--input-bg);
+    color: var(--color-white);
+    border: var(--border-width) var(--border-style) var(--border);
+    padding: var(--padding-xs);
+    width: 100%;
+    font-size: var(--fs-table);
+    box-sizing: border-box;
+    height: var(--height-input);
+    outline: none;
+    text-align: center;
+}
+
+select {
+    background: var(--gradient-select);
+    color: var(--color-white);
+    border: var(--border-width) var(--border-style) var(--color-gray-medium);
+    padding: 1px 0px;
+    width: 100%;
+    font-size: var(--fs-table);
+    box-sizing: border-box;
+    height: var(--height-select);
+    outline: none;
+    text-align: center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    pointer-events: auto !important;
+    touch-action: auto !important;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, var(--opacity-tap));
+}
+
+select option {
+    background-color: var(--bg-row);
+    color: var(--color-white);
+}
+
+select:hover {
+    border-color: var(--gold);
+}
+
+input:disabled, select:disabled {
+    cursor: not-allowed;
+    opacity: var(--opacity-full);
+    -webkit-text-fill-color: inherit;
+    pointer-events: none !important;
+}
+
+textarea {
+    background: var(--bg-dark);
+    color: var(--color-white);
+    border: var(--border-width) var(--border-style) var(--border);
+    padding: var(--padding-textarea);
+    resize: none;
+    font-family: sans-serif;
+    font-size: var(--fs-table);
+    box-sizing: border-box;
+    text-align: left;
+    outline: none;
+}
+
+/* ========================================
+   버튼 스타일
+======================================== */
+.btn-action {
+    background: var(--btn-primary);
+    color: var(--color-white);
+    border: none;
+    padding: var(--padding-lg);
+    cursor: pointer;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+    font-size: var(--fs-button);
+}
+
+.set-apply-btn {
+    background: none;
+    border: none;
+    padding: 0 2px;
+    cursor: pointer;
+    font-size: 11px;
+    opacity: 0.5;
+}
+.set-apply-btn:hover { opacity: 1; }
+
+.btn-add {
+    background: var(--btn-add);
+}
+
+.btn-all-lock {
+    background-color: var(--btn-secondary);
+    color: var(--color-white);
+    border: none;
+    padding: var(--padding-button-md);
+    cursor: pointer;
+    border-radius: var(--border-radius-md);
+    font-weight: bold;
+    margin-left: var(--spacing-lg);
+}
+
+.btn-char-lock {
+    background: var(--btn-lock);
+    color: var(--color-white);
+    padding: var(--padding-button);
+    cursor: pointer;
+    font-size: var(--fs-button);
+    border: none;
+    margin-bottom: var(--spacing-xs);
+}
+
+.btn-char-unlock {
+    background: var(--color-gray);
+    color: var(--color-white);
+    padding: var(--padding-button);
+    cursor: pointer;
+    font-size: var(--fs-button);
+    border: none;
+}
+
+.btn-active {
+    border: var(--border-width-heavy) var(--border-style) var(--color-white) !important;
+}
+
+.btn-mode {
+    background: var(--btn-warning);
+    color: var(--color-white);
+    border: none;
+    padding: var(--padding-lg);
+    cursor: pointer;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+    font-size: var(--fs-button);
+}
+
+.btn-mode.active {
+    background: var(--btn-warning);
+    border: var(--border-width-heavy) var(--border-style) var(--color-white);
+}
+
+.btn-move {
+    flex: 1;
+    background: var(--color-gray);
+    padding: var(--spacing-xs);
+}
+
+.btn-exit-compare {
+    background: var(--btn-secondary);
+    margin-bottom: var(--spacing-3xl);
+}
+
+.del-btn {
+    background: var(--btn-danger);
+    color: var(--color-white);
+    border: none;
+    padding: var(--padding-button);
+    cursor: pointer;
+    font-size: var(--fs-button);
+    border-radius: var(--border-radius-sm);
+}
+
+.status-msg {
+    font-size: var(--fs-sm);
+    color: var(--gold);
+}
+
+/* ========================================
+   등급 색상 (Rarity Colors)
+======================================== */
+.rare-에픽, .bg-에픽 {
+    color: var(--txt-epic) !important;
+    font-weight: bold;
+}
+
+.rare-유니크, .bg-유니크 {
+    color: var(--txt-unique) !important;
+    font-weight: bold;
+}
+
+.rare-레어, .bg-레어 {
+    color: var(--txt-rare) !important;
+    font-weight: bold;
+}
+
+.rare-언커먼, .bg-언커먼 {
+    color: var(--txt-uncom) !important;
+    font-weight: bold;
+}
+
+.rare-커먼, .bg-커먼 {
+    color: var(--txt-common) !important;
+    font-weight: bold;
+}
+
+.rare-티어 {
+    color: var(--color-white) !important;
+    font-weight: bold;
+}
+
+/* ========================================
+   익시드 색상 (Exceed Colors)
+======================================== */
+.ex-이상 {
+    color: var(--ex-isang) !important;
+    font-weight: bold;
+}
+
+.ex-선봉 {
+    color: var(--ex-sunbong) !important;
+    font-weight: bold;
+}
+
+.ex-의지 {
+    color: var(--ex-uiji) !important;
+    font-weight: bold;
+}
+
+.ex-itemname-light {
+    color: var(--ex-itemname-light) !important;
+    font-weight: bold;
+}
+
+/* ========================================
+   접두어 색상 (Prefix Colors)
+======================================== */
+.prefix-selected {
+    color: var(--txt-epic) !important;
+    font-weight: bold;
+}
+
+.prefix-tier {
+    color: var(--color-white) !important;
+    font-weight: bold;
+}
+
+.p-blue { color: var(--prefix-blue) !important; }
+.p-red { color: var(--prefix-red) !important; }
+.p-green { color: var(--prefix-green) !important; }
+.p-yellow { color: var(--prefix-yellow) !important; }
+
+select.prefix-selected.p-blue { color: var(--prefix-blue); }
+select.prefix-selected.p-red { color: var(--prefix-red); }
+select.prefix-selected.p-green { color: var(--prefix-green); }
+select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
+
+/* ========================================
+   엠블렘 배경 (Emblem Backgrounds)
+======================================== */
+.emb-bg-red {
+    background: var(--gradient-emb-red) !important;
+    color: var(--color-white) !important;
+}
+
+.emb-bg-yellow {
+    background: var(--gradient-emb-yellow) !important;
+    color: var(--color-white) !important;
+}
+
+.emb-bg-blue {
+    background: var(--gradient-emb-blue) !important;
+    color: var(--color-white) !important;
+}
+
+.emb-bg-green {
+    background: var(--gradient-emb-green) !important;
+    color: var(--color-white) !important;
+}
+
+.emb-bg-gray {
+    background: var(--gradient-emb-gray) !important;
+    color: var(--color-white) !important;
+}
+
+/* ========================================
+   하이라이트 (Highlights)
+======================================== */
+.highlight-yellow {
+    color: var(--highlight-yellow) !important;
+    font-weight: bold;
+    text-shadow: var(--shadow-text);
+}
+
+.set-highlight {
+    color: var(--highlight-cyan) !important;
+    font-weight: bold;
+}
+
+.itemname-color-sync {
+    font-weight: bold;
+}
+
+/* ========================================
+   아티팩트 (Creature Artifacts)
+======================================== */
+.artifact-main-wrapper {
+    display: flex;
+    gap: var(--spacing-lg);
+    justify-content: start;
+    align-items: center;
+    padding: var(--spacing-xs) var(--spacing-md);
+}
+
+.art-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    border: var(--border-width) var(--border-style) var(--border);
+    padding: var(--spacing-sm);
+    background: var(--bg-dark);
+}
+
+.art-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.custom-top-line {
+    margin-bottom: var(--spacing-sm);
+    border-bottom: var(--border-width) var(--border-style-dashed) var(--border);
+    padding-bottom: var(--spacing-sm);
+}
+
+.art-color-select {
+    width: var(--width-art-color);
+}
+
+.art-opt-select {
+    width: var(--width-art-opt);
+}
+
+/* ========================================
+   모달 (Modals)
+======================================== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, var(--opacity-overlay));
+    justify-content: center;
+    align-items: center;
+    z-index: var(--z-overlay);
+}
+
+#skillRunemodal {
+    display: none;
+    position: fixed;
+    top: var(--position-center-y);
+    left: var(--position-center-x);
+    transform: var(--transform-center);
+    background: var(--bg-row);
+    border: var(--border-width-heavy) var(--border-style) var(--gold);
+    padding: var(--padding-modal);
+    z-index: var(--z-modal);
+    width: var(--width-modal);
+    max-height: var(--max-height-modal);
+    overflow-y: auto;
+}
+
+#historyModal {
+    display: none;
+    position: fixed;
+    top: var(--position-center-y);
+    left: var(--position-center-x);
+    transform: var(--transform-center);
+    background: var(--bg-row);
+    border: var(--border-width-heavy) var(--border-style) var(--gold);
+    padding: var(--padding-modal);
+    z-index: var(--z-modal);
+    width: var(--width-modal-history);
+    max-height: var(--max-height-modal-history);
+    overflow-y: auto;
+}
+
+#historyList {
+    font-size: var(--fs-table);
+    color: var(--color-gray-lightest);
+    line-height: var(--line-height-history);
+}
+
+/* ========================================
+   스킬 룬 모달 특화
+======================================== */
+.m-rune-name { width: var(--width-rune-name) !important; }
+.m-rune-lv { width: var(--width-rune-lv) !important; }
+.m-rune-skillLv { width: var(--width-rune-skill) !important; }
+
+.v-line {
+    border-left: var(--border-width) var(--border-style) var(--color-gray-medium);
+    height: var(--height-vline);
+    margin: 0 var(--spacing-lg);
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.gakin-section {
+    margin-top: var(--spacing-xl);
+    border-top: var(--border-width-heavy) var(--border-style) var(--gold);
+    padding-top: var(--spacing-xl);
+}
+
+.gakin-title {
+    color: var(--gold);
+    font-weight: bold;
+    font-size: var(--fs-sm);
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+}
+
+.gakin-container {
+    display: flex;
+    gap: var(--spacing-md);
+    width: 100%;
+}
+
+.m-gakin-input-box {
+    flex: 1;
+}
+
+.rune-modal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-sm);
+    border: var(--border-width) var(--border-style) var(--border);
+}
+
+/* ========================================
+   캐릭터 정보 섹션
+======================================== */
+.info-select {
+    flex: 1;
+    border: var(--border-width) var(--border-style) var(--border);
+    background: var(--bg-dark);
+    color: var(--color-white);
+    font-size: var(--fs-button);
+    height: var(--height-select);
+}
+
+.divider-gold {
+    border-bottom: var(--border-width-heavy) var(--border-style) var(--gold);
+    margin: var(--spacing-sm) 0;
+}
+
+.divider-gold-lg {
+    border-bottom: var(--border-width-heavy) var(--border-style) var(--gold);
+    margin: var(--spacing-lg) 0;
+}
+
+/* ========================================
+   비교 모드 (Compare Mode)
+======================================== */
+#characterContainer {
+    display: block;
+}
+
+#compareContainer {
+    display: none;
+}
+
+/* 3열 비교 레이아웃 */
+.compare-three-col {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.compare-side {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+.compare-left table {
+    width: 100%;
+    margin-left: auto; /* 오른쪽 정렬 */
+}
+
+.compare-right table {
+    width: 100%;
+    margin-right: auto; /* 왼쪽 정렬 */
+}
+
+.compare-center {
+    flex: 0 0 130px;
+    width: 130px;
+}
+
+.compare-side-table,
+.compare-center-table {
+    border-collapse: collapse;
+    background-color: var(--table-bg);
+    border: var(--border-width-heavy) var(--border-style) var(--gold);
+    margin-bottom: var(--spacing-4xl);
+    table-layout: auto;
+    width: 100%;
+}
+
+.compare-side-table th,
+.compare-side-table td,
+.compare-center-table th,
+.compare-center-table td {
+    padding: var(--spacing-lg) var(--spacing-sm);
+    border: var(--border-width) var(--border-style) var(--border);
+    font-size: var(--fs-compare);
+    white-space: nowrap;
+    height: 28px;
+    box-sizing: border-box;
+}
+
+.compare-side-table th,
+.compare-center-table th {
+    background-color: var(--bg-header);
+    color: var(--gold);
+    text-align: center;
+}
+
+.compare-side-table td {
+    text-align: center;
+}
+
+.compare-center-table {
+    border-left: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+    border-right: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+    margin-bottom: var(--spacing-4xl);
+}
+
+.compare-center-table th {
+    background-color: var(--bg-header-alt) !important;
+    color: var(--gold) !important;
+    font-weight: bold;
+    text-align: center;
+}
+
+.compare-center-table td {
+    text-align: center;
+    font-weight: bold;
+}
+
+.compare-center-table td.same {
+    background-color: var(--bg-compare-diff) !important;
+    color: var(--color-gray-lighter) !important;
+    font-weight: normal;
+}
+.compare-center-table td.positive {
+    background-color: var(--highlight-green-dark) !important;
+    color: var(--highlight-green) !important;
+}
+.compare-center-table td.negative {
+    background-color: var(--highlight-red-dark) !important;
+    color: var(--highlight-red) !important;
+}
+
+.compare-section-wrapper {
+    margin-bottom: var(--spacing-3xl);
+}
+
+#compareCharSelectionContainer {
+    display: none;
+    margin-bottom: var(--spacing-3xl);
+    padding: var(--padding-modal);
+    background: var(--bg-row);
+    border: var(--border-width-heavy) var(--border-style) var(--border);
+    border-radius: var(--border-radius-md);
+}
+
+#compareCharSelectionContainer h3 {
+    color: var(--gold);
+    margin-top: 0;
+}
+
+#compareCharSelectionContainer p {
+    color: var(--color-gray-lighter);
+    font-size: var(--fs-compare);
+    margin: var(--spacing-xl) 0;
+}
+
+/* [100% 완성] 비교 선택 드롭다운 클래스 */
+.compare-select-wrapper {
+    flex: 1;
+}
+
+.compare-select-label {
+    color: var(--gold);
+    font-weight: bold;
+    display: block;
+    margin-bottom: var(--spacing-lg);
+}
+
+.compare-select {
+    width: var(--width-full);
+    padding: var(--padding-input);
+    background: var(--bg-dark);
+    color: var(--color-white);
+    border: var(--border-width-heavy) var(--border-style) var(--gold);
+    border-radius: var(--border-radius-md);
+    font-size: var(--fs-sm);
+    cursor: pointer;
+    height: var(--height-button-tall);
+    line-height: var(--line-height-normal);
+}
+
+.compare-select-container {
+    display: flex;
+    gap: var(--spacing-4xl);
+    margin-top: var(--spacing-3xl);
+    align-items: center;
+}
+
+.compare-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-3xl);
+    gap: var(--spacing-5xl);
+}
+
+.compare-header h3 {
+    color: var(--gold);
+    margin: 0;
+    flex: 1;
+    text-align: center;
+}
+
+.compare-center-label {
+    flex: 0 0 100px;
+    color: var(--color-gray-lighter);
+    text-align: center;
+    font-size: var(--fs-sm);
+}
+
+.compare-section-title {
+    color: var(--gold);
+    font-weight: bold;
+    margin-top: var(--spacing-3xl);
+    margin-bottom: var(--spacing-xl);
+    font-size: var(--fs-md);
+}
+
+/* 비교 테이블 */
+.compare-table {
+    width: max-content;
+    table-layout: auto;
+    border-collapse: collapse;
+    background-color: var(--table-bg);
+    border: var(--border-width-heavy) var(--border-style) var(--gold);
+    margin-bottom: var(--spacing-4xl);
+}
+
+#compareContent {
+    overflow-x: auto;
+}
+
+.compare-table th {
+    background-color: var(--bg-header);
+    color: var(--gold);
+    padding: var(--spacing-lg) var(--spacing-sm);
+    border: var(--border-width) var(--border-style) var(--border);
+    font-size: var(--fs-compare);
+    font-weight: bold;
+}
+
+.compare-table td {
+    border: var(--border-width) var(--border-style) var(--border);
+    padding: 6px var(--spacing-sm);
+    font-size: var(--fs-compare);
+    height: auto;
+}
+
+/* 비교 테이블 열 너비 */
+.compare-slot-col {
+    width: var(--compare-slot-width) !important;
+    min-width: var(--compare-slot-min) !important;
+}
+
+.compare-option-col {
+    width: var(--compare-option-width) !important;
+    min-width: var(--compare-option-min) !important;
+}
+
+.compare-value-col {
+    width: var(--compare-value-width) !important;
+    min-width: var(--compare-value-min) !important;
+    text-align: center !important;
+}
+
+.compare-attr-col {
+    width: var(--compare-attr-width) !important;
+    min-width: var(--compare-attr-min) !important;
+    text-align: center !important;
+}
+
+.compare-item-col {
+    width: var(--compare-item-width) !important;
+    min-width: var(--compare-item-min) !important;
+}
+
+.compare-reinforce-col {
+    width: var(--compare-reinforce-width) !important;
+    min-width: var(--compare-reinforce-min) !important;
+    text-align: center !important;
+}
+
+.compare-diff-col {
+    width: var(--compare-diff-width) !important;
+    min-width: var(--compare-diff-min) !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    background-color: var(--bg-compare-diff) !important;
+    border-left: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+    border-right: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+    position: relative;
+}
+
+.compare-table th.compare-diff-col {
+    background-color: var(--bg-header-alt) !important;
+    font-weight: bold;
+    color: var(--gold) !important;
+    font-size: var(--fs-compare);
+}
+
+.compare-table td.compare-diff {
+    background-color: var(--bg-highlight) !important;
+    color: var(--highlight-yellow) !important;
+    font-weight: bold;
+    text-align: center;
+    border-left: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+    border-right: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+    font-size: var(--fs-compare);
+}
+
+.compare-table td.compare-diff.same {
+    background-color: var(--bg-compare-diff) !important;
+    color: var(--color-gray-light) !important;
+    font-weight: normal;
+}
+
+.compare-table td.compare-diff.positive {
+    background-color: var(--highlight-green-dark) !important;
+    color: var(--highlight-green) !important;
+}
+
+.compare-table td.compare-diff.negative {
+    background-color: var(--highlight-red-dark) !important;
+    color: var(--highlight-red) !important;
+}
+
+.compare-diff-col::before {
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: 0;
+    bottom: 0;
+    width: var(--spacing-sm);
+    background: linear-gradient(to right, rgba(197, 166, 120, 0.3), transparent);
+}
+
+.compare-diff-col::after {
+    content: '';
+    position: absolute;
+    right: -3px;
+    top: 0;
+    bottom: 0;
+    width: var(--spacing-sm);
+    background: linear-gradient(to left, rgba(197, 166, 120, 0.3), transparent);
+}
+
+.compare-slot-name {
+    background-color: var(--bg-header);
+    color: var(--gold);
+    font-weight: bold;
+    width: var(--compare-slot-min);
+}
+
+.compare-divider-row td {
+    border-top: var(--border-width-heavy) var(--border-style) var(--gold);
+    height: var(--height-divider);
+    background: transparent;
+}
+
+/* 비교 테이블 색상 적용 */
+.compare-table .rare-에픽 { color: var(--txt-epic) !important; font-weight: bold; }
+.compare-table .rare-유니크 { color: var(--txt-unique) !important; font-weight: bold; }
+.compare-table .rare-레어 { color: var(--txt-rare) !important; font-weight: bold; }
+.compare-table .rare-언커먼 { color: var(--txt-uncom) !important; font-weight: bold; }
+.compare-table .rare-커먼 { color: var(--txt-common) !important; font-weight: bold; }
+.compare-table .rare-티어 { color: var(--color-white) !important; font-weight: bold; }
+.compare-table .ex-이상 { color: var(--ex-isang) !important; font-weight: bold; }
+.compare-table .ex-선봉 { color: var(--ex-sunbong) !important; font-weight: bold; }
+.compare-table .ex-의지 { color: var(--ex-uiji) !important; font-weight: bold; }
+.compare-table .prefix-selected { color: var(--txt-epic) !important; font-weight: bold; }
+.compare-table .prefix-tier { color: var(--color-white) !important; font-weight: bold; }
+.compare-table .p-blue { color: var(--prefix-blue) !important; }
+.compare-table .p-red { color: var(--prefix-red) !important; }
+.compare-table .p-green { color: var(--prefix-green) !important; }
+.compare-table .p-yellow { color: var(--prefix-yellow) !important; }
+
+/* ========================================
+   모달 버튼 그룹
+======================================== */
+.modal-button-group {
+    margin-top: var(--padding-modal);
+    display: flex;
+    gap: var(--spacing-xl);
+    justify-content: center;
+    padding-bottom: var(--spacing-md);
+}
+
+.modal-flex-row {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.modal-flex-col {
+    flex: 1;
+}
+
+.modal-flex-col-wide {
+    flex: 1.2;
+}
+
+.modal-title {
+    color: var(--gold);
+    margin-top: 0;
+}
+
+/* ========================================
+   유틸리티 클래스 (Utility Classes)
+======================================== */
+
+/* 배경 색상 */
+.bg-dark { background: var(--bg-dark) !important; }
+.bg-section { background: var(--bg-section) !important; }
+.bg-row { background: var(--bg-row) !important; }
+.bg-header { background: var(--bg-header) !important; }
+
+/* 텍스트 색상 */
+.text-white { color: var(--color-white) !important; }
+.text-gold { color: var(--gold) !important; }
+.text-gray { color: var(--color-gray-lighter) !important; }
+.text-dark-gray { color: var(--color-gray-light) !important; }
+.text-center { text-align: center; }
+
+/* 테두리 */
+.border-gold { border: var(--border-width) var(--border-style) var(--gold) !important; }
+.border-gold-2 { border: var(--border-width-heavy) var(--border-style) var(--gold) !important; }
+.border-gray { border: var(--border-width) var(--border-style) var(--border) !important; }
+
+/* 패딩 */
+.p-xs { padding: var(--padding-xs) !important; }
+.p-sm { padding: var(--padding-sm) !important; }
+.p-md { padding: var(--padding-md) !important; }
+.p-lg { padding: var(--padding-lg) !important; }
+
+/* 간격 */
+.gap-xs { gap: var(--spacing-xs) !important; }
+.gap-sm { gap: var(--spacing-sm) !important; }
+.gap-md { gap: var(--spacing-md) !important; }
+.gap-lg { gap: var(--spacing-lg) !important; }
+
+/* 폰트 크기 */
+.fs-xs { font-size: var(--fs-xs) !important; }
+.fs-sm { font-size: var(--fs-sm) !important; }
+.fs-md { font-size: var(--fs-md) !important; }
+
+/* 그림자 */
+.shadow-highlight { box-shadow: var(--shadow-highlight); }
+
+/* 불투명도 */
+.opacity-disabled { opacity: var(--opacity-disabled); }
+
+/* 커서 */
+.cursor-pointer { cursor: pointer; }
+.cursor-default { cursor: default; }
+.cursor-text { cursor: text; }
+.cursor-not-allowed { cursor: not-allowed; }
+
+/* 텍스트 스타일 */
+.font-bold { font-weight: bold; }
+.text-left { text-align: left; }
+
+/* Display */
+.d-none { display: none; }
+.d-block { display: block; }
+.d-flex { display: flex; }
+.d-inline-block { display: inline-block; }
+
+/* Flex */
+.flex-1 { flex: 1; }
+.flex-column { flex-direction: column; }
+.align-center { align-items: center; }
+.justify-center { justify-content: center; }
+
+/* 메모 */
+.memo-popup {
+    width: 400px;  /* ← 이 값 변경 */
+}
+
+.memo-popup textarea {
+    height: 150px;  /* ← 이 값 변경 */
+}
+
+/* 메모 버튼 스타일 */
+.memo-edit-button {
+    width: 100%;
+    text-align: left;
+    padding: 6px 10px;
+    background: rgba(255, 215, 0, 0.1);
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    color: #aaa;
+    font-size: 12px;
+    font-style: italic;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.memo-edit-button:hover {
+    background: rgba(255, 215, 0, 0.2);
+    border-color: var(--gold);
+    transform: translateY(-1px);
+}
+
+.memo-edit-button:active {
+    transform: translateY(0);
+}
+
+.memo-edit-button.has-memo {
+    color: #fff;
+    font-style: normal;
+}
+
+.tag-remove {
+    cursor: pointer;
+}
+
+/* ========================================
+   eq_main.css - project2 전용 스타일
+======================================== */
+
+/* ========================================
+1. 기본 스타일 (Body, 헤딩)
+======================================== */
+body {
+    font-family: sans-serif;
+    background: #0f1222;
+    color: #e6e9ff;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+h2 {
+    margin: 24px 0 8px;
+}
+
+/* ========================================
+   2. 공통 버튼 스타일
+   ======================================== */
+.action-btn, .file-label {
+    min-width: 140px;
+    text-align: center;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.action-btn {
+    background: linear-gradient(135deg, #25c2a0, #1a8c7d);
+    border: none;
+    color: #fff;
+}
+
+.action-btn:hover {
+    background: linear-gradient(135deg, #1a8c7d, #25c2a0);
+}
+
+.file-label {
+    background: #4a3f7a;
+    color: #fff;
+    border: none;
+}
+
+.file-label:hover {
+    background: #5a4f8a;
+}
+
+.file-label input {
+    display: none;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #ffd700, #e6b800);
+    border: none;
+    color: #000;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.add-btn:hover {
+    background: linear-gradient(135deg, #e6b800, #ffd700);
+}
+
+/* ========================================
+   3. 툴바 영역
+   ======================================== */
+.toolbar {
+    margin: 15px 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* ========================================
+   4. 폼 (입력창)
+   ======================================== */
+.form-box {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.form-box input {
+    width: 20ch;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #2a3158;
+    background: #181c33;
+    color: #e6e9ff;
+}
+
+/* ========================================
+   5. 캐릭터 관련 스타일
+   ======================================== */
+/* 5-1. 캐릭터 래퍼 (드래그 앤 드롭) */
+.character-wrapper {
+    display: inline-flex;
+    align-items: center;
+    margin: 5px;
+    cursor: move;
+    transition: all 0.2s ease;
+}
+
+.character-wrapper.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.character-wrapper.drag-over {
+    border-left: 3px solid #ffd700;
+    padding-left: 5px;
+}
+
+/* 5-2. 드래그 핸들 */
+.drag-handle {
+    cursor: grab;
+    padding: 4px 8px;
+    color: #888;
+    font-size: 18px;
+    user-select: none;
+}
+
+.drag-handle:hover {
+    color: #ffd700;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+/* 5-3. 캐릭터 버튼 */
+.char-btn {
+    margin: 5px;
+    padding: 10px 16px;
+    background: #2a3158;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.char-btn:hover {
+    background: #3a4270;
+}
+
+.char-btn.active {
+    border-color: #ffd700 !important;
+    color: #ffd700 !important;
+    background: rgba(255, 215, 0, 0.1) !important;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    font-weight: bold;
+}
+
+/* 5-4. 설정 버튼 */
+.settings-btn {
+    background: #4a3f7a;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 8px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 5px;
+    transition: background 0.2s;
+}
+
+.settings-btn:hover {
+    background: #6254a8;
+}
+
+/* 5-5. 삭제 버튼 */
+.delete-btn {
+    padding: 4px 8px;
+    background: linear-gradient(135deg, #8c1a1a, #b22222);
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.delete-btn:hover {
+    background: linear-gradient(135deg, #b22222, #8c1a1a);
+    transform: scale(1.05);
+}
+
+/* ========================================
+   6. 세트 버튼 (장비 세트)
+   ======================================== */
+.set-btn {
+    margin: 5px;
+    padding: 8px 14px;
+    min-width: 180px;
+    background: #181c33;
+    border: 3px solid transparent;
+    border-radius: 6px;
+    color: #e6e9ff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.set-btn:hover {
+    background: #2a3158;
+    border-color: #3a4270;
+}
+
+.set-btn.selected {
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+}
+
+.set-btn.set3 {
+    background-color: #25c2a0;
+    color: #fff;
+}
+
+.set-btn.set5 {
+    background-color: #ffd700;
+    color: #000;
+}
+
+/* 세트 버튼 내 숫자 색상 */
+.set-btn .count-3 {
+    color: #000000;
+    font-weight: bold;
+}
+
+.set-btn .count-5 {
+    color: #ff4d4f;
+    font-weight: bold;
+}
+
+/* ========================================
+   7. 테이블 (장비 목록)
+   ======================================== */
+table {
+    border-collapse: collapse;
+    margin-top: 6px;
+    table-layout: fixed;
+}
+
+th, td {
+    border: 1px solid #2a3158;
+    padding: 6px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+th {
+    background: #181c33;
+}
+
+tr.set3 {
+    background-color: rgba(37, 194, 160, 0.35);
+}
+
+tr.set5 {
+    background-color: rgba(255, 215, 0, 0.45);
+}
+
+/* ========================================
+   8. 숫자 버튼 (장비 개수)
+   ======================================== */
+.num-btn {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #2a3158;
+    background: #181c33;
+    color: #e6e9ff;
+    cursor: pointer;
+}
+
+.num-btn.positive {
+    background: linear-gradient(135deg, #3399cc, #2a6f9e);
+    color: #fff;
+    font-weight: bold;
+    border: 1px solid #3399cc;
+}
+
+/* ========================================
+   9. 태그 색상 (익시드, 접두어)
+   ======================================== */
+.exceed-tag {
+    color: #25c2a0;
+    font-weight: bold;
+}
+
+.prefix-tag {
+    color: #e6b800;
+    font-weight: bold;
+}
+
+/* ========================================
+   10. 모달 (팝업창)
+   ======================================== */
+
+.modal-content {
+    background: #181c33;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    min-width: 300px;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    color: #ffd700;
+}
+
+.modal-options {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+/* 모달 버튼 공통 */
+.modal-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+/* 모달 버튼 종류별 */
+.modal-delete-btn {
+    background: #b22222;
+    color: #fff;
+}
+
+.modal-delete-btn:hover {
+    background: #8c1a1a;
+}
+
+.modal-reset-btn {
+    background: #3399cc;
+    color: #fff;
+}
+
+.modal-reset-btn:hover {
+    background: #2a6f9e;
+}
+
+.modal-cancel-btn {
+    background: #4a3f7a;
+    color: #fff;
+}
+
+.modal-cancel-btn:hover {
+    background: #5a4f8a;
+}
+
+.modal-edit-btn {
+    background: #25c2a0 !important;
+    color: white;
+}
+
+/* ========================================
+   11. 페이지네이션
+   ======================================== */
+.pagination {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 25px 0;
+    flex-wrap: wrap;
+}
+
+.pagination button {
+    padding: 10px 15px;
+    border: 1px solid #2a3158;
+    background: #181c33;
+    color: #e6e9ff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+    min-width: 40px;
+}
+
+.pagination button:hover {
+    background: #2a3158;
+    border-color: #3a4270;
+}
+
+.pagination button.active {
+    background: #4a33cc;
+    border-color: #ffd700;
+    color: #ffd700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+    font-weight: bold;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   12. 제작 시스템
+   ======================================== */
+.craft-input {
+    background: #1b1e33;
+    color: #e0e0e0;
+    border: 1px solid #444a7a;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.craft-input:focus {
+    outline: none;
+    border-color: #6b5cff;
+    background: #20244a;
+}
+
+/* 숫자 입력 증감 버튼 제거 */
+.craft-input::-webkit-inner-spin-button,
+.craft-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.craft-lock-btn {
+    background: #2a3158;
+    color: #fff;
+    border: 2px solid transparent;
+    padding: 4px 10px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.craft-lock-btn.active {
+    border: 2px solid #ffffff;
+}

@@ -6,13 +6,15 @@ function switchTo(view) {
         'char': document.getElementById("section-character-view"),
         'weapon': document.getElementById("section-weapon-view"),
         'equipment': document.getElementById("section-equipment-view"),
-        'craft': document.getElementById("section-craft-view")
+        'craft': document.getElementById("section-craft-view"),
+        'detail': document.getElementById("section-detail-view")
     };
     const buttons = {
         'char': document.getElementById("tab-char"),
         'weapon': document.getElementById("tab-weapon"),
         'equipment': document.getElementById("tab-equipment"),
-        'craft': document.getElementById("tab-craft")
+        'craft': document.getElementById("tab-craft"),
+        'detail': document.getElementById("tab-detail")
     };
 
     // 모든 섹션 숨기고 버튼 스타일 초기화
@@ -46,6 +48,10 @@ function switchTo(view) {
         if (firstBtn) firstBtn.classList.add("active");
     }
     if (view === 'craft') renderCraftTable();
+    if (view === 'detail') {
+        // project1 초기화 - 저장 데이터 복원
+        if (typeof restoreSavedData === 'function') restoreSavedData();
+    }
 
     window.scrollTo(0, 0);
 }
@@ -77,52 +83,7 @@ function exportJSON() {
     URL.revokeObjectURL(url);
 }
 
-async function saveJsonWithLocation() {
-    const dataStr = localStorage.getItem('dnfm_eq');
-    if (!dataStr) {
-        alert("저장할 데이터가 없습니다.");
-        return;
-    }
-
-    // 파일 기본 이름 설정 (오늘 날짜 포함)
-    const defaultName = "dnfm_eq_JSON_backup_" + new Date().toISOString().slice(0, 10) + ".json";
-
-    // 1. 최신 브라우저용 (File System Access API) - 직접 폴더/이름 지정 가능
-    if ('showSaveFilePicker' in window) {
-        try {
-            const handle = await window.showSaveFilePicker({
-                suggestedName: defaultName,
-                types: [{
-                    description: 'JSON Files',
-                    accept: {'application/json': ['.json']},
-                }],
-            });
-
-            const writable = await handle.createWritable();
-            await writable.write(dataStr);
-            await writable.close();
-
-            alert("지정된 위치에 저장되었습니다.");
-        } catch (err) {
-            // 사용자가 취소를 누른 경우 외의 에러 처리
-            if (err.name !== 'AbortError') {
-                console.error(err);
-                alert("파일 저장 중 오류가 발생했습니다.");
-            }
-        }
-    }
-    // 2. 구형 브라우저/모바일용 (대체 수단)
-    else {
-        alert("현재 브라우저가 저장 위치 지정을 직접 지원하지 않아 기본 다운로드 방식으로 진행합니다.");
-        const blob = new Blob([dataStr], {type: "application/json"});
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = defaultName;
-        link.click();
-        URL.revokeObjectURL(url);
-    }
-}
+// saveJsonWithLocation() → storage.js의 통합 버전 사용
 
 function importJSON(event) {
     const file = event.target.files[0];

@@ -3,12 +3,18 @@
 // ============================================
 
 /**
- * 페이지 로드 시 초기화
+ * project1 데이터 복원 함수
+ * - 단독 실행: window.onload 에서 호출
+ * - 통합 환경: switchTo('detail') 에서 호출 (탭 진입 시)
  */
-window.onload = () => {
-    console.log("페이지 로딩 완료: 데이터 복구를 시작합니다.");
+let _p1Initialized = false;
 
-    // AppState 초기화
+function restoreSavedData() {
+    if (_p1Initialized) return; // 이미 초기화됐으면 중복 실행 방지
+    _p1Initialized = true;
+
+    console.log("project1 초기화: 데이터 복구를 시작합니다.");
+
     AppState.init();
 
     const storageData = localStorage.getItem(AppConstants.STORAGE_KEY);
@@ -33,7 +39,21 @@ window.onload = () => {
     }
 
     AppState.updateSnapshot();
-};
+}
+
+/**
+ * 페이지 로드 시 초기화
+ * - 통합 환경: section-detail-view 가 존재하면 탭 진입 시 초기화로 위임
+ * - 단독 실행(index.html): 즉시 초기화
+ */
+window.addEventListener('load', () => {
+    const isIntegrated = !!document.getElementById('section-detail-view');
+    if (!isIntegrated) {
+        // 단독 실행 환경 (기존 index.html)
+        restoreSavedData();
+    }
+    // 통합 환경에서는 switchTo('detail') 호출 시 restoreSavedData() 실행
+});
 
 /**
  * 키보드 탭 이동 처리
