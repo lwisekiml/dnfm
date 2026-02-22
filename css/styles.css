@@ -1808,14 +1808,22 @@ select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
 
 .compare-center-table td {
     text-align: center;
-    background-color: var(--bg-highlight) !important;
-    color: var(--highlight-yellow) !important;
     font-weight: bold;
 }
 
-.compare-center-table td.same   { color: var(--color-gray-lighter) !important; }
-.compare-center-table td.positive { color: #69db7c !important; }
-.compare-center-table td.negative { color: #ff6b6b !important; }
+.compare-center-table td.same {
+    background-color: var(--bg-compare-diff) !important;
+    color: var(--color-gray-lighter) !important;
+    font-weight: normal;
+}
+.compare-center-table td.positive {
+    background-color: var(--highlight-green-dark) !important;
+    color: var(--highlight-green) !important;
+}
+.compare-center-table td.negative {
+    background-color: var(--highlight-red-dark) !important;
+    color: var(--highlight-red) !important;
+}
 
 .compare-section-wrapper {
     margin-bottom: var(--spacing-3xl);

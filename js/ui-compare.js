@@ -44,6 +44,7 @@ const CompareUtils = {
         if (!diffValue || diffValue === '-' || diffValue === '') return 'same';
         if (diffValue.includes('+') || diffValue.includes('⬆')) return 'positive';
         if (diffValue.includes('-') || diffValue.includes('⬇')) return 'negative';
+        if (diffValue.includes('다름')) return 'negative';
         return 'same';
     }
 };
@@ -353,6 +354,9 @@ function buildEnchantCompare(section1, section2, name1, name2) {
         leftRows, centerRows, rightRows
     );
 }
+
+// 기존 CompareTable은 호환성을 위해 빈 객체로 유지
+const CompareTable = {};
 
 // ============================================
 // 메인 함수들
