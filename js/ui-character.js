@@ -402,6 +402,14 @@ function toggleEdit(charId, isLock) {
         }
     });
 
+    // 🎯 일괄 적용 버튼(접두어/아이템이름/강화) 잠금 처리
+    const applyBtns = section.querySelectorAll('.set-apply-btn');
+    applyBtns.forEach(btn => {
+        btn.disabled = isLock;
+        btn.style.opacity = isLock ? "0.3" : "";
+        btn.style.pointerEvents = isLock ? "none" : "auto";
+    });
+
     if (isLock) {
         lockBtn?.classList.add('btn-active');
         unlockBtn?.classList.remove('btn-active');
