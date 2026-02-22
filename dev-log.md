@@ -264,3 +264,35 @@ function buildEnchantCompare(...) { ... }
 - `table-layout: fixed` + `width: 100%` 조합에서 px 고정도 효과 없음
 - HTML 테이블 구조 한계 → Flex 3열 레이아웃으로 근본 해결
 - `requestAnimationFrame`으로 DOM 렌더링 후 행 높이 동기화하여 좌/중/우 행 높이 일치
+
+---
+
+## 13. 전체 코드 품질 개선 (ui-core.js, ui-character.js, ui-compare.js, storage.js, main.js)
+
+### 수정 내용
+
+**ui-core.js**
+- `console.log("✅ ui-core.js 로드 완료")` 위치를 파일 중간(535번)에서 파일 맨 끝으로 이동
+  - 중간에 있으면 아래 함수들이 존재하는지 파악이 어려움
+- 함수 순서 재정렬: 호출하는 함수와 호출받는 함수를 쌍으로 붙임
+  - 기존: `openPrefixMenuFromHeader` → `openReinforceMenuFromHeader` → `applyReinforceToSlots` → `applyPrefixToSlots`
+  - 변경: `openPrefixMenuFromHeader` → `applyPrefixToSlots` → `openReinforceMenuFromHeader` → `applyReinforceToSlots`
+- `applyPrefixToSlots` 함수 주석 누락 → 추가
+- 접두어/강화 메뉴 섹션 구분선(`// ====`) 추가
+- `checkSetColor` 주석의 `⭐` 제거
+
+**ui-character.js**
+- 개발 임시 주석 정리: `⭐ 태그 데이터 초기화 추가`, `⭐ 태그 복원 추가`, `⭐ 메모 미리보기 업데이트 추가`, `✅ 수정됨!` 등 → 일반 주석으로 변경
+- `delete AppState.charTags[charId]` 뒤 `// ⭐ 추가` 제거
+
+**ui-compare.js**
+- `CompareTable = {}` 빈 객체 제거
+  - 3열 레이아웃으로 전면 재작성 후 실제로 사용되지 않는 코드였음
+
+**storage.js**
+- `// ⭐ 추가` 주석 2곳 제거
+
+**main.js**
+- `typeof AppState !== 'undefined'` 방어 코드 전부 제거
+  - `AppState`는 `state.js`에서 항상 전역으로 선언되며, `index.html`에서 `state.js`가 먼저 로드되므로 `main.js` 실행 시점에 항상 존재
+  - 없을 수 없는 변수를 매번 `typeof`로 체크하면 코드가 길어지고 혼란을 줌
