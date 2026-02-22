@@ -108,7 +108,7 @@
     /* 4가지 독립 관리 */
     --fs-button: 14px;      /* 버튼 전용 */
     --fs-table: 14px;       /* 기본 테이블 전용 */
-    --fs-compare: 12px;     /* 비교 모드 전용 */
+    --fs-compare: 14px;     /* 비교 모드 전용 */
     --fs-search: 14px;      /* 검색 결과 전용 (JavaScript에서 사용) */
 
     /* 기타 */
