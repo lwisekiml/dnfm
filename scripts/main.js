@@ -159,7 +159,7 @@ function importJSON(event) {
             // 3. 로컬 저장
             saveLocalData();
 
-            // 4. ✅ 각 섹션 DOM 요소 미리 가져오기
+            // 4. 각 섹션 DOM 요소 미리 가져오기
             const charView = document.getElementById("section-character-view");
             const weaponView = document.getElementById("section-weapon-view");
             const equipmentView = document.getElementById("section-equipment-view");
@@ -175,9 +175,9 @@ function importJSON(event) {
                 selectWeaponJob(activeWeaponJob || '귀검사', true);
             }
 
-            // 7. ✅ 장비 관리 탭이 열려있으면 갱신
+            // 7. 장비 관리 탭이 열려있으면 갱신
             if (equipmentView.style.display !== "none") {
-                // ✅ 캐릭터별 장비 보유 현황이 열려있으면 갱신
+                // 캐릭터별 장비 보유 현황이 열려있으면 갱신
                 if (isCharacterEquipmentViewOpen && selectedCharacterForEquipment) {
                     const char = characters.find(c => c.id === selectedCharacterForEquipment);
                     if (char) {

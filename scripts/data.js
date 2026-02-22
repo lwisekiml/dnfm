@@ -1,4 +1,3 @@
-
 /* ========================================
 [섹션 1] 전역 변수 & 상수 선언
 ======================================== */
@@ -16,10 +15,10 @@ let currentSetName = null;
 let currentChar = null;
 let currentFilter = 'ALL'; // 💡 현재 선택된 필터 ('ALL', 'BASE', 'PREFIX', 'EXCEED')
 
-// 💡 무기 테이블 행 강조 함수
+// 무기 테이블 행 강조 함수
 let highlightedRowId = null;
 
-// 💡 강조 상태를 관리하기 위한 전역 변수 (기존 Set에서 단일 변수로 변경)
+// 강조 상태를 관리하기 위한 전역 변수 (기존 Set에서 단일 변수로 변경)
 let highlightedColumnIndex = null;
 
 let craftLocked = true;
@@ -28,8 +27,12 @@ let craftLocked = true;
 // 구조: { "charId|setName": distinctParts }
 let distinctPartsCache = {};
 
-// ✅ 추가: 캐릭터 순서 편집 모드
+// 추가: 캐릭터 순서 편집 모드
 let isEditingCharacterOrder = false;
+
+// 전역 최대 길이 (calculateGlobalWidths에서 계산됨)
+let globalSetNameWidth = 200;
+let globalSlotWidth = 100;
 
 /* ========================================
 [섹션 2] 데이터 정의
@@ -315,7 +318,7 @@ const SPECIAL_EXTRA_INFO = {
     "부정한 빛의 우상": "콰트로"
 };
 
-// ✅ 새로 추가: 특수장비 표시용 이름 매핑
+// 새로 추가: 특수장비 표시용 이름 매핑
 const SPECIAL_DISPLAY_NAMES = {
     "개구쟁이 호문쿨루스": {
         "귀걸이": ["말괄량이의 문양 귀걸이", "베키의 문양 귀걸이"],
@@ -440,7 +443,3 @@ let characters = [
         }
     }
 ];
-
-// 전역 최대 길이
-let globalSetNameWidth = 200;
-let globalSlotWidth = 100;

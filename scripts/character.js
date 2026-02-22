@@ -65,7 +65,7 @@ function renderCharacterList() {
         wrapper.appendChild(btn);
         wrapper.appendChild(settingsBtn);
 
-        // // ✅ 편집 모드일 때만 ⬆️⬇️ 버튼 표시
+        // // 편집 모드일 때만 ⬆️⬇️ 버튼 표시
         // if (isEditingCharacterOrder) {
         //     // ⬆️ 위로 버튼
         //     const upBtn = document.createElement("button");
@@ -101,7 +101,7 @@ function renderCharacterList() {
         //     wrapper.appendChild(downBtn);
         // }
 
-        // ✅ 편집 모드일 때만 ⬅️➡️ 버튼 표시
+        // 편집 모드일 때만 ⬅️➡️ 버튼 표시
         if (isEditingCharacterOrder) {
             // ⬅️ 왼쪽(위로) 버튼
             const leftBtn = document.createElement("button");
@@ -180,13 +180,12 @@ function deleteCharacterConfirmed() {
             // 1. 전역 배열에서 해당 캐릭터 제외 (필터링)
             characters = characters.filter(c => String(c.id) !== String(currentActionCharId));
 
-            // 2. 💡 수정 포인트: saveData 대신 실제 존재하는 saveLocalData 호출
+            // 2. 수정 포인트: saveData 대신 실제 존재하는 saveLocalData 호출
             saveLocalData();
 
             // 3. 화면 UI 갱신 (리스트 다시 그리기)
             renderCharacterList();
 
-            // 4. 삭제한 캐릭터가 현재 선택된 캐릭터였다면 상세 화면도 비우기
             if (activeCharacterId === currentActionCharId) {
                 const setListEl = document.getElementById("setList");
                 const panelEl = document.getElementById("panel");
@@ -195,7 +194,6 @@ function deleteCharacterConfirmed() {
                 activeCharacterId = null;
             }
 
-            // 5. 마무리
             closeActionModal();
             alert("삭제되었습니다.");
         }
@@ -214,18 +212,16 @@ function resetCharacterStatsConfirmed() {
         "수치 초기화",
         "이 캐릭터의 모든 장비 보유 현황 및 업데이트 기록을 초기화하시겠습니까?",
         function () {
-            // 1. 캐릭터 데이터 찾기
             const char = characters.find(c => String(c.id) === String(targetId));
 
             if (char) {
-                // 2. 💡 핵심: 사용자님의 데이터 필드명(armorCounts, updateTimes)을 초기화합니다.
+                // 2. 핵심: 사용자님의 데이터 필드명(armorCounts, updateTimes)을 초기화합니다.
                 char.armorCounts = {};
                 char.updateTimes = {};
 
                 // 무기 정보가 있다면 함께 초기화
                 if (char.weaponCounts) char.weaponCounts = {};
 
-                // 3. 로컬 스토리지에 즉시 저장
                 saveLocalData();
 
                 // 4. 화면 UI 갱신
@@ -257,10 +253,10 @@ function saveCurrentOrder() {
     });
 
     saveLocalData();                                     // 로컬 스토리지에 저장
-    alert('✅ 현재 순서가 등록되었습니다!');
+    alert('현재 순서가 등록되었습니다!');
 }
 
-// 💡 등록 순서로 복원
+// 등록 순서로 복원
 function resetToOriginalOrder() {
     if (characters.length === 0) {
         alert('캐릭터가 없습니다.');
@@ -290,7 +286,7 @@ function resetToOriginalOrder() {
     alert('🔄 등록했던 순서로 복원되었습니다!');
 }
 
-// 💡 이름순 정렬
+// 이름순 정렬
 function sortCharactersByName() {
     if (characters.length === 0) return;
     characters.sort((a, b) => a.name.localeCompare(b.name, 'ko-KR')); // 한글 가나다순
@@ -300,7 +296,7 @@ function sortCharactersByName() {
     alert('이름순으로 정렬되었습니다.');
 }
 
-// 💡 직업순 정렬
+// 직업순 정렬
 function sortCharactersByJob() {
     if (characters.length === 0) return;
 
@@ -357,7 +353,7 @@ function toggleEditMode() {
 
     if (isEditingCharacterOrder) {
         // 편집 모드 활성화
-        editBtn.textContent = "✅ 변경완료";
+        editBtn.textContent = "변경완료";
         editBtn.style.background = "linear-gradient(135deg, #25c2a0, #1a8c7d)";
     } else {
         // 편집 모드 비활성화

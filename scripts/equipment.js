@@ -108,7 +108,6 @@ function openConfirmModal(title, message, onConfirm) {
     titleEl.textContent = title;
     messageEl.textContent = message;
 
-    // 💡 핵심 수정: onclick에 함수를 직접 할당합니다.
     confirmBtn.onclick = function () {
         if (typeof onConfirm === "function") {
             onConfirm(); // 여기서 전달받은 함수를 실행합니다.
@@ -151,7 +150,6 @@ function showSetButtons(char, isRefresh = false) {
     setList.innerHTML = "";
 
     // ----------------------------------------------------
-    // 1. 각 카테고리별 아이템 총 개수 계산
     // ----------------------------------------------------
     let totalArmor = 0;
     let totalAccessory = 0;
@@ -173,7 +171,6 @@ function showSetButtons(char, isRefresh = false) {
     });
 
     // ----------------------------------------------------
-    // 2. 제목에 총 개수를 포함하여 표시
     // ----------------------------------------------------
 
     // 방어구
@@ -203,7 +200,6 @@ function showSetButtons(char, isRefresh = false) {
     document.getElementById("panel").innerHTML = "";
 }
 
-// ===== 세트 버튼 생성 =====
 function makeSetButton(setName, char) {
     let count3 = 0, count5 = 0;
     let totalParts = 0; // x 값 (총 개수) 초기화
@@ -217,7 +213,6 @@ function makeSetButton(setName, char) {
 
     const allGroupKeys = [];
 
-    // 레거시 세트는 일반 행 없음
     if (!LEGACY_PREFIX_SETS.includes(setName)) {
         allGroupKeys.push(setName);
     }
@@ -238,7 +233,6 @@ function makeSetButton(setName, char) {
             totalParts += char.armorCounts[key] || 0;
         });
     });
-    // 총합 계산 끝
 
     const fullSize = slots.length;
 
@@ -265,10 +259,10 @@ function makeSetButton(setName, char) {
         btn.classList.add("selected");
     }
 
-    // 🚨 수정된 부분: "세트명 (장비수)" 형태로 내용 구성
+    // 수정된 부분: "세트명 (장비수)" 형태로 내용 구성
     let buttonContent = `${setName} (${totalParts})`;
 
-    // ✅ 추가: 악세/특장 추가 정보 표시
+    // 추가: 악세/특장 추가 정보 표시
     if (setType === "ACCESSORY" && ACCESSORY_EXTRA_INFO[setName]) {
         buttonContent += `<br>(${ACCESSORY_EXTRA_INFO[setName]})</span>`;
     } else if (setType === "SPECIAL" && SPECIAL_EXTRA_INFO[setName]) {
@@ -289,7 +283,6 @@ function makeSetButton(setName, char) {
     return btn;
 }
 
-// ===== 세트 표 열기 =====
 function openSet(setName, char) {
     if (currentSetName !== setName || currentChar?.id !== char.id) {
         currentFilter = 'ALL';
@@ -298,7 +291,7 @@ function openSet(setName, char) {
     currentSetName = setName;
     currentChar = char;
 
-    // ✅ 세트 열 때 해당 캐릭터의 캐시 미리 계산
+    // 세트 열 때 해당 캐릭터의 캐시 미리 계산
     getCachedDistinctParts(char, setName);
 
     const panel = document.getElementById("panel");
@@ -709,7 +702,6 @@ function makeRow(name, setName, char) {
 }
 
 // 7-3. 장비 증감
-// ===== 숫자 버튼 (우클릭 감소 기능 포함) =====
 function makeNumberButton(charId, key, val) {
     const extraClass = val > 0 ? " positive" : "";
     return `<button class="num-btn${extraClass}"
@@ -721,20 +713,20 @@ function makeNumberButton(charId, key, val) {
 // 9.4 UI 업데이트 (Step 1 최적화)
 // ─────────────────────────────────────────
 function updateEquipmentButton(charId, key, newValue) {
-    // ✅ 1단계: 테이블에서 모든 버튼 검색
+    // 1단계: 테이블에서 모든 버튼 검색
     const tables = document.querySelectorAll("#panel table");
     if (!tables || tables.length === 0) return;
 
     let buttonFound = false;
 
-    // ✅ 2단계: 모든 테이블 순회 (익시드는 별도 테이블)
+    // 2단계: 모든 테이블 순회 (익시드는 별도 테이블)
     tables.forEach(table => {
         const buttons = table.querySelectorAll('.num-btn');
         buttons.forEach(btn => {
             const onclickStr = btn.getAttribute('onclick') || '';
             const oncontextmenuStr = btn.getAttribute('oncontextmenu') || '';
 
-            // ✅ 3단계: onclick 또는 oncontextmenu에서 매치 확인
+            // 3단계: onclick 또는 oncontextmenu에서 매치 확인
             const matchInClick = onclickStr.includes(`'${charId}'`) && onclickStr.includes(`'${key}'`);
             const matchInContext = oncontextmenuStr.includes(`'${charId}'`) && oncontextmenuStr.includes(`'${key}'`);
 
@@ -758,7 +750,7 @@ function updateEquipmentButton(charId, key, newValue) {
         });
     });
 
-    // ✅ 4단계: 디버깅 (개발자 도구에서 확인용, 나중에 제거 가능)
+    // 4단계: 디버깅 (개발자 도구에서 확인용, 나중에 제거 가능)
     if (!buttonFound) {
         console.log('버튼을 찾지 못했습니다:', key);
     }
@@ -803,7 +795,7 @@ function updateRowColor(row, char, setName) {
 
     if (!rowGroupKey) return;
 
-    // ✅ 이 행이 실제로 데이터를 가지고 있는지 확인
+    // 이 행이 실제로 데이터를 가지고 있는지 확인
     let hasAnyPartInRow = false;
     const exceedSlots = EXCEED_SLOTS[setType] || [];
     const isExceedRow = rowGroupKey.startsWith('[');
@@ -818,7 +810,7 @@ function updateRowColor(row, char, setName) {
         }
     });
 
-    // ✅ 이 행에 데이터가 있으면 전체 세트 기준으로 색상 적용
+    // 이 행에 데이터가 있으면 전체 세트 기준으로 색상 적용
     if (hasAnyPartInRow) {
         if (setType === "ARMOR") {
             if (totalDistinct === fullSize) {
@@ -836,11 +828,11 @@ function updateRowColor(row, char, setName) {
 
 // 테이블의 모든 행 색상을 업데이트 (세트 효과 변경 시)
 function updateAllRowColors(char, setName) {
-    // ✅ 모든 테이블 선택 (일반/접두어 + 익시드)
+    // 모든 테이블 선택 (일반/접두어 + 익시드)
     const tables = document.querySelectorAll("#panel table");
     if (!tables || tables.length === 0) return;
 
-    // ✅ 각 테이블의 모든 행 업데이트
+    // 각 테이블의 모든 행 업데이트
     tables.forEach(table => {
         const rows = table.querySelectorAll('tbody tr');
         rows.forEach(row => {
@@ -904,7 +896,6 @@ function updateCategoryTotals(char) {
     const setList = document.getElementById("setList");
     if (!setList) return;
 
-    // 1. 방어구 총 개수
     let totalArmor = 0;
     Object.keys(ARMOR_SETS).forEach(setName => {
         const slots = ARMOR_SETS[setName];
@@ -930,7 +921,6 @@ function updateCategoryTotals(char) {
         });
     });
 
-    // 2. 악세 총 개수
     let totalAccessory = 0;
     Object.keys(ACCESSORY_SETS).forEach(setName => {
         const slots = ACCESSORY_SETS[setName];
@@ -956,7 +946,6 @@ function updateCategoryTotals(char) {
         });
     });
 
-    // 3. 특장 총 개수
     let totalSpecial = 0;
     Object.keys(SPECIAL_SETS).forEach(setName => {
         const slots = SPECIAL_SETS[setName];
@@ -980,7 +969,6 @@ function updateCategoryTotals(char) {
         });
     });
 
-    // 4. 헤더 텍스트 업데이트
     const headers = setList.querySelectorAll('h2');
     headers.forEach(header => {
         const text = header.textContent;
@@ -1006,7 +994,7 @@ function increment(charId, key) {
     char.updateTimes[key] = Date.now();
     saveLocalData();
 
-    // ✅ 캐시 무효화 (데이터 변경되었으므로)
+    // 캐시 무효화 (데이터 변경되었으므로)
     if (currentSetName) {
         invalidateDistinctCache(charId, currentSetName);
     }
@@ -1019,7 +1007,7 @@ function increment(charId, key) {
     updateCategoryTotals(char);
 }
 
-// 🚨 감소 함수 (우클릭 시 호출)
+// 감소 함수 (우클릭 시 호출)
 function decrement(charId, key) {
     const char = characters.find(c => c.id === charId);
     const cur = char.armorCounts[key] || 0;
@@ -1029,7 +1017,7 @@ function decrement(charId, key) {
     char.updateTimes[key] = Date.now();
     saveLocalData();
 
-    // ✅ 캐시 무효화
+    // 캐시 무효화
     if (currentSetName) {
         invalidateDistinctCache(charId, currentSetName);
     }
@@ -1046,12 +1034,12 @@ function decrement(charId, key) {
 // 9.5 장비 관리 탭
 // ─────────────────────────────────────────
 function renderEquipmentTab(mode) {
-    // ✅ 상태 초기화
+    // 상태 초기화
     isCharacterEquipmentViewOpen = false;
     isStatisticsViewOpen = false;
     selectedCharacterForEquipment = null;
 
-    // ✅ 모든 영역 초기화
+    // 모든 영역 초기화
     document.getElementById("character-selection-area").style.display = "none";
     document.getElementById("character-equipment-detail").style.display = "none";
     document.getElementById("equipment-display-area").style.display = "block";
@@ -1200,7 +1188,7 @@ function renderEquipmentTab(mode) {
                     let rowInfo = "";
                     const tagColor = EXCEED_COLOR_MAP[group.tag] || "#ffd700";
 
-                    // 💡 일반 모드가 아닐 때만 접두어(display) 셀을 생성
+                    // 일반 모드가 아닐 때만 접두어(display) 셀을 생성
                     if (mode === 'ALL' || mode === 'EXCEED') {
                         const tagCol = group.tag ? `<td style="padding:10px; border:1px solid #2a3158; color:${tagColor}; font-weight:bold; white-space:nowrap;">[${group.tag}]</td>` : `<td style="border:1px solid #2a3158;"></td>`;
                         rowInfo = tagCol + `<td style="padding:10px; border:1px solid #2a3158; color:#ffd700; font-weight:bold; white-space:nowrap;">${group.display}</td>`;
@@ -1208,7 +1196,7 @@ function renderEquipmentTab(mode) {
                         rowInfo = `<td style="padding:10px; border:1px solid #2a3158; color:#ffd700; font-weight:bold; white-space:nowrap;">${group.display}</td>`;
                     }
 
-                    // 💡 [모두] 버튼일 때만 캐릭터 경계선에 진한 선 적용
+                    // [모두] 버튼일 때만 캐릭터 경계선에 진한 선 적용
                     const isLastRowOfChar = (gIdx === charGroups.length - 1);
                     const borderStyle = (mode === 'ALL' && isLastRowOfChar) ? "border-bottom: 3px solid #666;" : "border-bottom: 1px solid #2a3158;";
 
@@ -1231,12 +1219,12 @@ function renderEquipmentTab(mode) {
 
 // 2. 전체 현황 렌더링 (이름 열 너비 고정 및 색상 적용)
 function renderFullEquipmentTab(mode) {
-    // ✅ 상태 초기화
+    // 상태 초기화
     isCharacterEquipmentViewOpen = false;
     isStatisticsViewOpen = false;
     selectedCharacterForEquipment = null;
 
-    // ✅ 모든 영역 초기화
+    // 모든 영역 초기화
     document.getElementById("character-selection-area").style.display = "none";
     document.getElementById("character-equipment-detail").style.display = "none";
     document.getElementById("equipment-display-area").style.display = "block";
@@ -1282,7 +1270,7 @@ function renderFullEquipmentTab(mode) {
                 slots = slots.filter(s => s === "상의" || s === "팔찌" || s === "귀걸이");
                 if (slots.length === 0) return;
 
-                // 💡 기존 로직 (접두어 있는 익시드)
+                // 기존 로직 (접두어 있는 익시드)
                 if (prefixes.length > 0) {
                     prefixes.forEach(p => {
                         const prefKey = makePrefixKey(p, baseSetName);
@@ -1312,7 +1300,7 @@ function renderFullEquipmentTab(mode) {
     <thead style="background:#181c33;"><tr>
         <th style="padding:10px; border:1px solid #2a3158; color:#fff; text-align:center; white-space:nowrap;">아이템 세트 이름</th>
         ${slots.map(s => {
-                // ✅ 표시용 이름 적용
+                // 표시용 이름 적용
                 const setType = getSetType(baseSetName);
                 const rawName = (setType === "SPECIAL" && SPECIAL_DISPLAY_NAMES[baseSetName] && SPECIAL_DISPLAY_NAMES[baseSetName][s])
                     ? SPECIAL_DISPLAY_NAMES[baseSetName][s]
@@ -1335,7 +1323,7 @@ function renderFullEquipmentTab(mode) {
             targetGroups.forEach(group => {
                 const searchKeyBase = group.tag ? `[${group.tag}] ${group.full}` : group.full;
 
-                // 💡 접두어 장비일 때만 모든 슬롯 보유 여부를 체크
+                // 접두어 장비일 때만 모든 슬롯 보유 여부를 체크
                 const isFullPrefixSet = (group.type === 'PREFIX') && slots.every(slot =>
                     characters.some(c => (c.armorCounts?.[`${searchKeyBase} ${slot}`] || 0) > 0)
                 );
@@ -1373,7 +1361,7 @@ function renderFullEquipmentTab(mode) {
                     fullHtml += `<td style="padding:8px; border:1px solid #2a3158; vertical-align:middle; text-align:center;">`;
 
                     if (mode === 'EXCEED') {
-                        // 💡 익시드: 가로줄 맞추지 않고 데이터가 있는 캐릭터만 촘촘하게 출력
+                        // 익시드: 가로줄 맞추지 않고 데이터가 있는 캐릭터만 촘촘하게 출력
                         const ownersWithItem = characters.filter(c => (c.armorCounts?.[`${searchKeyBase} ${slot}`] || 0) > 0);
                         if (ownersWithItem.length > 0) {
                             ownersWithItem.forEach(owner => {
@@ -1388,7 +1376,7 @@ function renderFullEquipmentTab(mode) {
                             fullHtml += `<span style="color:#444;">0</span>`;
                         }
                     } else {
-                        // 💡 일반/접두어: 모든 캐릭터의 자리를 만들어 가로줄 라인을 맞춤 (30px 고정)
+                        // 일반/접두어: 모든 캐릭터의 자리를 만들어 가로줄 라인을 맞춤 (30px 고정)
                         relevantOwners.forEach(owner => {
                             const count = owner.armorCounts?.[`${searchKeyBase} ${slot}`] || 0;
                             fullHtml += `<div style="height:30px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; justify-content:center; align-items:center; gap:8px; white-space:nowrap; padding: 0 10px; font-size:14px;">`;
@@ -1448,7 +1436,7 @@ function toggleCharacterEquipmentView() {
     const detailArea = document.getElementById("character-equipment-detail");
     const displayArea = document.getElementById("equipment-display-area");
 
-    // ✅ 통계 화면 닫기
+    // 통계 화면 닫기
     isStatisticsViewOpen = false;
 
     // 토글
@@ -1463,7 +1451,7 @@ function toggleCharacterEquipmentView() {
         // 캐릭터 버튼 렌더링
         renderCharacterButtons();
 
-        // ✅ 모든 장비 관리 버튼 비활성화
+        // 모든 장비 관리 버튼 비활성화
         document.querySelectorAll("#section-equipment-view .equipment-button-row .char-btn").forEach(btn => {
             btn.classList.remove('active');
         });
@@ -1476,7 +1464,7 @@ function toggleCharacterEquipmentView() {
         // 기본 화면으로 복귀
         renderEquipmentTab('ALL');
 
-        // ✅ 첫 번째 버튼(모두) 활성화
+        // 첫 번째 버튼(모두) 활성화
         const firstBtn = document.querySelector("#section-equipment-view .equipment-button-row .char-btn");
         if (firstBtn) {
             firstBtn.classList.add('active');
@@ -1541,7 +1529,7 @@ function renderCharacterEquipmentDetail(char) {
     ];
 
     CATEGORIES.forEach(category => {
-        // ✅ 카테고리별 총 개수 계산
+        // 카테고리별 총 개수 계산
         let categoryTotal = 0;
         Object.keys(category.sets).forEach(baseSetName => {
             const setSlots = category.sets[baseSetName];
@@ -1576,7 +1564,7 @@ function renderCharacterEquipmentDetail(char) {
             });
         });
 
-        // ✅ 제목에 총 개수 표시
+        // 제목에 총 개수 표시
         html += `<h2 style="color: #ffd700; margin-bottom: 15px;">🔹 ${category.title} <span style="color: #ffd700; font-weight: bold;">(${categoryTotal}개)</span></h2>`;
 
         html += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 30px;">`;
@@ -1605,7 +1593,6 @@ function renderCharacterEquipmentDetail(char) {
             // 세트별 데이터 수집
             let rows = [];
 
-            // 1. 익시드 행들
             prefixes.forEach(pref => {
                 EXCEED_TAGS.forEach(tag => {
                     let rowData = {
@@ -1627,7 +1614,6 @@ function renderCharacterEquipmentDetail(char) {
                 });
             });
 
-            // 2. 접두어 행들
             prefixes.forEach(pref => {
                 let rowData = {
                     type: 'prefix',
@@ -1721,7 +1707,7 @@ function renderCharacterEquipmentDetail(char) {
         html += `</tbody></table>`;
     });
 
-    // ✅ 무기 섹션 추가
+    // 무기 섹션 추가
     if (char.weaponCounts && Object.keys(char.weaponCounts).length > 0) {
         // 무기 총 개수 계산
         let totalWeapons = 0;
@@ -1804,7 +1790,7 @@ function renderCharacterEquipmentDetail(char) {
 
 // 장비 통계 표시 함수
 function showEquipmentStatistics() {
-    // ✅ 상태 업데이트
+    // 상태 업데이트
     isCharacterEquipmentViewOpen = false;
     isStatisticsViewOpen = true;
     selectedCharacterForEquipment = null;
@@ -1816,7 +1802,7 @@ function showEquipmentStatistics() {
     const displayArea = document.getElementById("equipment-display-area");
     displayArea.style.display = "block";
 
-    // ✅ 모든 장비 관리 버튼 비활성화
+    // 모든 장비 관리 버튼 비활성화
     document.querySelectorAll("#section-equipment-view .equipment-button-row .char-btn").forEach(btn => {
         btn.classList.remove('active');
     });
@@ -1934,7 +1920,7 @@ function searchEquipment() {
         return;
     }
 
-    // ✅ 상태 업데이트
+    // 상태 업데이트
     isCharacterEquipmentViewOpen = false;
     isStatisticsViewOpen = false;
     selectedCharacterForEquipment = null;
@@ -1946,7 +1932,7 @@ function searchEquipment() {
     const displayArea = document.getElementById("equipment-display-area");
     displayArea.style.display = "block";
 
-    // ✅ 모든 장비 관리 버튼 비활성화
+    // 모든 장비 관리 버튼 비활성화
     document.querySelectorAll("#section-equipment-view .equipment-button-row .char-btn").forEach(btn => {
         btn.classList.remove('active');
     });
@@ -2100,7 +2086,7 @@ function searchEquipment() {
     displayArea.innerHTML = html;
 }
 
-// ✅ Enter 키로도 검색 가능하도록 이벤트 리스너 추가 (초기화 섹션에 추가)
+// Enter 키로도 검색 가능하도록 이벤트 리스너 추가 (초기화 섹션에 추가)
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById("equipment-search-input");
     if (searchInput) {

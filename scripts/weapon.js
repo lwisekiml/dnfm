@@ -19,7 +19,6 @@ function selectWeaponJob(jobName, keepOpen = false) {
 
     activeWeaponJob = jobName;
 
-    // 1. 상단 직업 버튼 생성 및 실시간 합산
     container.innerHTML = "";
     JOB_LIST.forEach(j => {
         let totalCount = 0;
@@ -57,7 +56,7 @@ function selectWeaponJob(jobName, keepOpen = false) {
     html += `<table id="weaponDetailTable" style="table-layout: fixed; border-collapse: collapse; width: max-content;">`;
     html += `<thead><tr style="background: #181c33;">`;
 
-    // 💡 1. 종류 열의 너비를 120px로 고정 (가장 긴 글자인 '자동권총' 등을 고려)
+    // 1. 종류 열의 너비를 120px로 고정 (가장 긴 글자인 '자동권총' 등을 고려)
     html += `<th style="width: 120px; padding: 12px; border: 1px solid #2a3158; white-space: nowrap;">종류</th>`;
     html += `<th style="width: 300px; padding: 12px; border: 1px solid #2a3158; white-space: nowrap;">무기 이름</th>`;
 
@@ -68,7 +67,7 @@ function selectWeaponJob(jobName, keepOpen = false) {
     html += `</tr></thead><tbody>`;
 
     // ---------------------------------------------------------
-    // 💡 종류별 루프 (정중앙 정렬 및 고정 너비 적용)
+    // 종류별 루프 (정중앙 정렬 및 고정 너비 적용)
     // ---------------------------------------------------------
     const categories = Object.keys(currentData);
 
@@ -81,7 +80,7 @@ function selectWeaponJob(jobName, keepOpen = false) {
                 const rowId = `weapon-row-${categories.indexOf(category)}-${wIdx}-${pIdx}`;
                 html += `<tr id="${rowId}" onclick="toggleRowHighlight('${rowId}')">`;
 
-                // 💡 종류 셀: 가로/세로 정중앙 + 너비 고정 적용
+                // 종류 셀: 가로/세로 정중앙 + 너비 고정 적용
                 if (wIdx === 0 && pIdx === 0) {
                     html += `<td rowspan="${rowSpanCount}" style="background:#181c33; font-weight:bold; width: 120px; border: 1px solid #2a3158; text-align:center; vertical-align: middle; color: #fff; padding: 10px;">${category}</td>`;
                 }
@@ -134,7 +133,7 @@ function incrementWeapon(charId, key, jobName) {
 
     saveLocalData();
 
-    // 💡 전체 테이블 재렌더링 대신 해당 버튼만 업데이트
+    // 전체 테이블 재렌더링 대신 해당 버튼만 업데이트
     updateWeaponButton(charId, key, char.weaponCounts[key]);
 }
 
@@ -150,11 +149,11 @@ function decrementWeapon(charId, key, jobName) {
 
     saveLocalData();
 
-    // 💡 전체 테이블 재렌더링 대신 해당 버튼만 업데이트
+    // 전체 테이블 재렌더링 대신 해당 버튼만 업데이트
     updateWeaponButton(charId, key, char.weaponCounts[key]);
 }
 
-// 💡 무기 버튼만 업데이트하는 헬퍼 함수 (전체 테이블 재렌더링 방지)
+// 무기 버튼만 업데이트하는 헬퍼 함수 (전체 테이블 재렌더링 방지)
 function updateWeaponButton(charId, key, newValue) {
     // 해당 버튼을 찾아서 내용과 스타일만 업데이트
     const table = document.getElementById("weaponDetailTable");
@@ -179,7 +178,7 @@ function updateWeaponButton(charId, key, newValue) {
     updateWeaponJobTotals();
 }
 
-// 💡 직업별 총 개수만 업데이트하는 함수
+// 직업별 총 개수만 업데이트하는 함수
 function updateWeaponJobTotals() {
     const container = document.getElementById("weaponJobButtons");
     if (!container) return;
@@ -241,7 +240,7 @@ function toggleRowHighlight(rowId) {
 }
 
 function toggleColumnHighlight(colIdx) {
-    // 💡 이미 선택된 열을 다시 누르면 해제, 아니면 해당 열 번호 저장
+    // 이미 선택된 열을 다시 누르면 해제, 아니면 해당 열 번호 저장
     if (highlightedColumnIndex === colIdx) {
         highlightedColumnIndex = null;
     } else {
@@ -266,7 +265,7 @@ function applyStoredHighlights() {
             const absoluteColIdx = charIdx + 2; // 캐릭터의 고유 순번(2번부터 시작)
 
             if (cells[currentCellIdx]) {
-                // 💡 현재 순번이 저장된 단일 선택 인덱스와 일치할 때만 강조
+                // 현재 순번이 저장된 단일 선택 인덱스와 일치할 때만 강조
                 if (highlightedColumnIndex === absoluteColIdx) {
                     cells[currentCellIdx].style.backgroundColor = "rgba(255, 255, 200, 0.15)";
                 } else {
@@ -513,7 +512,7 @@ function renderPaginationButtons(currentPage) {
     paginationContainer.appendChild(searchDiv);
 }
 
-// 💡 새로 추가: 업데이트 모달 닫기 함수
+// 새로 추가: 업데이트 모달 닫기 함수
 function closeUpdateModal() {
     document.getElementById("updateModal").style.display = 'none';
 }
@@ -524,7 +523,7 @@ function closeUpdateModal() {
 function renderCraftTable() {
     const area = document.getElementById("craft-table-area");
 
-    // ✅ 현재 포커스된 input의 위치 저장
+    // 현재 포커스된 input의 위치 저장
     const focusedElement = document.activeElement;
     let focusedCharIndex = -1;
     let focusedMatIndex = -1;
@@ -556,7 +555,7 @@ function renderCraftTable() {
 
     const table = document.createElement("table");
 
-    // ✅ 헤더 1행: 재료명 + 합계
+    // 헤더 1행: 재료명 + 합계
     const headerRow1 = document.createElement("tr");
     const emptyTh = document.createElement("th");
     emptyTh.textContent = "캐릭터";
@@ -568,7 +567,7 @@ function renderCraftTable() {
         headerRow1.appendChild(th);
     });
 
-    // ✅ 합계 열 헤더
+    // 합계 열 헤더
     const totalTh = document.createElement("th");
     totalTh.textContent = "합계";
     totalTh.style.background = "#ffd700";
@@ -577,7 +576,7 @@ function renderCraftTable() {
 
     table.appendChild(headerRow1);
 
-    // ✅ 헤더 2행: 재료 이미지 + 빈 칸
+    // 헤더 2행: 재료 이미지 + 빈 칸
     const headerRow2 = document.createElement("tr");
     const emptyTh2 = document.createElement("th");
     headerRow2.appendChild(emptyTh2);
@@ -588,17 +587,17 @@ function renderCraftTable() {
         headerRow2.appendChild(th);
     });
 
-    // ✅ 합계 열 빈 칸
+    // 합계 열 빈 칸
     const emptyTotalTh = document.createElement("th");
     emptyTotalTh.style.background = "#ffd700";
     headerRow2.appendChild(emptyTotalTh);
 
     table.appendChild(headerRow2);
 
-    // ✅ 재료별 합계를 저장할 배열
+    // 재료별 합계를 저장할 배열
     const materialTotals = materials.map(() => 0);
 
-    // ✅ 데이터 행: 각 캐릭터
+    // 데이터 행: 각 캐릭터
     characters.forEach((char, charIdx) => {
         if (!char.craftMaterials) {
             char.craftMaterials = {};
@@ -641,10 +640,10 @@ function renderCraftTable() {
                 }
 
                 saveLocalData();
-                renderCraftTable(); // ✅ 합계 갱신을 위해 재렌더링
+                renderCraftTable(); // 합계 갱신을 위해 재렌더링
             });
 
-            // ✅ 포커스 복원
+            // 포커스 복원
             if (charIdx === focusedCharIndex && matIdx === focusedMatIndex) {
                 setTimeout(() => {
                     input.focus();
@@ -658,7 +657,7 @@ function renderCraftTable() {
             tr.appendChild(td);
         });
 
-        // ✅ 캐릭터별 합계 표시
+        // 캐릭터별 합계 표시
         const totalTd = document.createElement("td");
         totalTd.textContent = charTotal > 0 ? charTotal : "";
         totalTd.style.textAlign = "center";
@@ -670,7 +669,7 @@ function renderCraftTable() {
         table.appendChild(tr);
     });
 
-    // ✅ 합계 행 추가
+    // 합계 행 추가
     const totalRow = document.createElement("tr");
     totalRow.style.background = "#ffd700";
 
@@ -693,7 +692,7 @@ function renderCraftTable() {
         totalRow.appendChild(td);
     });
 
-    // ✅ 전체 합계 (오른쪽 아래)
+    // 전체 합계 (오른쪽 아래)
     const grandTotalTd = document.createElement("td");
     grandTotalTd.textContent = grandTotal > 0 ? grandTotal : "";
     grandTotalTd.style.textAlign = "center";
