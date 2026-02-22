@@ -263,3 +263,56 @@ merged.css = styles.css 전체
     ├── main.js              ← 수정 (restoreSavedData 분리, 통합 환경 분기)
     └── ...나머지 ui-*.js
 ```
+
+---
+
+## 2026-02-22 (3차)
+
+### CSS 스코프 분리: project1 스타일이 project2 화면에 영향 주는 문제 수정
+
+---
+
+### 문제
+
+`merged.css`는 `styles.css`(project1) + `eq_main.css`(project2)를 단순 합산한 구조였음.
+`styles.css`의 `h2`, `h3`, `body` 등 전역 선택자와 `--gold` CSS 변수가 전역으로 선언되어,
+[상세 입력] 탭 외의 탭(캐릭터 관리, 장비 관리 등)에도 금색 텍스트/가로선 등이 적용되는 문제 발생.
+
+- `h2 { color: var(--gold); border-bottom: ... var(--gold); }` → 캐릭터 관리 탭의 [캐릭터] 제목에 금색 적용됨
+- `--gold`, `--border-heavy` 등 CSS 변수가 `:root`(전역)에 선언되어 eq_main.css에서도 의도치 않게 참조 가능
+
+---
+
+### 해결 방법
+
+**수정된 파일: `styles/merged.css`**
+
+`styles.css` 파트의 스타일을 Python 스크립트로 자동 파싱하여 `#section-detail-view` 스코프로 한정.
+
+```
+[변경 전 구조]
+merged.css = :root { ... }          ← 전역
+           + styles.css 나머지      ← 전역 (문제)
+           + eq_main.css            ← 전역
+
+[변경 후 구조]
+merged.css = :root { ... }                        ← 전역 (CSS 변수)
+           + #section-detail-view { ... }         ← project1 스코프 한정
+           + eq_main.css                          ← 전역 (project2)
+```
+
+**처리 규칙**
+- `:root` 변수 블록 → 전역 유지 (eq_main.css에서도 필요한 변수 있을 수 있으므로)
+- `body`, `html`, `*` 선택자 → `#section-detail-view`로 대체
+- 일반 선택자 (`.control-bar`, `h2`, `table` 등) → `#section-detail-view .control-bar`, `#section-detail-view h2` 등으로 변환
+- `@media` 쿼리 내부 선택자 → 동일하게 스코프 추가
+- `@keyframes`, `@font-face` → 내부 수정 없이 그대로 유지
+- eq_main.css 전체 → 그대로 전역 유지
+
+**검증 결과**
+- styles.css 파트 내 스코프 없이 남은 전역 선택자: 0개
+- `#section-detail-view` 적용 줄 수: 361줄
+- 전역 `body` 규칙: eq_main.css 파트 1개만 존재 (정상)
+
+---
+
