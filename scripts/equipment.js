@@ -322,11 +322,11 @@ function openSet(setName, char) {
         const headerSlots1 = allSlots1.map(s => {
             let displayName;
             if (s === exceedSlot) {
-                displayName = earringName2; // 베키의 문양 귀걸이
+                displayName = earringName2;
             } else {
                 displayName = displayNames ? (displayNames[s] || s) : s;
             }
-            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px;">${displayName}</th>`;
+            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div></th>`;
         }).join("");
         table1.innerHTML = `<thead><tr>
   <th style="white-space:nowrap; padding:8px;">세트 이름</th>
@@ -419,7 +419,7 @@ function openSet(setName, char) {
             } else {
                 displayName = displayNames[s] || s;
             }
-            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px;">${displayName}</th>`;
+            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div></th>`;
         }).join("");
         accTable1.innerHTML = `<thead><tr>
   <th style="white-space:nowrap; padding:8px;">세트 이름</th>
@@ -539,7 +539,7 @@ function openSet(setName, char) {
             } else {
                 displayName = displayNames[s] || s;
             }
-            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px;">${displayName}</th>`;
+            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div></th>`;
         }).join("");
         armTable2.innerHTML = `<thead><tr>
   <th style="white-space:nowrap; padding:8px;">세트 이름</th>
