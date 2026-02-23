@@ -15,12 +15,23 @@ function addCharacter() {
     }
 
     const newChar = {
-        id: "c" + Date.now(),
+        id: "char_" + Date.now() + Math.random().toString(16).slice(2),
         job: job,
         name: name,
         armorCounts: {},
         updateTimes: {},
-        craftMaterials: {}
+        craftMaterials: {},
+        // 통합 구조: project1 필드 초기화
+        locked: false,
+        inputs: {
+            'info_job': { val: job, cls: '' },
+            'info_name': { val: name, cls: '' }
+        },
+        runeData: {
+            runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })),
+            gakin: ['', '']
+        },
+        tags: []
     };
 
     characters.push(newChar);
@@ -164,9 +175,23 @@ function updateCharacterInfo(charId) {
         char.name = newName;
         char.job = newJob;
 
+        // 통합 구조: inputs 필드도 동기화
+        if (!char.inputs) char.inputs = {};
+        char.inputs['info_job'] = { val: newJob, cls: '' };
+        char.inputs['info_name'] = { val: newName, cls: '' };
+
+        // project1 DOM 동기화 (상세 입력 탭에 해당 캐릭터 테이블이 렌더링된 경우)
+        const section = document.getElementById(charId);
+        if (section) {
+            const jobEl = section.querySelector('[data-key="info_job"]');
+            const nameEl = section.querySelector('[data-key="info_name"]');
+            if (jobEl) jobEl.value = newJob;
+            if (nameEl) nameEl.value = newName;
+        }
+
         saveLocalData();
-        renderCharacterList(); // 리스트 갱신
-        closeActionModal();    // 모달 닫기
+        renderCharacterList();
+        closeActionModal();
         alert("정보가 수정되었습니다.");
     }
 }

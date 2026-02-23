@@ -100,6 +100,15 @@ function createCharacterTable(savedData = null) {
 
     // 8) 저장된 데이터 복구
     if (savedData) {
+        // 통합 구조: job/name이 최상위 필드로 있으면 inputs에 주입 (project2 호환)
+        if (savedData.job && !savedData.inputs?.['info_job']) {
+            if (!savedData.inputs) savedData.inputs = {};
+            savedData.inputs['info_job'] = { val: savedData.job, cls: '' };
+        }
+        if (savedData.name && !savedData.inputs?.['info_name']) {
+            if (!savedData.inputs) savedData.inputs = {};
+            savedData.inputs['info_name'] = { val: savedData.name, cls: '' };
+        }
         restoreSavedData(section, savedData, charId);
     }
 

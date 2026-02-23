@@ -584,3 +584,39 @@ project2 캐릭터 객체 (`dnfm_eq`에 배열로 저장):
 - 각 단계 완료 후 반드시 JSON 저장→새로고침→복원 흐름을 테스트한다.
 
 ---
+
+---
+
+## 2026-02-22 (5차)
+
+### 데이터 통합 2단계 - 1단계: 캐릭터 데이터 구조 통합
+
+---
+
+### 수정된 파일
+
+**`js/ui-character.js`**
+
+`createCharacterTable(savedData)` 에서 데이터 복구 시, `savedData`에 최상위 `job`/`name` 필드가 있고 `inputs`에 해당 값이 없으면 자동으로 `inputs`에 주입.
+→ project2 형식의 캐릭터 객체를 project1 상세 입력 화면에서도 정상 렌더링 가능.
+
+```javascript
+if (savedData.job && !savedData.inputs?.['info_job']) {
+    savedData.inputs['info_job'] = { val: savedData.job, cls: '' };
+}
+if (savedData.name && !savedData.inputs?.['info_name']) {
+    savedData.inputs['info_name'] = { val: savedData.name, cls: '' };
+}
+```
+
+**`scripts/eq_character.js`**
+
+`addCharacter()` — 캐릭터 생성 시 통합 구조 필드 추가:
+- id 생성 방식을 `char_` + Date.now() + random 으로 통일 (기존: `c` + Date.now())
+- `inputs`, `runeData`, `tags`, `locked` 필드를 빈 값으로 초기화하여 생성
+
+`updateCharacterInfo()` — 이름/직업 수정 시:
+- `char.inputs['info_job']`, `char.inputs['info_name']` 도 함께 업데이트
+- project1 DOM에 해당 캐릭터 테이블이 렌더링된 경우 `info_job`, `info_name` 필드 값도 직접 동기화
+
+---
