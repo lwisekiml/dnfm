@@ -17,11 +17,14 @@ function initProject1() {
 
     AppState.init();
 
-    const storageData = localStorage.getItem(AppConstants.STORAGE_KEY);
+    // 통합 스토리지에서 캐릭터 목록 읽기
     let parsedList = [];
-
     try {
-        parsedList = JSON.parse(storageData || "[]");
+        const raw = localStorage.getItem(AppConstants.STORAGE_KEY);
+        if (raw) {
+            const unified = JSON.parse(raw);
+            parsedList = unified.characters || [];
+        }
     } catch (e) {
         console.error("데이터 파싱 오류 발생:", e);
         parsedList = [];

@@ -620,3 +620,55 @@ if (savedData.name && !savedData.inputs?.['info_name']) {
 - project1 DOM에 해당 캐릭터 테이블이 렌더링된 경우 `info_job`, `info_name` 필드 값도 직접 동기화
 
 ---
+
+---
+
+## 2026-02-23 (6차)
+
+### 데이터 통합 2단계 - 2단계: localStorage 키 통합
+
+---
+
+### 목표
+
+`dnfm_character_equipment_data` (project1) + `dnfm_eq` (project2) 두 개의 로컬 스토리지 키를 `dnfm_unified` 하나로 통합.
+
+저장 형식: `{ characters: [...], history: [...] }`
+
+---
+
+### 수정된 파일
+
+**`shared/shared_constants.js`**
+- `STORAGE_KEYS.UNIFIED = "dnfm_unified"` 추가
+- `AppConstants.STORAGE_KEY` → `STORAGE_KEYS.UNIFIED` 로 변경
+- 기존 `PROJECT1`, `PROJECT2` 키는 마이그레이션용으로 유지
+
+**`scripts/eq_core.js`**
+- `saveLocalData()` — `dnfm_unified` 키에 `{ characters, history }` 구조로 저장
+- `loadLocalData()` — `dnfm_unified` 에서 `characters` 배열만 추출하여 전역 변수에 할당
+- `_loadUnified()` 헬퍼 함수 추가
+
+**`js/storage.js`** (전면 재작성)
+- `_loadUnifiedStorage()` 헬퍼 함수 추가
+- `autoSave()` — DOM `.char-section` 에서 읽은 입력값을 `characters` 배열에 병합 후 `dnfm_unified` 에 저장. `info_job`/`info_name` 값을 `job`/`name` 최상위 필드에도 동기화
+- `exportToJSON()` — `dnfm_unified` 전체를 `dnfm_backup_YYYY-MM-DD_HH-MM.json` 으로 저장
+- `saveJsonWithLocation()` — 동일하게 통합 구조로 저장
+- `importFromJSON()` — 통합 형식 및 구버전 배열 형식 모두 지원. 불러오기 시 `characters` 전역 배열 교체 + project1 DOM 재렌더링 + project2 `renderCharacterList()` 동시 갱신
+
+**`js/state.js`**
+- `init()` — `dnfm_unified` 에서 `history`, `characters` 읽도록 변경
+- `saveHistory()` — `dnfm_unified` 의 `history` 필드만 업데이트하여 저장
+
+**`js/main.js`**
+- `initProject1()` — `dnfm_unified` 에서 `characters` 배열 읽어 렌더링
+
+**`scripts/eq_main.js`**
+- `migrateToUnified()` 함수 추가 — 페이지 최초 로드 시 1회 실행
+  - `dnfm_unified` 가 이미 존재하면 즉시 종료 (중복 실행 방지)
+  - `dnfm_character_equipment_data` (p1) + `dnfm_eq` (p2) 데이터를 id 또는 name+job 기준으로 매칭하여 통합 캐릭터 객체로 병합
+  - p2에만 있는 캐릭터 → inputs 빈 값으로 추가
+  - p1에만 있는 캐릭터 → armorCounts 등 빈 값으로 추가
+  - 결과를 `dnfm_unified` 에 저장
+
+---

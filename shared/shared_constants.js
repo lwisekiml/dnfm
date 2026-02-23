@@ -140,7 +140,7 @@ const SHARED_ART_OPTIONS = {
     red:   ["힘", "지능", "체력", "정신력", "적중", "회피"],
     blue:  ["HP MAX", "MP MAX", "물리 공격력", "마법 공격력", "물리 방어력", "마법 방어력"],
     green: ["물리 크리티컬", "마법 크리티컬", "공격속도", "캐스팅속도", "이동속도",
-            "화속강", "수속강", "명속강", "암속강", "모속강"]
+        "화속강", "수속강", "명속강", "암속강", "모속강"]
 };
 
 
@@ -149,8 +149,9 @@ const SHARED_ART_OPTIONS = {
    ============================================================ */
 
 const STORAGE_KEYS = {
-    PROJECT1: "dnfm_character_equipment_data",  // project1 전용
-    PROJECT2: "dnfm_eq"                          // project2 전용
+    UNIFIED:  "dnfm_unified",                   // 통합 키 (현재 사용)
+    PROJECT1: "dnfm_character_equipment_data",  // project1 구버전 (마이그레이션용)
+    PROJECT2: "dnfm_eq"                         // project2 구버전 (마이그레이션용)
 };
 
 
@@ -162,7 +163,7 @@ const STORAGE_KEYS = {
 
 // project1: AppConstants 호환
 const AppConstants = {
-    STORAGE_KEY:        STORAGE_KEYS.PROJECT1,
+    STORAGE_KEY:        STORAGE_KEYS.UNIFIED,
     SLOTS:              SHARED_SLOTS,
     HEAVY_BORDER_SLOTS: SHARED_HEAVY_BORDER_SLOTS,
     ARMOR_PREFIXES:     SHARED_ARMOR_PREFIXES,

@@ -2,20 +2,24 @@
 [섹션 4] 데이터 관리 (로컬 스토리지)
 ======================================== */
 function saveLocalData() {
-    localStorage.setItem("dnfm_eq", JSON.stringify(characters));
+    const existing = _loadUnified();
+    existing.characters = characters;
+    localStorage.setItem(STORAGE_KEYS.UNIFIED, JSON.stringify(existing));
 }
 
-// 데이터 로드 시 (초기화 로직 포함)
+// 통합 스토리지에서 전체 객체 읽기 (내부 헬퍼)
+function _loadUnified() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.UNIFIED);
+        if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return { characters: [], history: [] };
+}
+
+// 데이터 로드
 function loadLocalData() {
-    const saved = localStorage.getItem("dnfm_eq");
-    if (saved) {
-        try {
-            characters = JSON.parse(saved);
-        } catch (e) {
-            console.error("데이터 로드 실패", e);
-            characters = [];
-        }
-    }
+    const unified = _loadUnified();
+    characters = unified.characters || [];
 }
 
 /* ========================================

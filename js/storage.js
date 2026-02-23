@@ -3,12 +3,30 @@
 // ============================================
 
 /**
+ * 통합 스토리지에서 전체 객체 읽기 (내부 헬퍼)
+ */
+function _loadUnifiedStorage() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.UNIFIED);
+        if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return { characters: [], history: [] };
+}
+
+/**
  * 자동 저장
+ * - DOM의 .char-section 에서 project1 입력값을 읽어 characters 배열에 병합 후 저장
  */
 function autoSave() {
     clearTimeout(window.sTime);
     window.sTime = setTimeout(() => {
-        const allData = Array.from(document.querySelectorAll('.char-section')).map(sec => {
+        const unified = _loadUnifiedStorage();
+
+        // DOM에서 현재 상세입력 탭의 입력값 수집
+        const domSections = Array.from(document.querySelectorAll('.char-section'));
+
+        domSections.forEach(sec => {
+            const charId = sec.id;
             const inputsObj = {};
             sec.querySelectorAll('input[data-key], select[data-key], textarea[data-key]').forEach(el => {
                 inputsObj[el.getAttribute('data-key')] = {
@@ -16,16 +34,38 @@ function autoSave() {
                     cls: el.className
                 };
             });
-            return {
-                id: sec.id,
-                locked: sec.querySelector('.lock-btn')?.classList.contains('btn-active'),
-                inputs: inputsObj,
-                runeData: AppState.charRuneData[sec.id],
-                tags: AppState.charTags?.[sec.id] || []
-            };
+
+            // characters 배열에서 해당 캐릭터 찾아 병합
+            const existing = unified.characters.find(c => c.id === charId);
+            if (existing) {
+                existing.locked = sec.querySelector('.lock-btn')?.classList.contains('btn-active') || false;
+                existing.inputs = inputsObj;
+                existing.runeData = AppState.charRuneData[charId] || existing.runeData;
+                existing.tags = AppState.charTags?.[charId] || existing.tags || [];
+                // job/name 동기화 (info_job, info_name 필드 기준)
+                if (inputsObj['info_job']?.val) existing.job = inputsObj['info_job'].val;
+                if (inputsObj['info_name']?.val) existing.name = inputsObj['info_name'].val;
+            } else {
+                // characters에 없는 경우 새로 추가
+                unified.characters.push({
+                    id: charId,
+                    job: inputsObj['info_job']?.val || '',
+                    name: inputsObj['info_name']?.val || '',
+                    locked: sec.querySelector('.lock-btn')?.classList.contains('btn-active') || false,
+                    inputs: inputsObj,
+                    runeData: AppState.charRuneData[charId] || {
+                        runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })),
+                        gakin: ['', '']
+                    },
+                    tags: AppState.charTags?.[charId] || [],
+                    armorCounts: {},
+                    updateTimes: {},
+                    craftMaterials: {}
+                });
+            }
         });
 
-        localStorage.setItem(AppConstants.STORAGE_KEY, JSON.stringify(allData));
+        localStorage.setItem(STORAGE_KEYS.UNIFIED, JSON.stringify(unified));
 
         const msg = document.getElementById('statusMsg');
         if (msg) {
@@ -39,10 +79,10 @@ function autoSave() {
  * JSON으로 내보내기
  */
 function exportToJSON() {
-    const charData = localStorage.getItem(AppConstants.STORAGE_KEY);
-    const historyData = localStorage.getItem(AppConstants.STORAGE_KEY + "_history");
-
-    if (!charData) return alert("저장된 데이터가 없습니다.");
+    const unified = _loadUnifiedStorage();
+    if (!unified.characters || unified.characters.length === 0) {
+        return alert("저장된 데이터가 없습니다.");
+    }
 
     const now = new Date();
     const year = now.getFullYear();
@@ -51,14 +91,9 @@ function exportToJSON() {
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
 
-    const fileName = `dnfm_character_equipment_backup_${year}-${month}-${day}_${hours}-${minutes}.json`;
+    const fileName = `dnfm_backup_${year}-${month}-${day}_${hours}-${minutes}.json`;
 
-    const backup = {
-        characters: JSON.parse(charData),
-        history: historyData ? JSON.parse(historyData) : []
-    };
-
-    const blob = new Blob([JSON.stringify(backup)], {type: "application/json"});
+    const blob = new Blob([JSON.stringify(unified, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = fileName;
@@ -71,30 +106,16 @@ function exportToJSON() {
  * 경로 지정 저장
  */
 async function saveJsonWithLocation() {
-    // 통합 환경: 현재 활성 탭에 따라 저장할 스토리지 키 결정
-    // - 상세입력 탭(project1): STORAGE_KEYS.PROJECT1
-    // - 나머지 탭(project2):   STORAGE_KEYS.PROJECT2
-    const activeSection = document.getElementById('section-detail-view');
-    const isDetailTab = activeSection && activeSection.style.display !== 'none';
-
-    const storageKey = isDetailTab ? STORAGE_KEYS.PROJECT1 : STORAGE_KEYS.PROJECT2;
-    const historyKey = storageKey + "_history";
-
-    const charData = localStorage.getItem(storageKey);
-    const historyData = localStorage.getItem(historyKey);
-
-    if (!charData) return alert("저장된 데이터가 없습니다.");
+    const unified = _loadUnifiedStorage();
+    if (!unified.characters || unified.characters.length === 0) {
+        return alert("저장된 데이터가 없습니다.");
+    }
 
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
-    const prefix = isDetailTab ? 'dnfm_character_equipment_backup' : 'dnfm_eq_backup';
-    const defaultFileName = `${prefix}_${year}-${month}-${day}.json`;
-
-    const backup = isDetailTab
-        ? { characters: JSON.parse(charData), history: historyData ? JSON.parse(historyData) : [] }
-        : JSON.parse(charData);
+    const defaultFileName = `dnfm_backup_${year}-${month}-${day}.json`;
 
     if ('showSaveFilePicker' in window) {
         try {
@@ -107,7 +128,7 @@ async function saveJsonWithLocation() {
             });
 
             const writable = await handle.createWritable();
-            await writable.write(JSON.stringify(backup, null, 2));
+            await writable.write(JSON.stringify(unified, null, 2));
             await writable.close();
 
             const statusMsg = document.getElementById('statusMsg');
@@ -123,7 +144,7 @@ async function saveJsonWithLocation() {
         }
     } else {
         alert("현재 브라우저가 저장 위치 지정을 직접 지원하지 않아 기본 다운로드 방식으로 진행합니다.");
-        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+        const blob = new Blob([JSON.stringify(unified, null, 2)], { type: "application/json" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
         a.download = defaultFileName;
@@ -149,23 +170,38 @@ function importFromJSON(input) {
             let charactersToRestore = [];
             let historyToRestore = [];
 
-            if (Array.isArray(importedData)) {
-                charactersToRestore = importedData;
-                historyToRestore = [];
-            } else if (importedData && importedData.characters) {
+            // 통합 형식: { characters, history }
+            if (importedData && importedData.characters) {
                 charactersToRestore = importedData.characters;
                 historyToRestore = importedData.history || [];
+                // 구버전 project1 형식: 배열
+            } else if (Array.isArray(importedData)) {
+                charactersToRestore = importedData;
+                historyToRestore = [];
             } else {
                 throw new Error("지원하지 않는 데이터 형식입니다.");
             }
 
+            // 통합 환경에서 상세입력 탭 미초기화 상태면 탭 전환 먼저
+            const isIntegrated = !!document.getElementById('section-detail-view');
+            if (isIntegrated && !_p1Initialized) {
+                switchTo('detail');
+            }
+
+            // project2 전역 characters 배열 교체
+            characters = charactersToRestore;
+
+            // project1 DOM 재렌더링
             document.getElementById('characterContainer').innerHTML = "";
             AppState.charRuneData = {};
             AppState.charTags = {};
             charactersToRestore.forEach(d => createCharacterTable(d));
 
-            AppState.changeHistory = historyToRestore;
+            // project2 UI 갱신
+            if (typeof renderCharacterList === 'function') renderCharacterList();
 
+            // 히스토리 복원
+            AppState.changeHistory = historyToRestore;
             const timeStr = getCurrentDateTime();
             AppState.changeHistory.unshift({
                 time: timeStr,
@@ -174,11 +210,14 @@ function importFromJSON(input) {
                 old: "-",
                 new: "백업 파일로부터 데이터가 복원됨"
             });
-
             if (AppState.changeHistory.length > 10) AppState.changeHistory.pop();
-
             AppState.saveHistory();
-            autoSave();
+
+            // 통합 스토리지에 저장
+            localStorage.setItem(STORAGE_KEYS.UNIFIED, JSON.stringify({
+                characters: charactersToRestore,
+                history: historyToRestore
+            }));
 
             alert("데이터 복구가 완료되었습니다.");
         } catch (err) {

@@ -170,6 +170,89 @@ function importJSON(event) {
 /* ========================================
 [섹션 15] 초기화 & 이벤트 리스너
 ======================================== */
+
+/**
+ * 기존 데이터 마이그레이션 (1회성)
+ * - dnfm_character_equipment_data (project1) + dnfm_eq (project2) → dnfm_unified
+ * - dnfm_unified가 이미 존재하면 실행하지 않음
+ */
+function migrateToUnified() {
+    if (localStorage.getItem(STORAGE_KEYS.UNIFIED)) return; // 이미 마이그레이션됨
+
+    let p1Chars = [];
+    let p2Chars = [];
+    let history = [];
+
+    try {
+        const p1Raw = localStorage.getItem(STORAGE_KEYS.PROJECT1);
+        if (p1Raw) p1Chars = JSON.parse(p1Raw);
+    } catch (e) {}
+
+    try {
+        const p2Raw = localStorage.getItem(STORAGE_KEYS.PROJECT2);
+        if (p2Raw) p2Chars = JSON.parse(p2Raw);
+    } catch (e) {}
+
+    try {
+        const hRaw = localStorage.getItem(STORAGE_KEYS.PROJECT1 + "_history");
+        if (hRaw) history = JSON.parse(hRaw);
+    } catch (e) {}
+
+    // p2 기준으로 베이스를 잡고, p1 데이터를 id 매칭 또는 name/job 매칭으로 병합
+    // p1에만 있는 캐릭터는 그대로 추가, p2에만 있는 캐릭터는 빈 inputs로 추가
+    const merged = [];
+
+    // p2 캐릭터를 기준으로 순회
+    p2Chars.forEach(p2 => {
+        // p1에서 같은 id 또는 같은 name+job으로 매칭
+        const p1 = p1Chars.find(c =>
+            c.id === p2.id ||
+            (c.inputs?.['info_name']?.val === p2.name && c.inputs?.['info_job']?.val === p2.job)
+        );
+
+        merged.push({
+            id: p2.id,
+            job: p2.job,
+            name: p2.name,
+            locked: p1?.locked || false,
+            inputs: p1?.inputs || { 'info_job': { val: p2.job, cls: '' }, 'info_name': { val: p2.name, cls: '' } },
+            runeData: p1?.runeData || { runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] },
+            tags: p1?.tags || [],
+            armorCounts: p2.armorCounts || {},
+            weaponCounts: p2.weaponCounts || {},
+            updateTimes: p2.updateTimes || {},
+            craftMaterials: p2.craftMaterials || {}
+        });
+    });
+
+    // p1에만 있는 캐릭터 추가 (p2에 없는 것)
+    p1Chars.forEach(p1 => {
+        const alreadyMerged = merged.find(c =>
+            c.id === p1.id ||
+            (c.name === p1.inputs?.['info_name']?.val && c.job === p1.inputs?.['info_job']?.val)
+        );
+        if (!alreadyMerged) {
+            merged.push({
+                id: p1.id,
+                job: p1.inputs?.['info_job']?.val || '',
+                name: p1.inputs?.['info_name']?.val || '',
+                locked: p1.locked || false,
+                inputs: p1.inputs || {},
+                runeData: p1.runeData || { runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] },
+                tags: p1.tags || [],
+                armorCounts: {},
+                weaponCounts: {},
+                updateTimes: {},
+                craftMaterials: {}
+            });
+        }
+    });
+
+    localStorage.setItem(STORAGE_KEYS.UNIFIED, JSON.stringify({ characters: merged, history }));
+    console.log(`✅ 마이그레이션 완료: 총 ${merged.length}명`);
+}
+
+migrateToUnified();
 calculateGlobalWidths();
 loadLocalData();
 renderCharacterList();

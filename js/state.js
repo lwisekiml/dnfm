@@ -25,26 +25,18 @@ const AppState = {
      * 초기화 메서드
      */
     init() {
-        // 로컬 스토리지에서 히스토리 불러오기
-        const historyData = localStorage.getItem(AppConstants.STORAGE_KEY + "_history");
-        if (historyData) {
-            try {
-                this.changeHistory = JSON.parse(historyData);
-            } catch (e) {
-                console.error("히스토리 로드 실패:", e);
-                this.changeHistory = [];
+        // 통합 스토리지에서 히스토리 불러오기
+        try {
+            const raw = localStorage.getItem(AppConstants.STORAGE_KEY);
+            if (raw) {
+                const unified = JSON.parse(raw);
+                this.changeHistory = unified.history || [];
+                this.lastSnapshot = unified.characters || [];
             }
-        }
-
-        // 로컬 스토리지에서 마지막 스냅샷 불러오기
-        const snapshotData = localStorage.getItem(AppConstants.STORAGE_KEY);
-        if (snapshotData) {
-            try {
-                this.lastSnapshot = JSON.parse(snapshotData);
-            } catch (e) {
-                console.error("스냅샷 로드 실패:", e);
-                this.lastSnapshot = [];
-            }
+        } catch (e) {
+            console.error("스토리지 로드 실패:", e);
+            this.changeHistory = [];
+            this.lastSnapshot = [];
         }
     },
 
@@ -52,7 +44,14 @@ const AppState = {
      * 히스토리 저장
      */
     saveHistory() {
-        localStorage.setItem(AppConstants.STORAGE_KEY + "_history", JSON.stringify(this.changeHistory));
+        try {
+            const raw = localStorage.getItem(AppConstants.STORAGE_KEY);
+            const unified = raw ? JSON.parse(raw) : { characters: [], history: [] };
+            unified.history = this.changeHistory;
+            localStorage.setItem(AppConstants.STORAGE_KEY, JSON.stringify(unified));
+        } catch (e) {
+            console.error("히스토리 저장 실패:", e);
+        }
     },
 
     /**
