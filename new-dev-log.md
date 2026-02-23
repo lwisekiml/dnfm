@@ -672,3 +672,42 @@ if (savedData.name && !savedData.inputs?.['info_name']) {
   - 결과를 `dnfm_unified` 에 저장
 
 ---
+
+---
+
+## 2026-02-23 (7차)
+
+### 데이터 통합 2단계 - 3단계: 캐릭터 추가/삭제 동기화
+
+---
+
+### 수정된 파일
+
+**`js/ui-character.js`**
+
+- 파일 상단에 `_syncInProgress` 플래그 추가 (무한 루프 방지용)
+- `createCharacterTable()` — `savedData` 없이 신규 추가 시 project2 `characters` 배열에도 동일 캐릭터 추가 후 `saveLocalData()`, `renderCharacterList()` 호출
+- `deleteCharacter()` — project1 DOM 제거 후 project2 `characters` 배열에서도 해당 캐릭터 제거 후 `saveLocalData()`, `renderCharacterList()` 호출
+
+**`scripts/eq_character.js`**
+
+- `addCharacter()` — project2에서 캐릭터 추가 시 `createCharacterTable(newChar)` 도 함께 호출하여 project1 상세입력 탭 DOM에도 즉시 반영
+- `deleteCharacterConfirmed()` — project2에서 캐릭터 삭제 시 project1 DOM에서도 해당 섹션 제거, `AppState.charRuneData`/`AppState.charTags` 에서도 정리
+
+### 무한 루프 방지 구조
+
+```
+project2 addCharacter()
+  → _syncInProgress = true
+  → createCharacterTable(newChar)   ← project1
+      → savedData 있으므로 동기화 블록 건너뜀
+  → _syncInProgress = false
+
+project1 createCharacterTable() (신규, savedData 없음)
+  → _syncInProgress = true
+  → characters.push(...)            ← project2
+  → renderCharacterList()
+  → _syncInProgress = false
+```
+
+---

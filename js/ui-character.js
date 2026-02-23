@@ -2,6 +2,9 @@
 // ui-character.js - 캐릭터 관리 UI (템플릿 리팩토링 완료)
 // ============================================
 
+// 캐릭터 추가 동기화 무한루프 방지 플래그
+let _syncInProgress = false;
+
 /**
  * 캐릭터 테이블 생성 (템플릿 방식)
  */
@@ -110,6 +113,30 @@ function createCharacterTable(savedData = null) {
             savedData.inputs['info_name'] = { val: savedData.name, cls: '' };
         }
         restoreSavedData(section, savedData, charId);
+    } else if (!_syncInProgress) {
+        // 신규 추가 (savedData 없음) 시 project2 characters 배열에도 동기화
+        _syncInProgress = true;
+        if (typeof characters !== 'undefined') {
+            const exists = characters.find(c => c.id === charId);
+            if (!exists) {
+                characters.push({
+                    id: charId,
+                    job: '',
+                    name: '',
+                    locked: false,
+                    inputs: {},
+                    runeData: AppState.charRuneData[charId],
+                    tags: [],
+                    armorCounts: {},
+                    weaponCounts: {},
+                    updateTimes: {},
+                    craftMaterials: {}
+                });
+                if (typeof saveLocalData === 'function') saveLocalData();
+                if (typeof renderCharacterList === 'function') renderCharacterList();
+            }
+        }
+        _syncInProgress = false;
     }
 
     // 9) 잠금 상태 설정
@@ -319,7 +346,15 @@ function deleteCharacter(charId) {
         section.remove();
         delete AppState.charRuneData[charId];
         delete AppState.charTags[charId];
-        autoSave();
+
+        // project2 characters 배열에서도 제거
+        if (typeof characters !== 'undefined') {
+            characters = characters.filter(c => String(c.id) !== String(charId));
+            if (typeof saveLocalData === 'function') saveLocalData();
+            if (typeof renderCharacterList === 'function') renderCharacterList();
+        } else {
+            autoSave();
+        }
 
         const statusMsg = document.getElementById('statusMsg');
         if (statusMsg) {

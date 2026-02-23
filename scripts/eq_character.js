@@ -37,6 +37,14 @@ function addCharacter() {
     characters.push(newChar);
     saveLocalData();
     renderCharacterList();
+
+    // project1 상세입력 탭 DOM에도 동기화
+    if (!_syncInProgress && typeof createCharacterTable === 'function') {
+        _syncInProgress = true;
+        createCharacterTable(newChar);
+        _syncInProgress = false;
+    }
+
     document.getElementById("newCharName").value = "";
     document.getElementById("newCharJob").value = "";
 }
@@ -205,10 +213,20 @@ function deleteCharacterConfirmed() {
             // 1. 전역 배열에서 해당 캐릭터 제외 (필터링)
             characters = characters.filter(c => String(c.id) !== String(currentActionCharId));
 
-            // 2. 수정 포인트: saveData 대신 실제 존재하는 saveLocalData 호출
+            // 2. 저장
             saveLocalData();
 
-            // 3. 화면 UI 갱신 (리스트 다시 그리기)
+            // 3. project1 DOM에서도 해당 캐릭터 섹션 제거
+            const p1Section = document.getElementById(currentActionCharId);
+            if (p1Section) {
+                p1Section.remove();
+                if (typeof AppState !== 'undefined') {
+                    delete AppState.charRuneData[currentActionCharId];
+                    delete AppState.charTags?.[currentActionCharId];
+                }
+            }
+
+            // 4. 화면 UI 갱신 (리스트 다시 그리기)
             renderCharacterList();
 
             if (activeCharacterId === currentActionCharId) {
