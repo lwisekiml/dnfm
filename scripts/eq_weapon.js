@@ -342,7 +342,19 @@ function showRecentUpdates() {
     const modalContent = document.getElementById("updateModalContent");
 
     // ── 탭 헤더 렌더링 ──
-    const p1History = (typeof AppState !== 'undefined' && AppState.changeHistory) ? AppState.changeHistory : [];
+    // p1 탭 내용 렌더링 - unified storage에서 직접 읽어서 AppState 초기화 여부와 무관하게 표시
+    let p1History = [];
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.UNIFIED);
+        if (raw) {
+            const unified = JSON.parse(raw);
+            p1History = unified.history || [];
+        }
+    } catch (e) {}
+    // AppState가 이미 초기화된 경우 메모리의 최신 데이터 우선 사용
+    if (typeof AppState !== 'undefined' && AppState.changeHistory && AppState.changeHistory.length > 0) {
+        p1History = AppState.changeHistory;
+    }
 
     modalContent.innerHTML = `
         <div style="display:flex; gap:8px; margin-bottom:16px; border-bottom:2px solid #2a3158; padding-bottom:8px;">

@@ -602,10 +602,10 @@ project2 캐릭터 객체 (`dnfm_eq`에 배열로 저장):
 
 ```javascript
 if (savedData.job && !savedData.inputs?.['info_job']) {
-  savedData.inputs['info_job'] = { val: savedData.job, cls: '' };
+    savedData.inputs['info_job'] = { val: savedData.job, cls: '' };
 }
 if (savedData.name && !savedData.inputs?.['info_name']) {
-  savedData.inputs['info_name'] = { val: savedData.name, cls: '' };
+    savedData.inputs['info_name'] = { val: savedData.name, cls: '' };
 }
 ```
 
@@ -760,5 +760,61 @@ project1 상세입력 탭에서 `info_name`/`info_job` 필드를 직접 수정�
 모든 JSON 저장/불러오기가 `storage.js`의 통합 함수 하나로 일원화됨.
 저장 시 `dnfm_unified` 전체(`characters` + `history`)가 하나의 JSON 파일로 저장되고,
 불러오기 시 project1 DOM과 project2 캐릭터 목록이 동시에 갱신됨.
+
+---
+
+---
+
+## 2026-02-23 (9차)
+
+### 데이터 통합 2단계 - 5단계: 기록 + 최근 업데이트 합치기
+
+---
+
+### 수정된 파일
+
+**`scripts/eq_weapon.js`**
+
+`showRecentUpdates()` 함수 수정:
+- 기존: project2 장비 업데이트만 표시
+- 변경: 모달 상단에 탭 두 개 추가
+  - **🌟 장비 업데이트** 탭 — 기존 project2 `updateTimes` 기반 업데이트 내역
+  - **📜 상세입력 변경 기록** 탭 — project1 `AppState.changeHistory` 기반 변경 기록
+
+`switchUpdateTab(tab)` 함수 추가:
+- `p2` / `p1` 탭 전환 처리
+- 탭 전환 시 페이지네이션 표시/숨김 처리 (p1 탭은 페이지네이션 불필요)
+
+`renderUpdatePage(pageNum)` 함수 수정:
+- 탭 구조(`update-tab-p2`)가 있으면 해당 컨테이너에 렌더링
+- 없으면 기존 `updateModalContent`에 렌더링 (하위 호환)
+
+### 결과
+
+`🌟 최근 업데이트` 버튼 하나에서 장비 업데이트 내역과 상세입력 변경 기록을 탭으로 구분하여 모두 확인 가능.
+상세입력 탭 내 `📜 기록` 버튼은 기존과 동일하게 유지.
+
+---
+
+## 2026-02-23 (9차 추가)
+
+### 5단계 버그 수정: 상세입력 변경 기록 미표시 문제
+
+**문제**
+
+`🌟 최근 업데이트` 모달의 `📜 상세입력 변경 기록` 탭에 아무것도 표시되지 않음.
+
+**원인**
+
+`AppState.init()`은 상세입력 탭에 처음 진입할 때(`initProject1()`) 실행됨.
+상세입력 탭에 한 번도 들어가지 않은 상태에서 `🌟 최근 업데이트`를 누르면
+`AppState.changeHistory`가 빈 배열 그대로라 기록이 표시되지 않음.
+
+**수정**
+
+`showRecentUpdates()` 내부에서 `AppState.changeHistory`를 읽는 대신
+`dnfm_unified` 스토리지에서 `history` 필드를 직접 읽도록 변경.
+`AppState`가 이미 초기화된 경우(상세입력 탭 진입 후)엔 메모리의 최신 데이터를 우선 사용.
+→ 어느 탭에 있든 상관없이 기록이 항상 표시됨.
 
 ---
