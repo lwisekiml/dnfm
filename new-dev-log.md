@@ -818,3 +818,118 @@ project1 상세입력 탭에서 `info_name`/`info_job` 필드를 직접 수정�
 → 어느 탭에 있든 상관없이 기록이 항상 표시됨.
 
 ---
+
+---
+
+## 2026-02-23 (10차)
+
+### 버그 수정 3건
+
+---
+
+### 버그 1: 악세/특장 숫자 증가 시 세트 버튼 카운트 미갱신
+
+**원인**
+
+`autoSave()`가 `_loadUnifiedStorage()`로 스토리지를 새로 읽어 DOM 기반으로 수정 후 저장하는 방식이었음.
+`increment()` → `saveLocalData()`로 `armorCounts` 저장 직후, 상세입력 탭의 입력 이벤트로 `autoSave()` 800ms 타이머 발동 시
+스토리지에서 다시 읽은 `unified` 객체에 DOM 입력값만 병합해서 저장하므로, 메모리상의 `armorCounts` 변경분이 스토리지에서 덮어써지는 타이밍 충돌 발생.
+
+**수정 (`js/storage.js`)**
+
+`autoSave()`가 `_loadUnifiedStorage()`로 스토리지를 읽는 대신,
+메모리의 `characters` 배열을 직접 수정하고 `saveLocalData()`로 저장하도록 변경.
+→ `armorCounts`, `weaponCounts`, `updateTimes` 등 project2 데이터가 덮어써지지 않음.
+
+---
+
+### 버그 2: JSON 불러오기 후 화면 미갱신
+
+**원인**
+
+`importFromJSON()`에 `setList`, `panel` 초기화 및 현재 열린 탭(무기/장비/제작) 갱신 코드 누락.
+기존 `importJSON()`에 있던 탭별 갱신 로직이 통합 과정에서 빠짐.
+
+**수정 (`js/storage.js`)**
+
+- `setList`, `panel` innerHTML 초기화 추가
+- 현재 열린 탭 감지 후 `selectWeaponJob()`, `renderEquipmentTab('ALL')`, `renderCraftTable()` 각각 호출
+
+---
+
+### 버그 3: JSON 불러오기 후 세트 버튼 노란색 유지
+
+**원인**
+
+`importFromJSON()`에 `activeCharacterId`, `currentSetName`, `currentChar` 상태 초기화 코드 누락.
+기존 `importJSON()`에 있던 상태 초기화 로직이 통합 과정에서 빠짐.
+
+**수정 (`js/storage.js`)**
+
+불러오기 완료 후 세 전역 변수를 `null`로 초기화하도록 추가.
+
+---
+
+---
+
+## 2026-02-23 (11차)
+
+### 버그 2, 3 재수정
+
+---
+
+**버그 2: JSON 불러오기 후 가끔 상세입력 탭으로 이동**
+
+- 기존 수정에서 `!_p1Initialized`일 때 `switchTo('detail')`을 호출하는 코드가 남아있었음
+- `createCharacterTable()`은 `characterContainer`에 직접 렌더링하므로 탭 전환 불필요
+- `switchTo('detail')` 및 `_p1Initialized` 조건 분기 전체 제거
+
+**버그 3: JSON 불러오기 후 세트 버튼 노란색 유지**
+
+- 기존 수정에서 `activeCharacterId`, `currentSetName`, `currentChar` 초기화만 했고 `distinctPartsCache` 초기화 누락
+- `distinctPartsCache`는 세트 완성 여부를 캐싱하는 객체로, 불러오기 후에도 이전 데이터 기준 캐시가 남아 노란색(set3/set5) 버튼이 유지됨
+- 불러오기 완료 후 `distinctPartsCache`의 모든 키를 삭제하도록 추가
+
+**수정 파일:** `js/storage.js`
+
+---
+
+---
+
+## 2026-02-23 (12차)
+
+### 버그 1 재수정: 악세/특장 숫자 증가 시 세트 버튼 카운트 미갱신
+
+**원인 (재분석)**
+
+`updateSetButtonCount()`에서 버튼 텍스트 교체 방식이 문제였음:
+
+```js
+// 기존 코드
+const newText = btnText.replace(/\(\d+\)/, `(${totalParts})`);
+btn.innerHTML = btn.innerHTML.replace(btnText, newText);
+```
+
+- `btnText = btn.textContent` → HTML 태그 제외 순수 텍스트
+- `btn.innerHTML` → HTML 태그 포함 문자열
+
+악세/특장 버튼은 `ACCESSORY_EXTRA_INFO`, `SPECIAL_EXTRA_INFO`에 정의된 추가 정보가 있어서
+`btn.innerHTML = "철갑을 두른 탑의 수호꾼 (0)<br>(메탈기어)</span>"` 형태로 저장됨.
+이 경우 `textContent("철갑을 두른 탑의 수호꾼 (0)메탈기어")`와 `innerHTML`이 달라서
+`innerHTML.replace(btnText, newText)`가 항상 실패 → 숫자 미갱신.
+방어구는 EXTRA_INFO가 없어서 textContent == innerHTML → 정상 동작.
+
+**수정 (`scripts/eq_equipment.js`)**
+
+`btn.innerHTML.replace(btnText, newText)` 방식 제거.
+`btn.innerHTML`에서 정규식 `/\(\d+\)/`으로 첫 번째 `(숫자)` 패턴만 직접 교체.
+
+```js
+btn.innerHTML = btn.innerHTML.replace(/\(\d+\)/, `(${totalParts})`);
+```
+
+→ innerHTML 구조와 무관하게 항상 올바른 카운트로 갱신됨.
+
+**수정 파일:** `scripts/eq_equipment.js`
+
+---

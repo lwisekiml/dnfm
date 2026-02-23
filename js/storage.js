@@ -20,8 +20,6 @@ function _loadUnifiedStorage() {
 function autoSave() {
     clearTimeout(window.sTime);
     window.sTime = setTimeout(() => {
-        const unified = _loadUnifiedStorage();
-
         // DOM에서 현재 상세입력 탭의 입력값 수집
         const domSections = Array.from(document.querySelectorAll('.char-section'));
 
@@ -35,37 +33,42 @@ function autoSave() {
                 };
             });
 
-            // characters 배열에서 해당 캐릭터 찾아 병합
-            const existing = unified.characters.find(c => c.id === charId);
-            if (existing) {
-                existing.locked = sec.querySelector('.lock-btn')?.classList.contains('btn-active') || false;
-                existing.inputs = inputsObj;
-                existing.runeData = AppState.charRuneData[charId] || existing.runeData;
-                existing.tags = AppState.charTags?.[charId] || existing.tags || [];
-                // job/name 동기화 (info_job, info_name 필드 기준)
-                if (inputsObj['info_job']?.val) existing.job = inputsObj['info_job'].val;
-                if (inputsObj['info_name']?.val) existing.name = inputsObj['info_name'].val;
-            } else {
-                // characters에 없는 경우 새로 추가
-                unified.characters.push({
-                    id: charId,
-                    job: inputsObj['info_job']?.val || '',
-                    name: inputsObj['info_name']?.val || '',
-                    locked: sec.querySelector('.lock-btn')?.classList.contains('btn-active') || false,
-                    inputs: inputsObj,
-                    runeData: AppState.charRuneData[charId] || {
-                        runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })),
-                        gakin: ['', '']
-                    },
-                    tags: AppState.charTags?.[charId] || [],
-                    armorCounts: {},
-                    updateTimes: {},
-                    craftMaterials: {}
-                });
+            // 메모리의 characters 배열에서 해당 캐릭터 찾아 병합
+            // (스토리지에서 읽지 않고 메모리 기준으로 처리 → armorCounts 등 덮어쓰기 방지)
+            if (typeof characters !== 'undefined') {
+                const existing = characters.find(c => c.id === charId);
+                if (existing) {
+                    existing.locked = sec.querySelector('.lock-btn')?.classList.contains('btn-active') || false;
+                    existing.inputs = inputsObj;
+                    existing.runeData = AppState.charRuneData[charId] || existing.runeData;
+                    existing.tags = AppState.charTags?.[charId] || existing.tags || [];
+                    if (inputsObj['info_job']?.val) existing.job = inputsObj['info_job'].val;
+                    if (inputsObj['info_name']?.val) existing.name = inputsObj['info_name'].val;
+                } else {
+                    characters.push({
+                        id: charId,
+                        job: inputsObj['info_job']?.val || '',
+                        name: inputsObj['info_name']?.val || '',
+                        locked: sec.querySelector('.lock-btn')?.classList.contains('btn-active') || false,
+                        inputs: inputsObj,
+                        runeData: AppState.charRuneData[charId] || {
+                            runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })),
+                            gakin: ['', '']
+                        },
+                        tags: AppState.charTags?.[charId] || [],
+                        armorCounts: {},
+                        weaponCounts: {},
+                        updateTimes: {},
+                        craftMaterials: {}
+                    });
+                }
             }
         });
 
-        localStorage.setItem(STORAGE_KEYS.UNIFIED, JSON.stringify(unified));
+        // 메모리 characters를 스토리지에 저장 (saveLocalData와 동일한 방식)
+        if (typeof saveLocalData === 'function') {
+            saveLocalData();
+        }
 
         const msg = document.getElementById('statusMsg');
         if (msg) {
@@ -182,23 +185,49 @@ function importFromJSON(input) {
                 throw new Error("지원하지 않는 데이터 형식입니다.");
             }
 
-            // 통합 환경에서 상세입력 탭 미초기화 상태면 탭 전환 먼저
-            const isIntegrated = !!document.getElementById('section-detail-view');
-            if (isIntegrated && !_p1Initialized) {
-                switchTo('detail');
-            }
-
             // project2 전역 characters 배열 교체
             characters = charactersToRestore;
 
+            // project2 상태 초기화 (UI 꼬임 방지)
+            if (typeof activeCharacterId !== 'undefined') activeCharacterId = null;
+            if (typeof currentSetName !== 'undefined') currentSetName = null;
+            if (typeof currentChar !== 'undefined') currentChar = null;
+
+            // 세트 완성 여부 캐시 초기화 (이전 데이터 기준 캐시가 남아 노란색 버튼 유지되는 문제 방지)
+            if (typeof distinctPartsCache !== 'undefined') {
+                Object.keys(distinctPartsCache).forEach(k => delete distinctPartsCache[k]);
+            }
+
             // project1 DOM 재렌더링
-            document.getElementById('characterContainer').innerHTML = "";
+            const characterContainer = document.getElementById('characterContainer');
+            if (characterContainer) characterContainer.innerHTML = "";
             AppState.charRuneData = {};
             AppState.charTags = {};
             charactersToRestore.forEach(d => createCharacterTable(d));
 
-            // project2 UI 갱신
+            // project2 UI 갱신 - 캐릭터 목록
             if (typeof renderCharacterList === 'function') renderCharacterList();
+
+            // setList, panel 초기화
+            const setListEl = document.getElementById("setList");
+            const panelEl = document.getElementById("panel");
+            if (setListEl) setListEl.innerHTML = "";
+            if (panelEl) panelEl.innerHTML = "";
+
+            // 현재 열려있는 탭 갱신
+            const weaponView = document.getElementById("section-weapon-view");
+            const equipmentView = document.getElementById("section-equipment-view");
+            const craftView = document.getElementById("section-craft-view");
+
+            if (weaponView && weaponView.style.display !== "none") {
+                if (typeof selectWeaponJob === 'function') selectWeaponJob(activeWeaponJob || '귀검사', true);
+            }
+            if (equipmentView && equipmentView.style.display !== "none") {
+                if (typeof renderEquipmentTab === 'function') renderEquipmentTab('ALL');
+            }
+            if (craftView && craftView.style.display !== "none") {
+                if (typeof renderCraftTable === 'function') renderCraftTable();
+            }
 
             // 히스토리 복원
             AppState.changeHistory = historyToRestore;

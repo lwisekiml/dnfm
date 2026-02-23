@@ -875,8 +875,9 @@ function updateSetButtonCount(setName, char) {
             });
         });
 
-        const newText = btnText.replace(/\(\d+\)/, `(${totalParts})`);
-        btn.innerHTML = btn.innerHTML.replace(btnText, newText);
+        // innerHTML에서 첫 번째 (숫자) 패턴만 교체
+        // (textContent != innerHTML인 악세/특장 EXTRA_INFO 버튼도 정상 동작)
+        btn.innerHTML = btn.innerHTML.replace(/\(\d+\)/, `(${totalParts})`);
 
         const distinctParts = getCachedDistinctParts(char, setName);
         const fullSize = slots.length;
