@@ -3,6 +3,30 @@
 // ============================================
 
 /**
+ * project1 info_job/info_name 변경 시 project2 characters 배열 즉시 동기화
+ * - merged.html 템플릿의 info_job, info_name oninput 에서 호출
+ */
+function syncCharInfoToP2(el) {
+    const section = el.closest('.char-section');
+    if (!section) return;
+    const charId = section.id;
+    const key = el.getAttribute('data-key');
+    const val = el.value;
+
+    if (typeof characters !== 'undefined') {
+        const char = characters.find(c => c.id === charId);
+        if (char) {
+            if (key === 'info_job') char.job = val;
+            if (key === 'info_name') char.name = val;
+            // project2 캐릭터 목록 버튼 즉시 갱신
+            if (typeof renderCharacterList === 'function') renderCharacterList();
+        }
+    }
+
+    autoSave();
+}
+
+/**
  * 마법봉인 변경 처리
  */
 function handleSealChange(el) {

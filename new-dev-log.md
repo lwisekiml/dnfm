@@ -712,6 +712,29 @@ project1 createCharacterTable() (신규, savedData 없음)
 
 ---
 
+## 2026-02-23 (7차 추가)
+
+### 3단계 보완: project1 이름/직업 수정 시 project2 즉시 동기화
+
+---
+
+### 문제
+
+project1 상세입력 탭에서 `info_name`/`info_job` 필드를 직접 수정하면 `autoSave()`의 800ms 딜레이 때문에 project2 `characters` 배열의 `name`/`job` 필드가 즉시 갱신되지 않아, 삭제 등 id 외 이름 기반 로직에서 불일치가 생길 수 있음.
+
+### 수정된 파일
+
+**`js/ui-core.js`**
+- `syncCharInfoToP2(el)` 함수 추가
+  - `info_job` 또는 `info_name` 필드 변경 시 `characters` 배열의 해당 캐릭터 `job`/`name` 즉시 업데이트
+  - `renderCharacterList()` 즉시 호출하여 project2 캐릭터 목록 버튼 이름도 실시간 갱신
+  - 이후 `autoSave()` 호출하여 저장까지 처리
+
+**`merged.html`**
+- `character-info-template` 내 `info_job`, `info_name` 입력 필드의 `oninput` 이벤트를 `autoSave()` → `syncCharInfoToP2(this)` 로 변경
+
+---
+
 ---
 
 ## 2026-02-23 (8차)
