@@ -602,10 +602,10 @@ project2 캐릭터 객체 (`dnfm_eq`에 배열로 저장):
 
 ```javascript
 if (savedData.job && !savedData.inputs?.['info_job']) {
-    savedData.inputs['info_job'] = { val: savedData.job, cls: '' };
+  savedData.inputs['info_job'] = { val: savedData.job, cls: '' };
 }
 if (savedData.name && !savedData.inputs?.['info_name']) {
-    savedData.inputs['info_name'] = { val: savedData.name, cls: '' };
+  savedData.inputs['info_name'] = { val: savedData.name, cls: '' };
 }
 ```
 
@@ -709,5 +709,33 @@ project1 createCharacterTable() (신규, savedData 없음)
   → renderCharacterList()
   → _syncInProgress = false
 ```
+
+---
+
+---
+
+## 2026-02-23 (8차)
+
+### 데이터 통합 2단계 - 4단계: JSON 저장/불러오기 통합
+
+---
+
+### 수정된 파일
+
+**`merged.html`**
+- 상단 툴바 `exportJSON()` → `exportToJSON()` 로 변경
+- 상단 툴바 `importJSON(event)` → `importFromJSON(this)` 로 변경
+- 상세입력 탭 내 버튼은 이미 올바른 함수명 사용 중이었으므로 변경 없음
+
+**`scripts/eq_main.js`**
+- `exportJSON()` 함수 제거 → `storage.js`의 `exportToJSON()` 로 대체
+- `importJSON()` 함수 제거 → `storage.js`의 `importFromJSON()` 로 대체
+- 주석으로 storage.js 통합 버전 사용 안내 추가
+
+### 결과
+
+모든 JSON 저장/불러오기가 `storage.js`의 통합 함수 하나로 일원화됨.
+저장 시 `dnfm_unified` 전체(`characters` + `history`)가 하나의 JSON 파일로 저장되고,
+불러오기 시 project1 DOM과 project2 캐릭터 목록이 동시에 갱신됨.
 
 ---
