@@ -46,9 +46,11 @@
         상세 입력
     </button>
 
-</div>
+    <div style="width: 1px; height: 25px; background: #444; margin: 0 5px;"></div>
 
-<button class="action-btn" onclick="showRecentUpdates()">🌟 최근 업데이트</button>
+    <button class="action-btn" onclick="showRecentUpdates()">🌟 최근 업데이트</button>
+
+</div>
 
 <div id="section-equipment-view" style="display:none; padding: 20px;">
     <div class="toolbar"
@@ -238,17 +240,11 @@
 
     <!-- 컨트롤바 -->
     <div class="control-bar">
-        <button class="btn-action" onclick="exportToJSON()">📤 JSON 파일 저장</button>
-        <button class="btn-action" onclick="saveJsonWithLocation()">📂 JSON 경로 지정 저장</button>
-        <button class="btn-action" onclick="document.getElementById('fileInput').click()">📥 JSON 파일 불러오기</button>
-        <button class="btn-action btn-add" onclick="createCharacterTable()">➕ 캐릭터 추가</button>
         <button onclick="lockAllCharacters()" class="btn-all-lock">전체 잠금</button>
-        <button class="btn-action" style="background: var(--btn-info);" onclick="openHistoryModal()">📜 기록</button>
         <button class="btn-mode active" id="btnBasicMode" onclick="switchToBasicMode()">📋 기본</button>
         <button class="btn-mode" id="btnCompareMode" onclick="enterCompareMode()">⚖️ 비교</button>
         <button class="btn-mode" id="btnSearchMode" onclick="enterSearchMode()">🔍 검색</button>
         <button class="btn-mode" id="btnTagFilter" onclick="toggleTagFilterPanel()">🏷️ 태그</button>
-        <input type="file" id="fileInput" class="d-none" accept=".json" onchange="importFromJSON(this)">
         <span id="statusMsg" class="status-msg"></span>
     </div>
 
@@ -369,8 +365,8 @@
                     </select>
                 </div>
                 <div class="divider-gold"></div>
-                <input type="text" placeholder="직업" data-key="info_job" oninput="syncCharInfoToP2(this)">
-                <input type="text" placeholder="이름" data-key="info_name" oninput="syncCharInfoToP2(this)">
+                <input type="text" placeholder="직업" data-key="info_job" oninput="autoSave()">
+                <input type="text" placeholder="이름" data-key="info_name" oninput="autoSave()">
                 <input type="text" placeholder="항마력" data-key="info_power" oninput="autoSave()">
                 <div class="divider-gold"></div>
                 <div style="margin-bottom: 8px;">

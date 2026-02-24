@@ -1004,3 +1004,32 @@ btn.innerHTML = btn.innerHTML.replace(/\(\d+\)/, `(${totalParts})`);
 - p1에 없는 p2 캐릭터는 별도로 추가 (p2 구조도 `job || inputs.info_job` 양쪽 모두 커버)
 
 ---
+## 2026-02-24 (16차)
+
+### UI 정리: 중복 버튼 제거 및 최근 업데이트 버튼 위치 변경
+
+**변경 1: 상세입력 탭 control-bar 중복 버튼 제거**
+
+상단 툴바에 이미 동일 기능이 있어 상세입력 탭에서 제거:
+- `📤 JSON 파일 저장` 제거
+- `📂 JSON 경로 지정 저장` 제거
+- `📥 JSON 파일 불러오기` 제거 (+ `fileInput` hidden input 제거)
+- `📜 기록` 제거
+- `➕ 캐릭터 추가` 제거 (캐릭터 관리 탭에만 유지)
+
+남은 버튼: 전체 잠금, 📋 기본, ⚖️ 비교, 🔍 검색, 🏷️ 태그
+
+**변경 2: 최근 업데이트 버튼 위치 변경**
+
+기존: 탭 메뉴 아래 단독으로 떠있는 구조
+변경: 상단 툴바 탭 버튼들 우측 끝에 구분선(`|`) 추가 후 배치
+
+**변경 3: HTML 함수 호출 방식 정리 (`merged.html`)**
+
+불필요한 alias 함수 없이 직접 호출하도록 변경:
+- `onclick="exportJSON()"` → `onclick="exportToJSON()"`
+- `onchange="importJSON(event)"` → `onchange="importFromJSON(this)"`
+
+**수정 파일:** `merged.html`, `js/storage.js`
+
+---
