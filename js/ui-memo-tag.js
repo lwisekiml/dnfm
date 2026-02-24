@@ -2,6 +2,29 @@
 // ui-memo-tag.js - 메모/태그 기능
 // ============================================
 
+/**
+ * 메모/설명/태그 변경 사항을 changeHistory에 기록
+ */
+function _recordMemoTagHistory(charId, slot, oldVal, newVal) {
+    if (!AppState || typeof AppState.changeHistory === 'undefined') return;
+    if (oldVal === newVal) return;
+
+    const section = document.getElementById(charId);
+    const charName = section?.querySelector('[data-key="info_name"]')?.value || '이름없음';
+    const timeStr = (typeof getCurrentDateTime === 'function') ? getCurrentDateTime() : new Date().toLocaleString();
+
+    AppState.changeHistory.unshift({
+        time: timeStr,
+        charName: charName,
+        slot: slot,
+        old: oldVal === '' ? '(빈칸)' : oldVal,
+        new: newVal === '' ? '(빈칸)' : newVal
+    });
+    if (AppState.changeHistory.length > 10) AppState.changeHistory.pop();
+    AppState.saveHistory();
+    AppState.updateSnapshot();
+}
+
 // ============================================
 // 팝업 설정 (여기서 한 번에 관리)
 // ============================================
@@ -87,6 +110,10 @@ function addTag(charId) {
 
     // 데이터 저장
     saveTags(charId);
+
+    // 히스토리 기록
+    _recordMemoTagHistory(charId, '태그', '(이전)', tag + ' 추가');
+
     autoSave();
 }
 
@@ -144,6 +171,10 @@ function removeTag(charId, tag) {
     if (chip) {
         chip.remove();
         saveTags(charId);
+
+        // 히스토리 기록
+        _recordMemoTagHistory(charId, '태그', tag + ' 삭제', '(이후)');
+
         autoSave();
     }
 }
@@ -328,8 +359,14 @@ function saveMemoFromModal() {
 
     // 메모 저장
     if (memoTextarea && modalTextarea) {
-        memoTextarea.value = modalTextarea.value;
+        const oldVal = memoTextarea.value;
+        const newVal = modalTextarea.value;
+        memoTextarea.value = newVal;
         updateMemoPreview(currentMemoCharId);
+
+        // 히스토리 기록
+        _recordMemoTagHistory(currentMemoCharId, '메모', oldVal, newVal);
+
         autoSave();
     }
 
@@ -488,7 +525,16 @@ function openDescModal(inputEl) {
 function saveDescFromModal() {
     const ta = document.getElementById('descModalTextarea');
     if (currentDescInput && ta) {
-        currentDescInput.value = ta.value;
+        const section = currentDescInput.closest('.char-section');
+        const charId = section?.id;
+        const oldVal = currentDescInput.value;
+        const newVal = ta.value;
+
+        currentDescInput.value = newVal;
+
+        // 히스토리 기록
+        if (charId) _recordMemoTagHistory(charId, '설명', oldVal, newVal);
+
         autoSave();
     }
     closeDescModal();

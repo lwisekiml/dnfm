@@ -1080,3 +1080,28 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정된 파일:** `js/ui-character.js`
 
 ---
+
+## 2026-02-24 (16차)
+
+### 메모/설명/태그 변경 시 상세입력 변경 기록 미등록 수정
+
+**원인**
+
+`main.js`의 `change` 이벤트 리스너에서만 `changeHistory`에 기록.
+메모/설명/태그는 `change` 이벤트 없이 각 함수(`saveMemoFromModal`, `saveDescFromModal`, `addTag`, `removeTag`)에서 직접 `autoSave()`만 호출하므로 기록에 남지 않음.
+
+**수정 (`js/ui-memo-tag.js`)**
+
+`_recordMemoTagHistory(charId, slot, oldVal, newVal)` 헬퍼 함수 추가:
+- `AppState.changeHistory`에 변경 내역 기록
+- `AppState.saveHistory()`, `AppState.updateSnapshot()` 호출
+
+각 저장 함수에 호출 추가:
+- `saveMemoFromModal()` — 저장 전 oldVal 캡처 후 기록 (slot: '메모')
+- `saveDescFromModal()` — 저장 전 oldVal 캡처 후 기록 (slot: '설명')
+- `addTag()` — 태그 추가 시 기록 (slot: '태그')
+- `removeTag()` — 태그 삭제 시 기록 (slot: '태그')
+
+**수정된 파일:** `js/ui-memo-tag.js`
+
+---
