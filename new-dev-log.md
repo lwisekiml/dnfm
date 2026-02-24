@@ -1059,3 +1059,24 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 `switchTo('detail')` 진입 시 `syncDetailTabOrder()` 호출 추가.
 
 ---
+
+## 2026-02-24 (15차)
+
+### 상세입력 순서 변경 시 캐릭터 관리 탭 미반영 수정
+
+**원인**
+
+`moveCharacter()`가 DOM 순서만 바꾸고 `autoSave()`를 호출.
+`autoSave()`는 `characters.find()`로 배열 값만 업데이트하고 배열 순서는 건드리지 않음.
+→ `characters` 배열 순서가 그대로라 `renderCharacterList()`에서 캐릭터 관리 탭 순서도 그대로 유지됨.
+
+**수정 (`js/ui-character.js`)**
+
+`moveCharacter()` 수정:
+- `autoSave()` 제거
+- DOM 이동 후 `#characterContainer .char-section` 순서를 읽어 `characters` 배열을 `sort()`로 재정렬
+- `saveLocalData()` + `renderCharacterList()` 호출 → 캐릭터 관리 탭에도 즉시 반영
+
+**수정된 파일:** `js/ui-character.js`
+
+---

@@ -383,8 +383,22 @@ function moveCharacter(charId, direction) {
         }
     }
 
+    // DOM 순서 기준으로 characters 배열 재정렬 → 캐릭터 관리 탭에도 반영
+    if (typeof characters !== 'undefined') {
+        const domOrder = Array.from(document.querySelectorAll('#characterContainer .char-section'))
+            .map(sec => sec.id);
+        characters.sort((a, b) => {
+            const ai = domOrder.indexOf(a.id);
+            const bi = domOrder.indexOf(b.id);
+            if (ai === -1) return 1;
+            if (bi === -1) return -1;
+            return ai - bi;
+        });
+        if (typeof saveLocalData === 'function') saveLocalData();
+        if (typeof renderCharacterList === 'function') renderCharacterList();
+    }
+
     AppState.updateSnapshot();
-    autoSave();
 
     section.style.boxShadow = "0 0 10px var(--gold)";
     setTimeout(() => section.style.boxShadow = "", 500);
