@@ -933,3 +933,49 @@ btn.innerHTML = btn.innerHTML.replace(/\(\d+\)/, `(${totalParts})`);
 **수정 파일:** `scripts/eq_equipment.js`
 
 ---
+
+---
+
+## 2026-02-23 (13차)
+
+### migrateToUnified 매칭 기준 변경: 이름+직업 → 직업만
+
+**배경**
+
+예전 로컬 스토리지에서 캐릭터 이름이 잘못 입력되어 같은 캐릭터가 두 개씩 나오는 현상 발생.
+이 함수는 1회 실행 후 삭제 예정이므로, 직업(job)만으로 매칭하도록 임시 변경.
+
+**수정 (`scripts/eq_main.js`)**
+
+- p2 기준 매칭: `id 일치 || (이름+직업 일치)` → `id 일치 || 직업 일치`
+- p1 중복 체크: `id 일치 || (이름+직업 일치)` → `id 일치 || 직업 일치`
+
+**주의**
+
+같은 직업 캐릭터가 여러 명이면 첫 번째 캐릭터로 합쳐짐.
+1회 실행 후 `migrateToUnified()` 함수 및 호출부 삭제 예정.
+
+---
+
+## 2026-02-23 (14차)
+
+### 장비관리(p2) 캐릭터가 dnfm_unified에 누락된 경우 자동 보완
+
+**배경**
+
+`migrateToUnified()`는 `dnfm_unified`가 이미 있으면 바로 return했음.
+최초 마이그레이션 당시 p2(`dnfm_eq`)에만 있던 캐릭터가 누락된 경우 복구 불가.
+→ p2 기준 캐릭터가 우선이므로, 매 페이지 로드 시 p2와 unified를 비교해 누락분을 보완.
+
+**수정 (`scripts/eq_main.js`)**
+
+`migrateToUnified()` 2단계 로직 추가:
+- 1단계: `dnfm_unified` 없으면 기존과 동일하게 최초 생성
+- 2단계: `dnfm_unified`가 이미 있으면 `dnfm_eq`(p2)를 읽어 누락 캐릭터 보완
+  - `unifiedIds`(id 기준), `unifiedJobs`(직업 기준) 중복 체크
+  - p2에만 있는 캐릭터를 `unified.characters`에 추가
+  - 추가된 경우에만 `localStorage.setItem`으로 저장
+
+**수정된 파일:** `scripts/eq_main.js`
+
+---
