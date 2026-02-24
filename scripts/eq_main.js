@@ -1,4 +1,31 @@
 /* ========================================
+[섹션 12-1] 상세입력 탭 캐릭터 순서 동기화
+======================================== */
+/**
+ * characters 배열 순서대로 상세입력 탭의 DOM을 재정렬
+ * - 캐릭터 관리 탭에서 순서 변경 후 상세입력 탭 진입 시 호출
+ * - DOM을 다시 그리지 않고 순서만 바꾸므로 입력값 유지됨
+ */
+function syncDetailTabOrder() {
+    const container = document.getElementById('characterContainer');
+    if (!container) return;
+
+    // characters 배열과 DOM 섹션이 모두 있어야 실행
+    if (!characters || characters.length === 0) return;
+    const sections = container.querySelectorAll('.char-section');
+    if (sections.length === 0) return;
+
+    // characters 배열 순서대로 DOM 재배치
+    // querySelector는 id에 점(.)이 포함되면 오류 발생하므로 getElementById 사용
+    characters.forEach(char => {
+        const section = document.getElementById(char.id);
+        if (section && section.closest('#characterContainer')) {
+            container.appendChild(section);
+        }
+    });
+}
+
+/* ========================================
 [섹션 13] 탭 전환
 ======================================== */
 function switchTo(view) {
@@ -51,6 +78,8 @@ function switchTo(view) {
     if (view === 'detail') {
         // project1 초기화 - 저장 데이터 복원
         if (typeof initProject1 === 'function') initProject1();
+        // 캐릭터 관리 탭에서 순서 변경 시 상세입력 탭 DOM도 재정렬
+        syncDetailTabOrder();
     }
 
     window.scrollTo(0, 0);

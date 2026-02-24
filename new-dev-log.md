@@ -1033,3 +1033,29 @@ btn.innerHTML = btn.innerHTML.replace(/\(\d+\)/, `(${totalParts})`);
 **수정 파일:** `merged.html`, `js/storage.js`
 
 ---
+
+## 2026-02-24 (17차)
+
+### 캐릭터 순서 변경 시 상세입력 탭 동기화
+
+**배경**
+
+캐릭터 관리 탭에서 편집 모드로 순서를 변경해도 상세입력 탭에서는 순서가 반영되지 않는 문제.
+JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
+
+**원인**
+
+`initProject1()`은 `_p1Initialized` 플래그로 최초 1회만 실행됨.
+이후 상세입력 탭 재진입 시 DOM을 다시 그리지 않아 `characters` 배열 순서 변경이 반영되지 않음.
+
+**수정 (`scripts/eq_main.js`)**
+
+`syncDetailTabOrder()` 함수 추가 (섹션 12-1):
+- `characterContainer` 안의 `.char-section` DOM들을 `characters` 배열 순서대로 `appendChild`로 재배치
+- DOM을 다시 그리지 않고 순서만 바꾸므로 입력값 유지
+- `getElementById` 사용 (id에 점(`.`)이 포함된 경우 `querySelector` 오류 방지)
+- `section.closest('#characterContainer')` 로 다른 섹션의 요소를 잘못 이동시키지 않도록 방어
+
+`switchTo('detail')` 진입 시 `syncDetailTabOrder()` 호출 추가.
+
+---
