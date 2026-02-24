@@ -137,29 +137,29 @@ function checkSetColor(charId, setType) {
         });
     }
 
-    // 3. 세트 효과 활성화 여부 확인
-    let isSetComplete = false;
+    // 3. 세트 효과 활성화된 세트명 목록 수집
+    // 방어구: 3개 이상이면 세트 효과, 악세/특장: 3개(풀세트)이면 세트 효과
+    const activeSetNames = new Set();
     if (!config.requireRarity || isAllCorrectRarity) {
         for (const setName in setCounts) {
             if (setCounts[setName] >= 3) {
-                isSetComplete = true;
-                break;
+                activeSetNames.add(setName);
             }
         }
     }
 
     // 4. 하이라이트 적용
+    // - 해당 슬롯이 활성화된 세트에 속한 경우만 파란색
+    // - 세트에 속하지 않거나 세트 효과 미달이면 색상 제거
     config.slots.forEach(slot => {
         const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
         if (!nameEl) return;
 
-        if (isSetComplete) {
+        const setName = slotToSetName[slot];
+        if (setName && activeSetNames.has(setName)) {
             nameEl.style.setProperty('color', '#71D2E5', 'important');
             nameEl.style.fontWeight = 'bold';
-            const setName = slotToSetName[slot];
-            if (setName) {
-                nameEl.title = `${setName} 세트 효과 활성화 (${setCounts[setName]}셋)`;
-            }
+            nameEl.title = `${setName} 세트 효과 활성화 (${setCounts[setName]}셋)`;
         } else {
             nameEl.style.color = "";
             nameEl.style.fontWeight = "";

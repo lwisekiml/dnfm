@@ -1105,3 +1105,29 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정된 파일:** `js/ui-memo-tag.js`
 
 ---
+
+## 2026-02-24 (17차)
+
+### 상세입력 세트 파란색 하이라이트 버그 수정
+
+**버그 1: 세트 아닌 슬롯도 파란색**
+
+기존 코드에서 `isSetComplete`(boolean)가 true면 슬롯 전체에 파란색 적용.
+세트에 속하지 않는 슬롯(`slotToSetName[slot]` 없음)도 파란색이 됨.
+
+**버그 2: 방어구 3세트인데 5개 슬롯 전부 파란색**
+
+방어구는 5슬롯 중 3개 이상이면 세트 효과인데, `isSetComplete=true`가 되면 5개 전부 파란색 적용.
+실제로 그 세트에 속한 슬롯만 파란색이어야 함.
+
+**수정 (`js/ui-core.js`)**
+
+`checkSetColor()` 3~4단계 수정:
+- `isSetComplete`(boolean) → `activeSetNames`(Set) 로 변경
+- 세트 효과 달성한 세트명들을 Set에 수집
+- 4단계 하이라이트: `slotToSetName[slot]`이 `activeSetNames`에 포함된 경우만 파란색 적용
+- 해당 슬롯이 세트에 속하지 않거나 세트 효과 미달이면 색상 제거
+
+**수정된 파일:** `js/ui-core.js`
+
+---
