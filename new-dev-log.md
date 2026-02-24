@@ -979,3 +979,28 @@ btn.innerHTML = btn.innerHTML.replace(/\(\d+\)/, `(${totalParts})`);
 **수정된 파일:** `scripts/eq_main.js`
 
 ---
+
+## 2026-02-24 (15차)
+
+### migrateToUnified 매칭 로직 전면 재수정
+
+**배경**
+
+통계 화면에서 일부 캐릭터 장비 보유 수치가 0으로 나오는 문제 발생.
+
+**원인 분석**
+
+두 스토리지 키의 데이터 구조가 완전히 달랐음:
+
+- `dnfm_character_equipment_data` (PROJECT1): `inputs.info_job`, `inputs.info_name` 구조 (상세입력 데이터), `armorCounts` 없음
+- `dnfm_eq` (PROJECT2): 최상위에 `job`, `name` 필드 직접 존재, `armorCounts`/`weaponCounts` 있음, `inputs` 없음
+
+기존 코드는 두 키가 같은 형식이라고 가정하고 직업 기준 중복 제거만 했기 때문에, p1을 먼저 처리하면서 같은 직업의 p2 데이터(`armorCounts`)를 무시함.
+또한 p2 매칭 시 `c.inputs?.['info_job']?.val`로 읽으려 했으나 p2에는 `inputs`가 없어 항상 빈 문자열 → 매칭 실패.
+
+**수정 (`scripts/eq_main.js`)**
+
+- p1(`inputs` 구조) 기준으로 순회하면서 p2에서 같은 직업(`c.job || c.inputs?.['info_job']?.val`)을 찾아 `armorCounts`/`weaponCounts`/`updateTimes`/`craftMaterials`를 가져와 합침
+- p1에 없는 p2 캐릭터는 별도로 추가 (p2 구조도 `job || inputs.info_job` 양쪽 모두 커버)
+
+---

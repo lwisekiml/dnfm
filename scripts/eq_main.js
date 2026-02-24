@@ -74,126 +74,81 @@ function switchTo(view) {
  * - dnfm_unified가 이미 존재하면 실행하지 않음
  */
 function migrateToUnified() {
-    // ── 1단계: dnfm_unified 없으면 최초 생성 ──────────────────────────────
-    if (!localStorage.getItem(STORAGE_KEYS.UNIFIED)) {
-        let p1Chars = [];
-        let p2Chars = [];
-        let history = [];
+    if (localStorage.getItem(STORAGE_KEYS.UNIFIED)) return; // 이미 마이그레이션됨
 
-        try {
-            const p1Raw = localStorage.getItem(STORAGE_KEYS.PROJECT1);
-            if (p1Raw) p1Chars = JSON.parse(p1Raw);
-        } catch (e) {}
-
-        try {
-            const p2Raw = localStorage.getItem(STORAGE_KEYS.PROJECT2);
-            if (p2Raw) p2Chars = JSON.parse(p2Raw);
-        } catch (e) {}
-
-        try {
-            const hRaw = localStorage.getItem(STORAGE_KEYS.PROJECT1 + "_history");
-            if (hRaw) history = JSON.parse(hRaw);
-        } catch (e) {}
-
-        const merged = [];
-        const usedJobs = new Set();
-
-        p1Chars.forEach(c => {
-            const job = c.inputs?.['info_job']?.val || c.job || '';
-            if (!usedJobs.has(job)) {
-                usedJobs.add(job);
-                merged.push({
-                    id: c.id,
-                    job: job,
-                    name: c.inputs?.['info_name']?.val || c.name || '',
-                    locked: c.locked || false,
-                    inputs: c.inputs || {},
-                    runeData: c.runeData || { runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] },
-                    tags: c.tags || [],
-                    armorCounts: c.armorCounts || {},
-                    weaponCounts: c.weaponCounts || {},
-                    updateTimes: c.updateTimes || {},
-                    craftMaterials: c.craftMaterials || {}
-                });
-            }
-        });
-
-        p2Chars.forEach(c => {
-            const job = c.job || c.inputs?.['info_job']?.val || '';
-            if (!usedJobs.has(job)) {
-                usedJobs.add(job);
-                merged.push({
-                    id: c.id,
-                    job: job,
-                    name: c.name || c.inputs?.['info_name']?.val || '',
-                    locked: c.locked || false,
-                    inputs: c.inputs || {},
-                    runeData: c.runeData || { runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] },
-                    tags: c.tags || [],
-                    armorCounts: c.armorCounts || {},
-                    weaponCounts: c.weaponCounts || {},
-                    updateTimes: c.updateTimes || {},
-                    craftMaterials: c.craftMaterials || {}
-                });
-            }
-        });
-
-        localStorage.setItem(STORAGE_KEYS.UNIFIED, JSON.stringify({ characters: merged, history }));
-        console.log(`✅ 최초 마이그레이션 완료: 총 ${merged.length}명`);
-        return;
-    }
-
-    // ── 2단계: dnfm_unified가 이미 있으면 p2 누락 캐릭터 보완 ───────────────
-    // 캐릭터 장비 관리(p2, dnfm_eq)에 있지만 dnfm_unified에 없는 캐릭터를 추가
+    let p1Chars = [];
     let p2Chars = [];
+    let history = [];
+
+    try {
+        const p1Raw = localStorage.getItem(STORAGE_KEYS.PROJECT1);
+        if (p1Raw) p1Chars = JSON.parse(p1Raw);
+    } catch (e) {}
+
     try {
         const p2Raw = localStorage.getItem(STORAGE_KEYS.PROJECT2);
         if (p2Raw) p2Chars = JSON.parse(p2Raw);
     } catch (e) {}
 
-    if (p2Chars.length === 0) return; // p2 데이터 없으면 종료
-
-    let unified = { characters: [], history: [] };
     try {
-        unified = JSON.parse(localStorage.getItem(STORAGE_KEYS.UNIFIED));
-    } catch (e) { return; }
+        const hRaw = localStorage.getItem(STORAGE_KEYS.PROJECT1 + "_history");
+        if (hRaw) history = JSON.parse(hRaw);
+    } catch (e) {}
 
-    // unified에 이미 있는 id, job 세트 수집
-    const unifiedIds = new Set(unified.characters.map(c => c.id));
-    const unifiedJobs = new Set(unified.characters.map(c => c.job || ''));
+    // PROJECT1(dnfm_character_equipment_data) = inputs 데이터 (상세입력)
+    // PROJECT2(dnfm_eq)                       = armorCounts/weaponCounts 데이터 (장비관리)
+    // → 직업 기준으로 매칭해서 두 데이터를 하나로 합침
+    const merged = [];
+    const usedJobs = new Set();
 
-    let added = 0;
-    p2Chars.forEach(c => {
-        const job = c.job || c.inputs?.['info_job']?.val || '';
-        const name = c.name || c.inputs?.['info_name']?.val || '';
-        // id 또는 직업이 이미 unified에 있으면 skip
-        if (unifiedIds.has(c.id) || unifiedJobs.has(job)) return;
+    p1Chars.forEach(p1 => {
+        const job = p1.inputs?.['info_job']?.val || '';
+        if (usedJobs.has(job)) return;
+        usedJobs.add(job);
 
-        unified.characters.push({
-            id: c.id,
+        // p2에서 같은 직업 찾아서 armorCounts/weaponCounts 가져옴
+        // p2는 최상위에 job이 있는 구조
+        const p2 = p2Chars.find(c => (c.job || c.inputs?.['info_job']?.val || '') === job);
+
+        merged.push({
+            id: p1.id,
             job: job,
-            name: name,
-            locked: c.locked || false,
-            inputs: c.inputs || {
-                'info_job': { val: job, cls: '' },
-                'info_name': { val: name, cls: '' }
-            },
-            runeData: c.runeData || { runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] },
-            tags: c.tags || [],
-            armorCounts: c.armorCounts || {},
-            weaponCounts: c.weaponCounts || {},
-            updateTimes: c.updateTimes || {},
-            craftMaterials: c.craftMaterials || {}
+            name: p1.inputs?.['info_name']?.val || '',
+            locked: p1.locked || false,
+            inputs: p1.inputs || {},
+            runeData: p1.runeData || { runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] },
+            tags: p1.tags || [],
+            armorCounts: p2?.armorCounts || {},
+            weaponCounts: p2?.weaponCounts || {},
+            updateTimes: p2?.updateTimes || {},
+            craftMaterials: p2?.craftMaterials || {}
         });
-        unifiedIds.add(c.id);
-        unifiedJobs.add(job);
-        added++;
     });
 
-    if (added > 0) {
-        localStorage.setItem(STORAGE_KEYS.UNIFIED, JSON.stringify(unified));
-        console.log(`✅ p2 누락 캐릭터 ${added}명 추가됨 (총 ${unified.characters.length}명)`);
-    }
+    // p1에 없는 p2 캐릭터 추가
+    p2Chars.forEach(p2 => {
+        // p2는 최상위에 job/name이 있는 구조
+        const job = p2.job || p2.inputs?.['info_job']?.val || '';
+        if (usedJobs.has(job)) return;
+        usedJobs.add(job);
+
+        merged.push({
+            id: p2.id,
+            job: job,
+            name: p2.name || p2.inputs?.['info_name']?.val || '',
+            locked: p2.locked || false,
+            inputs: p2.inputs || {},
+            runeData: p2.runeData || { runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] },
+            tags: p2.tags || [],
+            armorCounts: p2.armorCounts || {},
+            weaponCounts: p2.weaponCounts || {},
+            updateTimes: p2.updateTimes || {},
+            craftMaterials: p2.craftMaterials || {}
+        });
+    });
+
+    localStorage.setItem(STORAGE_KEYS.UNIFIED, JSON.stringify({ characters: merged, history }));
+    console.log(`✅ 마이그레이션 완료: 총 ${merged.length}명`);
 }
 
 migrateToUnified();
