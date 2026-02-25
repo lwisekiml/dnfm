@@ -1355,3 +1355,33 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정 파일:** `merged.html`
 
 ---
+
+## 2026-02-25 (33차)
+
+### 검색 결과 설명 칸 편집 기능 추가 - 전 슬롯 통일
+
+**추가 함수 (`js/ui-search.js`)**
+
+- `_makeDescEditable(td, charId, slot)` — 설명 td에 클릭 편집 등록하는 공통 함수
+  - 편집 모드 ON 상태일 때만 클릭 반응
+  - 클릭 시점에 td 크기 직접 측정(`getBoundingClientRect()`) → textarea에 동일 크기 적용
+  - blur 시 자동 저장 + `_applySearchEditToDOM()` 호출 + 텍스트로 복원
+  - Escape 키로 편집 취소
+- `_initDescToggleBtn(table, btnSelector)` — 설명 편집 버튼 토글 초기화 공통 함수
+  - 버튼 클릭 시 ON/OFF 토글 (파란색: OFF, 초록색: ON)
+  - ON 시: 설명 td에 파란 테두리 + 밝은 배경 표시, 클릭하면 편집 가능
+  - OFF 시: 스타일 제거, 열려 있는 textarea 자동 닫기
+
+**적용 대상**
+- `createSimpleSlotSearchTable()` (오라/아바타): innerHTML → DOM 방식으로 변경, 설명 th에 ✏️ 버튼 추가
+- `createTitleSearchTable()` (칭호/외형칭호): innerHTML → DOM 방식으로 변경, 설명 th에 ✏️ 버튼 추가
+- `createCreatureSearchTable()` (크리쳐): innerHTML 문자열 반환 → DOM 방식으로 전환, 설명 th에 ✏️ 버튼 추가
+- 일반 슬롯(무기/상의 등): 기존 `_toggleDescCell` 방식 → `_makeDescEditable` + `_initDescToggleBtn` 방식으로 교체, `_toggleDescCell` 함수 제거
+- 일반 슬롯 설명 칸 가로 고정(`220px`) CSS 제거 → 내용에 따라 자동 조정
+
+**버그 수정**
+- 빈 칸 편집 후 blur 시 `-` 표시되는 문제: `newVal || '-'` → `newVal || ''` 로 변경
+
+**수정된 파일:** `js/ui-search.js`
+
+---

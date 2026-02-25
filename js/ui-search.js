@@ -221,7 +221,8 @@ function displaySearchResults(slot, results) {
     }
 
     if (slot === "크리쳐") {
-        container.innerHTML = createCreatureSearchTable(results);
+        container.innerHTML = '';
+        container.appendChild(createCreatureSearchTable(results));
         return;
     }
 
@@ -257,13 +258,6 @@ function displaySearchResults(slot, results) {
         .search-table-custom th,
         .search-table-custom td {
             font-size: var(--fs-search) !important;
-        }
-        /* 설명 컬럼 가로 고정 너비 - 3가지 값 모두 동일한 값으로 해야됨 */
-        .search-table-custom th.desc-col,
-        .search-table-custom td.desc-col {
-            width: 220px;
-            min-width: 220px;
-            max-width: 220px;
         }
     `;
     document.head.appendChild(style);
@@ -311,14 +305,15 @@ function displaySearchResults(slot, results) {
     container.appendChild(table);
 
     // 설명 편집 버튼 이벤트 등록
-    const descToggleBtn = table.querySelector('#descEditToggleBtn');
-    let descEditMode = false;
-    descToggleBtn.addEventListener('click', () => {
-        descEditMode = !descEditMode;
-        descToggleBtn.style.background = descEditMode ? '#25c2a0' : '#4a5abb';
-        table.querySelectorAll('tbody tr').forEach(tr => {
-            _toggleDescCell(tr, descEditMode);
-        });
+    _initDescToggleBtn(table, '#descEditToggleBtn');
+
+    // 각 행의 설명 td에 클릭 편집 등록
+    table.querySelectorAll('tbody tr').forEach(tr => {
+        const descTd = tr.querySelectorAll('td')[14];
+        if (descTd) {
+            descTd.dataset.descCell = 'true';
+            _makeDescEditable(descTd, tr.dataset.charId, tr.dataset.slot);
+        }
     });
 }
 
@@ -444,7 +439,7 @@ function createSimpleSlotSearchTable(container, results, slot) {
             <th>직업/이름</th>
             <th>희귀도</th>
             <th>아이템명</th>
-            <th>설명</th>
+            <th>설명 <button class="simple-desc-toggle-btn" title="설명 편집" style="background:#4a5abb;color:#fff;border:none;border-radius:4px;padding:1px 6px;cursor:pointer;font-size:11px;margin-left:4px;">✏️</button></th>
         </tr>
     `;
     table.appendChild(thead);
@@ -455,19 +450,36 @@ function createSimpleSlotSearchTable(container, results, slot) {
         const tr = document.createElement('tr');
         const rarityClass = result.rarity ? `rare-${result.rarity}` : '';
 
-        tr.innerHTML = `
-            <td style="white-space: nowrap;">${result.job}(${result.name})</td>
-            <td class="${rarityClass}">${result.rarity || ''}</td>
-            <td>${result.itemname || ''}</td>
-            <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || ''}</td>
-        `;
+        const tdName = document.createElement('td');
+        tdName.style.whiteSpace = 'nowrap';
+        tdName.textContent = `${result.job}(${result.name})`;
 
+        const tdRarity = document.createElement('td');
+        tdRarity.className = rarityClass;
+        tdRarity.textContent = result.rarity || '';
+
+        const tdItem = document.createElement('td');
+        tdItem.textContent = result.itemname || '';
+
+        const tdDesc = document.createElement('td');
+        tdDesc.dataset.descCell = 'true';
+        tdDesc.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px;';
+        tdDesc.textContent = result.desc || '';
+        _makeDescEditable(tdDesc, result.charId, slot);
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdRarity);
+        tr.appendChild(tdItem);
+        tr.appendChild(tdDesc);
         tbody.appendChild(tr);
     });
     table.appendChild(tbody);
 
     container.innerHTML = '';
     container.appendChild(table);
+
+    // 설명 편집 버튼 토글
+    _initDescToggleBtn(table, '.simple-desc-toggle-btn');
 }
 
 /**
@@ -578,7 +590,7 @@ function createTitleSearchTable(container, results) {
         <th colspan="2">기본 정보</th>
         <th colspan="2">엠블렘</th>
         <th colspan="2">마법부여</th>
-        <th rowspan="2">설명</th>
+        <th rowspan="2">설명 <button class="title-desc-toggle-btn" title="설명 편집" style="background:#4a5abb;color:#fff;border:none;border-radius:4px;padding:1px 6px;cursor:pointer;font-size:11px;margin-left:4px;">✏️</button></th>
     </tr>
     <tr>
         <th>희귀도</th>
@@ -611,33 +623,45 @@ function createTitleSearchTable(container, results) {
             const rarityClass = result.rarity ? `rare-${result.rarity}` : '';
             const embClass = getEmblemHighlight('칭호', result.emb1, result.eleType);
 
-            // 첫 번째 행에만 직업/이름 셀 추가 (rowspan)
             if (index === 0) {
-                tr.innerHTML = `
-                    <td rowspan="${charResults.length}" style="white-space: nowrap;">${charKey}</td>
-                    <td>${result.slotType || ''}</td>
-                    <td class="${rarityClass}">${result.rarity || ''}</td>
-                    <td>${result.itemname || ''}</td>
-                    <td class="${embClass}">${result.emb1 || ''}</td>
-                    <td class="${embClass}">${result.emb2 || ''}</td>
-                    <td>${result.enchant || ''}</td>
-                    <td>${result.enchant_val || ''}</td>
-                    <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || ''}</td>
-                `;
-            } else {
-                // 두 번째 행부터는 직업/이름 셀 제외
-                tr.innerHTML = `
-                    <td>${result.slotType || ''}</td>
-                    <td class="${rarityClass}">${result.rarity || ''}</td>
-                    <td>${result.itemname || ''}</td>
-                    <td class="${embClass}">${result.emb1 || ''}</td>
-                    <td class="${embClass}">${result.emb2 || ''}</td>
-                    <td>${result.enchant || ''}</td>
-                    <td>${result.enchant_val || ''}</td>
-                    <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || ''}</td>
-                `;
+                const tdName = document.createElement('td');
+                tdName.rowSpan = charResults.length;
+                tdName.style.whiteSpace = 'nowrap';
+                tdName.textContent = charKey;
+                tr.appendChild(tdName);
             }
 
+            const tdSlot = document.createElement('td');
+            tdSlot.textContent = result.slotType || '';
+            const tdRarity = document.createElement('td');
+            tdRarity.className = rarityClass;
+            tdRarity.textContent = result.rarity || '';
+            const tdItem = document.createElement('td');
+            tdItem.textContent = result.itemname || '';
+            const tdEmb1 = document.createElement('td');
+            tdEmb1.className = embClass;
+            tdEmb1.textContent = result.emb1 || '';
+            const tdEmb2 = document.createElement('td');
+            tdEmb2.className = embClass;
+            tdEmb2.textContent = result.emb2 || '';
+            const tdEnchant = document.createElement('td');
+            tdEnchant.textContent = result.enchant || '';
+            const tdEnchantVal = document.createElement('td');
+            tdEnchantVal.textContent = result.enchant_val || '';
+            const tdDesc = document.createElement('td');
+            tdDesc.dataset.descCell = 'true';
+            tdDesc.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px;';
+            tdDesc.textContent = result.desc || '';
+            _makeDescEditable(tdDesc, result.charId, result.slotType);
+
+            tr.appendChild(tdSlot);
+            tr.appendChild(tdRarity);
+            tr.appendChild(tdItem);
+            tr.appendChild(tdEmb1);
+            tr.appendChild(tdEmb2);
+            tr.appendChild(tdEnchant);
+            tr.appendChild(tdEnchantVal);
+            tr.appendChild(tdDesc);
             tbody.appendChild(tr);
         });
     });
@@ -645,130 +669,120 @@ function createTitleSearchTable(container, results) {
 
     container.innerHTML = '';
     container.appendChild(table);
+
+    // 설명 편집 버튼 토글
+    _initDescToggleBtn(table, '.title-desc-toggle-btn');
 }
 
 /**
  * 크리쳐 검색 테이블 생성
  */
 function createCreatureSearchTable(results) {
-    let html = `
-        <style>
-            .creature-search-table {
-                table-layout: auto;
-                width: auto;
-                font-weight: 900;
-            }
-            .creature-artifacts-cell {
-                padding: 8px !important;
-            }
-            .creature-artifacts-wrapper {
-                display: flex;
-                gap: 10px;
-                justify-content: start;
-            }
-            .creature-art-group {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-                border: 1px solid var(--border);
-                padding: 6px;
-                background: var(--bg-dark);
-                flex: 1;
-                min-width: 150px;
-            }
-            .creature-art-item {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                font-size: var(--fs-search);
-                min-height: 20px;
-            }
-            .creature-art-top {
-                border-bottom: 1px dashed var(--border);
-                padding-bottom: 4px;
-                margin-bottom: 4px;
-            }
-            .creature-art-rarity {
-                padding: 2px 4px;
-                min-width: 45px;
-                text-align: center;
-                font-size: var(--fs-search);
-            }
-            .creature-art-text {
-                flex: 1;
-                font-size: var(--fs-search);
-            }
-        </style>
-        <table class="compare-table search-result-table search-table-custom creature-search-table">
-            <thead>
-                <tr>
-                    <th>직업/이름</th>
-                    <th>희귀도</th>
-                    <th>크리쳐 이름</th>
-                    <th>아티팩트</th>
-                    <th>설명</th>
-                </tr>
-            </thead>
-            <tbody>
+    // 스타일 삽입 (한 번만)
+    if (!document.querySelector('#creature-search-style')) {
+        const style = document.createElement('style');
+        style.id = 'creature-search-style';
+        style.textContent = `
+            .creature-search-table { table-layout: auto; width: auto; font-weight: 900; }
+            .creature-artifacts-cell { padding: 8px !important; }
+            .creature-artifacts-wrapper { display: flex; gap: 10px; justify-content: start; }
+            .creature-art-group { display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--border); padding: 6px; background: var(--bg-dark); flex: 1; min-width: 150px; }
+            .creature-art-item { display: flex; align-items: center; gap: 5px; font-size: var(--fs-search); min-height: 20px; }
+            .creature-art-top { border-bottom: 1px dashed var(--border); padding-bottom: 4px; margin-bottom: 4px; }
+            .creature-art-rarity { padding: 2px 4px; min-width: 45px; text-align: center; font-size: var(--fs-search); }
+            .creature-art-text { flex: 1; font-size: var(--fs-search); }
+        `;
+        document.head.appendChild(style);
+    }
+
+    const table = document.createElement('table');
+    table.className = 'compare-table search-result-table search-table-custom creature-search-table';
+
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>직업/이름</th>
+                <th>희귀도</th>
+                <th>크리쳐 이름</th>
+                <th>아티팩트</th>
+                <th>설명 <button class="creature-desc-toggle-btn" title="설명 편집" style="background:#4a5abb;color:#fff;border:none;border-radius:4px;padding:1px 6px;cursor:pointer;font-size:11px;margin-left:4px;">✏️</button></th>
+            </tr>
+        </thead>
     `;
+
+    const tbody = document.createElement('tbody');
 
     results.forEach(result => {
         const rarityClass = result.rarity ? `rare-${result.rarity}` : '';
 
-        // 아티팩트 박스 생성 함수
-        const createArtBox = (color, colorName) => {
+        const createArtBox = (color) => {
             const topRarity = result[`art_${color}_top_rarity`] || '';
-            const topText = result[`art_${color}_top_text`] || '';
-            const bg1 = result[`art_${color}_bg_1`] || '';
-            const opt1 = result[`art_${color}_opt_1`] || '';
-            const bg2 = result[`art_${color}_bg_2`] || '';
-            const opt2 = result[`art_${color}_opt_2`] || '';
-
-            const rarityClassTop = topRarity ? `bg-${topRarity}` : '';
-            const rarityClassBg1 = bg1 ? `bg-${bg1}` : '';
-            const rarityClassBg2 = bg2 ? `bg-${bg2}` : '';
-
-            return `
-                <div class="creature-art-group">
-                    <div class="creature-art-item creature-art-top">
-                        <span class="creature-art-rarity ${rarityClassTop}">${topRarity || '-'}</span>
-                        <span class="creature-art-text">${topText || '-'}</span>
-                    </div>
-                    <div class="creature-art-item">
-                        <span class="creature-art-rarity ${rarityClassBg1}">${bg1 || '-'}</span>
-                        <span class="creature-art-text">${opt1 || '-'}</span>
-                    </div>
-                    <div class="creature-art-item">
-                        <span class="creature-art-rarity ${rarityClassBg2}">${bg2 || '-'}</span>
-                        <span class="creature-art-text">${opt2 || '-'}</span>
-                    </div>
+            const topText   = result[`art_${color}_top_text`]   || '';
+            const bg1       = result[`art_${color}_bg_1`]        || '';
+            const opt1      = result[`art_${color}_opt_1`]       || '';
+            const bg2       = result[`art_${color}_bg_2`]        || '';
+            const opt2      = result[`art_${color}_opt_2`]       || '';
+            const div = document.createElement('div');
+            div.className = 'creature-art-group';
+            div.innerHTML = `
+                <div class="creature-art-item creature-art-top">
+                    <span class="creature-art-rarity ${topRarity ? 'bg-'+topRarity : ''}">${topRarity || '-'}</span>
+                    <span class="creature-art-text">${topText || '-'}</span>
+                </div>
+                <div class="creature-art-item">
+                    <span class="creature-art-rarity ${bg1 ? 'bg-'+bg1 : ''}">${bg1 || '-'}</span>
+                    <span class="creature-art-text">${opt1 || '-'}</span>
+                </div>
+                <div class="creature-art-item">
+                    <span class="creature-art-rarity ${bg2 ? 'bg-'+bg2 : ''}">${bg2 || '-'}</span>
+                    <span class="creature-art-text">${opt2 || '-'}</span>
                 </div>
             `;
+            return div;
         };
 
-        html += `
-            <tr>
-                <td style="white-space: nowrap;">${result.job}(${result.name})</td>
-                <td class="${rarityClass}">${result.rarity || '-'}</td>
-                <td>${result.name || '-'}</td>
-                <td class="creature-artifacts-cell">
-                    <div class="creature-artifacts-wrapper">
-                        ${createArtBox('red', 'Red')}
-                        ${createArtBox('blue', 'Blue')}
-                        ${createArtBox('green', 'Green')}
-                    </div>
-                </td>
-                <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || '-'}</td>
-            </tr>
-        `;
+        const tr = document.createElement('tr');
+
+        const tdName = document.createElement('td');
+        tdName.style.whiteSpace = 'nowrap';
+        tdName.textContent = `${result.job}(${result.name})`;
+
+        const tdRarity = document.createElement('td');
+        tdRarity.className = rarityClass;
+        tdRarity.textContent = result.rarity || '-';
+
+        const tdCreatureName = document.createElement('td');
+        tdCreatureName.textContent = result.itemname || '-';
+
+        const tdArt = document.createElement('td');
+        tdArt.className = 'creature-artifacts-cell';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'creature-artifacts-wrapper';
+        wrapper.appendChild(createArtBox('red'));
+        wrapper.appendChild(createArtBox('blue'));
+        wrapper.appendChild(createArtBox('green'));
+        tdArt.appendChild(wrapper);
+
+        const tdDesc = document.createElement('td');
+        tdDesc.dataset.descCell = 'true';
+        tdDesc.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px;';
+        tdDesc.textContent = result.desc || '';
+        _makeDescEditable(tdDesc, result.charId, '크리쳐');
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdRarity);
+        tr.appendChild(tdCreatureName);
+        tr.appendChild(tdArt);
+        tr.appendChild(tdDesc);
+        tbody.appendChild(tr);
     });
 
-    html += `
-            </tbody>
-        </table>
-    `;
+    table.appendChild(tbody);
 
-    return html;
+    // 설명 편집 버튼 토글 (return 전에 등록, DOM에 추가된 후 버튼 클릭 시 동작)
+    setTimeout(() => _initDescToggleBtn(table, '.creature-desc-toggle-btn'), 0);
+
+    return table;
 }
 
 /**
@@ -857,40 +871,90 @@ function _makeInput(currentVal) {
 }
 
 /**
+ * 설명 편집 버튼 토글 초기화 (칭호/외형칭호, 오라/아바타, 크리쳐 공통)
+ * btnSelector: 버튼의 class selector
+ */
+function _initDescToggleBtn(table, btnSelector) {
+    const btn = table.querySelector(btnSelector);
+    if (!btn) return;
+
+    let editMode = false;
+
+    btn.addEventListener('click', () => {
+        editMode = !editMode;
+        btn.style.background = editMode ? '#25c2a0' : '#4a5abb';
+        btn.title = editMode ? '설명 편집 종료' : '설명 편집';
+
+        // 모든 설명 td에 editMode 플래그 설정
+        table.querySelectorAll('tbody td[data-desc-cell="true"]').forEach(td => {
+            td.dataset.descEditMode = editMode ? 'on' : 'off';
+            td.style.cursor = editMode ? 'text' : 'default';
+            td.title = editMode ? '클릭하여 설명 편집' : '';
+
+            // 편집 모드 ON: 파란 테두리 + 살짝 밝은 배경
+            if (editMode) {
+                td.style.outline = '1px solid #4a5abb';
+                td.style.background = 'rgba(74,91,187,0.15)';
+            } else {
+                td.style.outline = '';
+                td.style.background = '';
+                // 편집 모드 OFF 시 열려 있는 textarea를 blur로 닫기
+                const ta = td.querySelector('textarea');
+                if (ta) ta.blur();
+            }
+        });
+    });
+}
+
+/**
+ * 설명 td를 클릭 시 바로 편집 가능하게 만드는 공통 함수
+ * (칭호/외형칭호, 오라, 아바타, 크리쳐에 사용)
+ */
+function _makeDescEditable(td, charId, slot) {
+    td.style.cursor = 'default';
+
+    td.addEventListener('click', () => {
+        if (!td.dataset.descEditMode || td.dataset.descEditMode !== 'on') return; // 편집 모드 OFF
+        if (td.querySelector('textarea')) return; // 이미 편집 중
+
+        // 클릭 시점에 td 실제 크기 측정 (클릭한 td 자신이므로 정확함)
+        const rect = td.getBoundingClientRect();
+        const tdW = rect.width;
+        const tdH = Math.max(rect.height, 40);
+
+        const currentVal = td.dataset.descVal !== undefined ? td.dataset.descVal : td.textContent;
+        td.dataset.descVal = currentVal;
+
+        const ta = document.createElement('textarea');
+        ta.value = currentVal === '-' ? '' : currentVal;
+        ta.style.cssText = `width:${tdW}px; height:${tdH}px; min-height:${tdH}px; background:#1a2040; color:#fff; border:1px solid #4a5abb; border-radius:3px; padding:4px; box-sizing:border-box; font-size:inherit; font-family:inherit; resize:vertical; display:block;`;
+
+        ta.addEventListener('blur', () => {
+            const newVal = ta.value;
+            td.dataset.descVal = newVal;
+            td.className = td.className || '';  // desc-col 등 기존 클래스 유지
+            td.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px; cursor:text; outline:1px solid #4a5abb; background:rgba(74,91,187,0.15);';
+            td.title = '클릭하여 설명 편집';
+            td.textContent = newVal || '';
+            if (charId && slot) _applySearchEditToDOM(charId, slot, { desc: newVal });
+        });
+
+        ta.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') ta.blur();
+        });
+
+        td.innerHTML = '';
+        td.style.padding = '0';
+        td.title = '';
+        td.appendChild(ta);
+        ta.focus();
+    });
+}
+
+/**
  * 설명 td 편집 모드 전환 (헤더 버튼으로 제어)
  * width:100% 사용 → 측정 오차 없이 td 크기 그대로
  */
-function _toggleDescCell(tr, editMode) {
-    const tds = tr.querySelectorAll('td');
-    const descTd = tds[14];
-    if (!descTd) return;
-
-    if (editMode) {
-        const currentVal = descTd.dataset.descVal !== undefined ? descTd.dataset.descVal : descTd.textContent;
-        descTd.dataset.descVal = currentVal;
-        const ta = document.createElement('textarea');
-        ta.value = currentVal;
-        // min-height : 설명 수정칸의 세로 길이
-        ta.style.cssText = 'width:100%; height:100%; min-height:50px; background:#1a2040; color:#fff; border:1px solid #4a5abb; border-radius:3px; padding:4px; box-sizing:border-box; font-size:inherit; font-family:inherit; resize:vertical; display:block;';
-        ta.addEventListener('blur', () => {
-            const newDesc = ta.value;
-            descTd.dataset.descVal = newDesc;
-            const charId = tr.dataset.charId;
-            const slot = tr.dataset.slot;
-            if (charId && slot) _applySearchEditToDOM(charId, slot, { desc: newDesc });
-        });
-        descTd.innerHTML = '';
-        descTd.style.padding = '0';
-        descTd.appendChild(ta);
-    } else {
-        const val = descTd.querySelector('textarea')?.value ?? descTd.dataset.descVal ?? '';
-        descTd.dataset.descVal = val;
-        descTd.className = 'desc-col';
-        descTd.style.cssText = 'white-space: pre-wrap; text-align: left; padding: 4px 8px;';
-        descTd.textContent = val;
-    }
-}
-
 /**
  * 인라인 편집 모드 진입 (설명 제외)
  */
@@ -1036,15 +1100,20 @@ function _exitSearchRowEditMode(tr, slot, result) {
     allTds[12].textContent = result.enchant;
     allTds[13].textContent = result.enchant_val;
 
-    // [14] 설명 - 설명 편집 모드 켜진 경우 textarea 유지, 아니면 텍스트 복원
+    // [14] 설명 - 값 갱신 (textarea가 열려 있으면 값만 업데이트, 아니면 텍스트 복원)
     const descTd = allTds[14];
     const descTa = descTd.querySelector('textarea');
+    descTd.dataset.descVal = result.desc || '';
     if (descTa) {
         descTa.value = result.desc || '';
-        descTd.dataset.descVal = result.desc || '';
     } else {
         descTd.className = 'desc-col';
-        descTd.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px;';
+        // 편집 모드 ON 상태면 테두리/배경 유지
+        if (descTd.dataset.descEditMode === 'on') {
+            descTd.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px; cursor:text; outline:1px solid #4a5abb; background:rgba(74,91,187,0.15);';
+        } else {
+            descTd.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px;';
+        }
         descTd.textContent = result.desc || '';
     }
 }
