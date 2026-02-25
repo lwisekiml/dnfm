@@ -1250,3 +1250,19 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정 파일:** `scripts/eq_weapon.js`
 
 ---
+
+## 2026-02-25 (28차)
+
+### 검색 결과 설명 칸 크기 조절 방법 확인
+
+**크기 조절 위치 (`js/ui-search.js`)**
+
+- **가로 너비** (평소 + 수정 칸 동시 적용)
+  - `.search-table-custom th.desc-col, td.desc-col` 의 `width / min-width / max-width` 세 값을 동일하게 수정
+  - 현재값: `220px`
+
+- **세로 높이** (수정 칸일 때만 적용)
+  - `_toggleDescCell()` 내 textarea 스타일의 `min-height` 수정
+  - 현재값: `50px`
+
+---

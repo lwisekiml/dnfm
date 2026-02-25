@@ -246,8 +246,8 @@ function displaySearchResults(slot, results) {
     // 일반 슬롯 테이블 생성
     const table = document.createElement('table');
     table.className = 'compare-table search-result-table search-table-custom';
-    table.style.tableLayout = 'auto';  // 내용에 맞춰 자동 조정
-    table.style.width = 'auto';        // 테이블 전체 너비 자동
+    table.style.tableLayout = 'auto';
+    table.style.width = 'auto';
     table.style.fontWeight = '900';
 
     // CSS 변수 사용 (--fs-search)
@@ -258,11 +258,15 @@ function displaySearchResults(slot, results) {
         .search-table-custom td {
             font-size: var(--fs-search) !important;
         }
+        /* 설명 컬럼 가로 고정 너비 - 3가지 값 모두 동일한 값으로 해야됨 */
+        .search-table-custom th.desc-col,
+        .search-table-custom td.desc-col {
+            width: 220px;
+            min-width: 220px;
+            max-width: 220px;
+        }
     `;
     document.head.appendChild(style);
-
-    // colgroup 제거 - 자동 너비 조정을 위해
-    // 각 열이 내용에 맞춰 자동으로 크기 조정됨
 
     // thead
     const thead = document.createElement('thead');
@@ -273,7 +277,7 @@ function displaySearchResults(slot, results) {
             <th colspan="4">마법봉인</th>
             <th colspan="2">엠블렘</th>
             <th colspan="2">마법부여</th>
-            <th rowspan="2">설명</th>
+            <th rowspan="2" class="desc-col">설명 <button id="descEditToggleBtn" title="설명 편집" style="background:#4a5abb;color:#fff;border:none;border-radius:4px;padding:1px 6px;cursor:pointer;font-size:11px;margin-left:4px;">✏️</button></th>
         </tr>
         <tr>
             <th>희귀도</th>
@@ -301,8 +305,21 @@ function displaySearchResults(slot, results) {
     });
     table.appendChild(tbody);
 
+    container.style.overflowX = 'auto';
+    container.style.webkitOverflowScrolling = 'touch';
     container.innerHTML = '';
     container.appendChild(table);
+
+    // 설명 편집 버튼 이벤트 등록
+    const descToggleBtn = table.querySelector('#descEditToggleBtn');
+    let descEditMode = false;
+    descToggleBtn.addEventListener('click', () => {
+        descEditMode = !descEditMode;
+        descToggleBtn.style.background = descEditMode ? '#25c2a0' : '#4a5abb';
+        table.querySelectorAll('tbody tr').forEach(tr => {
+            _toggleDescCell(tr, descEditMode);
+        });
+    });
 }
 
 /**
@@ -357,12 +374,13 @@ function createSearchResultRow(slot, result) {
         <td class="${embClass}">${result.emb2}</td>
         <td>${result.enchant}</td>
         <td>${result.enchant_val}</td>
-        <td style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || ''}</td>
+        <td class="desc-col" style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || ''}</td>
     `;
 
-    // 직업/이름 셀 클릭 시 편집 모달 열기
+    // 직업/이름 셀 클릭 시 인라인 편집 (설명 제외)
     tr.querySelector('td:first-child').addEventListener('click', () => {
-        _openSearchEditModal(tr, slot, result);
+        if (tr.dataset.editing === 'true') return;
+        _enterSearchRowEditMode(tr, slot, result);
     });
 
     return tr;
@@ -788,11 +806,11 @@ function createMemoTagSearchTable(container, results) {
 
 
 
+
 /* ============================================================
-   검색 결과 편집 모달
+   검색 결과 인라인 편집 (설명 제외) + 설명 헤더 버튼 토글
    ============================================================ */
 
-// select 옵션 정의
 const _SEARCH_EDIT_OPTIONS = {
     rarity: ['에픽', '유니크', '레어', '언커먼', '커먼', '티어'],
     exceed: ['', '이상', '선봉', '의지'],
@@ -819,157 +837,159 @@ function _getSealOptions(slot, isN1) {
     return [''];
 }
 
-function _makeModalSelect(options, currentVal) {
+function _makeSelect(options, currentVal) {
     const sel = document.createElement('select');
-    sel.style.cssText = 'width:100%; background:#1a2040; color:#fff; border:1px solid #4a5abb; border-radius:4px; padding:5px; font-size:13px;';
+    sel.style.cssText = 'width:100%; background:#1a2040; color:#fff; border:1px solid #4a5abb; border-radius:3px; padding:2px; font-size:inherit;';
     options.forEach(opt => {
         const o = document.createElement('option');
-        o.value = opt;
-        o.textContent = opt || '(없음)';
+        o.value = opt; o.textContent = opt || '(없음)';
         if (opt === currentVal) o.selected = true;
         sel.appendChild(o);
     });
     return sel;
 }
 
-function _makeModalInput(currentVal) {
+function _makeInput(currentVal) {
     const inp = document.createElement('input');
-    inp.type = 'text';
-    inp.value = currentVal || '';
-    inp.style.cssText = 'width:100%; background:#1a2040; color:#fff; border:1px solid #4a5abb; border-radius:4px; padding:5px; font-size:13px; box-sizing:border-box;';
+    inp.type = 'text'; inp.value = currentVal || '';
+    inp.style.cssText = 'width:100%; background:#1a2040; color:#fff; border:1px solid #4a5abb; border-radius:3px; padding:2px; box-sizing:border-box; font-size:inherit;';
     return inp;
 }
 
-function _makeModalTextarea(currentVal) {
-    const ta = document.createElement('textarea');
-    ta.value = currentVal || '';
-    ta.rows = 5;
-    ta.style.cssText = 'width:100%; background:#1a2040; color:#fff; border:1px solid #4a5abb; border-radius:4px; padding:5px; font-size:13px; box-sizing:border-box; resize:vertical; font-family:inherit;';
-    return ta;
-}
+/**
+ * 설명 td 편집 모드 전환 (헤더 버튼으로 제어)
+ * width:100% 사용 → 측정 오차 없이 td 크기 그대로
+ */
+function _toggleDescCell(tr, editMode) {
+    const tds = tr.querySelectorAll('td');
+    const descTd = tds[14];
+    if (!descTd) return;
 
-function _makeModalRow(label, inputEl) {
-    const row = document.createElement('div');
-    row.style.cssText = 'display:flex; align-items:center; gap:8px; margin-bottom:8px;';
-    const lbl = document.createElement('label');
-    lbl.textContent = label;
-    lbl.style.cssText = 'min-width:80px; color:#aaa; font-size:12px; text-align:right; flex-shrink:0;';
-    row.appendChild(lbl);
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'flex:1;';
-    wrapper.appendChild(inputEl);
-    row.appendChild(wrapper);
-    return row;
+    if (editMode) {
+        const currentVal = descTd.dataset.descVal !== undefined ? descTd.dataset.descVal : descTd.textContent;
+        descTd.dataset.descVal = currentVal;
+        const ta = document.createElement('textarea');
+        ta.value = currentVal;
+        // min-height : 설명 수정칸의 세로 길이
+        ta.style.cssText = 'width:100%; height:100%; min-height:50px; background:#1a2040; color:#fff; border:1px solid #4a5abb; border-radius:3px; padding:4px; box-sizing:border-box; font-size:inherit; font-family:inherit; resize:vertical; display:block;';
+        ta.addEventListener('blur', () => {
+            const newDesc = ta.value;
+            descTd.dataset.descVal = newDesc;
+            const charId = tr.dataset.charId;
+            const slot = tr.dataset.slot;
+            if (charId && slot) _applySearchEditToDOM(charId, slot, { desc: newDesc });
+        });
+        descTd.innerHTML = '';
+        descTd.style.padding = '0';
+        descTd.appendChild(ta);
+    } else {
+        const val = descTd.querySelector('textarea')?.value ?? descTd.dataset.descVal ?? '';
+        descTd.dataset.descVal = val;
+        descTd.className = 'desc-col';
+        descTd.style.cssText = 'white-space: pre-wrap; text-align: left; padding: 4px 8px;';
+        descTd.textContent = val;
+    }
 }
 
 /**
- * 검색 결과 편집 모달 열기
+ * 인라인 편집 모드 진입 (설명 제외)
  */
-function _openSearchEditModal(tr, slot, result) {
-    // 기존 모달 제거
-    const existing = document.getElementById('searchEditModal');
-    if (existing) existing.remove();
+function _enterSearchRowEditMode(tr, slot, result) {
+    tr.dataset.editing = 'true';
+    tr.style.background = 'rgba(74,91,187,0.2)';
 
-    // 입력 요소 생성
-    const inputs = {
-        rarity:      _makeModalSelect(_SEARCH_EDIT_OPTIONS.rarity, result.rarity),
-        exceed:      _makeModalSelect(_SEARCH_EDIT_OPTIONS.exceed, result.exceed),
-        prefix:      _makeModalSelect(_SEARCH_EDIT_OPTIONS.prefix, result.prefix),
-        itemname:    _makeModalInput(result.itemname),
-        reinforce:   _makeModalInput(result.reinforce),
-        seal1:       _makeModalSelect(_getSealOptions(slot, true), result.seal1),
-        seal1_val:   _makeModalInput(result.seal1_val),
-        seal2:       _makeModalSelect(_getSealOptions(slot, false), result.seal2),
-        seal2_val:   _makeModalInput(result.seal2_val),
-        emb1:        _makeModalInput(result.emb1),
-        emb2:        _makeModalInput(result.emb2),
-        enchant:     _makeModalInput(result.enchant),
-        enchant_val: _makeModalInput(result.enchant_val),
-        desc:        _makeModalTextarea(result.desc),
-    };
+    const tds = tr.querySelectorAll('td');
 
-    // 모달 overlay
-    const overlay = document.createElement('div');
-    overlay.id = 'searchEditModal';
-    overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; display:flex; align-items:center; justify-content:center;';
+    // td 크기 고정 (편집 중 레이아웃 안 흔들리도록)
+    Array.from(tds).forEach(td => {
+        const w = td.getBoundingClientRect().width;
+        td.style.width = w + 'px';
+        td.style.minWidth = w + 'px';
+        td.style.maxWidth = w + 'px';
+    });
 
-    // 모달 박스
-    const box = document.createElement('div');
-    box.style.cssText = 'background:#1e2340; border:1px solid #4a5abb; border-radius:8px; padding:20px; width:500px; max-width:95vw; max-height:90vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.5);';
-
-    // 제목
-    const title = document.createElement('div');
-    title.style.cssText = 'font-size:15px; font-weight:bold; color:#ffd700; margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid #333;';
-    title.textContent = `✏️ ${result.job}(${result.name}) - ${slot} 수정`;
-    box.appendChild(title);
-
-    // 입력 행들
-    box.appendChild(_makeModalRow('희귀도', inputs.rarity));
-    box.appendChild(_makeModalRow('익시드', inputs.exceed));
-    box.appendChild(_makeModalRow('접두어', inputs.prefix));
-    box.appendChild(_makeModalRow('아이템명', inputs.itemname));
-    box.appendChild(_makeModalRow('강화', inputs.reinforce));
-    box.appendChild(_makeModalRow('봉인1', inputs.seal1));
-    box.appendChild(_makeModalRow('봉인1 수치', inputs.seal1_val));
-    box.appendChild(_makeModalRow('봉인2', inputs.seal2));
-    box.appendChild(_makeModalRow('봉인2 수치', inputs.seal2_val));
-    box.appendChild(_makeModalRow('엠블렘1', inputs.emb1));
-    box.appendChild(_makeModalRow('엠블렘2', inputs.emb2));
-    box.appendChild(_makeModalRow('마법부여', inputs.enchant));
-    box.appendChild(_makeModalRow('부여 수치', inputs.enchant_val));
-    box.appendChild(_makeModalRow('설명', inputs.desc));
-
-    // 버튼 영역
-    const btnArea = document.createElement('div');
-    btnArea.style.cssText = 'display:flex; gap:10px; justify-content:flex-end; margin-top:16px; padding-top:12px; border-top:1px solid #333;';
-
+    // [0] 저장/취소 버튼
+    tds[0].innerHTML = '';
+    tds[0].style.whiteSpace = 'nowrap';
     const saveBtn = document.createElement('button');
-    saveBtn.textContent = '💾 저장';
-    saveBtn.style.cssText = 'background:#25c2a0; color:#fff; border:none; border-radius:6px; padding:8px 20px; cursor:pointer; font-size:14px; font-weight:bold;';
-
+    saveBtn.textContent = '💾';
+    saveBtn.title = '저장';
+    saveBtn.style.cssText = 'background:#25c2a0;color:#fff;border:none;border-radius:4px;padding:3px 7px;cursor:pointer;margin-right:3px;font-size:13px;';
     const cancelBtn = document.createElement('button');
-    cancelBtn.textContent = '✖ 취소';
-    cancelBtn.style.cssText = 'background:#555; color:#fff; border:none; border-radius:6px; padding:8px 20px; cursor:pointer; font-size:14px;';
+    cancelBtn.textContent = '✖';
+    cancelBtn.title = '취소';
+    cancelBtn.style.cssText = 'background:#e05252;color:#fff;border:none;border-radius:4px;padding:3px 7px;cursor:pointer;font-size:13px;';
+    const nameSpan = document.createElement('div');
+    nameSpan.textContent = `${result.job}(${result.name})`;
+    nameSpan.style.cssText = 'font-size:11px;color:#aaa;margin-top:3px;';
+    tds[0].appendChild(saveBtn);
+    tds[0].appendChild(cancelBtn);
+    tds[0].appendChild(nameSpan);
 
-    btnArea.appendChild(saveBtn);
-    btnArea.appendChild(cancelBtn);
-    box.appendChild(btnArea);
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
+    // [1~13] select / input (설명 tds[14] 제외)
+    const fields = [
+        { idx:1,  el: _makeSelect(_SEARCH_EDIT_OPTIONS.rarity, result.rarity) },
+        { idx:2,  el: _makeSelect(_SEARCH_EDIT_OPTIONS.exceed, result.exceed) },
+        { idx:3,  el: _makeSelect(_SEARCH_EDIT_OPTIONS.prefix, result.prefix) },
+        { idx:4,  el: _makeInput(result.itemname) },
+        { idx:5,  el: _makeInput(result.reinforce) },
+        { idx:6,  el: _makeSelect(_getSealOptions(slot, true), result.seal1) },
+        { idx:7,  el: _makeInput(result.seal1_val) },
+        { idx:8,  el: _makeSelect(_getSealOptions(slot, false), result.seal2) },
+        { idx:9,  el: _makeInput(result.seal2_val) },
+        { idx:10, el: _makeInput(result.emb1) },
+        { idx:11, el: _makeInput(result.emb2) },
+        { idx:12, el: _makeInput(result.enchant) },
+        { idx:13, el: _makeInput(result.enchant_val) },
+    ];
+    fields.forEach(({ idx, el }) => { tds[idx].innerHTML = ''; tds[idx].appendChild(el); });
 
     // 저장
-    saveBtn.addEventListener('click', () => {
+    saveBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const descTa = tds[14].querySelector('textarea');
+        const descVal = descTa ? descTa.value : (tds[14].dataset.descVal ?? tds[14].textContent);
         const newData = {
-            rarity:      inputs.rarity.value,
-            exceed:      inputs.exceed.value,
-            prefix:      inputs.prefix.value,
-            itemname:    inputs.itemname.value,
-            reinforce:   inputs.reinforce.value,
-            seal1:       inputs.seal1.value,
-            seal1_val:   inputs.seal1_val.value,
-            seal2:       inputs.seal2.value,
-            seal2_val:   inputs.seal2_val.value,
-            emb1:        inputs.emb1.value,
-            emb2:        inputs.emb2.value,
-            enchant:     inputs.enchant.value,
-            enchant_val: inputs.enchant_val.value,
-            desc:        inputs.desc.value,
+            rarity:      tds[1].querySelector('select').value,
+            exceed:      tds[2].querySelector('select').value,
+            prefix:      tds[3].querySelector('select').value,
+            itemname:    tds[4].querySelector('input').value,
+            reinforce:   tds[5].querySelector('input').value,
+            seal1:       tds[6].querySelector('select').value,
+            seal1_val:   tds[7].querySelector('input').value,
+            seal2:       tds[8].querySelector('select').value,
+            seal2_val:   tds[9].querySelector('input').value,
+            emb1:        tds[10].querySelector('input').value,
+            emb2:        tds[11].querySelector('input').value,
+            enchant:     tds[12].querySelector('input').value,
+            enchant_val: tds[13].querySelector('input').value,
+            desc:        descVal,
         };
         _applySearchEditToDOM(result.charId, slot, newData);
         Object.assign(result, newData);
-        _updateSearchResultRow(tr, slot, result);
-        overlay.remove();
+        _exitSearchRowEditMode(tr, slot, result);
     });
 
-    // 취소 / overlay 클릭
-    cancelBtn.addEventListener('click', () => overlay.remove());
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+    // 취소
+    cancelBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        _exitSearchRowEditMode(tr, slot, result);
+    });
 }
 
 /**
- * 저장 후 검색 결과 행 표시 갱신
+ * 인라인 편집 모드 종료
  */
-function _updateSearchResultRow(tr, slot, result) {
+function _exitSearchRowEditMode(tr, slot, result) {
+    tr.dataset.editing = 'false';
+    tr.style.background = '';
+
+    tr.querySelectorAll('td').forEach(td => {
+        td.style.width = '';
+        td.style.minWidth = '';
+        td.style.maxWidth = '';
+    });
+
     const rarityClass = result.rarity ? `rare-${result.rarity}` : '';
     const exceedClass = result.exceed ? `ex-${result.exceed}` : '';
     let prefixClass = '';
@@ -990,21 +1010,43 @@ function _updateSearchResultRow(tr, slot, result) {
     const embClass   = getEmblemHighlight(slot, result.emb1, result.eleType);
 
     const tds = tr.querySelectorAll('td');
-    tds[1].className = rarityClass;   tds[1].textContent = result.rarity;
-    tds[2].className = exceedClass;   tds[2].textContent = result.exceed;
-    tds[3].className = prefixClass;   tds[3].textContent = result.prefix;
-    tds[4].textContent = result.itemname;
-    tds[5].textContent = result.reinforce;
-    tds[6].className = seal1Class;    tds[6].textContent = result.seal1;
-    tds[7].className = seal1Class;    tds[7].textContent = result.seal1_val;
-    tds[8].className = seal2Class;    tds[8].textContent = result.seal2;
-    tds[9].className = seal2Class;    tds[9].textContent = result.seal2_val;
-    tds[10].className = embClass;     tds[10].textContent = result.emb1;
-    tds[11].className = embClass;     tds[11].textContent = result.emb2;
-    tds[12].textContent = result.enchant;
-    tds[13].textContent = result.enchant_val;
-    tds[14].style.cssText = 'white-space: pre-wrap; text-align: left; padding: 4px 8px;';
-    tds[14].textContent = result.desc || '';
+
+    // [0] 직업/이름 복원 + 클릭 이벤트 재등록
+    const newTd = tds[0].cloneNode(false);
+    newTd.innerHTML = `✏️ ${result.job}(${result.name})`;
+    newTd.style.cssText = 'white-space:nowrap; user-select:none; cursor:pointer;';
+    newTd.addEventListener('click', () => {
+        if (tr.dataset.editing === 'true') return;
+        _enterSearchRowEditMode(tr, slot, result);
+    });
+    tds[0].parentNode.replaceChild(newTd, tds[0]);
+
+    const allTds = tr.querySelectorAll('td');
+    allTds[1].className = rarityClass;  allTds[1].textContent = result.rarity;
+    allTds[2].className = exceedClass;  allTds[2].textContent = result.exceed;
+    allTds[3].className = prefixClass;  allTds[3].textContent = result.prefix;
+    allTds[4].textContent = result.itemname;
+    allTds[5].textContent = result.reinforce;
+    allTds[6].className = seal1Class;   allTds[6].textContent = result.seal1;
+    allTds[7].className = seal1Class;   allTds[7].textContent = result.seal1_val;
+    allTds[8].className = seal2Class;   allTds[8].textContent = result.seal2;
+    allTds[9].className = seal2Class;   allTds[9].textContent = result.seal2_val;
+    allTds[10].className = embClass;    allTds[10].textContent = result.emb1;
+    allTds[11].className = embClass;    allTds[11].textContent = result.emb2;
+    allTds[12].textContent = result.enchant;
+    allTds[13].textContent = result.enchant_val;
+
+    // [14] 설명 - 설명 편집 모드 켜진 경우 textarea 유지, 아니면 텍스트 복원
+    const descTd = allTds[14];
+    const descTa = descTd.querySelector('textarea');
+    if (descTa) {
+        descTa.value = result.desc || '';
+        descTd.dataset.descVal = result.desc || '';
+    } else {
+        descTd.className = 'desc-col';
+        descTd.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px;';
+        descTd.textContent = result.desc || '';
+    }
 }
 
 /**
