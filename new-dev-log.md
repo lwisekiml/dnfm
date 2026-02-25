@@ -1235,3 +1235,18 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정 파일:** `merged.html`, `scripts/eq_weapon.js`
 
 ---
+
+## 2026-02-25 (27차)
+
+### showRecentUpdates 탭 구조 복원
+
+**원인:** 무기 관리 탭 border 제거 작업 시 eq_weapon.js를 프로젝트 원본(이전 버전) 기준으로 작업하면서 showRecentUpdates의 탭 구조(🌟 장비 업데이트 / 📜 상세입력 변경 기록)와 switchUpdateTab 함수가 누락됨
+
+**복원 내용**
+- `showRecentUpdates()`: 탭 헤더(장비 업데이트 / 상세입력 변경 기록) 및 p1 history 렌더링 복원
+- `switchUpdateTab()`: 탭 전환 함수 복원
+- `renderUpdatePage()`: p2 컨테이너(update-tab-p2) 방식 복원
+
+**수정 파일:** `scripts/eq_weapon.js`
+
+---

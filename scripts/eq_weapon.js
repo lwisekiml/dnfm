@@ -341,20 +341,90 @@ function showRecentUpdates() {
     allUpdatesData.sort((a, b) => b.timestamp - a.timestamp);
 
     const modalContent = document.getElementById("updateModalContent");
-    if (allUpdatesData.length === 0) {
-        modalContent.innerHTML = "<p>최근 업데이트된 내역이 없습니다.</p>";
-        document.getElementById("updatePagination").innerHTML = "";
-        document.getElementById("updateModal").style.display = 'flex';
-        return;
+
+    // ── 탭 헤더 렌더링 ──
+    let p1History = [];
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.UNIFIED);
+        if (raw) {
+            const unified = JSON.parse(raw);
+            p1History = unified.history || [];
+        }
+    } catch (e) {}
+    if (typeof AppState !== 'undefined' && AppState.changeHistory && AppState.changeHistory.length > 0) {
+        p1History = AppState.changeHistory;
     }
+
+    modalContent.innerHTML = `
+        <div style="display:flex; gap:8px; margin-bottom:16px; border-bottom:2px solid #2a3158; padding-bottom:8px;">
+            <button id="tab-update-p2" onclick="switchUpdateTab('p2')"
+                style="padding:6px 18px; border-radius:6px 6px 0 0; border:none; cursor:pointer;
+                       background:#4a33cc; color:#fff; font-weight:bold; font-size:14px;">
+                🌟 장비 업데이트
+            </button>
+            <button id="tab-update-p1" onclick="switchUpdateTab('p1')"
+                style="padding:6px 18px; border-radius:6px 6px 0 0; border:none; cursor:pointer;
+                       background:#2a3158; color:#aaa; font-size:14px;">
+                📜 상세입력 변경 기록
+            </button>
+        </div>
+        <div id="update-tab-p2"></div>
+        <div id="update-tab-p1" style="display:none;"></div>
+    `;
 
     currentUpdatePage = 1;
     renderUpdatePage(1);
+
+    const p1El = document.getElementById('update-tab-p1');
+    if (p1History.length === 0) {
+        p1El.innerHTML = '<p style="color:#aaa;">변경 기록이 없습니다.</p>';
+    } else {
+        p1El.innerHTML = p1History.map(h =>
+            `<div style="border-bottom:1px solid #333; padding:8px 0;">
+                <span style="color:#ffd700;">[${h.time}]</span>
+                <b style="color:#fff;"> ${h.charName}</b>
+                <span style="color:#aaa;"> - ${h.slot}:</span><br>
+                ${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)}
+            </div>`
+        ).join('');
+    }
+
     document.getElementById("updateModal").style.display = 'flex';
 }
 
+function switchUpdateTab(tab) {
+    const p2El = document.getElementById('update-tab-p2');
+    const p1El = document.getElementById('update-tab-p1');
+    const p2Btn = document.getElementById('tab-update-p2');
+    const p1Btn = document.getElementById('tab-update-p1');
+    const paginationEl = document.getElementById('updatePagination');
+
+    if (tab === 'p2') {
+        p2El.style.display = '';
+        p1El.style.display = 'none';
+        p2Btn.style.background = '#4a33cc';
+        p2Btn.style.color = '#fff';
+        p2Btn.style.fontWeight = 'bold';
+        p1Btn.style.background = '#2a3158';
+        p1Btn.style.color = '#aaa';
+        p1Btn.style.fontWeight = '';
+        if (paginationEl) paginationEl.style.display = '';
+    } else {
+        p2El.style.display = 'none';
+        p1El.style.display = '';
+        p2Btn.style.background = '#2a3158';
+        p2Btn.style.color = '#aaa';
+        p2Btn.style.fontWeight = '';
+        p1Btn.style.background = '#4a33cc';
+        p1Btn.style.color = '#fff';
+        p1Btn.style.fontWeight = 'bold';
+        if (paginationEl) paginationEl.style.display = 'none';
+    }
+}
+
 function renderUpdatePage(pageNum) {
-    const modalContent = document.getElementById("updateModalContent");
+    const p2Container = document.getElementById("update-tab-p2");
+    const modalContent = p2Container || document.getElementById("updateModalContent");
     const paginationContainer = document.getElementById("updatePagination");
 
     const startIdx = (pageNum - 1) * ITEMS_PER_PAGE;
