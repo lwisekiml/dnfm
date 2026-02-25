@@ -1131,3 +1131,22 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정된 파일:** `js/ui-core.js`
 
 ---
+
+## 2026-02-24 (21차)
+
+### 신규 캐릭터 마법부여 기본값 미적용 - 근본 원인 수정
+
+**원인**
+
+`createSlotContent()`의 `isNewChar` 조건이 `Object.keys(savedData.inputs).length === 0` 이었으나,
+`createCharacterTable()` 105~113번 라인에서 `savedData.job`/`savedData.name`을 `inputs`에 `info_job`/`info_name`으로 주입하기 때문에
+`addCharacter()`로 추가된 신규 캐릭터도 `inputs`에 최소 2개 키가 존재 → `isNewChar`가 `false`로 판정됨.
+
+**수정 (`js/ui-character.js`)**
+
+`isNewChar` 조건을 장비 관련 inputs 키 유무로 변경:
+- `info_job`, `info_name`, `info_stat_type`, `info_ele_type`, `info_power`, `info_memo`, `info_tag_input` 제외한 키가 없으면 신규 캐릭터로 간주
+- 신규 캐릭터 → `getDefaultEnchant(slot)` 적용 (마법부여 기본값)
+- 기존 캐릭터 → 저장된 값 유지
+
+---

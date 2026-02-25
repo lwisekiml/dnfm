@@ -173,9 +173,17 @@ function createSlotContent(slot, index, charId, savedData) {
     }
 
     // 일반 장비
+    // getDefaultEnchant는 { enchant, val } 반환, createEquipmentRow는 { defaultEnchant, defaultEnchantVal } 사용
+    // info_job/info_name은 addCharacter()로 주입되므로 장비 관련 키가 없으면 신규 캐릭터로 간주
+    const equipInputKeys = savedData?.inputs
+        ? Object.keys(savedData.inputs).filter(k => !['info_job','info_name','info_stat_type','info_ele_type','info_power','info_memo','info_tag_input'].includes(k))
+        : [];
+    const isNewChar = !savedData || !savedData.inputs || equipInputKeys.length === 0;
+    const enchantDefault = isNewChar ? TemplateHelper.getDefaultEnchant(slot) : { enchant: '', val: '' };
     const options = {
         emblemClass: TemplateHelper.getEmblemClass(slot),
-        ...(!savedData ? TemplateHelper.getDefaultEnchant(slot) : {enchant: '', val: ''})
+        defaultEnchant: enchantDefault.enchant,
+        defaultEnchantVal: enchantDefault.val
     };
 
     const equipRow = TemplateHelper.createEquipmentRow(slot, charId, options);

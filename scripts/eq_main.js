@@ -9,17 +9,56 @@
 function syncDetailTabOrder() {
     const container = document.getElementById('characterContainer');
     if (!container) return;
-
-    // characters 배열과 DOM 섹션이 모두 있어야 실행
     if (!characters || characters.length === 0) return;
-    const sections = container.querySelectorAll('.char-section');
-    if (sections.length === 0) return;
 
-    // characters 배열 순서대로 DOM 재배치
+    // characters 배열 순서대로 DOM 재배치 + 없는 캐릭터는 새로 생성
     // querySelector는 id에 점(.)이 포함되면 오류 발생하므로 getElementById 사용
     characters.forEach(char => {
-        const section = document.getElementById(char.id);
-        if (section && section.closest('#characterContainer')) {
+        let section = document.getElementById(char.id);
+        if (!section) {
+            // DOM에 없는 캐릭터 처리
+            if (typeof createCharacterTable === 'function') {
+                const isNewChar = !char.inputs || Object.keys(char.inputs).length === 0;
+                if (isNewChar) {
+                    // inputs가 없는 신규 캐릭터: savedData 없이 생성 → 기본값(마법부여 등) 적용
+                    // 생성 후 id를 char.id로 교정하고 job/name 필드 채우기
+                    createCharacterTable(null);
+                    // 방금 생성된 섹션 = container 마지막 자식
+                    const newSection = container.lastElementChild;
+                    if (newSection && newSection.classList.contains('char-section')) {
+                        // id 교정
+                        const oldId = newSection.id;
+                        newSection.id = char.id;
+                        // AppState 키도 교정
+                        if (typeof AppState !== 'undefined') {
+                            if (AppState.charRuneData?.[oldId]) {
+                                AppState.charRuneData[char.id] = AppState.charRuneData[oldId];
+                                delete AppState.charRuneData[oldId];
+                            }
+                            if (AppState.charTags?.[oldId]) {
+                                AppState.charTags[char.id] = AppState.charTags[oldId];
+                                delete AppState.charTags[oldId];
+                            }
+                        }
+                        // data-char-id 속성도 교정
+                        newSection.querySelectorAll('[data-char-id]').forEach(el => {
+                            if (el.getAttribute('data-char-id') === oldId) {
+                                el.setAttribute('data-char-id', char.id);
+                            }
+                        });
+                        // job/name 필드 채우기
+                        const jobEl = newSection.querySelector('[data-key="info_job"]');
+                        const nameEl = newSection.querySelector('[data-key="info_name"]');
+                        if (jobEl) jobEl.value = char.job || '';
+                        if (nameEl) nameEl.value = char.name || '';
+                    }
+                } else {
+                    // inputs가 있는 기존 캐릭터: savedData와 함께 생성
+                    createCharacterTable(char);
+                }
+            }
+        } else if (section.closest('#characterContainer')) {
+            // 이미 있으면 순서만 맞게 재배치
             container.appendChild(section);
         }
     });

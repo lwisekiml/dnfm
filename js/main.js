@@ -17,13 +17,15 @@ function initProject1() {
 
     AppState.init();
 
-    // 통합 스토리지에서 캐릭터 목록 읽기
+    // 통합 환경: dnfm_unified의 characters 배열 사용
+    // 단독 환경: 기존 AppConstants.STORAGE_KEY 사용
     let parsedList = [];
     try {
-        const raw = localStorage.getItem(AppConstants.STORAGE_KEY);
-        if (raw) {
-            const unified = JSON.parse(raw);
+        if (typeof STORAGE_KEYS !== 'undefined' && STORAGE_KEYS.UNIFIED) {
+            const unified = JSON.parse(localStorage.getItem(STORAGE_KEYS.UNIFIED) || '{}');
             parsedList = unified.characters || [];
+        } else {
+            parsedList = JSON.parse(localStorage.getItem(AppConstants.STORAGE_KEY) || '[]');
         }
     } catch (e) {
         console.error("데이터 파싱 오류 발생:", e);
