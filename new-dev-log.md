@@ -1290,3 +1290,55 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정 파일:** `scripts/eq_character.js`
 
 ---
+
+## 2026-02-25 (30차)
+
+### 탭 이름 변경 및 캐릭터 추가 기능 이동
+
+**수정 내용**
+
+- `merged.html`: 탭 이름 5개 변경
+  - 캐릭터 관리 → 획득 장비 등록
+  - 무기 관리 → 무기 등록
+  - 장비 관리 → 장비 현황
+  - 제작 → 제작 등록
+  - 상세 입력 → 캐릭터 관리
+
+- `merged.html`: 획득 장비 등록 탭에서 이름 입력칸, 직업 입력칸, ➕ 추가 버튼 제거
+
+- `merged.html`: 캐릭터 관리(기존 상세입력) 탭 컨트롤바 맨 앞에 ➕ 캐릭터 추가 버튼 추가
+
+- `scripts/eq_character.js`: `addCharacter()` 수정
+  - 이름/직업 입력 없이 빈 캐릭터 바로 생성
+  - id 형식 `char_` + Date.now() + random으로 변경
+  - project1 필드(`locked`, `inputs`, `runeData`, `tags`) 초기화 포함
+  - `createCharacterTable()` 호출로 캐릭터 관리 탭에 표 즉시 생성
+  - 추가 후 "캐릭터가 추가되었습니다!" 알림
+
+- `scripts/eq_character.js`: `deleteCharacterConfirmed()` 수정
+  - project1 DOM(`p1Section.remove()`) 동기화 추가
+
+- `scripts/eq_character.js`: `updateCharacterInfo()` 수정
+  - `inputs` 필드 및 project1 DOM 동기화 추가
+
+**수정 파일:** `merged.html`, `scripts/eq_character.js`
+
+---
+
+## 2026-02-25 (31차)
+
+### 획득 장비 등록 탭 정렬/순서 버튼 및 관련 함수 제거
+
+**수정 내용**
+
+- `merged.html`: 순서 등록, 등록 순서로 복원, 이름순 정렬, 직업순 정렬 버튼 제거
+
+- `scripts/eq_character.js`: 관련 함수 4개 제거
+  - `saveCurrentOrder()`
+  - `resetToOriginalOrder()`
+  - `sortCharactersByName()`
+  - `sortCharactersByJob()`
+
+**수정 파일:** `merged.html`, `scripts/eq_character.js`
+
+---

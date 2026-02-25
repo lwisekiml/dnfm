@@ -148,26 +148,6 @@
                 onclick="toggleEditMode()">✏️편집</button>
     </div>
 
-    <!-- 💡 순서 초기화 버튼 추가 -->
-    <div style="margin-bottom: 10px;">
-        <button class="char-btn" style="background: #e67e22; font-size: 0.9em; font-weight: bold;"
-                onclick="saveCurrentOrder()">
-            💾 순서 등록
-        </button>
-        <button class="char-btn" style="background: #25c2a0; font-size: 0.9em;"
-                onclick="resetToOriginalOrder()">
-            🔄 등록 순서로 복원
-        </button>
-        <button class="char-btn" style="background: #666; font-size: 0.9em;"
-                onclick="sortCharactersByName()">
-            🔤 이름순 정렬
-        </button>
-        <button class="char-btn" style="background: #666; font-size: 0.9em;"
-                onclick="sortCharactersByJob()">
-            💼 직업순 정렬
-        </button>
-    </div>
-
     <div id="characterList" class="char-grid"></div>
     <div id="characterDetail" class="detail-container" style="display:none;"></div>
 
