@@ -25,25 +25,24 @@
 
     <button id="tab-char" class="modal-btn"
             style="background: #4a33cc; color: #ffffff; border: 1px solid #fff; font-weight: bold;"
-            onclick="switchTo('char')">캐릭터 관리
+            onclick="switchTo('char')">획득 장비 등록
     </button>
     <button id="tab-weapon" class="modal-btn"
-            style="background: #2a3158; color: #ffffff; border: 1px solid transparent;" onclick="switchTo('weapon')">무기
-        관리
+            style="background: #2a3158; color: #ffffff; border: 1px solid transparent;" onclick="switchTo('weapon')">무기 등록
     </button>
     <button id="tab-equipment" class="modal-btn"
             style="background: #2a3158; color: #ffffff; border: 1px solid transparent;" onclick="switchTo('equipment')">
-        장비 관리
+        장비 현황
     </button>
     <button id="tab-craft" class="modal-btn"
             style="background: #2a3158; color: #ffffff; border: 1px solid transparent;"
             onclick="switchTo('craft')">
-        제작
+        제작 등록
     </button>
     <button id="tab-detail" class="modal-btn"
             style="background: #2a3158; color: #ffffff; border: 1px solid transparent;"
             onclick="switchTo('detail')">
-        상세 입력
+        캐릭터 관리
     </button>
 
     <div style="width: 1px; height: 25px; background: #444; margin: 0 5px;"></div>
@@ -142,11 +141,8 @@
 
 
 <div id="section-character-view">
-    <h2>[캐릭터]</h2>
+    <h2>[획득 장비 등록]</h2>
     <div class="form-box">
-        <input type="text" id="newCharName" placeholder="이름 입력">
-        <input type="text" id="newCharJob" placeholder="직업 입력">
-        <button class="add-btn" onclick="addCharacter()">➕ 추가</button>
         <!-- ✅ 새로 추가 -->
         <button id="edit-order-btn" class="add-btn" style="background: linear-gradient(135deg, #3399cc, #2a6f9e);"
                 onclick="toggleEditMode()">✏️편집</button>
@@ -259,6 +255,7 @@
 
     <!-- 컨트롤바 -->
     <div class="control-bar">
+        <button onclick="addCharacter()" class="add-btn" style="background: linear-gradient(135deg, #25c2a0, #1a8a70);">➕ 캐릭터 추가</button>
         <button onclick="lockAllCharacters()" class="btn-all-lock">전체 잠금</button>
         <button class="btn-mode active" id="btnBasicMode" onclick="switchToBasicMode()">📋 기본</button>
         <button class="btn-mode" id="btnCompareMode" onclick="enterCompareMode()">⚖️ 비교</button>

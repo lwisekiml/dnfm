@@ -7,25 +7,17 @@
 // ─────────────────────────────────────────
 // Create
 function addCharacter() {
-    const name = document.getElementById("newCharName").value.trim();
-    const job = document.getElementById("newCharJob").value.trim();
-    if (!name || !job) {
-        alert("이름과 직업을 입력하세요!");
-        return;
-    }
-
     const newChar = {
         id: "char_" + Date.now() + Math.random().toString(16).slice(2),
-        job: job,
-        name: name,
+        job: "",
+        name: "",
         armorCounts: {},
         updateTimes: {},
         craftMaterials: {},
-        // 통합 구조: project1 필드 초기화
         locked: false,
         inputs: {
-            'info_job': { val: job, cls: '' },
-            'info_name': { val: name, cls: '' }
+            'info_job': { val: '', cls: '' },
+            'info_name': { val: '', cls: '' }
         },
         runeData: {
             runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })),
@@ -38,15 +30,14 @@ function addCharacter() {
     saveLocalData();
     renderCharacterList();
 
-    // project1 상세입력 탭 DOM에도 동기화
+    // project1 상세입력(캐릭터 관리) 탭 DOM에도 동기화
     if (!_syncInProgress && typeof createCharacterTable === 'function') {
         _syncInProgress = true;
         createCharacterTable(newChar);
         _syncInProgress = false;
     }
 
-    document.getElementById("newCharName").value = "";
-    document.getElementById("newCharJob").value = "";
+    alert("캐릭터가 추가되었습니다!");
 }
 
 // Read
@@ -188,7 +179,7 @@ function updateCharacterInfo(charId) {
         char.inputs['info_job'] = { val: newJob, cls: '' };
         char.inputs['info_name'] = { val: newName, cls: '' };
 
-        // project1 DOM 동기화 (상세 입력 탭에 해당 캐릭터 테이블이 렌더링된 경우)
+        // project1 DOM 동기화
         const section = document.getElementById(charId);
         if (section) {
             const jobEl = section.querySelector('[data-key="info_job"]');
@@ -210,7 +201,7 @@ function deleteCharacterConfirmed() {
         "캐릭터 삭제",
         "정말로 이 캐릭터를 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.",
         function () {
-            // 1. 전역 배열에서 해당 캐릭터 제외 (필터링)
+            // 1. 전역 배열에서 해당 캐릭터 제외
             characters = characters.filter(c => String(c.id) !== String(currentActionCharId));
 
             // 2. 저장
@@ -226,7 +217,7 @@ function deleteCharacterConfirmed() {
                 }
             }
 
-            // 4. 화면 UI 갱신 (리스트 다시 그리기)
+            // 4. 화면 UI 갱신
             renderCharacterList();
 
             if (activeCharacterId === currentActionCharId) {

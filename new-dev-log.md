@@ -1266,3 +1266,27 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
   - 현재값: `50px`
 
 ---
+
+## 2026-02-25 (29차)
+
+### 캐릭터 추가/삭제 기능 수정 (eq_character.js 첨부 코드 기반 재작업)
+
+**수정 내용 (`scripts/eq_character.js`)**
+
+1. `addCharacter()` 수정
+   - 이름/직업 input 제거에 맞게 빈 캐릭터 바로 생성
+   - id 형식을 `char_` + Date.now() + random으로 변경 (삭제 시 id 불일치 방지)
+   - project1 필드(`locked`, `inputs`, `runeData`, `tags`) 초기화 포함
+   - `createCharacterTable()` 호출로 캐릭터 관리 탭에 표 즉시 생성
+
+2. `deleteCharacterConfirmed()` 수정
+   - project1 DOM(`p1Section.remove()`) 동기화 추가
+   - `AppState.charRuneData`, `charTags` 정리 추가
+
+3. `updateCharacterInfo()` 수정
+   - `inputs['info_job']`, `inputs['info_name']` 동기화 추가
+   - project1 DOM(`data-key` 셀렉터) 동기화 추가
+
+**수정 파일:** `scripts/eq_character.js`
+
+---
