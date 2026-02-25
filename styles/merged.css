@@ -20,24 +20,24 @@
     --color-gray-lightest: #ccc;
 
     /* 골드 */
-    --gold: #c5a678;
-    --border-heavy: #c5a678;
+    --gold: #6472a8;
+    --border-heavy: #6472a8;
 
     /* ===== 배경 색상 ===== */
-    --bg: #0f0f12;
-    --bg-dark: #000;
-    --bg-section: #121216;
-    --bg-row: #1a1a1f;
-    --table-bg: #1a1a1f;
-    --bg-header: #2a2a32;
-    --bg-header-alt: #3a3a42;
-    --bg-compare: #2a2a32;
+    --bg: #0f1222;
+    --bg-dark: #0a0d1a;
+    --bg-section: #0f1222;
+    --bg-row: #1a1e33;
+    --table-bg: #1a1e33;
+    --bg-header: #181c33;
+    --bg-header-alt: #222644;
+    --bg-compare: #181c33;
     --bg-highlight: #4a3f12;
-    --bg-compare-diff: #2a2a32;
-    --input-bg: #000;
+    --bg-compare-diff: #1a1e33;
+    --input-bg: #0f1222;
 
     /* ===== 테두리 ===== */
-    --border: #444;
+    --border: #2a3158;
     --border-width: 1px;
     --border-width-heavy: 2px;
     --border-width-thick: 3px;
@@ -1180,7 +1180,7 @@
     background-color: var(--table-bg);
     width: max-content;
     font-size: var(--fs-table);
-    border: var(--border-width-heavy) var(--border-style) var(--gold);
+    border: 2px solid #6472a8;
 }
 
 #section-detail-view th, #section-detail-view td {
@@ -1572,7 +1572,7 @@
     left: var(--position-center-x);
     transform: var(--transform-center);
     background: var(--bg-row);
-    border: var(--border-width-heavy) var(--border-style) var(--gold);
+    border: var(--border-width) var(--border-style) var(--border);
     padding: var(--padding-modal);
     z-index: var(--z-modal);
     width: var(--width-modal);
@@ -1587,7 +1587,7 @@
     left: var(--position-center-x);
     transform: var(--transform-center);
     background: var(--bg-row);
-    border: var(--border-width-heavy) var(--border-style) var(--gold);
+    border: var(--border-width) var(--border-style) var(--border);
     padding: var(--padding-modal);
     z-index: var(--z-modal);
     width: var(--width-modal-history);
@@ -1711,7 +1711,7 @@
 #section-detail-view .compare-side-table, #section-detail-view .compare-center-table {
     border-collapse: collapse;
     background-color: var(--table-bg);
-    border: var(--border-width-heavy) var(--border-style) var(--gold);
+    border: var(--border-width) var(--border-style) var(--border);
     margin-bottom: var(--spacing-4xl);
     table-layout: auto;
     width: 100%;
@@ -1809,7 +1809,7 @@
     padding: var(--padding-input);
     background: var(--bg-dark);
     color: var(--color-white);
-    border: var(--border-width-heavy) var(--border-style) var(--gold);
+    border: var(--border-width) var(--border-style) var(--border);
     border-radius: var(--border-radius-md);
     font-size: var(--fs-sm);
     cursor: pointer;
@@ -1859,7 +1859,7 @@
     table-layout: auto;
     border-collapse: collapse;
     background-color: var(--table-bg);
-    border: var(--border-width-heavy) var(--border-style) var(--gold);
+    border: var(--border-width) var(--border-style) var(--border);
     margin-bottom: var(--spacing-4xl);
 }
 
