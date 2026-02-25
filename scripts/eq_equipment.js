@@ -1910,6 +1910,125 @@ function showEquipmentStatistics() {
 }
 
 /* ========================================
+7-5-1. 무기 보유 현황
+======================================== */
+// 현재 선택된 직업군 (무기 보유 현황용)
+let activeWeaponStatJob = null;
+
+function showWeaponStatistics(selectedJob = null) {
+    isCharacterEquipmentViewOpen = false;
+    isStatisticsViewOpen = true;
+    selectedCharacterForEquipment = null;
+
+    document.getElementById("character-selection-area").style.display = "none";
+    document.getElementById("character-equipment-detail").style.display = "none";
+
+    const displayArea = document.getElementById("equipment-display-area");
+    displayArea.style.display = "block";
+
+    // 보유 무기가 있는 직업군만 버튼 생성
+    const availableJobs = JOB_LIST.filter(jobGroup => {
+        const jobData = WEAPON_DATA_MAP[jobGroup];
+        if (!jobData) return false;
+        return Object.values(jobData).some(weaponList =>
+            weaponList.some(weaponName =>
+                WEAPON_PREFIXES.some(prefix =>
+                    characters.some(char => (char.weaponCounts?.[`${prefix.tag} ${weaponName}`] || 0) > 0)
+                )
+            )
+        );
+    });
+
+    if (!selectedJob) selectedJob = availableJobs[0] || null;
+    activeWeaponStatJob = selectedJob;
+
+    // 직업군 선택 버튼
+    let html = `<h2 style="color:#ffd700; margin-bottom:16px;">⚔️ 무기 보유 현황</h2>`;
+    html += `<div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;">`;
+    availableJobs.forEach(job => {
+        html += `<button class="char-btn${job === selectedJob ? ' active' : ''}" onclick="showWeaponStatistics('${job}')">${job}</button>`;
+    });
+    html += `</div>`;
+
+    if (!selectedJob) {
+        html += `<p style="color:#888;">보유한 무기가 없습니다.</p>`;
+        displayArea.innerHTML = html;
+        return;
+    }
+
+    const jobData = WEAPON_DATA_MAP[selectedJob];
+
+    html += `<div style="overflow-x:auto;">`;
+    html += `<table style="table-layout:fixed; border-collapse:collapse; width:max-content;">`;
+    html += `<thead><tr style="background:#181c33;">`;
+    html += `<th style="width:120px; padding:12px; border:1px solid #2a3158; white-space:nowrap;">종류</th>`;
+    html += `<th style="width:300px; padding:12px; border:1px solid #2a3158; white-space:nowrap;">무기 이름</th>`;
+    html += `<th style="width:150px; padding:12px; border:1px solid #2a3158; white-space:nowrap; text-align:center;">직업(이름)</th>`;
+    html += `<th style="width:70px;  padding:12px; border:1px solid #2a3158; white-space:nowrap; text-align:center;">개수</th>`;
+    html += `</tr></thead><tbody>`;
+
+    const categories = Object.keys(jobData);
+    categories.forEach((category, cIdx) => {
+        const weaponList = jobData[category];
+
+        // 카테고리 내 보이는 행: [무기이름 × 접두어] 중 한 명이라도 보유한 것만
+        // 각 항목: { weaponName, pref, owners: [{job, name, val}] }
+        const visibleItems = [];
+        weaponList.forEach(weaponName => {
+            WEAPON_PREFIXES.forEach(pref => {
+                const key = `${pref.tag} ${weaponName}`;
+                const owners = characters
+                    .map(char => ({ job: char.job, name: char.name, val: char.weaponCounts?.[key] || 0 }))
+                    .filter(o => o.val > 0);
+                if (owners.length > 0) {
+                    visibleItems.push({ weaponName, pref, owners });
+                }
+            });
+        });
+        if (visibleItems.length === 0) return;
+
+        // 종류 rowspan = 전체 owners 행 수 합계
+        const totalRows = visibleItems.reduce((sum, item) => sum + item.owners.length, 0);
+        let categoryRendered = false;
+
+        visibleItems.forEach((item, iIdx) => {
+            // 무기이름 rowspan = owners 수
+            item.owners.forEach((owner, oIdx) => {
+                html += `<tr>`;
+
+                // 종류 셀 (첫 행만)
+                if (!categoryRendered) {
+                    html += `<td rowspan="${totalRows}" style="background:#181c33; font-weight:bold; width:120px; border:1px solid #2a3158; text-align:center; vertical-align:middle; color:#fff; padding:10px;">${category}</td>`;
+                    categoryRendered = true;
+                }
+
+                // 무기 이름 셀 (소유자 수만큼 rowspan)
+                if (oIdx === 0) {
+                    html += `<td rowspan="${item.owners.length}" style="text-align:left; padding:8px 15px; white-space:nowrap; border:1px solid #2a3158; vertical-align:middle;">`;
+                    html += `<span style="color:${item.pref.color}; font-weight:bold;">${item.pref.tag}</span>&nbsp;${item.weaponName}`;
+                    html += `</td>`;
+                }
+
+                // 직업/이름
+                html += `<td style="padding:6px 10px; border:1px solid #2a3158; text-align:center; white-space:nowrap;">${owner.job}(${owner.name})</td>`;
+                // 개수
+                html += `<td style="padding:6px 10px; border:1px solid #2a3158; text-align:center; color:${item.pref.color}; font-weight:bold;">${owner.val}</td>`;
+
+                html += `</tr>`;
+            });
+        });
+
+        // 카테고리 간 구분선
+        if (cIdx < categories.length - 1) {
+            html += `<tr style="height:20px;"><td colspan="4" style="border:none; border-bottom:1px solid #2a3158; background:transparent;"></td></tr>`;
+        }
+    });
+
+    html += `</tbody></table></div>`;
+    displayArea.innerHTML = html;
+}
+
+/* ========================================
 7-6. 장비 검색 기능
 ======================================== */
 function searchEquipment() {
