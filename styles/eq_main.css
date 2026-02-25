@@ -440,6 +440,13 @@ tr.set5 {
     background: #20244a;
 }
 
+/* 잠금 상태에서 선택된 칸 */
+.craft-input.craft-selected {
+    border-color: #25c2a0;
+    background: #0e2e2a;
+    box-shadow: 0 0 0 2px #25c2a055;
+}
+
 /* 숫자 입력 증감 버튼 제거 */
 .craft-input::-webkit-inner-spin-button,
 .craft-input::-webkit-outer-spin-button {

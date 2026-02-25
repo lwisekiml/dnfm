@@ -1219,3 +1219,19 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정 파일:** `scripts/eq_equipment.js`
 
 ---
+
+## 2026-02-25 (26차)
+
+### 제작 탭 계산 기능 개선
+
+**수정 내용**
+
+- `merged.html`: 실행 취소 버튼 추가 (계산 후 활성화, 초기/취소 후 비활성)
+- `scripts/eq_weapon.js`:
+  - 캐릭터 이름 칸 클릭 시 해당 행 전체 선택/해제 토글
+  - `applyCraftModulo()`: 계산 전 undo 스냅샷 저장, 실행 취소 버튼 활성화
+  - `undoCraftModulo()`: 스냅샷으로 복원 후 버튼 비활성화
+
+**수정 파일:** `merged.html`, `scripts/eq_weapon.js`
+
+---

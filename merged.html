@@ -209,6 +209,22 @@
                 class="craft-lock-btn">
             해제
         </button>
+
+        <button id="craft-calc-btn"
+                onclick="applyCraftModulo()"
+                class="craft-lock-btn"
+                disabled
+                style="background:#25c2a0; border-color:#25c2a0; opacity:0.4; cursor:not-allowed;">
+            계산
+        </button>
+
+        <button id="craft-undo-btn"
+                onclick="undoCraftModulo()"
+                class="craft-lock-btn"
+                disabled
+                style="background:#e74c3c; border-color:#e74c3c; opacity:0.4; cursor:not-allowed;">
+            실행 취소
+        </button>
     </div>
     <div id="craft-table-area"
          style="overflow-x:auto; background:#0f1222; padding:15px;

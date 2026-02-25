@@ -657,6 +657,25 @@ function renderCraftTable() {
         const nameTd = document.createElement("td");
         nameTd.innerHTML = `${char.job}<br>(${char.name})`;
         nameTd.style.fontWeight = "bold";
+        nameTd.style.cursor = "pointer";
+        nameTd.style.userSelect = "none";
+        // 잠금 상태에서 클릭 시 해당 행 전체 선택 토글
+        nameTd.addEventListener('click', function () {
+            if (!craftLocked) return;
+            const rowInputs = tr.querySelectorAll("input.craft-input");
+            // 행 내 모든 input이 선택된 상태면 전체 해제, 아니면 전체 선택
+            const allSelected = Array.from(rowInputs).every(inp => inp.classList.contains("craft-selected"));
+            rowInputs.forEach(inp => {
+                const inpTd = inp.parentElement;
+                if (allSelected) {
+                    inp.classList.remove("craft-selected");
+                    if (inpTd) { inpTd.style.background = ""; inpTd.style.outline = ""; }
+                } else {
+                    inp.classList.add("craft-selected");
+                    if (inpTd) { inpTd.style.background = "#0e2e2a"; inpTd.style.outline = "2px solid #25c2a0"; }
+                }
+            });
+        });
         tr.appendChild(nameTd);
 
         let charTotal = 0; // 캐릭터별 합계
@@ -689,6 +708,14 @@ function renderCraftTable() {
 
                 saveLocalData();
                 renderCraftTable(); // 합계 갱신을 위해 재렌더링
+            });
+
+            // 잠금 상태에서 td 클릭 → 선택 토글
+            td.addEventListener('click', function () {
+                if (!craftLocked) return;
+                const isSelected = input.classList.toggle("craft-selected");
+                td.style.background = isSelected ? "#0e2e2a" : "";
+                td.style.outline = isSelected ? "2px solid #25c2a0" : "";
             });
 
             // 포커스 복원
@@ -758,15 +785,113 @@ function renderCraftTable() {
 function setCraftLock(lock) {
     craftLocked = lock;
 
-    // 버튼 상태 변경
     document.getElementById("craft-lock-btn")
         .classList.toggle("active", lock);
     document.getElementById("craft-unlock-btn")
         .classList.toggle("active", !lock);
 
-    // 입력칸 활성/비활성
-    document.querySelectorAll("#section-craft-view input")
+    // 계산 버튼: 잠금 상태에서만 활성
+    const calcBtn = document.getElementById("craft-calc-btn");
+    if (calcBtn) {
+        calcBtn.disabled = !lock;
+        calcBtn.style.opacity = lock ? "1" : "0.4";
+        calcBtn.style.cursor = lock ? "pointer" : "not-allowed";
+    }
+
+    document.querySelectorAll("#section-craft-view input.craft-input")
         .forEach(input => {
-            input.disabled = lock;
+            input.readOnly = lock;
+            input.style.pointerEvents = lock ? "none" : "";
+            const td = input.parentElement;
+            if (td) td.style.cursor = lock ? "pointer" : "";
+
+            if (!lock) {
+                // 해제 시 선택 초기화
+                input.classList.remove("craft-selected");
+                const td = input.parentElement;
+                if (td) {
+                    td.style.background = "";
+                    td.style.outline = "";
+                }
+            }
         });
+}
+
+// 실행 취소용 스냅샷
+let craftUndoSnapshot = null;
+
+// 선택된 칸들에 % 10 적용
+function applyCraftModulo() {
+    if (!craftLocked) return;
+
+    const selected = document.querySelectorAll("#section-craft-view input.craft-selected");
+    if (selected.length === 0) {
+        alert("계산할 칸을 선택해주세요.");
+        return;
+    }
+
+    // 실행 취소용 스냅샷 저장 (깊은 복사)
+    craftUndoSnapshot = characters.map(char => ({
+        id: char.id,
+        craftMaterials: Object.assign({}, char.craftMaterials)
+    }));
+
+    // 실행 취소 버튼 활성화
+    const undoBtn = document.getElementById("craft-undo-btn");
+    if (undoBtn) {
+        undoBtn.disabled = false;
+        undoBtn.style.opacity = "1";
+        undoBtn.style.cursor = "pointer";
+    }
+
+    const allInputs = Array.from(document.querySelectorAll("#section-craft-view input.craft-input"));
+    const materialsCount = 8;
+
+    const materials = [
+        "망가진 기계 캡슐", "스펙쿨룸 파편", "망가진 강철 톱니바퀴", "강철 화로의 파편",
+        "빛의 저장소", "마누스 메모리얼", "데이터 칩 상자", "강화된 데이터 칩 상자"
+    ];
+
+    selected.forEach(input => {
+        const idx = allInputs.indexOf(input);
+        if (idx === -1) return;
+        const charIdx = Math.floor(idx / materialsCount);
+        const matIdx = idx % materialsCount;
+        const char = characters[charIdx];
+        if (!char) return;
+
+        const original = parseInt(input.value) || 0;
+        const result = original % 10;
+
+        if (result <= 0) {
+            delete char.craftMaterials[materials[matIdx]];
+        } else {
+            char.craftMaterials[materials[matIdx]] = result;
+        }
+    });
+
+    saveLocalData();
+    renderCraftTable();
+}
+
+// 실행 취소
+function undoCraftModulo() {
+    if (!craftUndoSnapshot) return;
+
+    craftUndoSnapshot.forEach(snap => {
+        const char = characters.find(c => c.id === snap.id);
+        if (char) char.craftMaterials = Object.assign({}, snap.craftMaterials);
+    });
+    craftUndoSnapshot = null;
+
+    // 실행 취소 버튼 비활성화
+    const undoBtn = document.getElementById("craft-undo-btn");
+    if (undoBtn) {
+        undoBtn.disabled = true;
+        undoBtn.style.opacity = "0.4";
+        undoBtn.style.cursor = "not-allowed";
+    }
+
+    saveLocalData();
+    renderCraftTable();
 }
