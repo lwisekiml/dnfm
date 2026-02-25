@@ -1912,7 +1912,6 @@ function showEquipmentStatistics() {
 /* ========================================
 7-5-1. 무기 보유 현황
 ======================================== */
-// 현재 선택된 직업군 (무기 보유 현황용)
 let activeWeaponStatJob = null;
 
 function showWeaponStatistics(selectedJob = null) {
@@ -1926,7 +1925,6 @@ function showWeaponStatistics(selectedJob = null) {
     const displayArea = document.getElementById("equipment-display-area");
     displayArea.style.display = "block";
 
-    // 보유 무기가 있는 직업군만 버튼 생성
     const availableJobs = JOB_LIST.filter(jobGroup => {
         const jobData = WEAPON_DATA_MAP[jobGroup];
         if (!jobData) return false;
@@ -1942,7 +1940,6 @@ function showWeaponStatistics(selectedJob = null) {
     if (!selectedJob) selectedJob = availableJobs[0] || null;
     activeWeaponStatJob = selectedJob;
 
-    // 직업군 선택 버튼
     let html = `<h2 style="color:#ffd700; margin-bottom:16px;">⚔️ 무기 보유 현황</h2>`;
     html += `<div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;">`;
     availableJobs.forEach(job => {
@@ -1970,9 +1967,6 @@ function showWeaponStatistics(selectedJob = null) {
     const categories = Object.keys(jobData);
     categories.forEach((category, cIdx) => {
         const weaponList = jobData[category];
-
-        // 카테고리 내 보이는 행: [무기이름 × 접두어] 중 한 명이라도 보유한 것만
-        // 각 항목: { weaponName, pref, owners: [{job, name, val}] }
         const visibleItems = [];
         weaponList.forEach(weaponName => {
             WEAPON_PREFIXES.forEach(pref => {
@@ -1980,45 +1974,30 @@ function showWeaponStatistics(selectedJob = null) {
                 const owners = characters
                     .map(char => ({ job: char.job, name: char.name, val: char.weaponCounts?.[key] || 0 }))
                     .filter(o => o.val > 0);
-                if (owners.length > 0) {
-                    visibleItems.push({ weaponName, pref, owners });
-                }
+                if (owners.length > 0) visibleItems.push({ weaponName, pref, owners });
             });
         });
         if (visibleItems.length === 0) return;
 
-        // 종류 rowspan = 전체 owners 행 수 합계
         const totalRows = visibleItems.reduce((sum, item) => sum + item.owners.length, 0);
         let categoryRendered = false;
 
-        visibleItems.forEach((item, iIdx) => {
-            // 무기이름 rowspan = owners 수
+        visibleItems.forEach(item => {
             item.owners.forEach((owner, oIdx) => {
                 html += `<tr>`;
-
-                // 종류 셀 (첫 행만)
                 if (!categoryRendered) {
                     html += `<td rowspan="${totalRows}" style="background:#181c33; font-weight:bold; width:120px; border:1px solid #2a3158; text-align:center; vertical-align:middle; color:#fff; padding:10px;">${category}</td>`;
                     categoryRendered = true;
                 }
-
-                // 무기 이름 셀 (소유자 수만큼 rowspan)
                 if (oIdx === 0) {
-                    html += `<td rowspan="${item.owners.length}" style="text-align:left; padding:8px 15px; white-space:nowrap; border:1px solid #2a3158; vertical-align:middle;">`;
-                    html += `<span style="color:${item.pref.color}; font-weight:bold;">${item.pref.tag}</span>&nbsp;${item.weaponName}`;
-                    html += `</td>`;
+                    html += `<td rowspan="${item.owners.length}" style="text-align:left; padding:8px 15px; white-space:nowrap; border:1px solid #2a3158; vertical-align:middle;"><span style="color:${item.pref.color}; font-weight:bold;">${item.pref.tag}</span>&nbsp;${item.weaponName}</td>`;
                 }
-
-                // 직업/이름
                 html += `<td style="padding:6px 10px; border:1px solid #2a3158; text-align:center; white-space:nowrap;">${owner.job}(${owner.name})</td>`;
-                // 개수
                 html += `<td style="padding:6px 10px; border:1px solid #2a3158; text-align:center; color:${item.pref.color}; font-weight:bold;">${owner.val}</td>`;
-
                 html += `</tr>`;
             });
         });
 
-        // 카테고리 간 구분선
         if (cIdx < categories.length - 1) {
             html += `<tr style="height:20px;"><td colspan="4" style="border:none; border-bottom:1px solid #2a3158; background:transparent;"></td></tr>`;
         }
@@ -2045,163 +2024,196 @@ function searchEquipment() {
     isStatisticsViewOpen = false;
     selectedCharacterForEquipment = null;
 
-    // 기존 화면 숨기기
     document.getElementById("character-selection-area").style.display = "none";
     document.getElementById("character-equipment-detail").style.display = "none";
 
     const displayArea = document.getElementById("equipment-display-area");
     displayArea.style.display = "block";
 
-    // 모든 장비 관리 버튼 비활성화
     document.querySelectorAll("#section-equipment-view .equipment-button-row .char-btn").forEach(btn => {
         btn.classList.remove('active');
     });
 
-    let html = `<h2 style="color: #ffd700; margin-bottom: 20px;">🔍 검색 결과: "${searchTerm}"</h2>`;
+    let html = `<h2 style="color:#ffd700; margin-bottom:20px;">🔍 검색 결과: "${searchTerm}"</h2>`;
+    let found = false;
 
+    // ── 1. 장비(방어구/악세/특장) 검색 ──────────────────────────
     const CATEGORIES = [
         {name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX},
-        {name: "악세", sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX},
-        {name: "특장", sets: SPECIAL_SETS, prefix: SPECIAL_PREFIX}
+        {name: "악세",   sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX},
+        {name: "특장",   sets: SPECIAL_SETS, prefix: SPECIAL_PREFIX}
     ];
 
-    let foundSets = [];
-
-    // 검색어와 일치하는 세트 찾기
     CATEGORIES.forEach(category => {
         Object.keys(category.sets).forEach(baseSetName => {
-            if (baseSetName.includes(searchTerm)) {
-                foundSets.push({
-                    category: category.name,
-                    setName: baseSetName,
-                    slots: category.sets[baseSetName],
-                    prefixes: category.prefix[baseSetName] || [],
-                    isLegacy: LEGACY_PREFIX_SETS.includes(baseSetName)
+            if (!baseSetName.includes(searchTerm)) return;
+            found = true;
+
+            const set = {
+                category: category.name,
+                setName: baseSetName,
+                slots: category.sets[baseSetName],
+                prefixes: category.prefix[baseSetName] || [],
+                isLegacy: LEGACY_PREFIX_SETS.includes(baseSetName)
+            };
+
+            html += `<h3 style="color:#fff; margin-top:30px; margin-bottom:15px;">[${set.category}] ${set.setName}</h3>`;
+            html += `<table style="width:max-content; border-collapse:collapse; margin-bottom:30px; border:1px solid #2a3158;">`;
+            html += `<thead style="background:#181c33;"><tr>
+                <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">직업(이름)</th>
+                <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">익시드</th>
+                <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">접두어</th>`;
+            set.slots.forEach(slot => {
+                html += `<th style="padding:10px; border:1px solid #2a3158; white-space:normal; max-width:120px; font-size:0.85em; line-height:1.2;">${slot}</th>`;
+            });
+            html += `</tr></thead><tbody>`;
+
+            characters.forEach(char => {
+                let charRows = [];
+
+                if (set.prefixes.length > 0) {
+                    set.prefixes.forEach(pref => {
+                        EXCEED_TAGS.forEach(tag => {
+                            let rowData = {exceed: tag, prefix: pref, slots: {}, total: 0};
+                            const prefKey = makePrefixKey(pref, set.setName);
+                            set.slots.forEach(slot => {
+                                const count = char.armorCounts?.[`[${tag}] ${prefKey} ${slot}`] || 0;
+                                rowData.slots[slot] = count;
+                                rowData.total += count;
+                            });
+                            if (rowData.total > 0) charRows.push(rowData);
+                        });
+                    });
+                }
+
+                set.prefixes.forEach(pref => {
+                    let rowData = {exceed: '', prefix: pref, slots: {}, total: 0};
+                    const prefKey = makePrefixKey(pref, set.setName);
+                    set.slots.forEach(slot => {
+                        const count = char.armorCounts?.[`${prefKey} ${slot}`] || 0;
+                        rowData.slots[slot] = count;
+                        rowData.total += count;
+                    });
+                    if (rowData.total > 0) charRows.push(rowData);
                 });
-            }
+
+                if (!set.isLegacy) {
+                    let normalRow = {exceed: '', prefix: '', slots: {}, total: 0};
+                    set.slots.forEach(slot => {
+                        const count = char.armorCounts?.[`${set.setName} ${slot}`] || 0;
+                        normalRow.slots[slot] = count;
+                        normalRow.total += count;
+                    });
+                    if (normalRow.total > 0) charRows.push(normalRow);
+                }
+
+                if (charRows.length === 0) return;
+
+                charRows.forEach((row, rowIdx) => {
+                    html += `<tr style="border-bottom:1px solid #444;">`;
+                    if (rowIdx === 0) {
+                        html += `<td rowspan="${charRows.length}" style="padding:10px; border:1px solid #2a3158; font-weight:bold; background:#1a1e33; text-align:center; vertical-align:middle; white-space:nowrap;">${char.job}(${char.name})</td>`;
+                    }
+                    if (row.exceed) {
+                        const tagColor = EXCEED_COLOR_MAP[row.exceed] || "#ffd700";
+                        html += `<td style="padding:10px; border:1px solid #2a3158; text-align:center; white-space:nowrap;"><span style="color:${tagColor}; font-weight:bold;">[${row.exceed}]</span></td>`;
+                    } else {
+                        html += `<td style="padding:10px; border:1px solid #2a3158;"></td>`;
+                    }
+                    if (row.prefix) {
+                        html += `<td style="padding:10px; border:1px solid #2a3158; text-align:center; white-space:nowrap;"><span style="color:#e6b800; font-weight:bold;">${row.prefix}</span></td>`;
+                    } else {
+                        html += `<td style="padding:10px; border:1px solid #2a3158;"></td>`;
+                    }
+                    set.slots.forEach(slot => {
+                        const count = row.slots[slot] || 0;
+                        html += `<td style="padding:10px; border:1px solid #2a3158; text-align:center; color:#fff; font-weight:bold;">${count > 0 ? count : ''}</td>`;
+                    });
+                    html += `</tr>`;
+                });
+
+                html += `<tr style="height:3px; background:#666;"><td colspan="${3 + set.slots.length}" style="padding:0; border:none;"></td></tr>`;
+            });
+
+            html += `</tbody></table>`;
         });
     });
 
-    if (foundSets.length === 0) {
-        html += `<p style="color: #888; font-size: 1.2em; margin-top: 50px; text-align: center;">검색 결과가 없습니다.</p>`;
-        displayArea.innerHTML = html;
-        return;
-    }
+    // ── 2. 무기 검색 ──────────────────────────────────────────────
+    // 종류(소검/도/...) 또는 무기 이름으로 검색
+    JOB_LIST.forEach(jobGroup => {
+        const jobData = WEAPON_DATA_MAP[jobGroup];
+        if (!jobData) return;
 
-    // 검색 결과 표시
-    foundSets.forEach(set => {
-        html += `<h3 style="color: #fff; margin-top: 30px; margin-bottom: 15px;">[${set.category}] ${set.setName}</h3>`;
-
-        html += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #2a3158;">`;
-        html += `<thead style="background: #181c33;"><tr>
-            <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">직업(이름)</th>
-            <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">익시드</th>
-            <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">접두어</th>`;
-
-        set.slots.forEach(slot => {
-            html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: normal; max-width: 120px; font-size: 0.85em; line-height: 1.2;">${slot}</th>`;
+        // 이 직업군에서 검색어와 일치하는 항목 수집
+        // visibleItems: { weaponName, pref, owners }
+        const visibleItems = [];
+        Object.entries(jobData).forEach(([category, weaponList]) => {
+            const categoryMatch = category.includes(searchTerm);
+            weaponList.forEach(weaponName => {
+                if (!categoryMatch && !weaponName.includes(searchTerm)) return;
+                WEAPON_PREFIXES.forEach(pref => {
+                    const key = `${pref.tag} ${weaponName}`;
+                    const owners = characters
+                        .map(char => ({ job: char.job, name: char.name, val: char.weaponCounts?.[key] || 0 }))
+                        .filter(o => o.val > 0);
+                    if (owners.length > 0) {
+                        visibleItems.push({ category, weaponName, pref, owners });
+                    }
+                });
+            });
         });
 
-        html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">합계</th>`;
+        if (visibleItems.length === 0) return;
+        found = true;
+
+        html += `<h3 style="color:#aad4ff; margin-top:30px; margin-bottom:15px;">[무기] ${jobGroup}</h3>`;
+        html += `<table style="table-layout:fixed; border-collapse:collapse; margin-bottom:30px; width:max-content;">`;
+        html += `<thead><tr style="background:#181c33;">`;
+        html += `<th style="width:120px; padding:12px; border:1px solid #2a3158; white-space:nowrap;">종류</th>`;
+        html += `<th style="width:300px; padding:12px; border:1px solid #2a3158; white-space:nowrap;">무기 이름</th>`;
+        html += `<th style="width:150px; padding:12px; border:1px solid #2a3158; white-space:nowrap; text-align:center;">직업(이름)</th>`;
+        html += `<th style="width:70px;  padding:12px; border:1px solid #2a3158; white-space:nowrap; text-align:center;">개수</th>`;
         html += `</tr></thead><tbody>`;
 
-        // 캐릭터별 데이터 수집
-        characters.forEach(char => {
-            let charRows = [];
+        // 카테고리별로 그룹핑해서 종류 rowspan 처리
+        const byCategory = {};
+        visibleItems.forEach(item => {
+            if (!byCategory[item.category]) byCategory[item.category] = [];
+            byCategory[item.category].push(item);
+        });
 
-            // 익시드 데이터
-            if (set.prefixes.length > 0) {
-                set.prefixes.forEach(pref => {
-                    EXCEED_TAGS.forEach(tag => {
-                        let rowData = {type: 'exceed', exceed: tag, prefix: pref, slots: {}, total: 0};
-                        const prefKey = makePrefixKey(pref, set.setName);
-                        set.slots.forEach(slot => {
-                            const key = `[${tag}] ${prefKey} ${slot}`;
-                            const count = char.armorCounts?.[key] || 0;
-                            rowData.slots[slot] = count;
-                            rowData.total += count;
-                        });
-                        if (rowData.total > 0) charRows.push(rowData);
-                    });
+        Object.entries(byCategory).forEach(([category, items], cIdx, arr) => {
+            const totalRows = items.reduce((sum, item) => sum + item.owners.length, 0);
+            let categoryRendered = false;
+
+            items.forEach(item => {
+                item.owners.forEach((owner, oIdx) => {
+                    html += `<tr>`;
+                    if (!categoryRendered) {
+                        html += `<td rowspan="${totalRows}" style="background:#181c33; font-weight:bold; width:120px; border:1px solid #2a3158; text-align:center; vertical-align:middle; color:#fff; padding:10px;">${category}</td>`;
+                        categoryRendered = true;
+                    }
+                    if (oIdx === 0) {
+                        html += `<td rowspan="${item.owners.length}" style="text-align:left; padding:8px 15px; white-space:nowrap; border:1px solid #2a3158; vertical-align:middle;"><span style="color:${item.pref.color}; font-weight:bold;">${item.pref.tag}</span>&nbsp;${item.weaponName}</td>`;
+                    }
+                    html += `<td style="padding:6px 10px; border:1px solid #2a3158; text-align:center; white-space:nowrap;">${owner.job}(${owner.name})</td>`;
+                    html += `<td style="padding:6px 10px; border:1px solid #2a3158; text-align:center; color:${item.pref.color}; font-weight:bold;">${owner.val}</td>`;
+                    html += `</tr>`;
                 });
-            }
-
-            // 접두어 데이터
-            set.prefixes.forEach(pref => {
-                let rowData = {type: 'prefix', exceed: '', prefix: pref, slots: {}, total: 0};
-                const prefKey = makePrefixKey(pref, set.setName);
-                set.slots.forEach(slot => {
-                    const key = `${prefKey} ${slot}`;
-                    const count = char.armorCounts?.[key] || 0;
-                    rowData.slots[slot] = count;
-                    rowData.total += count;
-                });
-
-                if (rowData.total > 0) charRows.push(rowData);
             });
 
-            // 일반 데이터 (레거시 세트는 건너뜀)
-            if (!set.isLegacy) {
-                let normalRow = {type: 'normal', exceed: '', prefix: '', slots: {}, total: 0};
-                set.slots.forEach(slot => {
-                    const key = `${set.setName} ${slot}`;
-                    const count = char.armorCounts?.[key] || 0;
-                    normalRow.slots[slot] = count;
-                    normalRow.total += count;
-                });
-                if (normalRow.total > 0) charRows.push(normalRow);
+            if (cIdx < arr.length - 1) {
+                html += `<tr style="height:20px;"><td colspan="4" style="border:none; border-bottom:1px solid #2a3158; background:transparent;"></td></tr>`;
             }
-
-            // 행이 없으면 이 캐릭터는 건너뜀
-            if (charRows.length === 0) return;
-
-            // 테이블 행 렌더링
-            charRows.forEach((row, rowIdx) => {
-                html += `<tr style="border-bottom: 1px solid #444;">`;
-
-                // 캐릭터 이름 (첫 행에만 rowspan)
-                if (rowIdx === 0) {
-                    html += `<td rowspan="${charRows.length}" style="padding: 10px; border: 1px solid #2a3158; font-weight: bold; background: #1a1e33; text-align: center; vertical-align: middle; white-space: nowrap;">${char.job}(${char.name})</td>`;
-                }
-
-                // 익시드 열
-                if (row.exceed) {
-                    const tagColor = EXCEED_COLOR_MAP[row.exceed] || "#ffd700";
-                    html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; white-space: nowrap;">
-                        <span style="color: ${tagColor}; font-weight: bold;">[${row.exceed}]</span>
-                    </td>`;
-                } else {
-                    html += `<td style="padding: 10px; border: 1px solid #2a3158;"></td>`;
-                }
-
-                // 접두어 열
-                if (row.prefix) {
-                    html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; white-space: nowrap;">
-                        <span style="color: #e6b800; font-weight: bold;">${row.prefix}</span>
-                    </td>`;
-                } else {
-                    html += `<td style="padding: 10px; border: 1px solid #2a3158;"></td>`;
-                }
-
-                // 슬롯별 개수
-                set.slots.forEach(slot => {
-                    const count = row.slots[slot] || 0;
-                    const displayCount = count > 0 ? count : "";
-                    html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${displayCount}</td>`;
-                });
-
-                // 합계
-                html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #ffd700; font-weight: bold;">${row.total}</td>`;
-
-                html += `</tr>`;
-            });
-
-            // 캐릭터 구분선
-            html += `<tr style="height: 3px; background: #666;"><td colspan="${4 + set.slots.length}" style="padding: 0; border: none;"></td></tr>`;
         });
 
         html += `</tbody></table>`;
     });
+
+    if (!found) {
+        html += `<p style="color:#888; font-size:1.2em; margin-top:50px; text-align:center;">검색 결과가 없습니다.</p>`;
+    }
 
     displayArea.innerHTML = html;
 }

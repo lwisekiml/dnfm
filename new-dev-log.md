@@ -1207,3 +1207,15 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정된 파일:** `js/ui-search.js`
 
 ---
+
+## 2026-02-25 (25차)
+
+### showWeaponStatistics 함수 누락 수정
+
+**원인:** outputs 파일 덮어쓰기 과정에서 `showWeaponStatistics` 함수가 누락된 채로 배포됨
+
+**수정 내용:** `scripts/eq_equipment.js`에 `showWeaponStatistics` 함수 재추가
+
+**수정 파일:** `scripts/eq_equipment.js`
+
+---
