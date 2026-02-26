@@ -37,27 +37,27 @@ function createCharacterTable(savedData = null) {
             <table>
                 <thead>
                     <tr>
-                        <th rowspan="2" class="col-char-info">직업/이름</th>
-                        <th rowspan="2" class="col-slot v-border-heavy">슬롯</th>
-                        <th rowspan="2" class="col-rarity">희귀도</th>
-                        <th rowspan="2" class="col-exceed">익시드</th>
-                        <th rowspan="2" class="col-prefix">접두어 <button class="set-apply-btn" onclick="event.stopPropagation(); openPrefixMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
-                        <th rowspan="2" style="min-width:120px;">아이템이름 <button class="set-apply-btn" onclick="event.stopPropagation(); openSetMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
-                        <th rowspan="2" class="col-val-short">강화 <button class="set-apply-btn" onclick="event.stopPropagation(); openReinforceMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
-                        <th colspan="4" class="group-header">마법봉인</th>
-                        <th colspan="2" class="group-header">엠블렘</th>
-                        <th colspan="2" class="group-header">마법부여</th>
-                        <th rowspan="2" style="min-width:230px;" class="v-border-heavy">설명</th>
+                        <th rowspan="2" class="col-char-info group-header">직업/이름</th>
+                        <th rowspan="2" class="col-slot v-border-heavy group-header">슬롯</th>
+                        <th rowspan="2" class="col-rarity group-header">희귀도</th>
+                        <th rowspan="2" class="col-exceed group-header">익시드</th>
+                        <th rowspan="2" class="col-prefix group-header">접두어 <button class="set-apply-btn" onclick="event.stopPropagation(); openPrefixMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
+                        <th rowspan="2" style="min-width:120px;" class="group-header">아이템이름 <button class="set-apply-btn" onclick="event.stopPropagation(); openSetMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
+                        <th rowspan="2" class="col-val-short group-header" group-header>강화 <button class="set-apply-btn" onclick="event.stopPropagation(); openReinforceMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
+                        <th colspan="4">마법봉인</th>
+                        <th colspan="2">엠블렘</th>
+                        <th colspan="2">마법부여</th>
+                        <th rowspan="2" style="min-width:230px;" class="v-border-heavy group-header">설명</th>
                     </tr>
                     <tr>
-                        <th>고유 옵션</th>
-                        <th class="col-val-short">수치</th>
-                        <th>일반 옵션</th>
-                        <th class="col-val-short">수치</th>
-                        <th class="col-emblem">엠블렘</th>
-                        <th class="col-emblem">엠블렘</th>
-                        <th class="col-enchant">마법부여</th>
-                        <th class="col-val-short">수치</th>
+                        <th class="group-header">고유 옵션</th>
+<th class="col-val-short group-header">수치</th>
+<th class="group-header">일반 옵션</th>
+<th class="col-val-short group-header">수치</th>
+<th class="col-emblem group-header">엠블렘</th>
+<th class="col-emblem group-header">엠블렘</th>
+<th class="col-enchant group-header">마법부여</th>
+<th class="col-val-short group-header">수치</th>
                     </tr>
                 </thead>
                 <tbody class="tbody-content"></tbody>
