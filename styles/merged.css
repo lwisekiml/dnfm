@@ -2843,3 +2843,139 @@ body.theme-mixed #section-detail-view .control-bar {
     background: #0f0f12 !important;
     background-color: #0f0f12 !important;
 }
+
+/* ========================================
+   테마2 설정 (구분선/외곽 테두리 복원 버전)
+======================================== */
+
+/* --- 남색 테마2 --- */
+body.theme-navy2 {
+    background: #0f1222;
+    color: #e6e9ff;
+}
+body.theme-navy2 #section-detail-view {
+    --bg: #0f1222;
+    --bg-section: #0f1222;
+    --bg-row: #1a1e33;
+    --table-bg: #1a1e33;
+    --bg-header: #181c33;
+    --bg-header-alt: #222644;
+    --input-bg: #0f1222;
+    --border: #2a3158;
+    --gold: #6472a8;
+    --border-heavy: #6472a8;
+}
+body.theme-navy2 #section-detail-view table {
+    border: var(--border-width-heavy) var(--border-style) var(--gold);
+}
+body.theme-navy2 #section-detail-view .v-border-heavy {
+    border-left: var(--border-width-heavy) var(--border-style) var(--border-heavy) !important;
+}
+body.theme-navy2 #section-detail-view .group-header {
+    border-bottom: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+}
+body.theme-navy2 #section-detail-view .compare-divider-row td {
+    border-top: var(--border-width-heavy) var(--border-style) var(--gold);
+}
+body.theme-navy2 #section-detail-view .border-gold-2 {
+    border: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+}
+body.theme-navy2 .form-box input { border: 1px solid #2a3158; background: #181c33; color: #e6e9ff; }
+body.theme-navy2 .char-btn { background: #2a3158; }
+body.theme-navy2 .set-btn { background: #181c33; color: #e6e9ff; }
+body.theme-navy2 .set-btn:hover { background: #2a3158; border-color: #3a4270; }
+body.theme-navy2 .set-btn.set3 { background-color: #25c2a0; color: #fff; }
+body.theme-navy2 .set-btn.set5 { background-color: #ffd700; color: #000; }
+body.theme-navy2 th, body.theme-navy2 td { border: 1px solid #2a3158; }
+body.theme-navy2 th { background: #181c33; }
+body.theme-navy2 .num-btn { border: 1px solid #2a3158; background: #181c33; color: #e6e9ff; }
+body.theme-navy2 .num-btn.positive { background: linear-gradient(135deg, #3399cc, #2a6f9e); color: #fff; font-weight: bold; border: 1px solid #3399cc; }
+body.theme-navy2 .modal-content { background: #181c33; }
+body.theme-navy2 .pagination button { border: 1px solid #2a3158; background: #181c33; color: #e6e9ff; }
+body.theme-navy2 .pagination button:hover { background: #2a3158; border-color: #3a4270; }
+body.theme-navy2 .craft-input { background: #1b1e33; color: #e0e0e0; border: 1px solid #444a7a; }
+body.theme-navy2 .craft-lock-btn { background: #2a3158; }
+
+/* --- 다크 테마2 --- */
+body.theme-dark2 #section-detail-view {
+    --bg: #0f0f12;
+    --bg-section: #121216;
+    --bg-row: #1a1a1f;
+    --table-bg: #1a1a1f;
+    --bg-header: #2a2a32;
+    --bg-header-alt: #3a3a42;
+    --input-bg: #000;
+    --border: #444;
+    --gold: #c5a678;
+    --border-heavy: #c5a678;
+}
+body.theme-dark2 #section-detail-view table {
+    border: var(--border-width-heavy) var(--border-style) var(--gold);
+}
+body.theme-dark2 #section-detail-view .v-border-heavy {
+    border-left: var(--border-width-heavy) var(--border-style) var(--border-heavy) !important;
+}
+body.theme-dark2 #section-detail-view .group-header {
+    border-bottom: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+}
+body.theme-dark2 #section-detail-view .compare-divider-row td {
+    border-top: var(--border-width-heavy) var(--border-style) var(--gold);
+}
+body.theme-dark2 #section-detail-view .border-gold-2 {
+    border: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+}
+body.theme-dark2 { background: #0f0f12; color: #ddd; }
+body.theme-dark2 .form-box input { border: 1px solid #444; background: #1a1a1f; color: #ddd; }
+body.theme-dark2 .char-btn { background: #2a2a32; }
+body.theme-dark2 .set-btn { background: #1a1a1f; color: #ddd; }
+body.theme-dark2 .set-btn:hover { background: #2a2a32; border-color: #555; }
+body.theme-dark2 .set-btn.set3 { background-color: #25c2a0; color: #fff; }
+body.theme-dark2 .set-btn.set5 { background-color: #ffd700; color: #000; }
+body.theme-dark2 th, body.theme-dark2 td { border: 1px solid #444; }
+body.theme-dark2 th { background: #2a2a32; }
+body.theme-dark2 .num-btn { border: 1px solid #444; background: #1a1a1f; color: #ddd; }
+body.theme-dark2 .num-btn.positive { background: linear-gradient(135deg, #3399cc, #2a6f9e); color: #fff; font-weight: bold; border: 1px solid #3399cc; }
+body.theme-dark2 .modal-content { background: #1a1a1f; }
+body.theme-dark2 .pagination button { border: 1px solid #444; background: #1a1a1f; color: #ddd; }
+body.theme-dark2 .pagination button:hover { background: #2a2a32; border-color: #555; }
+body.theme-dark2 .craft-input { background: #1a1a1f; color: #ddd; border: 1px solid #444; }
+body.theme-dark2 .craft-lock-btn { background: #2a2a32; }
+
+/* --- 혼합 테마2 - 다른 탭 남색 + 캐릭터 관리 다크 --- */
+body.theme-mixed2 {
+    background: #0f1222;
+    color: #e6e9ff;
+}
+body.theme-mixed2 #section-detail-view {
+    background-color: #0f0f12 !important;
+    min-height: 100vh;
+    --bg: #0f0f12;
+    --bg-section: #121216;
+    --bg-row: #1a1a1f;
+    --table-bg: #1a1a1f;
+    --bg-header: #2a2a32;
+    --bg-header-alt: #3a3a42;
+    --input-bg: #000;
+    --border: #444;
+    --gold: #c5a678;
+    --border-heavy: #c5a678;
+}
+body.theme-mixed2 #section-detail-view table {
+    border: var(--border-width-heavy) var(--border-style) var(--gold);
+}
+body.theme-mixed2 #section-detail-view .v-border-heavy {
+    border-left: var(--border-width-heavy) var(--border-style) var(--border-heavy) !important;
+}
+body.theme-mixed2 #section-detail-view .group-header {
+    border-bottom: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+}
+body.theme-mixed2 #section-detail-view .compare-divider-row td {
+    border-top: var(--border-width-heavy) var(--border-style) var(--gold);
+}
+body.theme-mixed2 #section-detail-view .border-gold-2 {
+    border: var(--border-width-heavy) var(--border-style) var(--gold) !important;
+}
+body.theme-mixed2 #section-detail-view .control-bar {
+    background: #0f0f12 !important;
+    background-color: #0f0f12 !important;
+}

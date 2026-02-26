@@ -69,6 +69,19 @@
                     style="padding:14px 20px; border-radius:8px; border:2px solid #444; background:#0f0f12; color:#ddd; cursor:pointer; font-size:14px; text-align:left;">
                 ⚫ 다크 테마 <span id="theme-label-dark" style="font-size:12px; margin-left:8px;"></span>
             </button>
+            <hr style="border-color:#333; margin:4px 0;">
+            <button id="theme-btn-mixed2" onclick="applyTheme('mixed2')"
+                    style="padding:14px 20px; border-radius:8px; border:2px solid #6472a8; background:linear-gradient(135deg, #0f1222 50%, #0f0f12 50%); color:#e6e9ff; cursor:pointer; font-size:14px; text-align:left;">
+                🌗 혼합 테마2 <span id="theme-label-mixed2" style="font-size:12px; margin-left:8px;"></span>
+            </button>
+            <button id="theme-btn-navy2" onclick="applyTheme('navy2')"
+                    style="padding:14px 20px; border-radius:8px; border:2px solid #6472a8; background:#0f1222; color:#e6e9ff; cursor:pointer; font-size:14px; text-align:left;">
+                🌌 남색 테마2 <span id="theme-label-navy2" style="font-size:12px; margin-left:8px;"></span>
+            </button>
+            <button id="theme-btn-dark2" onclick="applyTheme('dark2')"
+                    style="padding:14px 20px; border-radius:8px; border:2px solid #444; background:#0f0f12; color:#ddd; cursor:pointer; font-size:14px; text-align:left;">
+                ⚫ 다크 테마2 <span id="theme-label-dark2" style="font-size:12px; margin-left:8px;"></span>
+            </button>
         </div>
         <div style="margin-top:20px; text-align:right;">
             <button onclick="closeThemeModal()" style="padding:8px 20px; border-radius:6px; border:1px solid #444; background:#2a3158; color:#e6e9ff; cursor:pointer;">닫기</button>
@@ -667,40 +680,28 @@
 
     function applyTheme(theme) {
         const body = document.body;
-        body.classList.remove('theme-mixed', 'theme-navy', 'theme-dark');
+        body.classList.remove('theme-mixed', 'theme-navy', 'theme-dark', 'theme-mixed2', 'theme-navy2', 'theme-dark2');
         body.classList.add('theme-' + theme);
         localStorage.setItem('selectedTheme', theme);
         updateThemeButtons(theme);
     }
 
     function updateThemeButtons(theme) {
-        const mixedBtn = document.getElementById('theme-btn-mixed');
-        const navyBtn = document.getElementById('theme-btn-navy');
-        const darkBtn = document.getElementById('theme-btn-dark');
-        const mixedLabel = document.getElementById('theme-label-mixed');
-        const navyLabel = document.getElementById('theme-label-navy');
-        const darkLabel = document.getElementById('theme-label-dark');
-        if (!navyBtn || !darkBtn) return;
+        const ids = ['mixed', 'navy', 'dark', 'mixed2', 'navy2', 'dark2'];
+        const btns = {}, labels = {};
+        ids.forEach(id => {
+            btns[id] = document.getElementById('theme-btn-' + id);
+            labels[id] = document.getElementById('theme-label-' + id);
+        });
 
         // 테두리 초기화
-        if (mixedBtn) mixedBtn.style.border = '2px solid #6472a8';
-        navyBtn.style.border = '2px solid #6472a8';
-        darkBtn.style.border = '2px solid #444';
-        if (mixedLabel) mixedLabel.textContent = '';
-        if (navyLabel) navyLabel.textContent = '';
-        if (darkLabel) darkLabel.textContent = '';
+        ['mixed', 'navy', 'mixed2', 'navy2'].forEach(id => { if (btns[id]) btns[id].style.border = '2px solid #6472a8'; });
+        ['dark', 'dark2'].forEach(id => { if (btns[id]) btns[id].style.border = '2px solid #444'; });
+        ids.forEach(id => { if (labels[id]) labels[id].textContent = ''; });
 
         // 선택된 테마 강조
-        if (theme === 'mixed') {
-            if (mixedBtn) mixedBtn.style.border = '2px solid #25c2a0';
-            if (mixedLabel) { mixedLabel.textContent = '현재 적용 중'; mixedLabel.style.color = '#25c2a0'; }
-        } else if (theme === 'navy') {
-            navyBtn.style.border = '2px solid #25c2a0';
-            if (navyLabel) { navyLabel.textContent = '현재 적용 중'; navyLabel.style.color = '#25c2a0'; }
-        } else {
-            darkBtn.style.border = '2px solid #25c2a0';
-            if (darkLabel) { darkLabel.textContent = '현재 적용 중'; darkLabel.style.color = '#25c2a0'; }
-        }
+        if (btns[theme]) btns[theme].style.border = '2px solid #25c2a0';
+        if (labels[theme]) { labels[theme].textContent = '현재 적용 중'; labels[theme].style.color = '#25c2a0'; }
     }
 
     // 페이지 로드 시 저장된 테마 적용

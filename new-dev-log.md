@@ -1424,3 +1424,29 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정 파일:** `merged.html`, `styles/merged.css`
 
 ---
+
+## 2026-02-26 (35차)
+
+### 캐릭터 관리 탭 - 구분선/외곽 테두리 복원 + 테마2 추가
+
+**원인**
+
+`merged.css`에서 `#section-detail-view` 스코프로 구분선/테두리 관련 항목들이 모두 `none`으로 덮어씌워져 있었음.
+
+**수정 (`merged.css`) - 복원 항목**
+
+- `#section-detail-view table`: `border: none` → `border: var(--border-width-heavy) var(--border-style) var(--gold)`
+- `.v-border-heavy`: `border-left: none` → `border-left: var(--border-width-heavy) ...`
+- `.group-header`: `border-bottom: none` → `border-bottom: var(--border-width-heavy) ... var(--gold)`
+- `.compare-divider-row td`: `border-top: none` → `border-top: var(--border-width-heavy) ... var(--gold)`
+- `.border-gold-2`: `border: none` → `border: var(--border-width-heavy) ... var(--gold)`
+
+**테마2 추가 (`merged.html`, `merged.css`)**
+
+- 기존 테마(혼합/남색/다크)는 그대로 유지
+- 테마 모달에 혼합2/남색2/다크2 버튼 추가
+- 테마2는 기존 테마와 색상 동일하지만 위 복원 항목이 적용된 버전
+
+**수정된 파일:** `merged.html`, `merged.css`
+
+---
