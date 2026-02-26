@@ -890,7 +890,7 @@ function setCraftLock(lock) {
 // 실행 취소용 스냅샷
 let craftUndoSnapshot = null;
 
-// 선택된 칸들에 % 10 적용
+// 선택된 칸들에 % 100 적용
 function applyCraftModulo() {
     if (!craftLocked) return;
 
@@ -931,7 +931,7 @@ function applyCraftModulo() {
         if (!char) return;
 
         const original = parseInt(input.value) || 0;
-        const result = original % 10;
+        const result = original % 100;
 
         if (result <= 0) {
             delete char.craftMaterials[materials[matIdx]];
