@@ -2616,3 +2616,226 @@ tr.set5 {
 .craft-lock-btn.active {
     border: 2px solid #ffffff;
 }
+/* ========================================
+   테마 설정
+======================================== */
+body.theme-navy {
+    background: #0f1222;
+    color: #e6e9ff;
+}
+body.theme-navy #section-detail-view {
+    --bg: #0f1222;
+    --bg-section: #0f1222;
+    --bg-row: #1a1e33;
+    --table-bg: #1a1e33;
+    --bg-header: #181c33;
+    --bg-header-alt: #222644;
+    --input-bg: #0f1222;
+    --border: #2a3158;
+    --gold: #6472a8;
+    --border-heavy: #6472a8;
+}
+
+body.theme-dark #section-detail-view {
+    --bg: #0f0f12;
+    --bg-section: #121216;
+    --bg-row: #1a1a1f;
+    --table-bg: #1a1a1f;
+    --bg-header: #2a2a32;
+    --bg-header-alt: #3a3a42;
+    --input-bg: #000;
+    --border: #444;
+    --gold: #c5a678;
+    --border-heavy: #c5a678;
+}
+
+/* ========================================
+   다크 테마 - 전체 탭 적용
+======================================== */
+body.theme-dark {
+    background: #0f0f12;
+    color: #ddd;
+}
+
+body.theme-dark .form-box input {
+    border: 1px solid #444;
+    background: #1a1a1f;
+    color: #ddd;
+}
+
+body.theme-dark .char-btn {
+    background: #2a2a32;
+}
+
+body.theme-dark .set-btn {
+    background: #1a1a1f;
+    color: #ddd;
+}
+
+body.theme-dark .set-btn:hover {
+    background: #2a2a32;
+    border-color: #555;
+}
+
+body.theme-dark .set-btn.set3 {
+    background-color: #25c2a0;
+    color: #fff;
+}
+
+body.theme-dark .set-btn.set5 {
+    background-color: #ffd700;
+    color: #000;
+}
+
+body.theme-dark th, body.theme-dark td {
+    border: 1px solid #444;
+}
+
+body.theme-dark th {
+    background: #2a2a32;
+}
+
+body.theme-dark .num-btn {
+    border: 1px solid #444;
+    background: #1a1a1f;
+    color: #ddd;
+}
+
+body.theme-dark .num-btn.positive {
+    background: linear-gradient(135deg, #3399cc, #2a6f9e);
+    color: #fff;
+    font-weight: bold;
+    border: 1px solid #3399cc;
+}
+
+body.theme-dark .modal-content {
+    background: #1a1a1f;
+}
+
+body.theme-dark .pagination button {
+    border: 1px solid #444;
+    background: #1a1a1f;
+    color: #ddd;
+}
+
+body.theme-dark .pagination button:hover {
+    background: #2a2a32;
+    border-color: #555;
+}
+
+body.theme-dark .craft-input {
+    background: #1a1a1f;
+    color: #ddd;
+    border: 1px solid #444;
+}
+
+body.theme-dark .craft-lock-btn {
+    background: #2a2a32;
+}
+
+/* 남색 테마 - 전체 탭 명시적 적용 (기본값이지만 전환 시 복원용) */
+body.theme-navy .form-box input {
+    border: 1px solid #2a3158;
+    background: #181c33;
+    color: #e6e9ff;
+}
+
+body.theme-navy .char-btn {
+    background: #2a3158;
+}
+
+body.theme-navy .set-btn {
+    background: #181c33;
+    color: #e6e9ff;
+}
+
+body.theme-navy .set-btn:hover {
+    background: #2a3158;
+    border-color: #3a4270;
+}
+
+body.theme-navy .set-btn.set3 {
+    background-color: #25c2a0;
+    color: #fff;
+}
+
+body.theme-navy .set-btn.set5 {
+    background-color: #ffd700;
+    color: #000;
+}
+
+body.theme-navy th, body.theme-navy td {
+    border: 1px solid #2a3158;
+}
+
+body.theme-navy th {
+    background: #181c33;
+}
+
+body.theme-navy .num-btn {
+    border: 1px solid #2a3158;
+    background: #181c33;
+    color: #e6e9ff;
+}
+
+body.theme-navy .num-btn.positive {
+    background: linear-gradient(135deg, #3399cc, #2a6f9e);
+    color: #fff;
+    font-weight: bold;
+    border: 1px solid #3399cc;
+}
+
+body.theme-navy .modal-content {
+    background: #181c33;
+}
+
+body.theme-navy .pagination button {
+    border: 1px solid #2a3158;
+    background: #181c33;
+    color: #e6e9ff;
+}
+
+body.theme-navy .pagination button:hover {
+    background: #2a3158;
+    border-color: #3a4270;
+}
+
+body.theme-navy .craft-input {
+    background: #1b1e33;
+    color: #e0e0e0;
+    border: 1px solid #444a7a;
+}
+
+body.theme-navy .craft-lock-btn {
+    background: #2a3158;
+}
+
+/* ========================================
+   혼합 테마 - 다른 탭 남색 + 캐릭터 관리 다크
+======================================== */
+body.theme-mixed {
+    background: #0f1222;
+    color: #e6e9ff;
+}
+
+/* 캐릭터 관리 탭 전체 다크 */
+body.theme-mixed #section-detail-view {
+    background-color: #0f0f12 !important;
+    min-height: 100vh;
+    --bg: #0f0f12;
+    --bg-section: #121216;
+    --bg-row: #1a1a1f;
+    --table-bg: #1a1a1f;
+    --bg-header: #2a2a32;
+    --bg-header-alt: #3a3a42;
+    --input-bg: #000;
+    --border: #444;
+    --gold: #c5a678;
+    --border-heavy: #c5a678;
+}
+
+/* control-bar: sticky라서 별도로 !important 강제 적용 */
+body.theme-mixed #section-detail-view .control-bar {
+    background: #0f0f12 !important;
+    background-color: #0f0f12 !important;
+}

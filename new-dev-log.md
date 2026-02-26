@@ -1355,3 +1355,45 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정 파일:** `merged.html`
 
 ---
+
+## 2026-02-25 (33차)
+
+### 테마 설정 기능 추가 및 디자인 정리
+
+**배경**
+캐릭터 관리 탭이 검정 계열, 나머지 탭이 남색 계열로 달라 이질감이 있었음.
+통일하되 테마를 선택할 수 있는 설정 기능을 추가하는 방향으로 진행.
+
+**추가 내용**
+
+- `merged.html`: ⚙️ 설정 버튼 추가 (최근 업데이트 버튼 옆)
+- `merged.html`: 테마 선택 모달 추가
+  - 🌗 혼합 테마: 다른 탭 남색 + 캐릭터 관리 다크 (기본값)
+  - 🌌 남색 테마: 전체 남색
+  - ⚫ 다크 테마: 전체 다크
+- `merged.html`: 테마 JS 함수 추가
+  - `openThemeModal()` / `closeThemeModal()`: 모달 열기/닫기
+  - `applyTheme(theme)`: 테마 적용 + localStorage 저장 (새로고침 유지)
+  - `updateThemeButtons(theme)`: 현재 적용 중 표시 (초록 테두리 + 텍스트)
+  - 모달 바깥 클릭 시 닫힘
+
+- `styles/merged.css`: CSS 변수 전체를 남색 계열로 변경 (캐릭터 관리 탭 통일)
+  - `--bg`: `#0f0f12` → `#0f1222`
+  - `--bg-section`: `#121216` → `#0f1222`
+  - `--bg-row`: `#1a1a1f` → `#1a1e33`
+  - `--table-bg`: `#1a1a1f` → `#1a1e33`
+  - `--bg-header`: `#2a2a32` → `#181c33`
+  - `--bg-header-alt`: `#3a3a42` → `#222644`
+  - `--border`: `#444` → `#2a3158`
+  - 표 안 진한 선(group-header, v-border-heavy 등) 제거
+  - 표 외곽선 남색 계열로 변경
+
+- `styles/merged.css`: 테마별 CSS 추가
+  - `body.theme-mixed`: 혼합 테마 (body 남색, 캐릭터 관리 탭만 다크 변수 적용)
+  - `body.theme-navy`: 전체 남색
+  - `body.theme-dark`: 전체 다크
+  - 각 테마별 `.set-btn.set3`(초록), `.set-btn.set5`(노랑), `.num-btn.positive`(파랑) 예외처리
+
+**수정 파일:** `merged.html`, `styles/merged.css`
+
+---
