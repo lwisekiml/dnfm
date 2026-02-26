@@ -1311,14 +1311,15 @@
 }
 
 #section-detail-view .btn-all-lock {
-    background-color: var(--btn-secondary);
-    color: var(--color-white);
+    background: linear-gradient(135deg, #555e7a, #3a4260);
+    color: #fff;
     border: none;
-    padding: var(--padding-button-md);
+    padding: 8px 14px;
     cursor: pointer;
-    border-radius: var(--border-radius-md);
+    border-radius: 6px;
     font-weight: bold;
     margin-left: var(--spacing-lg);
+    transition: 0.2s;
 }
 
 #section-detail-view .btn-char-lock {
@@ -1344,20 +1345,23 @@
     border: var(--border-width-heavy) var(--border-style) var(--color-white) !important;
 }
 
+/* 캐릭터 관리 - 기본, 비교, 검색, 태그 배경색 / 모든 btn-mode (안 눌린 상태) */
 #section-detail-view .btn-mode {
-    background: var(--btn-warning);
-    color: var(--color-white);
+    background: linear-gradient(135deg, #e6a817, #e6a817);
+    color: #fff;
     border: none;
-    padding: var(--padding-lg);
+    padding: 8px 14px;
     cursor: pointer;
-    border-radius: var(--border-radius);
+    border-radius: 6px;
     font-weight: bold;
     font-size: var(--fs-button);
+    transition: 0.2s;
 }
 
+/* 눌린 상태 */
 #section-detail-view .btn-mode.active {
-    background: var(--btn-warning);
-    border: var(--border-width-heavy) var(--border-style) var(--color-white);
+    background: linear-gradient(135deg, #e6a800, #e6a800);
+    border: 2px solid #fff;
 }
 
 #section-detail-view .btn-move {
@@ -2212,7 +2216,7 @@ h2 {
 .add-btn {
     background: linear-gradient(135deg, #ffd700, #e6b800);
     border: none;
-    color: #000;
+    color: #fff;
     padding: 8px 14px;
     border-radius: 6px;
     cursor: pointer;

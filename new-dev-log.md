@@ -1397,3 +1397,30 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정 파일:** `merged.html`, `styles/merged.css`
 
 ---
+
+## 2026-02-26 (34차)
+
+### 캐릭터 관리 탭 버튼 디자인 통일 및 테마 설정 기능 추가
+
+**수정 내용**
+
+- `merged.html`: ⚙️ 설정 버튼 추가 (최근 업데이트 버튼 옆)
+- `merged.html`: 테마 선택 모달 추가 (🌗 혼합 / 🌌 남색 / ⚫ 다크, 기본값 혼합)
+- `merged.html`: 테마 JS 함수 추가 (`openThemeModal`, `closeThemeModal`, `applyTheme`, `updateThemeButtons`)
+  - 선택한 테마 localStorage 저장 → 새로고침 유지
+  - 모달 바깥 클릭 시 닫힘
+
+- `styles/merged.css`: 테마별 CSS 추가
+  - `body.theme-mixed`: body 남색 + 캐릭터 관리 탭만 다크 강제 적용
+  - `body.theme-navy`: 전체 남색
+  - `body.theme-dark`: 전체 다크
+  - 각 테마별 `.set-btn.set3`(초록), `.set-btn.set5`(노랑), `.num-btn.positive`(파랑) 예외처리
+
+- `styles/merged.css`: 캐릭터 관리 탭 버튼 디자인 통일
+  - `➕ 캐릭터 추가`: 글자색 흰색으로 변경
+  - `전체 잠금`: 남색 그라디언트, 흰 글씨, 둥근 모서리
+  - `기본/비교/검색/태그`: `#e6a817` 노란색, 흰 글씨 / active 시 `#e6a800` + 흰 테두리
+
+**수정 파일:** `merged.html`, `styles/merged.css`
+
+---
