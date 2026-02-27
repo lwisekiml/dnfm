@@ -931,7 +931,7 @@ function applyCraftModulo() {
         if (!char) return;
 
         const original = parseInt(input.value) || 0;
-        const result = original % 100;
+        const result = (matIdx === 6 || matIdx === 7) ? original % 10 : original % 100;
 
         if (result <= 0) {
             delete char.craftMaterials[materials[matIdx]];
