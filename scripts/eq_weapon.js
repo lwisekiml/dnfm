@@ -673,7 +673,7 @@ function renderCraftTable() {
 
     const table = document.createElement("table");
 
-    // 헤더 1행: 재료명 + 합계
+    // 헤더 1행: 이미지 + 재료명 합계
     const headerRow1 = document.createElement("tr");
     const emptyTh = document.createElement("th");
     emptyTh.textContent = "캐릭터";
@@ -681,7 +681,7 @@ function renderCraftTable() {
 
     materials.forEach(mat => {
         const th = document.createElement("th");
-        th.textContent = mat.name;
+        th.innerHTML = `<img src="${mat.img}" style="width:32px; display:block; margin:0 auto 4px;"><span>${mat.name}</span>`;
         headerRow1.appendChild(th);
     });
 
@@ -693,24 +693,6 @@ function renderCraftTable() {
     headerRow1.appendChild(totalTh);
 
     table.appendChild(headerRow1);
-
-    // 헤더 2행: 재료 이미지 + 빈 칸
-    const headerRow2 = document.createElement("tr");
-    const emptyTh2 = document.createElement("th");
-    headerRow2.appendChild(emptyTh2);
-
-    materials.forEach(mat => {
-        const th = document.createElement("th");
-        th.innerHTML = `<img src="${mat.img}" style="width:32px;">`;
-        headerRow2.appendChild(th);
-    });
-
-    // 합계 열 빈 칸
-    const emptyTotalTh = document.createElement("th");
-    emptyTotalTh.style.background = "#ffd700";
-    headerRow2.appendChild(emptyTotalTh);
-
-    table.appendChild(headerRow2);
 
     // 재료별 합계를 저장할 배열
     const materialTotals = materials.map(() => 0);
