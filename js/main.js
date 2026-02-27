@@ -35,6 +35,14 @@ function initProject1() {
     const container = document.getElementById('characterContainer');
     if (container) container.innerHTML = "";
 
+    // 구버전 inputs 마이그레이션 (로드 시 자동 변환)
+    if (parsedList && parsedList.length > 0) {
+        parsedList = parsedList.map(c => ({
+            ...c,
+            inputs: typeof migrateInputs === 'function' ? migrateInputs(c.inputs) : c.inputs
+        }));
+    }
+
     if (parsedList && parsedList.length > 0) {
         parsedList.forEach(data => {
             createCharacterTable(data);
@@ -117,7 +125,19 @@ document.addEventListener('change', function (e) {
     const slot = key.split('_')[0];
 
     const prevChar = AppState.lastSnapshot.find(c => c.id === section.id);
-    const oldVal = (prevChar && prevChar.inputs && prevChar.inputs[key]) ? prevChar.inputs[key].val : "";
+    let oldVal = "";
+    if (prevChar && prevChar.inputs) {
+        if (key.startsWith('info_')) {
+            oldVal = prevChar.inputs[key]?.val || "";
+        } else {
+            const underIdx = key.indexOf('_');
+            if (underIdx !== -1) {
+                const slot = key.slice(0, underIdx);
+                const field = key.slice(underIdx + 1);
+                oldVal = prevChar.inputs[slot]?.[field]?.val || "";
+            }
+        }
+    }
     const newVal = el.value;
 
     if (oldVal !== newVal) {

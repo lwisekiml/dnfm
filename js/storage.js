@@ -27,10 +27,22 @@ function autoSave() {
             const charId = sec.id;
             const inputsObj = {};
             sec.querySelectorAll('input[data-key], select[data-key], textarea[data-key]').forEach(el => {
-                inputsObj[el.getAttribute('data-key')] = {
-                    val: el.value,
-                    cls: el.className
-                };
+                const key = el.getAttribute('data-key');
+                // info_ 계열은 플랫 구조 유지
+                if (key.startsWith('info_')) {
+                    inputsObj[key] = { val: el.value, cls: el.className };
+                    return;
+                }
+                // 슬롯_필드 → 중첩 구조
+                const underIdx = key.indexOf('_');
+                if (underIdx === -1) {
+                    inputsObj[key] = { val: el.value, cls: el.className };
+                    return;
+                }
+                const slot = key.slice(0, underIdx);
+                const field = key.slice(underIdx + 1);
+                if (!inputsObj[slot]) inputsObj[slot] = {};
+                inputsObj[slot][field] = { val: el.value, cls: el.className };
             });
 
             // 메모리의 characters 배열에서 해당 캐릭터 찾아 병합
@@ -163,6 +175,33 @@ async function saveJsonWithLocation() {
 }
 
 /**
+ * 구버전 inputs(플랫) → 신버전 inputs(중첩) 마이그레이션
+ */
+function migrateInputs(inputs) {
+    if (!inputs) return inputs;
+    // 이미 중첩 구조인지 확인 (슬롯 키가 객체면 신버전)
+    for (const [key, val] of Object.entries(inputs)) {
+        if (!key.startsWith('info_') && typeof val === 'object' && val !== null && !('val' in val)) {
+            return inputs; // 이미 신버전
+        }
+    }
+    const newInputs = {};
+    for (const [key, val] of Object.entries(inputs)) {
+        if (key.startsWith('info_')) {
+            newInputs[key] = val;
+            continue;
+        }
+        const underIdx = key.indexOf('_');
+        if (underIdx === -1) { newInputs[key] = val; continue; }
+        const slot = key.slice(0, underIdx);
+        const field = key.slice(underIdx + 1);
+        if (!newInputs[slot]) newInputs[slot] = {};
+        newInputs[slot][field] = val;
+    }
+    return newInputs;
+}
+
+/**
  * JSON에서 불러오기
  */
 function importFromJSON(input) {
@@ -197,6 +236,12 @@ function importFromJSON(input) {
             if (typeof distinctPartsCache !== 'undefined') {
                 Object.keys(distinctPartsCache).forEach(k => delete distinctPartsCache[k]);
             }
+
+            // 구버전 inputs 마이그레이션
+            charactersToRestore = charactersToRestore.map(c => ({
+                ...c,
+                inputs: migrateInputs(c.inputs)
+            }));
 
             // project1 DOM 재렌더링
             const characterContainer = document.getElementById('characterContainer');

@@ -1450,3 +1450,48 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정된 파일:** `merged.html`, `merged.css`
 
 ---
+
+## 2026-02-27 (36차)
+
+### inputs 구조 개선 - 플랫 → 중첩 구조 변환
+
+**배경**
+기존 `inputs` 객체가 `"슬롯_필드"` 형태의 플랫 구조로 저장되어 있어 가독성이 낮고 구조적으로 좋지 않았음. `inputs["슬롯"]["필드"]` 중첩 구조로 개선.
+
+**변경 전**
+```json
+"inputs": {
+    "info_job": { "val": "귀검사", "cls": "" },
+    "상의_rarity": { "val": "에픽", "cls": "rare-에픽" },
+    "상의_itemname": { "val": "못말리는 말괄량이의 가죽", "cls": "" }
+}
+```
+
+**변경 후**
+```json
+"inputs": {
+    "info_job": { "val": "귀검사", "cls": "" },
+    "상의": {
+        "rarity": { "val": "에픽", "cls": "rare-에픽" },
+        "itemname": { "val": "못말리는 말괄량이의 가죽", "cls": "" }
+    }
+}
+```
+
+**수정 내용**
+
+- `storage.js`: `autoSave()`에서 DOM 수집 시 `슬롯_필드` → `inputs[슬롯][필드]` 중첩 구조로 저장
+- `storage.js`: `migrateInputs()` 함수 추가 - 구버전 플랫 구조 → 신버전 중첩 구조 자동 변환 (멱등성 보장)
+- `storage.js`: `importFromJSON()` 불러오기 시 마이그레이션 자동 적용
+- `ui-character.js`: `restoreSavedData()`에 `getInputData()` 헬퍼 추가 - 중첩 구조에서 데이터 조회
+- `ui-character.js`: `equipInputKeys` 판단 로직 - `info_` 외 키를 슬롯 키로 판단
+- `main.js`: 히스토리 기록 시 중첩 구조에서 이전값 조회
+- `main.js`: 초기 로드 시 localStorage 데이터 마이그레이션 자동 적용
+
+**규칙**
+- `info_` 계열(`info_job`, `info_name` 등)은 플랫 구조 유지
+- 나머지 장비 슬롯은 전부 중첩 구조
+
+**수정 파일:** `storage.js`, `ui-character.js`, `main.js`
+
+---

@@ -176,7 +176,7 @@ function createSlotContent(slot, index, charId, savedData) {
     // getDefaultEnchant는 { enchant, val } 반환, createEquipmentRow는 { defaultEnchant, defaultEnchantVal } 사용
     // info_job/info_name은 addCharacter()로 주입되므로 장비 관련 키가 없으면 신규 캐릭터로 간주
     const equipInputKeys = savedData?.inputs
-        ? Object.keys(savedData.inputs).filter(k => !['info_job','info_name','info_stat_type','info_ele_type','info_power','info_memo','info_tag_input'].includes(k))
+        ? Object.keys(savedData.inputs).filter(k => !k.startsWith('info_'))
         : [];
     const isNewChar = !savedData || !savedData.inputs || equipInputKeys.length === 0;
     const enchantDefault = isNewChar ? TemplateHelper.getDefaultEnchant(slot) : { enchant: '', val: '' };
@@ -277,12 +277,26 @@ function initializePrefixSelects(section) {
  * 저장된 데이터 복구
  */
 function restoreSavedData(section, savedData, charId) {
+    // inputs에서 슬롯+필드 key로 데이터 조회하는 헬퍼
+    function getInputData(inputs, key) {
+        if (!inputs) return null;
+        // info_ 계열은 플랫
+        if (key.startsWith('info_')) return inputs[key] || null;
+        // 슬롯_필드 → 중첩 조회
+        const underIdx = key.indexOf('_');
+        if (underIdx === -1) return inputs[key] || null;
+        const slot = key.slice(0, underIdx);
+        const field = key.slice(underIdx + 1);
+        return inputs[slot]?.[field] || null;
+    }
+
     // 1) 희귀도 먼저 설정
     const rarityInputs = section.querySelectorAll('select[data-key$="_rarity"]');
     rarityInputs.forEach(el => {
         const key = el.getAttribute('data-key');
-        if (savedData.inputs?.[key]) {
-            el.value = savedData.inputs[key].val;
+        const data = getInputData(savedData.inputs, key);
+        if (data) {
+            el.value = data.val;
             updateStyle(el, 'rarity', true);
         }
     });
@@ -291,7 +305,7 @@ function restoreSavedData(section, savedData, charId) {
     const inputs = section.querySelectorAll('input[data-key], select[data-key], textarea[data-key]');
     inputs.forEach(el => {
         const key = el.getAttribute('data-key');
-        const data = savedData.inputs?.[key];
+        const data = getInputData(savedData.inputs, key);
 
         if (!data || key.endsWith('_rarity')) return;
 
