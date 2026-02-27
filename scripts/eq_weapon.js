@@ -665,7 +665,7 @@ function renderCraftTable() {
         {name: "스펙쿨룸 파편", img: "스펙쿨룸파편.png"},
         {name: "망가진 강철 톱니바퀴", img: "망가진강철톱니바퀴.png"},
         {name: "강철 화로의 파편", img: "강철화로의파편.png"},
-        {name: "빛의 저장소", img: "빝의저장소.png"},
+        {name: "빛의 저장소", img: "빛의저장소.png"},
         {name: "마누스 메모리얼", img: "마누스메모리얼.png"},
         {name: "데이터 칩 상자", img: "데이터칩.png"},
         {name: "강화된 데이터 칩 상자", img: "강화된데이터칩.png"}
