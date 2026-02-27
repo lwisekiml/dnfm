@@ -648,7 +648,7 @@ function renderCraftTable() {
 
     if (focusedElement && focusedElement.className === "craft-input") {
         // 어느 캐릭터, 어느 재료인지 찾기
-        const allInputs = Array.from(document.querySelectorAll(".craft-input"));
+        const allInputs = Array.from(document.querySelectorAll(".craft-input:not(.craft-special)"));
         const focusedIndex = allInputs.indexOf(focusedElement);
 
         if (focusedIndex !== -1) {
@@ -830,6 +830,59 @@ function renderCraftTable() {
 
     table.appendChild(totalRow);
 
+    // 죽은자의 성 던전 특산물 선택 상자 별도 표 (메인 표 위에 추가)
+    const specialTable = document.createElement("table");
+    specialTable.style.marginBottom = "16px";
+
+    // 헤더행: 이름+이미지 | 개수
+    const specialHeader = document.createElement("tr");
+    const specialNameTh = document.createElement("th");
+    specialNameTh.textContent = "죽은 자의 성 던전 특산물 선택 상자";
+    specialHeader.appendChild(specialNameTh);
+    const specialCountTh = document.createElement("th");
+    specialCountTh.textContent = "개수";
+    specialHeader.appendChild(specialCountTh);
+    specialTable.appendChild(specialHeader);
+
+    // 데이터행: 이미지 | 입력칸
+    const specialDataRow = document.createElement("tr");
+    const specialEmptyTd = document.createElement("td");
+    specialEmptyTd.style.textAlign = "center";
+    specialEmptyTd.innerHTML = `<img src="죽은자의성던전특산물선택상자.png" style="width:48px;">`;
+    specialDataRow.appendChild(specialEmptyTd);
+
+    const specialInputTd = document.createElement("td");
+    const specialInput = document.createElement("input");
+    specialInput.type = "number";
+    specialInput.className = "craft-input craft-special";
+    specialInput.style.width = "60px";
+    specialInput.min = "0";
+    specialInput.placeholder = "0";
+
+    // 첫 번째 캐릭터 기준으로 저장 (공용 값)
+    if (characters[0]) {
+        if (!characters[0].craftMaterials) characters[0].craftMaterials = {};
+        const savedVal = characters[0].craftMaterials["죽은 자의 성 던전 특산물 선택 상자"];
+        if (savedVal && savedVal > 0) specialInput.value = savedVal;
+    }
+
+    specialInput.addEventListener('input', function () {
+        const value = parseInt(this.value);
+        if (characters[0]) {
+            if (isNaN(value) || value <= 0) {
+                delete characters[0].craftMaterials["죽은 자의 성 던전 특산물 선택 상자"];
+            } else {
+                characters[0].craftMaterials["죽은 자의 성 던전 특산물 선택 상자"] = value;
+            }
+            saveLocalData();
+        }
+    });
+
+    specialInputTd.appendChild(specialInput);
+    specialDataRow.appendChild(specialInputTd);
+    specialTable.appendChild(specialDataRow);
+
+    area.appendChild(specialTable);
     area.appendChild(table);
     setCraftLock(craftLocked);
 }
@@ -896,13 +949,16 @@ function applyCraftModulo() {
         undoBtn.style.cursor = "pointer";
     }
 
-    const allInputs = Array.from(document.querySelectorAll("#section-craft-view input.craft-input"));
+    const allInputs = Array.from(document.querySelectorAll("#section-craft-view input.craft-input:not(.craft-special)"));
     const materialsCount = 8;
 
     const materials = [
         "망가진 기계 캡슐", "스펙쿨룸 파편", "망가진 강철 톱니바퀴", "강철 화로의 파편",
         "빛의 저장소", "마누스 메모리얼", "데이터 칩 상자", "강화된 데이터 칩 상자"
     ];
+
+    // 특산물 상자에 합산할 값 계산 (matIdx 0~5: 100으로 나눈 몫 * 10)
+    let specialBoxAdd = 0;
 
     selected.forEach(input => {
         const idx = allInputs.indexOf(input);
@@ -915,12 +971,24 @@ function applyCraftModulo() {
         const original = parseInt(input.value) || 0;
         const result = (matIdx === 6 || matIdx === 7) ? original % 10 : original % 100;
 
+        // matIdx 0~5(망가진 기계 캡슐 ~ 마누스 메모리얼)만 특산물 상자에 합산
+        if (matIdx <= 5) {
+            specialBoxAdd += Math.floor(original / 100) * 10;
+        }
+
         if (result <= 0) {
             delete char.craftMaterials[materials[matIdx]];
         } else {
             char.craftMaterials[materials[matIdx]] = result;
         }
     });
+
+    // 특산물 상자 개수에 합산 (characters[0] 기준)
+    if (specialBoxAdd > 0 && characters[0]) {
+        if (!characters[0].craftMaterials) characters[0].craftMaterials = {};
+        const currentSpecial = characters[0].craftMaterials["죽은 자의 성 던전 특산물 선택 상자"] || 0;
+        characters[0].craftMaterials["죽은 자의 성 던전 특산물 선택 상자"] = currentSpecial + specialBoxAdd;
+    }
 
     saveLocalData();
     renderCraftTable();
