@@ -35,12 +35,16 @@ function initProject1() {
     const container = document.getElementById('characterContainer');
     if (container) container.innerHTML = "";
 
-    // 구버전 inputs 마이그레이션 (로드 시 자동 변환)
+    // 구버전 inputs 마이그레이션 (순서 중요: 플랫→중첩 먼저, runeData 병합 나중)
+    let needsSave = false;
     if (parsedList && parsedList.length > 0) {
-        parsedList = parsedList.map(c => ({
-            ...c,
-            inputs: typeof migrateInputs === 'function' ? migrateInputs(c.inputs) : c.inputs
-        }));
+        parsedList = parsedList.map(c => {
+            const before = JSON.stringify(c);
+            if (typeof migrateInputs === 'function') c = { ...c, inputs: migrateInputs(c.inputs) };
+            if (typeof migrateRuneData === 'function') c = migrateRuneData(c);
+            if (JSON.stringify(c) !== before) needsSave = true;
+            return c;
+        });
     }
 
     if (parsedList && parsedList.length > 0) {
@@ -49,6 +53,12 @@ function initProject1() {
         });
     } else {
         createCharacterTable();
+    }
+
+    // 마이그레이션이 실제로 발생했으면 createCharacterTable 이후에 저장
+    // (AppState.charRuneData가 채워진 다음이어야 runeData가 제대로 포함됨)
+    if (needsSave && typeof characters !== 'undefined') {
+        if (typeof saveLocalData === 'function') saveLocalData();
     }
 
     AppState.updateSnapshot();

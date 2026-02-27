@@ -1495,3 +1495,82 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정 파일:** `storage.js`, `ui-character.js`, `main.js`
 
 ---
+
+## 2026-02-27 (37차)
+
+### runeData 위치 이동 - inputs["스킬룬"] 안으로
+
+**배경**
+룬 데이터(`runeData`)가 캐릭터 최상위에 별도로 저장되어 있었음. 스킬룬 슬롯 관련 데이터이므로 `inputs["스킬룬"]` 안에 포함하는 것이 구조적으로 올바름.
+
+**변경 전**
+```json
+{
+    "id": "char_1",
+    "runeData": {
+        "runes": [...],
+        "gakin": ["가킨A", "가킨B"]
+    },
+    "inputs": { ... }
+}
+```
+
+**변경 후**
+```json
+{
+    "id": "char_1",
+    "inputs": {
+        "스킬룬": {
+            "itemname": { "val": "화룡의 스킬룬", "cls": "" },
+            "runeData": {
+                "runes": [...],
+                "gakin": ["가킨A", "가킨B"]
+            }
+        }
+    }
+}
+```
+
+**수정 내용**
+
+- `storage.js`: `migrateRuneData()` 함수 추가 - 구버전 `character.runeData` → `inputs["스킬룬"].runeData` 이동 (멱등성 보장)
+- `storage.js`: `autoSave()`에서 runeData를 `inputs["스킬룬"].runeData`에 저장
+- `storage.js`: `migrateInputs()`에 스킬룬 예외처리 추가 - runeData는 `val`이 없으므로 플랫→중첩 변환 대상에서 제외
+- `storage.js`: `importFromJSON()`에서 `migrateRuneData` + `migrateInputs` 순서로 마이그레이션 적용
+- `ui-character.js`: `createCharacterTable()`에서 `inputs["스킬룬"].runeData` 우선 읽기 (구버전 `character.runeData` fallback 포함)
+- `ui-character.js`: 신규 캐릭터 생성 시 `inputs["스킬룬"].runeData`에 초기값 저장
+- `main.js`: 초기 로드 시 `migrateRuneData` → `migrateInputs` 순서로 마이그레이션 적용
+
+**수정 파일:** `storage.js`, `ui-character.js`, `main.js`
+
+---
+
+## 2026-02-27 (38차)
+
+### 마이그레이션 버그 수정
+
+**문제점**
+
+36~37차에서 구조 변경 후 아래 버그들이 발생했음.
+
+1. **`runeData`가 `inputs["스킬룬"]` 안으로 안 들어가는 문제**
+   - `exportToJSON`, `saveJsonWithLocation`이 localStorage를 직접 읽어서 내보내는 구조라 마이그레이션이 적용 안 됨
+   - `autoSave`에서 runeData를 inputs에 넣은 후 `existing.runeData` 삭제를 안 해서 최상위에 그대로 남아있었음
+
+2. **`스킬룬_desc`가 사라지는 문제**
+   - 마이그레이션 순서가 `migrateRuneData` → `migrateInputs` 였는데, `migrateRuneData`가 먼저 실행되면서 `inputs["스킬룬"]` 키가 생성됨
+   - 이후 `migrateInputs`가 `스킬룬` 키가 존재하니 신버전으로 판단하고 `스킬룬_desc` 플랫 키 변환을 건너뜀 → desc 소실
+
+3. **캐릭터 관리 탭에서 데이터 복구 안 되는 문제**
+   - localStorage에 구버전 플랫 데이터가 남아있는 상태에서 `createCharacterTable`이 마이그레이션 없이 `restoreSavedData`에 데이터를 넘겨서 빈 표만 표시됨
+
+**수정 내용**
+
+- `storage.js`: `exportToJSON`, `saveJsonWithLocation`에 내보내기 직전 마이그레이션 적용
+- `storage.js`: `autoSave`에서 `existing.runeData` 삭제 추가 (`delete existing.runeData`)
+- `storage.js`, `main.js`: 마이그레이션 순서 통일 → `migrateInputs` 먼저, `migrateRuneData` 나중
+- `ui-character.js`: `createCharacterTable`에서 savedData 복구 전 마이그레이션 적용
+
+**수정 파일:** `storage.js`, `ui-character.js`, `main.js`
+
+---

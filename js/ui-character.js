@@ -17,11 +17,13 @@ function createCharacterTable(savedData = null) {
     section.className = 'char-section';
     section.id = charId;
 
-    // 3) 룬 데이터 초기화
-    AppState.charRuneData[charId] = savedData?.runeData || {
-        runes: Array(20).fill().map(() => ({name: '', lv: '', skillLv: ''})),
-        gakin: ['', '']
-    };
+    // 3) 룬 데이터 초기화 (inputs["스킬룬"].runeData 에서 읽기)
+    AppState.charRuneData[charId] = savedData?.inputs?.['스킬룬']?.runeData
+        || savedData?.runeData  // 구버전 호환
+        || {
+            runes: Array(20).fill().map(() => ({name: '', lv: '', skillLv: ''})),
+            gakin: ['', '']
+        };
 
     // 태그 데이터 초기화 (AppState.charTags가 없으면 생성)
     if (!AppState.charTags) {
@@ -103,6 +105,10 @@ function createCharacterTable(savedData = null) {
 
     // 8) 저장된 데이터 복구
     if (savedData) {
+        // 구버전 데이터 마이그레이션 (플랫→중첩, runeData 위치 이동)
+        if (typeof migrateInputs === 'function') savedData.inputs = migrateInputs(savedData.inputs);
+        if (typeof migrateRuneData === 'function') savedData = migrateRuneData(savedData);
+
         // 통합 구조: job/name이 최상위 필드로 있으면 inputs에 주입 (project2 호환)
         if (savedData.job && !savedData.inputs?.['info_job']) {
             if (!savedData.inputs) savedData.inputs = {};
@@ -119,13 +125,14 @@ function createCharacterTable(savedData = null) {
         if (typeof characters !== 'undefined') {
             const exists = characters.find(c => c.id === charId);
             if (!exists) {
+                const initRuneData = AppState.charRuneData[charId];
+                const initInputs = { '스킬룬': { runeData: initRuneData } };
                 characters.push({
                     id: charId,
                     job: '',
                     name: '',
                     locked: false,
-                    inputs: {},
-                    runeData: AppState.charRuneData[charId],
+                    inputs: initInputs,
                     tags: [],
                     armorCounts: {},
                     weaponCounts: {},
