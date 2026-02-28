@@ -661,14 +661,14 @@ function renderCraftTable() {
     area.innerHTML = "";
 
     const materials = [
-        {name: "망가진 기계 캡슐", img: "망가진기계캡슐.png"},
-        {name: "스펙쿨룸 파편", img: "스펙쿨룸파편.png"},
-        {name: "망가진 강철 톱니바퀴", img: "망가진강철톱니바퀴.png"},
-        {name: "강철 화로의 파편", img: "강철화로의파편.png"},
-        {name: "빛의 저장소", img: "빛의저장소.png"},
-        {name: "마누스 메모리얼", img: "마누스메모리얼.png"},
-        {name: "데이터 칩 상자", img: "데이터칩.png"},
-        {name: "강화된 데이터 칩 상자", img: "강화된데이터칩.png"}
+        {name: "망가진 기계 캡슐", img: "images/망가진기계캡슐.png"},
+        {name: "스펙쿨룸 파편", img: "images/스펙쿨룸파편.png"},
+        {name: "망가진 강철 톱니바퀴", img: "images/망가진강철톱니바퀴.png"},
+        {name: "강철 화로의 파편", img: "images/강철화로의파편.png"},
+        {name: "빛의 저장소", img: "images/빛의저장소.png"},
+        {name: "마누스 메모리얼", img: "images/마누스메모리얼.png"},
+        {name: "데이터 칩 상자", img: "images/데이터칩.png"},
+        {name: "강화된 데이터 칩 상자", img: "images/강화된데이터칩.png"}
     ];
 
     const table = document.createElement("table");
@@ -832,9 +832,9 @@ function renderCraftTable() {
 
     // 특산물 표 (메인 표 위에 추가)
     const specialItems = [
-        { key: "죽은 자의 성 던전 특산물 선택 상자", img: "죽은자의성던전특산물선택상자.png" },
-        { key: "데이터 칩 상자 (특산물)", img: "데이터칩.png" },
-        { key: "강화된 데이터 칩 상자 (특산물)", img: "강화된데이터칩.png" }
+        { key: "죽은 자의 성 던전 특산물 선택 상자", img: "images/죽은자의성던전특산물선택상자.png" },
+        { key: "데이터 칩 상자 (특산물)", img: "images/데이터칩.png" },
+        { key: "강화된 데이터 칩 상자 (특산물)", img: "images/강화된데이터칩.png" }
     ];
     const specialDisplayNames = [
         "죽은 자의 성 던전 특산물 선택 상자",
