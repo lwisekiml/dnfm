@@ -1,5 +1,395 @@
 # DNF Mobile 통합 장비 관리 - 개발 로그
 
+> 이 파일은 project1(상세입력), project2(장비관리), 통합 작업의 전체 개발 기록을 포함합니다.
+
+---
+
+## [통합 이전] project1 개발 기록
+
+---
+
+## 수정된 파일 목록
+
+| 파일 | 내용 |
+|---|---|
+| `ui-memo-tag.js` | 메모/설명 팝업 기능 전반 |
+| `ui-character.js` | 잠금/해제 시 팝업 처리 |
+| `ui-search.js` | 검색 메모/태그 항목 추가 |
+| `index.html` | 설명칸 textarea 변환 |
+| `styles.css` | 참고용 (수치칸, 마법부여 너비 변수) |
+
+---
+
+## 1. 메모 팝업 (ui-memo-tag.js)
+
+### 잠금 상태에서 메모 클릭 시 읽기 전용 모달 표시
+- 기존: 잠금 상태에서 메모 클릭 시 아무 동작 없음
+- 변경: 읽기 전용 모달 팝업 표시 (🔒 잠금 표시, 닫기 버튼만 제공)
+
+### 팝업 설정 변수 분리 (MEMO_POPUP / DESC_POPUP)
+- 메모와 설명 팝업 설정을 파일 상단에서 한 번에 관리
+- 실제로 사용되는 값만 변수로 선언
+
+```javascript
+const MEMO_POPUP = {
+    width:        '350px',
+    background:   '#1a1a1a',
+    border:       '3px solid #ffd700',
+    borderRadius: '8px',
+    padding:      '15px',
+    boxShadow:    '0 8px 32px rgba(0, 0, 0, 0.9)',
+    zIndex:       '1000',
+    textareaHeight:     '120px',
+    textareaBg:         '#0a0a0a',
+    textareaBorder:     '2px solid #444',
+    textareaFontSize:   '13px',
+    readonlyMinHeight:  '120px',
+    readonlyMaxHeight:  '200px',  // 초과 시 스크롤
+    readonlyBg:         '#0a0a0a',
+    readonlyBorder:     '2px solid #333',
+};
+
+const DESC_POPUP = {
+    // MEMO_POPUP과 동일한 구조, 값만 다름
+    textareaHeight:     '100px',
+    readonlyMinHeight:  '60px',
+    readonlyMaxHeight:  '200px',
+    ...
+};
+```
+
+### 잠금 모드 읽기전용 영역 스크롤
+- 내용이 많을 경우 팝업이 무한정 커지는 문제 수정
+- `max-height` + `overflow-y: auto`로 세로 길이 제한 후 스크롤 처리
+- `readonlyMaxHeight` 변수로 조절 가능
+
+---
+
+## 2. 설명칸 팝업 (ui-memo-tag.js)
+
+### openDescModal() 함수 추가
+- 모든 `_desc` 필드(장비, 스킬룬, 크리쳐, 칭호, 오라/아바타)에 `onclick="openDescModal(this)"` 적용
+- 잠금 상태: 읽기 전용 표시
+- 해제 상태: textarea로 편집 가능, 저장 시 `autoSave()` 호출
+
+### 팝업 위치 자동 조정
+- 화면 오른쪽 벗어남 → 왼쪽으로 이동
+- 화면 아래 벗어남 → input 위로 이동
+- 최소 여백 5px 유지
+
+---
+
+## 3. 설명칸 textarea 변환 (index.html)
+
+- `input type="text"` → `textarea`로 변경 (4개 필드)
+- 줄바꿈(`\n`) 저장/표시 지원
+- 셀 내부: 첫 줄만 보임 (`overflow: hidden`)
+- 팝업: 전체 내용 편집 가능 (`resize: vertical`)
+
+---
+
+## 4. 잠금/해제 시 팝업 처리 (ui-character.js)
+
+### toggleEdit() 수정
+- 잠금 버튼 클릭 시 열려있는 팝업 자동 처리
+- 기존: 그냥 닫기 (`closeDescModal`, `closeMemoModal`)
+- 변경: **저장 후 닫기** (`saveDescFromModal`, `saveMemoFromModal`)
+  - 글 작성 중 잠금 시 내용 유실 방지
+
+```javascript
+// 설명/메모 팝업이 열려있으면 저장 후 닫기
+if (typeof saveDescFromModal === 'function') saveDescFromModal();
+if (typeof saveMemoFromModal === 'function') saveMemoFromModal();
+```
+
+---
+
+## 5. 검색 메모/태그 항목 추가 (ui-search.js)
+
+### 슬롯 선택 목록 마지막에 메모/태그 추가
+- 선택 시 아래 형식으로 표시
+
+| 직업/이름 | 메모 | 태그 |
+|---|---|---|
+| 귀검사(홍길동) | 메모 내용... | #레이드\n#보스 |
+
+- 태그는 세로로 표시 (`\n` join + `white-space: pre-wrap`)
+
+---
+
+## 6. CSS 너비 관련 참고 (styles.css)
+
+### 수정 가능한 너비 변수
+```css
+--width-val-short: 35px;   /* 수치칸 (마법봉인 수치, 강화 등) */
+--width-enchant:   55px;   /* 마법부여 이름칸 */
+```
+
+### 테이블 너비 동작 방식
+- 기본 표: `width: max-content` → 칸이 커지면 표도 같이 커짐
+- 비교 표: `width: 100%` + `table-layout: fixed` → 표 크기 고정, 칸이 커지면 다른 칸이 줄어듦
+
+---
+
+## 7. 구글 드라이브 저장 (취소됨)
+
+- `file://` 프로토콜에서는 Google OAuth 동작 불가
+- 로컬 서버(`http://`) 환경 필요
+- 기능 구현 후 `file://` 환경 문제로 **없던 걸로 처리**
+
+---
+
+## 8. 세트 자동 적용 기능 (ui-core.js, ui-character.js, styles.css)
+
+### 최종 구현 방식
+- `아이템이름` 헤더(th)에 🎯 버튼 추가
+- 버튼 클릭 시 방어구 / 악세서리 / 특수장비 세트 목록이 섹션별로 표시
+- 세트 선택 시 해당 슬롯 전체에 아이템 자동 입력
+
+### 주요 함수 (ui-core.js)
+
+```javascript
+// 헤더 버튼 클릭 시 세트 목록 팝업 표시
+function openSetMenuFromHeader(event, charId) { ... }
+
+// 슬롯에 맞는 아이템 찾기 - itemOptions 기반, 마지막 매칭(B 아이템) 반환
+function getMatchedItemForSlot(slot, itemList) {
+    const slotOptions = itemOptions[slot] || [];
+    let matched = null;
+    itemList.forEach(item => {
+        if (slotOptions.includes(item)) matched = item;
+    });
+    return matched;
+}
+
+// 세트 아이템 전체 적용
+function applySetItems(charId, slotType, setsMap, setName) { ... }
+```
+
+### 세트 데이터 구조 참고
+- 방어구: `[상의A, 상의B, 하의, 어깨, 벨트, 신발]` → 상의B 적용
+- 악세: `[팔찌A, 팔찌B, 목걸이, 반지]` → 팔찌B 적용
+- 특장: `[귀걸이A, 귀걸이B, 마법석, 보조장비]` → 귀걸이B 적용
+
+### 겪었던 문제들
+- 우클릭/롱프레스 방식 시도 → 모바일에서 메뉴가 뜨자마자 닫히는 문제
+  - 원인: `outsideHandler`가 버튼 클릭 이벤트 버블링을 잡아서 즉시 닫힘
+  - 해결: 헤더 th에 버튼을 두는 방식으로 변경
+- 아이템이름 칸 크기 제각각 문제
+  - 원인: 버튼을 칸 안에 넣으면서 wrapper div가 생겨 레이아웃이 깨짐
+  - 해결: 버튼을 th로 옮겨서 td는 건드리지 않음
+- 세트 선택해도 적용 안 되는 문제
+  - 원인: `section.innerHTML` 템플릿 리터럴 안에 `'{CHAR_ID}'` 문자열이 치환되지 않아 실제 charId 대신 `{CHAR_ID}` 그대로 전달됨
+  - 해결: `'${charId}'`로 수정
+
+### CSS 추가 (styles.css)
+```css
+.set-apply-btn {
+    background: none;
+    border: none;
+    padding: 0 2px;
+    cursor: pointer;
+    font-size: 11px;
+    opacity: 0.5;
+}
+.set-apply-btn:hover { opacity: 1; }
+```
+
+---
+
+## 9. 접두어 일괄 적용 기능 (ui-core.js, ui-character.js)
+
+- `접두어` 헤더(th)에 🎯 버튼 추가
+- 버튼 클릭 시 방어구 / 악세서리 / 특수장비 접두어 목록이 섹션별로 표시
+- 선택 시 해당 슬롯 전체에 일괄 적용
+
+
+```javascript
+function openPrefixMenuFromHeader(event, charId) { ... }
+function applyPrefixToSlots(charId, slots, prefix) { ... }
+```
+
+---
+
+## 10. 강화 일괄 적용 기능 (ui-core.js, ui-character.js)
+
+- `강화` 헤더(th)에 🎯 버튼 추가
+- 버튼 클릭 시 +1 ~ +20 목록 표시
+- 선택 시 방어구 / 악세서리 / 특수장비 전체 슬롯에 일괄 적용
+
+```javascript
+function openReinforceMenuFromHeader(event, charId) { ... }
+function applyReinforceToSlots(charId, slots, value) { ... }
+```
+
+---
+
+## 11. 비교 캐릭터 선택지 분류 (ui-compare.js)
+
+- 기존 단순 목록 → 힘/지능 × 화/수/명/암속강 기준으로 그룹 분류
+- disabled option으로 구분선 표시 (`── 힘 ──`, `  화속강`)
+- 스탯/속강 미설정 캐릭터는 `── 기타 ──` 그룹으로 분류
+- 힘/지능 헤더 앞에 빈 줄 추가하여 시각적 구분
+
+---
+
+## 12. 비교 레이아웃 3열 구조로 전면 재작성 (ui-compare.js, styles.css)
+
+### 구조 변경
+- 기존: 단일 테이블 (좌측 데이터 | 비교값 | 우측 데이터)
+- 변경: **3열 Flex 레이아웃** (좌측 div | 중앙 고정 div | 우측 div)
+- 비교값(차이) 칸이 화면 정중앙 고정, 양옆 테이블이 화면 크기에 따라 반응형으로 축소
+
+### 주요 함수 (ui-compare.js)
+```javascript
+function createCompareSection(...) { ... }  // 3열 섹션 생성
+function buildSideTable(headers, rows, side) { ... }  // 좌/우 테이블 생성
+function buildCenterTable(label, rows) { ... }  // 중앙 비교값 테이블 생성
+function syncRowHeights(leftTable, centerTable, rightTable) { ... }  // 행 높이 동기화
+function buildEquipmentCompare(...) { ... }
+function buildSealCompare(...) { ... }
+function buildEmblemCompare(...) { ... }
+function buildEnchantCompare(...) { ... }
+```
+
+### 열 순서
+- 장비: 좌 `슬롯|희귀도|익시드|접두어|아이템이름|강화` / 우 `강화|아이템이름|접두어|익시드|희귀도|슬롯` (대칭)
+- 마법봉인: 좌 `슬롯|옵션|수치` / 우 `수치|옵션|슬롯` (대칭)
+- 엠블렘: 좌우 모두 `슬롯|엠블렘1|엠블렘2` (동일)
+- 마법부여: 좌 `슬롯|마법부여|수치` / 우 `수치|마법부여|슬롯` (대칭)
+
+### CSS 추가 (styles.css)
+```css
+.compare-three-col { display: flex; align-items: flex-start; width: 100%; }
+.compare-side { flex: 1; min-width: 0; overflow-x: auto; }
+.compare-center { flex: 0 0 130px; width: 130px; }
+```
+
+### 겪었던 문제
+- 단일 테이블에서 컬럼 수가 달라 `width: 8%`가 섹션별로 다르게 렌더링됨
+- `table-layout: fixed` + `width: 100%` 조합에서 px 고정도 효과 없음
+- HTML 테이블 구조 한계 → Flex 3열 레이아웃으로 근본 해결
+- `requestAnimationFrame`으로 DOM 렌더링 후 행 높이 동기화하여 좌/중/우 행 높이 일치
+
+---
+
+## 13. 전체 코드 품질 개선 (ui-core.js, ui-character.js, ui-compare.js, storage.js, main.js)
+
+### 수정 내용
+
+**ui-core.js**
+- `console.log("✅ ui-core.js 로드 완료")` 위치를 파일 중간(535번)에서 파일 맨 끝으로 이동
+  - 중간에 있으면 아래 함수들이 존재하는지 파악이 어려움
+- 함수 순서 재정렬: 호출하는 함수와 호출받는 함수를 쌍으로 붙임
+  - 기존: `openPrefixMenuFromHeader` → `openReinforceMenuFromHeader` → `applyReinforceToSlots` → `applyPrefixToSlots`
+  - 변경: `openPrefixMenuFromHeader` → `applyPrefixToSlots` → `openReinforceMenuFromHeader` → `applyReinforceToSlots`
+- `applyPrefixToSlots` 함수 주석 누락 → 추가
+- 접두어/강화 메뉴 섹션 구분선(`// ====`) 추가
+- `checkSetColor` 주석의 `⭐` 제거
+
+**ui-character.js**
+- 개발 임시 주석 정리: `⭐ 태그 데이터 초기화 추가`, `⭐ 태그 복원 추가`, `⭐ 메모 미리보기 업데이트 추가`, `✅ 수정됨!` 등 → 일반 주석으로 변경
+- `delete AppState.charTags[charId]` 뒤 `// ⭐ 추가` 제거
+
+**ui-compare.js**
+- `CompareTable = {}` 빈 객체 제거
+  - 3열 레이아웃으로 전면 재작성 후 실제로 사용되지 않는 코드였음
+
+**storage.js**
+- `// ⭐ 추가` 주석 2곳 제거
+
+**main.js**
+- `typeof AppState !== 'undefined'` 방어 코드 전부 제거
+  - `AppState`는 `state.js`에서 항상 전역으로 선언되며, `index.html`에서 `state.js`가 먼저 로드되므로 `main.js` 실행 시점에 항상 존재
+  - 없을 수 없는 변수를 매번 `typeof`로 체크하면 코드가 길어지고 혼란을 줌
+
+---
+
+## [통합 이전] project2 개발 기록
+
+---
+
+## 2026-02-22
+
+### 1. 세트 이름 칸 가로 너비 개선 (`equipment.js`)
+
+**변경 전**
+- 방어구/악세/특장 모든 표의 세트 이름 열이 전역 `globalSetNameWidth` 값으로 통일 적용
+
+**변경 후**
+- `calcNameWidth()` 헬퍼 함수 추가 (Canvas API로 실제 텍스트 렌더링 너비 측정)
+- 표1(일반/접두어)과 표2(익시드) 각각 해당 표에 실제 들어가는 행 이름들 기준으로 너비 개별 계산
+  - 표1: `"일반"`, 접두어 이름들 중 가장 긴 것 기준
+  - 표2: `"[선봉] 불굴"`, `"[의지] 숙련"` 등 익시드 행 이름 기준
+
+---
+
+### 2. 표 글자 가운데 정렬 (`equipment.js`)
+
+**변경 전**
+- 세트 이름 첫 번째 열 td가 `text-align:left`
+
+**변경 후**
+- 방어구/악세/특장 표의 세트 이름 열 전체 `text-align:center` 로 통일
+- 적용 위치: `createEquipmentRow()`, 익시드 행 `tr.innerHTML` 생성부 (총 8곳)
+
+---
+
+### 3. 표 헤더에 슬롯 이름 추가 표시 (`equipment.js`)
+
+**변경 전**
+- 헤더에 아이템 이름만 표시
+  ```
+  | 어느 말괄량이의 가죽 자켓 | 어느 말괄량이의 버블 반바지 | ...
+  ```
+
+**변경 후**
+- 헤더 상단에 슬롯 이름(회색 소자), 하단에 아이템 이름 표시
+  ```
+  |        상의         |          하의          | ...
+  | 어느 말괄량이의 가죽 자켓 | 어느 말괄량이의 버블 반바지 | ...
+  ```
+- 적용 대상: 방어구 표2 `headerSlots2`, 악세 표1 `headerSlots1`, 특장 표1 `headerSlots1` (3곳)
+- 슬롯 이름 스타일: `color:#888; font-size:0.85em;`
+
+---
+
+### 4. 최근 업데이트 팝업 아이템 이름 개선 (`weapon.js`)
+
+**변경 전**
+- 아이템 열에 세트 이름(저장 키)이 그대로 표시
+  ```
+  철갑을 두른 탑의 수호꾼
+  초석: 신비로운 빛의 소용돌이
+  [의지] 조화: 신비로운 빛의 소용돌이
+  ```
+
+**변경 후**
+- 실제 아이템 이름을 앞에, 세트 이름을 괄호 안 회색으로 표시
+- 접두어/익시드 태그는 아이템 이름 앞에 붙임
+  ```
+  메탈기어의 조작부 (철갑을 두른 탑의 수호꾼)
+  초석: 은색의 별빛 (신비로운 빛의 소용돌이)
+  [의지] 조화: 시린 달빛 (신비로운 빛의 소용돌이)
+  ```
+- **JSON 데이터 구조 변경 없음** - 표시 시점에만 변환, 기존 저장 데이터 호환 유지
+- 구현 방식:
+  - `showRecentUpdates()`에서 `ARMOR_DISPLAY_NAMES` / `ACCESSORY_DISPLAY_NAMES` / `SPECIAL_DISPLAY_NAMES` 조회
+  - 배열 슬롯(익시드/일반 구분)은 `fullKey.startsWith('[')` 으로 판별
+  - 조회 실패 시 `realItemName = null` → 기존 표시 방식 fallback
+  - `renderUpdatePage()`에서 `displayItemCell` 로 최종 조합하여 렌더링
+
+---
+
+### 메모
+
+- 로컬스토리지 용량: 캐릭터 20명 / 업데이트 약 1,280건 기준 **약 190KB** 수준으로 여유 있음 (한도 5MB)
+- updateTimes는 count가 0이 되어도 삭제되지 않고 계속 누적되는 구조 → 향후 "count 0 항목 정리" 기능 추가 검토
+
+---
+
+## [통합 이후] 개발 기록
+
 ---
 
 ## 2026-02-22
@@ -1739,5 +2129,39 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 
 **수정 파일:** `storage.js`, `eq_main.js`, `merged.html`
 **삭제 파일:** `constants.js`, `data.js`
+
+---
+
+## 2026-02-28 (46차)
+
+### 주석 정리 (4번) + 이미지 폴더 이동 (7번) + md 파일 정리 (6번)
+
+**[4번] 주석 추가/수정/제거**
+
+- `eq_equipment.js`: 디버그용 `console.log` → `console.warn`으로 변경, "나중에 제거 가능" 주석 제거
+- `storage.js`:
+  - `autoSave()` 주석 "saveLocalData와 동일한 방식" → "변경된 characters를 localStorage에 저장"으로 수정
+  - `migrateRuneData()` 앞에 호출 순서 명시 주석 추가 (migrateInputs 먼저 실행해야 함)
+  - `migrateInputs()` 앞에 호출 순서 및 구조 예시 주석 추가
+- `state.js`: "전역 별칭 제거 완료" 주석 → "AppConstants 별칭은 shared_constants.js에서 하위 호환용으로 유지 중"으로 수정
+- `ui-character.js`: `getInputData()` 헬퍼 주석에 중첩 구조 예시 추가
+
+**[7번] 이미지 파일 폴더 이동**
+
+- `eq_weapon.js`: 이미지 경로 전체를 `"파일명.png"` → `"images/파일명.png"` 로 변경 (11곳)
+- 실제 이미지 파일 이동(`images/` 폴더 생성)은 5번 파일 트리 정리 시 함께 진행
+
+**[6번] .md 파일 정리**
+
+- `README_old.md` 삭제 (구버전 내용)
+- `README-TEST.md` 삭제 (테스트 기록)
+- `QUICK-START.md` 삭제 (README.md와 내용 중복)
+- `eq_README.md` 삭제 (README.md와 내용 완전 동일)
+- `dev-log.md` 삭제 → `new-dev-log.md`에 "[통합 이전] project1 개발 기록" 섹션으로 통합
+- `eq_dev-log.md` 삭제 → `new-dev-log.md`에 "[통합 이전] project2 개발 기록" 섹션으로 통합
+- 최종 md 파일: `README.md`, `new-dev-log.md` 2개만 유지
+
+**수정 파일:** `eq_equipment.js`, `storage.js`, `state.js`, `ui-character.js`, `eq_weapon.js`, `new-dev-log.md`
+**삭제 파일:** `README_old.md`, `README-TEST.md`, `QUICK-START.md`, `eq_README.md`, `dev-log.md`, `eq_dev-log.md`
 
 ---
