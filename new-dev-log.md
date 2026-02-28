@@ -1691,3 +1691,28 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **삭제 파일:** `빝의저장소.png`
 
 ---
+
+## 2026-02-28 (44차)
+
+### 최적화 - 중복 코드 제거 및 스냅샷 구조 통일
+
+**1. `state.js` `updateSnapshot()` - 중첩 구조로 변경**
+
+스냅샷을 플랫 구조(`inputsObj[key]`)로 저장하던 것을 `autoSave()`와 동일한 중첩 구조로 변경.
+`main.js`의 히스토리 비교 코드(`prevChar.inputs[slot]?.[field]?.val`)와 구조가 일치하지 않아 항상 이전값을 찾지 못하던 문제 해결.
+- `info_` 계열 → 플랫 유지
+- 장비 슬롯 → `inputs[슬롯][필드]` 중첩 구조
+
+**2. `storage.js` - `_loadUnifiedStorage()` 중복 제거**
+
+`storage.js`의 `_loadUnifiedStorage()`와 `eq_core.js`의 `_loadUnified()`가 완전히 동일한 역할을 하던 것을 통일.
+- `_loadUnifiedStorage()` 함수 선언 제거
+- 호출처 2곳(`exportToJSON`, `saveJsonWithLocation`) → `_loadUnified()`로 교체
+- `eq_core.js`가 `storage.js`보다 먼저 로드되므로 참조 문제 없음
+
+**보류 항목**
+- `autoSave()` 변경된 캐릭터만 처리하는 최적화: 호출처가 20곳 이상이고 각 함수에서 `charId` 전달 방식이 제각각이라 수정 범위 및 리스크가 커서 보류
+
+**수정 파일:** `state.js`, `storage.js`
+
+---

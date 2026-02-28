@@ -57,9 +57,24 @@ const AppState = {
         this.lastSnapshot = Array.from(document.querySelectorAll('.char-section')).map(sec => {
             const inputsObj = {};
             sec.querySelectorAll('input[data-key], select[data-key], textarea[data-key]').forEach(el => {
-                inputsObj[el.getAttribute('data-key')] = {val: el.value};
+                const key = el.getAttribute('data-key');
+                // info_ 계열은 플랫 구조 유지
+                if (key.startsWith('info_')) {
+                    inputsObj[key] = { val: el.value };
+                    return;
+                }
+                // 슬롯_필드 → 중첩 구조 (autoSave와 동일한 방식)
+                const underIdx = key.indexOf('_');
+                if (underIdx === -1) {
+                    inputsObj[key] = { val: el.value };
+                    return;
+                }
+                const slot = key.slice(0, underIdx);
+                const field = key.slice(underIdx + 1);
+                if (!inputsObj[slot]) inputsObj[slot] = {};
+                inputsObj[slot][field] = { val: el.value };
             });
-            return {id: sec.id, inputs: inputsObj};
+            return { id: sec.id, inputs: inputsObj };
         });
     }
 };

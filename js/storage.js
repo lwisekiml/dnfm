@@ -1,17 +1,7 @@
 // ============================================
 // storage.js - 저장/불러오기 기능
 // ============================================
-
-/**
- * 통합 스토리지에서 전체 객체 읽기 (내부 헬퍼)
- */
-function _loadUnifiedStorage() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEYS.UNIFIED);
-        if (raw) return JSON.parse(raw);
-    } catch (e) {}
-    return { characters: [], history: [] };
-}
+// ※ localStorage 읽기는 eq_core.js의 _loadUnified() 공통 헬퍼 사용
 
 /**
  * 자동 저장
@@ -102,7 +92,7 @@ function autoSave() {
  * JSON으로 내보내기
  */
 function exportToJSON() {
-    const unified = _loadUnifiedStorage();
+    const unified = _loadUnified();
     if (!unified.characters || unified.characters.length === 0) {
         return alert("저장된 데이터가 없습니다.");
     }
@@ -137,7 +127,7 @@ function exportToJSON() {
  * 경로 지정 저장
  */
 async function saveJsonWithLocation() {
-    const unified = _loadUnifiedStorage();
+    const unified = _loadUnified();
     if (!unified.characters || unified.characters.length === 0) {
         return alert("저장된 데이터가 없습니다.");
     }
