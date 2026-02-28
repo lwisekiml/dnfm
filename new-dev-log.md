@@ -1656,3 +1656,38 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정 파일:** `storage.js`, `ui-character.js`, `main.js`
 
 ---
+
+## 2026-02-28 (43차)
+
+### 코드 수정 - 버그 및 불필요 코드 제거
+
+**1. `state.js` - 스토리지 접근 방식 통일**
+
+`init()`과 `saveHistory()`에서 localStorage를 직접 읽던 방식을 `_loadUnified()` 헬퍼로 통일.
+
+- 변경 전: `localStorage.getItem(AppConstants.STORAGE_KEY)` + 직접 `JSON.parse`
+- 변경 후: `_loadUnified()` 호출 (파싱 + 에러처리 + 기본값 반환 내장)
+- 저장 키도 `AppConstants.STORAGE_KEY` → `STORAGE_KEYS.UNIFIED` 로 명시적으로 변경
+- 기능은 동일하나 코드 일관성 및 유지보수성 향상
+
+**2. `eq_weapon.js` - 실험용 주석 코드 삭제**
+
+이미지 배치 방식 실험 중 남긴 주석처리 코드 3줄 삭제.
+- "이미지 오른쪽으로" 주석 포함 `nameTd.innerHTML` 줄
+- "이미지 왼쪽으로" 주석 포함 `nameTd.innerHTML` 줄
+
+**3. `eq_main.js` - 주석처리된 이벤트 핸들러 삭제**
+
+더 이상 사용하지 않는 주석처리된 블록 전체 삭제.
+- `window.ontouchstart` (updateModal 대응) 블록
+- `window.ontouchstart` (prefixFullModal 대응) 블록
+- `window.onclick` (모든 팝업 외부 클릭 닫기) 블록
+
+**4. `빝의저장소.png` - 오타 파일 삭제**
+
+`빛의저장소.png`와 `빝의저장소.png` 두 파일이 공존하던 것을 오타 파일(`빝의저장소.png`) 삭제.
+
+**수정 파일:** `state.js`, `eq_weapon.js`, `eq_main.js`
+**삭제 파일:** `빝의저장소.png`
+
+---

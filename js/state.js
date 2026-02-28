@@ -25,14 +25,11 @@ const AppState = {
      * 초기화 메서드
      */
     init() {
-        // 통합 스토리지에서 히스토리 불러오기
+        // _loadUnified()를 통해 통합 스토리지에서 히스토리 불러오기
         try {
-            const raw = localStorage.getItem(AppConstants.STORAGE_KEY);
-            if (raw) {
-                const unified = JSON.parse(raw);
-                this.changeHistory = unified.history || [];
-                this.lastSnapshot = unified.characters || [];
-            }
+            const unified = _loadUnified();
+            this.changeHistory = unified.history || [];
+            this.lastSnapshot = unified.characters || [];
         } catch (e) {
             console.error("스토리지 로드 실패:", e);
             this.changeHistory = [];
@@ -45,10 +42,9 @@ const AppState = {
      */
     saveHistory() {
         try {
-            const raw = localStorage.getItem(AppConstants.STORAGE_KEY);
-            const unified = raw ? JSON.parse(raw) : { characters: [], history: [] };
+            const unified = _loadUnified();
             unified.history = this.changeHistory;
-            localStorage.setItem(AppConstants.STORAGE_KEY, JSON.stringify(unified));
+            localStorage.setItem(STORAGE_KEYS.UNIFIED, JSON.stringify(unified));
         } catch (e) {
             console.error("히스토리 저장 실패:", e);
         }

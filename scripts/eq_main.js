@@ -251,49 +251,8 @@ if (searchInput) {
     });
 }
 
-// // 모바일 환경을 위한 터치 이벤트 대응
-// window.ontouchstart = function (event) {
-//     const modal = document.getElementById("updateModal");
-//     if (event.target === modal) {
-//         modal.style.display = 'none';
-//     }
-// };
-//
-//
-// // 모바일 터치 대응 (터치 시작 시 닫기)
-// window.ontouchstart = function (event) {
-//     const modal = document.getElementById("prefixFullModal");
-//     if (event.target === modal) {
-//         modal.style.display = "none";
-//     }
-// };
 
 
-// // 모든 팝업창 외부 클릭 시 닫기 처리 (통합 버전)
-// window.onclick = function (event) {
-//     const updateModal = document.getElementById("updateModal");
-//     const prefixModal = document.getElementById("prefixFullModal");
-//     const actionModal = document.getElementById("actionModal");
-//     const confirmModal = document.getElementById("confirmModal");
-//
-//     // 1. 최근 업데이트 내역 모달
-//     if (event.target === updateModal) {
-//         updateModal.style.display = 'none';
-//     }
-//     // 2. 전체 장비 현황 모달
-//     if (event.target === prefixModal) {
-//         prefixModal.style.display = 'none';
-//     }
-//     // 3. 캐릭터 액션(수정/삭제 등) 모달
-//     if (event.target === actionModal) {
-//         actionModal.style.display = 'none';
-//     }
-//     // 4. 확인(Confirm) 모달
-//     if (event.target === confirmModal) {
-//         if (typeof closeConfirmModal === "function") closeConfirmModal();
-//         else confirmModal.style.display = 'none';
-//     }
-// };
 
 
 /* ========================================
