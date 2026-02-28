@@ -27,10 +27,22 @@ function autoSave() {
             const charId = sec.id;
             const inputsObj = {};
             sec.querySelectorAll('input[data-key], select[data-key], textarea[data-key]').forEach(el => {
-                inputsObj[el.getAttribute('data-key')] = {
-                    val: el.value,
-                    cls: el.className
-                };
+                const key = el.getAttribute('data-key');
+                // info_ 계열은 플랫 구조 유지
+                if (key.startsWith('info_')) {
+                    inputsObj[key] = { val: el.value, cls: el.className };
+                    return;
+                }
+                // 슬롯_필드 → 중첩 구조
+                const underIdx = key.indexOf('_');
+                if (underIdx === -1) {
+                    inputsObj[key] = { val: el.value, cls: el.className };
+                    return;
+                }
+                const slot = key.slice(0, underIdx);
+                const field = key.slice(underIdx + 1);
+                if (!inputsObj[slot]) inputsObj[slot] = {};
+                inputsObj[slot][field] = { val: el.value, cls: el.className };
             });
 
             // 메모리의 characters 배열에서 해당 캐릭터 찾아 병합
@@ -40,21 +52,29 @@ function autoSave() {
                 if (existing) {
                     existing.locked = sec.querySelector('.lock-btn')?.classList.contains('btn-active') || false;
                     existing.inputs = inputsObj;
-                    existing.runeData = AppState.charRuneData[charId] || existing.runeData;
+                    // runeData를 inputs["스킬룬"].runeData 안에 저장 후 최상위에서 삭제
+                    const runeData = AppState.charRuneData[charId] || existing.runeData;
+                    if (runeData) {
+                        if (!existing.inputs['스킬룬']) existing.inputs['스킬룬'] = {};
+                        existing.inputs['스킬룬'].runeData = runeData;
+                    }
+                    delete existing.runeData;
                     existing.tags = AppState.charTags?.[charId] || existing.tags || [];
                     if (inputsObj['info_job']?.val) existing.job = inputsObj['info_job'].val;
                     if (inputsObj['info_name']?.val) existing.name = inputsObj['info_name'].val;
                 } else {
+                    const newRuneData = AppState.charRuneData[charId] || {
+                        runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })),
+                        gakin: ['', '']
+                    };
+                    if (!inputsObj['스킬룬']) inputsObj['스킬룬'] = {};
+                    inputsObj['스킬룬'].runeData = newRuneData;
                     characters.push({
                         id: charId,
                         job: inputsObj['info_job']?.val || '',
                         name: inputsObj['info_name']?.val || '',
                         locked: sec.querySelector('.lock-btn')?.classList.contains('btn-active') || false,
                         inputs: inputsObj,
-                        runeData: AppState.charRuneData[charId] || {
-                            runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })),
-                            gakin: ['', '']
-                        },
                         tags: AppState.charTags?.[charId] || [],
                         armorCounts: {},
                         weaponCounts: {},
@@ -87,6 +107,14 @@ function exportToJSON() {
         return alert("저장된 데이터가 없습니다.");
     }
 
+    // 내보내기 전 마이그레이션 적용
+    // 순서 중요: inputs 플랫→중첩 먼저(스킬룬_desc 변환), 그 다음 runeData 병합
+    unified.characters = unified.characters.map(c => {
+        c = { ...c, inputs: migrateInputs(c.inputs) };
+        c = migrateRuneData(c);
+        return c;
+    });
+
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -113,6 +141,14 @@ async function saveJsonWithLocation() {
     if (!unified.characters || unified.characters.length === 0) {
         return alert("저장된 데이터가 없습니다.");
     }
+
+    // 내보내기 전 마이그레이션 적용
+    // 순서 중요: inputs 플랫→중첩 먼저(스킬룬_desc 변환), 그 다음 runeData 병합
+    unified.characters = unified.characters.map(c => {
+        c = { ...c, inputs: migrateInputs(c.inputs) };
+        c = migrateRuneData(c);
+        return c;
+    });
 
     const now = new Date();
     const year = now.getFullYear();
@@ -163,6 +199,53 @@ async function saveJsonWithLocation() {
 }
 
 /**
+ * 구버전 character.runeData → inputs["스킬룬"].runeData 마이그레이션
+ */
+function migrateRuneData(character) {
+    if (!character) return character;
+    // 이미 inputs["스킬룬"].runeData에 있으면 스킵
+    if (character.inputs?.['스킬룬']?.runeData) return character;
+    // character.runeData가 있으면 이동
+    if (character.runeData) {
+        if (!character.inputs) character.inputs = {};
+        if (!character.inputs['스킬룬']) character.inputs['스킬룬'] = {};
+        character.inputs['스킬룬'].runeData = character.runeData;
+        delete character.runeData;
+    }
+    return character;
+}
+
+/**
+ * 구버전 inputs(플랫) → 신버전 inputs(중첩) 마이그레이션
+ */
+function migrateInputs(inputs) {
+    if (!inputs) return inputs;
+    // 이미 중첩 구조인지 확인 (슬롯 키가 객체면 신버전)
+    // 단, 스킬룬(runeData 포함)은 val이 없으므로 예외 처리
+    for (const [key, val] of Object.entries(inputs)) {
+        if (key === '스킬룬') continue;
+        if (!key.startsWith('info_') && typeof val === 'object' && val !== null && !('val' in val)) {
+            return inputs; // 이미 신버전
+        }
+    }
+    const newInputs = {};
+    for (const [key, val] of Object.entries(inputs)) {
+        // info_ 계열, 스킬룬(runeData 객체)은 그대로 유지
+        if (key.startsWith('info_') || key === '스킬룬') {
+            newInputs[key] = val;
+            continue;
+        }
+        const underIdx = key.indexOf('_');
+        if (underIdx === -1) { newInputs[key] = val; continue; }
+        const slot = key.slice(0, underIdx);
+        const field = key.slice(underIdx + 1);
+        if (!newInputs[slot]) newInputs[slot] = {};
+        newInputs[slot][field] = val;
+    }
+    return newInputs;
+}
+
+/**
  * JSON에서 불러오기
  */
 function importFromJSON(input) {
@@ -197,6 +280,13 @@ function importFromJSON(input) {
             if (typeof distinctPartsCache !== 'undefined') {
                 Object.keys(distinctPartsCache).forEach(k => delete distinctPartsCache[k]);
             }
+
+            // 구버전 inputs 마이그레이션 (순서 중요: 플랫→중첩 먼저, runeData 병합 나중)
+            charactersToRestore = charactersToRestore.map(c => {
+                c = { ...c, inputs: migrateInputs(c.inputs) };
+                c = migrateRuneData(c);
+                return c;
+            });
 
             // project1 DOM 재렌더링
             const characterContainer = document.getElementById('characterContainer');

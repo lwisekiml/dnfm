@@ -35,12 +35,30 @@ function initProject1() {
     const container = document.getElementById('characterContainer');
     if (container) container.innerHTML = "";
 
+    // 구버전 inputs 마이그레이션 (순서 중요: 플랫→중첩 먼저, runeData 병합 나중)
+    let needsSave = false;
+    if (parsedList && parsedList.length > 0) {
+        parsedList = parsedList.map(c => {
+            const before = JSON.stringify(c);
+            if (typeof migrateInputs === 'function') c = { ...c, inputs: migrateInputs(c.inputs) };
+            if (typeof migrateRuneData === 'function') c = migrateRuneData(c);
+            if (JSON.stringify(c) !== before) needsSave = true;
+            return c;
+        });
+    }
+
     if (parsedList && parsedList.length > 0) {
         parsedList.forEach(data => {
             createCharacterTable(data);
         });
     } else {
         createCharacterTable();
+    }
+
+    // 마이그레이션이 실제로 발생했으면 createCharacterTable 이후에 저장
+    // (AppState.charRuneData가 채워진 다음이어야 runeData가 제대로 포함됨)
+    if (needsSave && typeof characters !== 'undefined') {
+        if (typeof saveLocalData === 'function') saveLocalData();
     }
 
     AppState.updateSnapshot();
@@ -117,7 +135,19 @@ document.addEventListener('change', function (e) {
     const slot = key.split('_')[0];
 
     const prevChar = AppState.lastSnapshot.find(c => c.id === section.id);
-    const oldVal = (prevChar && prevChar.inputs && prevChar.inputs[key]) ? prevChar.inputs[key].val : "";
+    let oldVal = "";
+    if (prevChar && prevChar.inputs) {
+        if (key.startsWith('info_')) {
+            oldVal = prevChar.inputs[key]?.val || "";
+        } else {
+            const underIdx = key.indexOf('_');
+            if (underIdx !== -1) {
+                const slot = key.slice(0, underIdx);
+                const field = key.slice(underIdx + 1);
+                oldVal = prevChar.inputs[slot]?.[field]?.val || "";
+            }
+        }
+    }
     const newVal = el.value;
 
     if (oldVal !== newVal) {

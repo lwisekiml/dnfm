@@ -17,11 +17,13 @@ function createCharacterTable(savedData = null) {
     section.className = 'char-section';
     section.id = charId;
 
-    // 3) 룬 데이터 초기화
-    AppState.charRuneData[charId] = savedData?.runeData || {
-        runes: Array(20).fill().map(() => ({name: '', lv: '', skillLv: ''})),
-        gakin: ['', '']
-    };
+    // 3) 룬 데이터 초기화 (inputs["스킬룬"].runeData 에서 읽기)
+    AppState.charRuneData[charId] = savedData?.inputs?.['스킬룬']?.runeData
+        || savedData?.runeData  // 구버전 호환
+        || {
+            runes: Array(20).fill().map(() => ({name: '', lv: '', skillLv: ''})),
+            gakin: ['', '']
+        };
 
     // 태그 데이터 초기화 (AppState.charTags가 없으면 생성)
     if (!AppState.charTags) {
@@ -37,27 +39,27 @@ function createCharacterTable(savedData = null) {
             <table>
                 <thead>
                     <tr>
-                        <th rowspan="2" class="col-char-info">직업/이름</th>
-                        <th rowspan="2" class="col-slot v-border-heavy">슬롯</th>
-                        <th rowspan="2" class="col-rarity">희귀도</th>
-                        <th rowspan="2" class="col-exceed">익시드</th>
-                        <th rowspan="2" class="col-prefix">접두어 <button class="set-apply-btn" onclick="event.stopPropagation(); openPrefixMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
-                        <th rowspan="2" style="min-width:120px;">아이템이름 <button class="set-apply-btn" onclick="event.stopPropagation(); openSetMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
-                        <th rowspan="2" class="col-val-short">강화 <button class="set-apply-btn" onclick="event.stopPropagation(); openReinforceMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
-                        <th colspan="4" class="group-header">마법봉인</th>
-                        <th colspan="2" class="group-header">엠블렘</th>
-                        <th colspan="2" class="group-header">마법부여</th>
-                        <th rowspan="2" style="min-width:230px;" class="v-border-heavy">설명</th>
+                        <th rowspan="2" class="col-char-info group-header">직업/이름</th>
+                        <th rowspan="2" class="col-slot v-border-heavy group-header">슬롯</th>
+                        <th rowspan="2" class="col-rarity group-header">희귀도</th>
+                        <th rowspan="2" class="col-exceed group-header">익시드</th>
+                        <th rowspan="2" class="col-prefix group-header">접두어 <button class="set-apply-btn" onclick="event.stopPropagation(); openPrefixMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
+                        <th rowspan="2" style="min-width:120px;" class="group-header">아이템이름 <button class="set-apply-btn" onclick="event.stopPropagation(); openSetMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
+                        <th rowspan="2" class="col-val-short group-header" group-header>강화 <button class="set-apply-btn" onclick="event.stopPropagation(); openReinforceMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
+                        <th colspan="4">마법봉인</th>
+                        <th colspan="2">엠블렘</th>
+                        <th colspan="2">마법부여</th>
+                        <th rowspan="2" style="min-width:230px;" class="v-border-heavy group-header">설명</th>
                     </tr>
                     <tr>
-                        <th>고유 옵션</th>
-                        <th class="col-val-short">수치</th>
-                        <th>일반 옵션</th>
-                        <th class="col-val-short">수치</th>
-                        <th class="col-emblem">엠블렘</th>
-                        <th class="col-emblem">엠블렘</th>
-                        <th class="col-enchant">마법부여</th>
-                        <th class="col-val-short">수치</th>
+                        <th class="group-header">고유 옵션</th>
+<th class="col-val-short group-header">수치</th>
+<th class="group-header">일반 옵션</th>
+<th class="col-val-short group-header">수치</th>
+<th class="col-emblem group-header">엠블렘</th>
+<th class="col-emblem group-header">엠블렘</th>
+<th class="col-enchant group-header">마법부여</th>
+<th class="col-val-short group-header">수치</th>
                     </tr>
                 </thead>
                 <tbody class="tbody-content"></tbody>
@@ -103,6 +105,10 @@ function createCharacterTable(savedData = null) {
 
     // 8) 저장된 데이터 복구
     if (savedData) {
+        // 구버전 데이터 마이그레이션 (플랫→중첩, runeData 위치 이동)
+        if (typeof migrateInputs === 'function') savedData.inputs = migrateInputs(savedData.inputs);
+        if (typeof migrateRuneData === 'function') savedData = migrateRuneData(savedData);
+
         // 통합 구조: job/name이 최상위 필드로 있으면 inputs에 주입 (project2 호환)
         if (savedData.job && !savedData.inputs?.['info_job']) {
             if (!savedData.inputs) savedData.inputs = {};
@@ -119,13 +125,14 @@ function createCharacterTable(savedData = null) {
         if (typeof characters !== 'undefined') {
             const exists = characters.find(c => c.id === charId);
             if (!exists) {
+                const initRuneData = AppState.charRuneData[charId];
+                const initInputs = { '스킬룬': { runeData: initRuneData } };
                 characters.push({
                     id: charId,
                     job: '',
                     name: '',
                     locked: false,
-                    inputs: {},
-                    runeData: AppState.charRuneData[charId],
+                    inputs: initInputs,
                     tags: [],
                     armorCounts: {},
                     weaponCounts: {},
@@ -176,7 +183,7 @@ function createSlotContent(slot, index, charId, savedData) {
     // getDefaultEnchant는 { enchant, val } 반환, createEquipmentRow는 { defaultEnchant, defaultEnchantVal } 사용
     // info_job/info_name은 addCharacter()로 주입되므로 장비 관련 키가 없으면 신규 캐릭터로 간주
     const equipInputKeys = savedData?.inputs
-        ? Object.keys(savedData.inputs).filter(k => !['info_job','info_name','info_stat_type','info_ele_type','info_power','info_memo','info_tag_input'].includes(k))
+        ? Object.keys(savedData.inputs).filter(k => !k.startsWith('info_'))
         : [];
     const isNewChar = !savedData || !savedData.inputs || equipInputKeys.length === 0;
     const enchantDefault = isNewChar ? TemplateHelper.getDefaultEnchant(slot) : { enchant: '', val: '' };
@@ -277,12 +284,26 @@ function initializePrefixSelects(section) {
  * 저장된 데이터 복구
  */
 function restoreSavedData(section, savedData, charId) {
+    // inputs에서 슬롯+필드 key로 데이터 조회하는 헬퍼
+    function getInputData(inputs, key) {
+        if (!inputs) return null;
+        // info_ 계열은 플랫
+        if (key.startsWith('info_')) return inputs[key] || null;
+        // 슬롯_필드 → 중첩 조회
+        const underIdx = key.indexOf('_');
+        if (underIdx === -1) return inputs[key] || null;
+        const slot = key.slice(0, underIdx);
+        const field = key.slice(underIdx + 1);
+        return inputs[slot]?.[field] || null;
+    }
+
     // 1) 희귀도 먼저 설정
     const rarityInputs = section.querySelectorAll('select[data-key$="_rarity"]');
     rarityInputs.forEach(el => {
         const key = el.getAttribute('data-key');
-        if (savedData.inputs?.[key]) {
-            el.value = savedData.inputs[key].val;
+        const data = getInputData(savedData.inputs, key);
+        if (data) {
+            el.value = data.val;
             updateStyle(el, 'rarity', true);
         }
     });
@@ -291,7 +312,7 @@ function restoreSavedData(section, savedData, charId) {
     const inputs = section.querySelectorAll('input[data-key], select[data-key], textarea[data-key]');
     inputs.forEach(el => {
         const key = el.getAttribute('data-key');
-        const data = savedData.inputs?.[key];
+        const data = getInputData(savedData.inputs, key);
 
         if (!data || key.endsWith('_rarity')) return;
 
