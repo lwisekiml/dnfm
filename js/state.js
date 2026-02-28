@@ -79,4 +79,4 @@ const AppState = {
     }
 };
 
-// 전역 별칭 제거 완료 - 모든 코드에서 AppState.* 직접 사용
+// ※ AppConstants 별칭은 shared_constants.js에서 하위 호환용으로 유지 중

@@ -75,7 +75,7 @@ function autoSave() {
             }
         });
 
-        // 메모리 characters를 스토리지에 저장 (saveLocalData와 동일한 방식)
+        // 변경된 characters를 localStorage에 저장
         if (typeof saveLocalData === 'function') {
             saveLocalData();
         }
@@ -190,6 +190,9 @@ async function saveJsonWithLocation() {
 
 /**
  * 구버전 character.runeData → inputs["스킬룬"].runeData 마이그레이션
+ * ※ 호출 순서: migrateInputs() 먼저 실행 후 이 함수 실행
+ *   (migrateInputs가 먼저 스킬룬_desc를 inputs["스킬룬"]["desc"]로 변환해야
+ *    이 함수가 inputs["스킬룬"]에 runeData를 안전하게 병합할 수 있음)
  */
 function migrateRuneData(character) {
     if (!character) return character;
@@ -207,6 +210,9 @@ function migrateRuneData(character) {
 
 /**
  * 구버전 inputs(플랫) → 신버전 inputs(중첩) 마이그레이션
+ * ※ 호출 순서: 반드시 migrateRuneData() 보다 먼저 실행
+ *   - 플랫 구조: { "스킬룬_desc": { val, cls }, "상의_rarity": { val, cls } }
+ *   - 중첩 구조: { "스킬룬": { "desc": { val, cls } }, "상의": { "rarity": { val, cls } } }
  */
 function migrateInputs(inputs) {
     if (!inputs) return inputs;

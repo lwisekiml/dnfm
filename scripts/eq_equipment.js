@@ -750,9 +750,8 @@ function updateEquipmentButton(charId, key, newValue) {
         });
     });
 
-    // 4단계: 디버깅 (개발자 도구에서 확인용, 나중에 제거 가능)
     if (!buttonFound) {
-        console.log('버튼을 찾지 못했습니다:', key);
+        console.warn('버튼을 찾지 못했습니다:', key);
     }
 }
 

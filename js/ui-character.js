@@ -284,7 +284,10 @@ function initializePrefixSelects(section) {
  * 저장된 데이터 복구
  */
 function restoreSavedData(section, savedData, charId) {
-    // inputs에서 슬롯+필드 key로 데이터 조회하는 헬퍼
+    // inputs에서 data-key 속성값으로 데이터 조회하는 헬퍼
+    // 중첩 구조 예시:
+    //   key="info_job"  → inputs["info_job"]         (플랫)
+    //   key="상의_rarity" → inputs["상의"]["rarity"]  (중첩)
     function getInputData(inputs, key) {
         if (!inputs) return null;
         // info_ 계열은 플랫
