@@ -1716,3 +1716,28 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **수정 파일:** `state.js`, `storage.js`
 
 ---
+
+## 2026-02-28 (45차)
+
+### 코드 정리 - 중복 파일 제거 및 함수 위치 이동
+
+**1. `constants.js`, `data.js` 삭제**
+
+`index.html`, `eq_index.html`, `merged.html` 모두 `shared_constants.js`, `shared_data.js`를 로드하고 있어서 루트의 `constants.js`, `data.js`는 어디서도 로드되지 않는 완전 중복 파일이었음. 삭제.
+
+**2. `migrateToUnified()` → `storage.js`로 이동**
+
+마이그레이션 관련 함수가 `eq_main.js`(초기화/이벤트 파일)에 있어 역할 분리가 안 되어 있었음.
+- `storage.js` 하단으로 함수 이동
+- `eq_main.js`에는 호출부(`migrateToUnified()`)만 남기고 선언 제거
+- `merged.html` 로드 순서 조정: `storage.js`가 `eq_main.js`보다 먼저 로드되도록 변경
+  - 변경 전: `eq_main.js(9번)` → `storage.js(12번)`
+  - 변경 후: `storage.js(9번)` → `eq_main.js(10번)`
+
+**보류 항목**
+- `ui-search.js` 분리: 함수 간 의존성이 복잡해 현 단계에서 분리 시 버그 리스크가 큼. 추후 별도 작업으로 진행.
+
+**수정 파일:** `storage.js`, `eq_main.js`, `merged.html`
+**삭제 파일:** `constants.js`, `data.js`
+
+---

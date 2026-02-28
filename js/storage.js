@@ -336,3 +336,85 @@ function importFromJSON(input) {
     };
     reader.readAsText(input.files[0]);
 }
+// ============================================
+// 구버전 데이터 → 통합 스토리지 마이그레이션 (1회성)
+// ============================================
+
+/**
+ * 기존 데이터 마이그레이션 (1회성)
+ * - dnfm_character_equipment_data (project1) + dnfm_eq (project2) → dnfm_unified
+ * - dnfm_unified가 이미 존재하면 실행하지 않음
+ */
+function migrateToUnified() {
+    if (localStorage.getItem(STORAGE_KEYS.UNIFIED)) return;
+
+    let p1Chars = [];
+    let p2Chars = [];
+    let history = [];
+
+    try {
+        const p1Raw = localStorage.getItem(STORAGE_KEYS.PROJECT1);
+        if (p1Raw) p1Chars = JSON.parse(p1Raw);
+    } catch (e) {}
+
+    try {
+        const p2Raw = localStorage.getItem(STORAGE_KEYS.PROJECT2);
+        if (p2Raw) p2Chars = JSON.parse(p2Raw);
+    } catch (e) {}
+
+    try {
+        const hRaw = localStorage.getItem(STORAGE_KEYS.PROJECT1 + "_history");
+        if (hRaw) history = JSON.parse(hRaw);
+    } catch (e) {}
+
+    // PROJECT1 = inputs 데이터, PROJECT2 = armorCounts/weaponCounts 데이터
+    // 직업 기준으로 매칭해서 두 데이터를 하나로 합침
+    const merged = [];
+    const usedJobs = new Set();
+
+    p1Chars.forEach(p1 => {
+        const job = p1.inputs?.['info_job']?.val || '';
+        if (usedJobs.has(job)) return;
+        usedJobs.add(job);
+
+        const p2 = p2Chars.find(c => (c.job || c.inputs?.['info_job']?.val || '') === job);
+
+        merged.push({
+            id: p1.id,
+            job: job,
+            name: p1.inputs?.['info_name']?.val || '',
+            locked: p1.locked || false,
+            inputs: p1.inputs || {},
+            runeData: p1.runeData || { runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] },
+            tags: p1.tags || [],
+            armorCounts: p2?.armorCounts || {},
+            weaponCounts: p2?.weaponCounts || {},
+            updateTimes: p2?.updateTimes || {},
+            craftMaterials: p2?.craftMaterials || {}
+        });
+    });
+
+    // p1에 없는 p2 캐릭터 추가
+    p2Chars.forEach(p2 => {
+        const job = p2.job || p2.inputs?.['info_job']?.val || '';
+        if (usedJobs.has(job)) return;
+        usedJobs.add(job);
+
+        merged.push({
+            id: p2.id,
+            job: job,
+            name: p2.name || p2.inputs?.['info_name']?.val || '',
+            locked: p2.locked || false,
+            inputs: p2.inputs || {},
+            runeData: p2.runeData || { runes: Array(20).fill(null).map(() => ({ name: '', lv: '', skillLv: '' })), gakin: ['', ''] },
+            tags: p2.tags || [],
+            armorCounts: p2.armorCounts || {},
+            weaponCounts: p2.weaponCounts || {},
+            updateTimes: p2.updateTimes || {},
+            craftMaterials: p2.craftMaterials || {}
+        });
+    });
+
+    localStorage.setItem(STORAGE_KEYS.UNIFIED, JSON.stringify({ characters: merged, history }));
+    console.log(`✅ 마이그레이션 완료: 총 ${merged.length}명`);
+}
