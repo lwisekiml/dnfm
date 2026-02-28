@@ -2165,3 +2165,77 @@ JSON 저장/불러오기 시에는 DOM을 재생성하므로 반영됨.
 **삭제 파일:** `README_old.md`, `README-TEST.md`, `QUICK-START.md`, `eq_README.md`, `dev-log.md`, `eq_dev-log.md`
 
 ---
+
+## 2026-02-28 (47차)
+
+### 파일 트리 구조 정리 (5번)
+
+**폴더 생성 및 파일 이동**
+
+| 폴더 | 이동한 파일 |
+|------|------------|
+| `js/` | main.js, state.js, storage.js, utils.js, ui-*.js (13개) |
+| `scripts/` | eq_character.js, eq_core.js, eq_data.js, eq_equipment.js, eq_main.js, eq_weapon.js |
+| `shared/` | shared_constants.js, shared_data.js, shared_weapon.js |
+| `styles/` | styles.css, eq_main.css, merged.css |
+| `images/` | 이미지 파일 9개 (png) |
+
+**경로 수정**
+
+- `index.html`: `css/styles.css` → `styles/styles.css` (기존에 css/ 폴더가 없었으므로 styles/로 통일)
+- `eq_index.html`, `merged.html`: 이미 올바른 경로 사용 중 → 수정 불필요
+- `scripts/eq_weapon.js`: 7번(46차)에서 이미 `images/` 경로로 수정 완료
+
+**최종 트리**
+```
+project/
+├── eq_index.html
+├── index.html
+├── merged.html
+├── new-dev-log.md
+├── package.json
+├── README.md
+├── images/
+│   ├── 강철화로의파편.png
+│   ├── 강화된데이터칩.png
+│   ├── 데이터칩.png
+│   ├── 마누스메모리얼.png
+│   ├── 망가진강철톱니바퀴.png
+│   ├── 망가진기계캡슐.png
+│   ├── 빛의저장소.png
+│   ├── 스펙쿨룸파편.png
+│   └── 죽은자의성던전특산물선택상자.png
+├── js/
+│   ├── main.js
+│   ├── state.js
+│   ├── storage.js
+│   ├── ui-character.js
+│   ├── ui-compare.js
+│   ├── ui-core.js
+│   ├── ui-memo-tag.js
+│   ├── ui-modal.js
+│   ├── ui-rune.js
+│   ├── ui-search.js
+│   ├── ui-tag-filter.js
+│   ├── ui-templates.js
+│   └── utils.js
+├── scripts/
+│   ├── eq_character.js
+│   ├── eq_core.js
+│   ├── eq_data.js
+│   ├── eq_equipment.js
+│   ├── eq_main.js
+│   └── eq_weapon.js
+├── shared/
+│   ├── shared_constants.js
+│   ├── shared_data.js
+│   └── shared_weapon.js
+└── styles/
+    ├── eq_main.css
+    ├── merged.css
+    └── styles.css
+```
+
+**수정 파일:** `index.html`
+
+---
