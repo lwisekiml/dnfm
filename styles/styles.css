@@ -861,7 +861,7 @@
         border-radius: 4px;
     }
 
-    /* 테이블 최소 너비 보장 */
+    /* 테이블 최소 너비 보조장비 */
     table {
         min-width: 800px;
     }
@@ -1097,7 +1097,7 @@ textarea:focus {
     color: var(--color-black);
 }
 
-/* 8. 터치 타겟 최소 크기 보장 */
+/* 8. 터치 타겟 최소 크기 보조장비 */
 @media (pointer: coarse) {
     button,
     a,

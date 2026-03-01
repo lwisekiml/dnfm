@@ -842,7 +842,7 @@
         border-radius: 4px;
     }
 
-    /* 테이블 최소 너비 보장 */
+    /* 테이블 최소 너비 보조장비 */
     #section-detail-view table {
         min-width: 800px;
     }
@@ -1063,7 +1063,7 @@
     color: var(--color-black);
 }
 
-/* 8. 터치 타겟 최소 크기 보장 */
+/* 8. 터치 타겟 최소 크기 보조장비 */
 @media (pointer: coarse) {
     #section-detail-view button, #section-detail-view a, #section-detail-view input[type="checkbox"], #section-detail-view input[type="radio"] {
         min-width: 44px;
