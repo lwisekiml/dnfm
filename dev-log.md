@@ -2239,3 +2239,71 @@ project/
 **수정 파일:** `index.html`
 
 ---
+
+## 2026-03-01 (48차)
+
+### 캐릭터 관리 탭 - 직업/이름 정보 영역 레이아웃 전면 개편
+
+---
+
+### 변경 배경
+
+기존에 `col-char-info`(좌측 세로 열, `rowspan="18"`)로 구현되어 있던 캐릭터 정보 영역을
+표 **위쪽에 가로 한 줄**로 배치하는 방식으로 전면 개편.
+
+---
+
+### 수정 내용
+
+**`js/ui-character.js`**
+
+- `createCharacterTable()` 테이블 구조 변경
+  - 기존: `col-char-info` 열(`rowspan="18"`)이 tbody 첫 행 앞에 삽입되는 구조
+  - 변경: `char-section-inner` > `char-info-table-wrap` + `table-container` 형태로 분리
+    - `char-info-table-wrap` 자리에 템플릿으로 생성한 캐릭터 정보 테이블을 `replaceWith()`로 삽입
+    - 장비 표(`table-container`)는 그 아래 독립적으로 배치
+  - thead에서 `col-char-info` 열 제거 (기존 `rowspan="2"` 구조로 복원)
+  - 삽입 관련 주석 번호 정리 (5-a/5-b → 5/6)
+
+**`styles/merged.css`**
+
+- `table-fit` CSS 블록 전체 제거 (기능 폐기)
+- 신규 스타일 추가:
+  - `.char-section-inner`: `display: block` (정보 영역 + 표 수직 배치)
+  - `.char-info-table`: 장비 표와 동일한 스타일 기반, `border-bottom: none`으로 표와 자연스럽게 연결
+  - `.char-info-table th`: 헤더 스타일 (골드색, `white-space: nowrap`)
+  - `.char-info-table td`: 셀 패딩 `4px 6px`
+  - `.char-info-table input[type="text"]`: `width: 100%`, `box-sizing: border-box`
+- 기존 `char-info-bar`, `char-info-cell`, `char-info-divider`, `char-info-memo-preview`, `char-info-btn` 등 이전 시도 스타일 전체 제거
+
+**`js/ui-memo-tag.js`**
+
+- `updateMemoPreview()` 미리보기 글자 수: 5자 → 10자로 변경
+
+**`merged.html`**
+
+- `character-info-template` 구조 전면 변경
+  - 기존: `<td class="col-char-info" rowspan="18">` 안에 세로 div 레이아웃으로 스탯/속강/직업/이름/항마력/메모/태그/잠금/해제/이동/삭제 배치
+  - 변경: `<table class="char-info-table">` 구조로 교체
+    - thead: 직업/이름 | 스탯/속강 | 메모 | 태그 | 잠금 | 해제 | 삭제 | 순서변경 (가로 헤더)
+    - tbody: 각 항목을 `<td>` 셀로 가로 배치
+      - 1열(rowspan=3): 직업/이름/항마력 input 세로 나열
+      - 2열(rowspan=3): 스탯 select + 구분선 + 속강 select 세로 나열
+      - 3열(rowspan=3): 메모 미리보기 div + textarea (width: 250px)
+      - 4열(rowspan=3): 태그 input + 추가 버튼 + 태그 컨테이너 (width: 150px)
+      - 5~8열: 잠금/해제/삭제/▲▼ 버튼 각각 별도 셀
+
+**수정 파일:** `merged.html`, `js/ui-character.js`, `styles/merged.css`, `js/ui-memo-tag.js`
+
+---
+
+### 결과
+
+- 직업/이름/스탯/속강/항마력/메모/태그/잠금/삭제/이동 버튼이 장비 표 위에 별도 테이블(`char-info-table`) 형태로 가로 배치
+- 장비 표(`슬롯|희귀도|...`)는 그 아래 독립적으로 배치, 열 너비가 서로 영향 없음
+- `col-char-info` 열 완전 제거로 장비 표 구조 단순화
+- `merged.html`의 `character-info-template`을 `<td rowspan="18">` 세로 구조 → `<table class="char-info-table">` 가로 테이블 구조로 전면 교체
+
+**수정 파일:** `merged.html`, `js/ui-character.js`, `styles/merged.css`, `js/ui-memo-tag.js`
+
+---
