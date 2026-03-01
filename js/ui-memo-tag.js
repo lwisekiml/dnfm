@@ -93,11 +93,15 @@ function addTag(charId) {
     // 태그 컨테이너
     const container = document.getElementById(`${charId}_tags`);
 
-    // 중복 체크
+    // 중복 체크 및 3개 제한
     const existingTags = Array.from(container.querySelectorAll('.tag-chip'))
         .map(chip => chip.dataset.tag);
     if (existingTags.includes(tag)) {
         alert('이미 존재하는 태그입니다.');
+        return;
+    }
+    if (existingTags.length >= 3) {
+        alert('태그는 최대 3개까지 추가할 수 있습니다.');
         return;
     }
 

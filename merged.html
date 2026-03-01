@@ -381,58 +381,87 @@
 
     <!-- 캐릭터 테이블 템플릿 -->
     <template id="character-info-template">
-        <td class="col-char-info bg-section" rowspan="18" style="vertical-align: top;">
-            <div class="d-flex flex-column gap-sm" style="padding: var(--spacing-md);">
-                <div class="d-flex gap-sm">
-                    <select data-key="info_stat_type" class="info-select" onchange="applySealHighlight('{CHAR_ID}'); autoSave();">
-                        <option value="">(스탯)</option>
-                        <option value="힘">힘</option>
-                        <option value="지능">지능</option>
-                    </select>
-                    <select data-key="info_ele_type" class="info-select" onchange="applySealHighlight('{CHAR_ID}'); autoSave();">
-                        <option value=""></option>
-                        <option value="화속강">화속강</option>
-                        <option value="수속강">수속강</option>
-                        <option value="명속강">명속강</option>
-                        <option value="암속강">암속강</option>
-                    </select>
-                </div>
-                <div class="divider-gold"></div>
-                <input type="text" placeholder="직업" data-key="info_job" oninput="autoSave()">
-                <input type="text" placeholder="이름" data-key="info_name" oninput="autoSave()">
-                <input type="text" placeholder="항마력" data-key="info_power" oninput="autoSave()">
-                <div class="divider-gold"></div>
-                <div style="margin-bottom: 8px;">
-                    <label class="memo-tag-label" style="display: block; margin-bottom: 4px;">📝 메모</label>
+        <table class="char-info-table">
+            <thead>
+            <tr>
+                <th>직업/이름</th>
+                <th>스탯/속강</th>
+                <th>메모</th>
+                <th>태그</th>
+                <th>잠금</th>
+                <th>순서변경</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <!-- 1열: 직업/이름/항마 -->
+                <td rowspan="3" style="vertical-align:top; padding:6px;">
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                        <input type="text" placeholder="직업" data-key="info_job" oninput="autoSave()">
+                        <input type="text" placeholder="이름" data-key="info_name" oninput="autoSave()">
+                        <input type="text" placeholder="항마력" data-key="info_power" oninput="autoSave()">
+                    </div>
+                </td>
+                <!-- 2열: 스탯(위)/속강(아래) 세로 배치 -->
+                <td rowspan="3" style="vertical-align:top; padding:6px; white-space:nowrap;">
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <div>
+<!--                            <div style="font-size:11px; color:var(&#45;&#45;gold); margin-bottom:2px;">스탯</div>-->
+                            <select data-key="info_stat_type" class="info-select" onchange="applySealHighlight('{CHAR_ID}'); autoSave();">
+                                <option value="">(스탯)</option>
+                                <option value="힘">힘</option>
+                                <option value="지능">지능</option>
+                            </select>
+                        </div>
+                        <div>
+<!--                            <div style="font-size:11px; color:var(&#45;&#45;gold); margin-bottom:2px;">속강</div>-->
+                            <select data-key="info_ele_type" class="info-select" onchange="applySealHighlight('{CHAR_ID}'); autoSave();">
+                                <option value="">(속강)</option>
+                                <option value="화속강">화속강</option>
+                                <option value="수속강">수속강</option>
+                                <option value="명속강">명속강</option>
+                                <option value="암속강">암속강</option>
+                            </select>
+                        </div>
+                    </div>
+                </td>
+                <!-- 3열: 메모 -->
+                <td rowspan="3" style="vertical-align:top; padding:6px; width:250px;">
                     <div id="{CHAR_ID}_memo_preview" onclick="openMemoModal('{CHAR_ID}')"
-                         style="padding: 8px 10px; background: rgba(255,255,255,0.05); border: 1px solid #444;
-                                border-radius: 4px; font-size: 12px; color: #aaa; font-style: italic;
-                                min-height: 32px; cursor: pointer; transition: all 0.2s;">(메모 없음)</div>
-                    <textarea data-key="info_memo" style="display: none;" oninput="updateMemoPreview('{CHAR_ID}')"></textarea>
-                </div>
-                <div>
-                    <label class="memo-tag-label">🏷️ 태그</label>
-                    <div style="display: flex; gap: 5px; margin-bottom: 5px;">
-                        <input data-key="info_tag_input" type="text" placeholder="#태그" style="flex: 1; font-size: 13px;"
+                         style="padding:6px 8px; background:rgba(255,255,255,0.05); border:1px solid #444;
+                                    border-radius:4px; font-size:12px; color:#aaa; font-style:italic;
+                                    min-height:60px; cursor:pointer; transition:all 0.2s;">(메모 없음)</div>
+                    <textarea data-key="info_memo" style="display:none;" oninput="updateMemoPreview('{CHAR_ID}')"></textarea>
+                </td>
+                <!-- 4열: 태그 (추가+공간 한 칸) -->
+                <td rowspan="3" style="vertical-align:top; padding:6px; width:150px;">
+                    <div style="display:flex; gap:4px; margin-bottom:4px;">
+                        <input data-key="info_tag_input" type="text" placeholder="#태그" style="flex:1; font-size:13px;"
                                oninput="showTagAutocomplete('{CHAR_ID}', this.value)"
                                onkeydown="handleAutocompleteKeyboard(event, '{CHAR_ID}')"
                                onkeypress="handleTagInput(event, '{CHAR_ID}')">
                         <button class="btn-action" onclick="addTag('{CHAR_ID}')"
-                                style="padding: 4px 8px; font-size: 12px; background: var(--btn-success);">+</button>
+                                style="padding:4px 8px; font-size:12px; background:var(--btn-success);">+</button>
                     </div>
                     <div id="{CHAR_ID}_tags" class="tag-container"></div>
-                </div>
-                <div class="divider-gold"></div>
-                <button onclick="toggleEdit('{CHAR_ID}', true)" class="btn-char-lock lock-btn">잠금</button>
-                <button onclick="toggleEdit('{CHAR_ID}', false)" class="btn-char-unlock unlock-btn">해제</button>
-                <div class="divider-gold-lg"></div>
-                <div class="d-flex gap-xs" style="margin-bottom: var(--spacing-sm);">
-                    <button onclick="moveCharacter('{CHAR_ID}', 'up')" class="btn-action btn-move">▲</button>
-                    <button onclick="moveCharacter('{CHAR_ID}', 'down')" class="btn-action btn-move">▼</button>
-                </div>
-                <button onclick="deleteCharacter('{CHAR_ID}')" class="del-btn">삭제</button>
-            </div>
-        </td>
+                </td>
+                <!-- 5열: 잠금/해제 -->
+                <td style="padding:4px 6px; vertical-align:top;">
+                    <button onclick="toggleEdit('{CHAR_ID}', true)" class="btn-char-lock lock-btn" style="display:block; width:100%; margin-bottom:4px;">잠금</button>
+                    <button onclick="toggleEdit('{CHAR_ID}', false)" class="btn-char-unlock unlock-btn" style="display:block; width:100%;">해제</button>
+                </td>
+                <!-- 6열: 순서변경 + 삭제 -->
+                <td style="padding:4px 6px; vertical-align:top;">
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                        <button onclick="moveCharacter('{CHAR_ID}', 'up')" class="btn-action btn-move">▲</button>
+                        <button onclick="moveCharacter('{CHAR_ID}', 'down')" class="btn-action btn-move">▼</button>
+                        <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
+                        <button onclick="deleteCharacter('{CHAR_ID}')" class="del-btn" style="width:100%;">삭제</button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </template>
 
     <template id="equipment-row-template">

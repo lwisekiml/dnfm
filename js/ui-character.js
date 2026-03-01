@@ -35,17 +35,18 @@ function createCharacterTable(savedData = null) {
 
     // 4) 테이블 기본 구조 생성
     section.innerHTML = `
-        <div class="table-container">
+        <div class="char-section-inner">
+            <div class="char-info-table-wrap"></div>
+            <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th rowspan="2" class="col-char-info group-header">직업/이름</th>
                         <th rowspan="2" class="col-slot v-border-heavy group-header">슬롯</th>
                         <th rowspan="2" class="col-rarity group-header">희귀도</th>
                         <th rowspan="2" class="col-exceed group-header">익시드</th>
                         <th rowspan="2" class="col-prefix group-header">접두어 <button class="set-apply-btn" onclick="event.stopPropagation(); openPrefixMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
                         <th rowspan="2" style="min-width:120px;" class="group-header">아이템이름 <button class="set-apply-btn" onclick="event.stopPropagation(); openSetMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
-                        <th rowspan="2" class="col-val-short group-header" group-header>강화 <button class="set-apply-btn" onclick="event.stopPropagation(); openReinforceMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
+                        <th rowspan="2" class="col-val-short group-header">강화 <button class="set-apply-btn" onclick="event.stopPropagation(); openReinforceMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
                         <th colspan="4">마법봉인</th>
                         <th colspan="2">엠블렘</th>
                         <th colspan="2">마법부여</th>
@@ -53,22 +54,29 @@ function createCharacterTable(savedData = null) {
                     </tr>
                     <tr>
                         <th class="group-header">고유 옵션</th>
-<th class="col-val-short group-header">수치</th>
-<th class="group-header">일반 옵션</th>
-<th class="col-val-short group-header">수치</th>
-<th class="col-emblem group-header">엠블렘</th>
-<th class="col-emblem group-header">엠블렘</th>
-<th class="col-enchant group-header">마법부여</th>
-<th class="col-val-short group-header">수치</th>
+                        <th class="col-val-short group-header">수치</th>
+                        <th class="group-header">일반 옵션</th>
+                        <th class="col-val-short group-header">수치</th>
+                        <th class="col-emblem group-header">엠블렘</th>
+                        <th class="col-emblem group-header">엠블렘</th>
+                        <th class="col-enchant group-header">마법부여</th>
+                        <th class="col-val-short group-header">수치</th>
                     </tr>
                 </thead>
                 <tbody class="tbody-content"></tbody>
             </table>
+        </div>
         </div>`;
 
     const tbody = section.querySelector('.tbody-content');
 
-    // 5) 각 슬롯별 행 생성 (템플릿 사용)
+    // 5) 캐릭터 정보 테이블 먼저 삽입 (slots 루프 전)
+    const charInfoFragment = TemplateHelper.createCharacterInfo(charId);
+    const charInfoEl = charInfoFragment.firstElementChild;
+    const wrap = section.querySelector('.char-info-table-wrap');
+    if (wrap) wrap.replaceWith(charInfoEl);
+
+    // 6) 각 슬롯별 행 생성 (템플릿 사용)
     slots.forEach((slot, index) => {
         // 슬롯 컨텐츠에서 <tr> 가져오기
         const slotFragment = createSlotContent(slot, index, charId, savedData);
@@ -77,15 +85,6 @@ function createCharacterTable(savedData = null) {
         if (!tr) {
             console.error(`템플릿에서 <tr>을 찾을 수 없습니다: ${slot}`);
             return;
-        }
-
-        // 첫 번째 행: 캐릭터 정보 칸 추가
-        if (index === 0) {
-            const charInfoFragment = TemplateHelper.createCharacterInfo(charId);
-            const charInfoCell = charInfoFragment.firstElementChild;  // <td>
-
-            // tr의 맨 앞에 캐릭터 정보 td 삽입
-            tr.insertBefore(charInfoCell, tr.firstChild);
         }
 
         // 테두리 적용
