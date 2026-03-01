@@ -1345,11 +1345,12 @@
     background: var(--btn-add);
 }
 
+/* 캐릭터 관리 - 전체 잠금 버튼 */
 #section-detail-view .btn-all-lock {
     background: linear-gradient(135deg, #555e7a, #3a4260);
     color: #fff;
     border: none;
-    padding: 8px 14px;
+    padding: 2px 3px;
     cursor: pointer;
     border-radius: 6px;
     font-weight: bold;
@@ -2214,10 +2215,11 @@ h2 {
 /* ========================================
    2. 공통 버튼 스타일
    ======================================== */
+/* JSON 저장(백업), JSON 경로 지정 저장, JSON 불러오기, 최근 업데이트, 설정 */
 .action-btn, .file-label {
     min-width: 140px;
     text-align: center;
-    padding: 10px 16px;
+    padding: 5px 8px;
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
@@ -2248,6 +2250,7 @@ h2 {
     display: none;
 }
 
+/* 캐릭터 관리에서 캐릭터 추가 버튼 */
 .add-btn {
     background: linear-gradient(135deg, #ffd700, #e6b800);
     border: none;
@@ -2535,9 +2538,9 @@ tr.set5 {
     margin-top: 20px;
 }
 
-/* 모달 버튼 공통 */
+/* 모달 버튼 공통(획득 장비 등록, 무기 등록, 장비 현황, 제작 등록, 캐릭터 관리 버튼) */
 .modal-btn {
-    padding: 10px 20px;
+    padding: 5px 8px;
     border: none;
     border-radius: 6px;
     font-weight: bold;

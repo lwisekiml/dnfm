@@ -12,14 +12,10 @@
 <h1>캐릭터 장비 관리</h1>
 
 <div class="toolbar" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 0;">
-    <button class="action-btn" style="background: linear-gradient(135deg, #6a5acd, #483d8b);" onclick="exportToJSON()">
-        💎 JSON 저장 (백업)
-    </button>
-    <button onclick="saveJsonWithLocation()" class="char-btn" style="background: #e67e22;">📂 JSON 경로 지정 저장</button>
-    <label class="file-label" style="background: #2c3e50; margin: 0; cursor: pointer;">
-        📥 JSON 불러오기
-        <input type="file" id="jsonFile" accept=".json" onchange="importFromJSON(this)" style="display:none;">
-    </label>
+    <button class="action-btn" onclick="exportToJSON()" style="background: linear-gradient(135deg, #6a5acd, #483d8b);">💎 JSON 저장 (백업)</button>
+    <button class="action-btn" onclick="saveJsonWithLocation()"  style="background: #e67e22;">📂 JSON 경로 지정 저장</button>
+    <button class="action-btn" onclick="document.getElementById('jsonFile').click()" style="background: #2c3e50;">📥 JSON 불러오기</button>
+    <input type="file" id="jsonFile" accept=".json" onchange="importFromJSON(this)" style="display:none;">
 
     <div style="width: 1px; height: 25px; background: #444; margin: 0 5px;"></div>
 
