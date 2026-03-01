@@ -1603,6 +1603,8 @@ function renderCharacterEquipmentDetail(char) {
             html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: normal; max-width: 120px; font-size: 0.85em; line-height: 1.2;">${slot}</th>`;
         });
 
+        html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">달성</th>`;
+
         html += `</tr></thead><tbody>`;
 
         // 각 세트별 데이터
@@ -1719,11 +1721,27 @@ function renderCharacterEquipmentDetail(char) {
                     }
                 });
 
+                // 달성 열
+                if (row.type === 'exceed') {
+                    html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center;"></td>`;
+                } else {
+                    const achieved = setSlots.filter(slot => (row.slots[slot] || 0) > 0).length;
+                    const fullSize = setSlots.length;
+                    let achieveColor = "#fff";
+                    if (fullSize === 5) {
+                        if (achieved === 5) achieveColor = "#ffd700";
+                        else if (achieved >= 3) achieveColor = "#2ecc71";
+                    } else {
+                        if (achieved === 3) achieveColor = "#2ecc71";
+                    }
+                    html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; font-weight: bold; color: ${achieveColor};">${achieved}</td>`;
+                }
+
                 html += `</tr>`;
             });
 
             // 세트 구분선 (두꺼운 선)
-            html += `<tr style="height: 3px; background: #2a3158;"><td colspan="${3 + setSlots.length}" style="padding: 0; border: none;"></td></tr>`;
+            html += `<tr style="height: 3px; background: #2a3158;"><td colspan="${4 + setSlots.length}" style="padding: 0; border: none;"></td></tr>`;
         });
 
         html += `</tbody></table>`;
@@ -2087,6 +2105,7 @@ function searchEquipment() {
             set.slots.forEach(slot => {
                 html += `<th style="padding:10px; border:1px solid #2a3158; white-space:normal; max-width:120px; font-size:0.85em; line-height:1.2;">${slot}</th>`;
             });
+            html += `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">달성</th>`;
             html += `</tr></thead><tbody>`;
 
             characters.forEach(char => {
@@ -2150,10 +2169,27 @@ function searchEquipment() {
                         const count = row.slots[slot] || 0;
                         html += `<td style="padding:10px; border:1px solid #2a3158; text-align:center; color:#fff; font-weight:bold;">${count > 0 ? count : ''}</td>`;
                     });
+
+                    // 달성 열
+                    if (row.exceed) {
+                        html += `<td style="padding:10px; border:1px solid #2a3158; text-align:center;"></td>`;
+                    } else {
+                        const achieved = set.slots.filter(slot => (row.slots[slot] || 0) > 0).length;
+                        const fullSize = set.slots.length;
+                        let achieveColor = "#fff";
+                        if (fullSize === 5) {
+                            if (achieved === 5) achieveColor = "#ffd700";
+                            else if (achieved >= 3) achieveColor = "#2ecc71";
+                        } else {
+                            if (achieved === 3) achieveColor = "#2ecc71";
+                        }
+                        html += `<td style="padding:10px; border:1px solid #2a3158; text-align:center; font-weight:bold; color:${achieveColor};">${achieved}</td>`;
+                    }
+
                     html += `</tr>`;
                 });
 
-                html += `<tr style="height:3px; background:#666;"><td colspan="${3 + set.slots.length}" style="padding:0; border:none;"></td></tr>`;
+                html += `<tr style="height:3px; background:#666;"><td colspan="${4 + set.slots.length}" style="padding:0; border:none;"></td></tr>`;
             });
 
             html += `</tbody></table>`;
