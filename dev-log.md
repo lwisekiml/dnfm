@@ -2307,3 +2307,49 @@ project/
 **수정 파일:** `merged.html`, `js/ui-character.js`, `styles/merged.css`, `js/ui-memo-tag.js`
 
 ---
+## 2026-03-01 (49차)
+
+### 획득 장비 등록 탭 - 세트 표 헤더에 마법봉인 값 표시
+
+---
+
+### 변경 배경
+
+획득 장비 등록 탭에서 방어구/악세/특장 세트를 열었을 때, 각 부위 헤더에 현재 캐릭터의 마법봉인 값이 표시되지 않아 별도로 캐릭터 관리 탭을 확인해야 했음.
+
+---
+
+### 수정 내용
+
+**`scripts/eq_equipment.js`**
+
+- `getSealHeaderHtml(char, slot)` 헬퍼 함수 추가 (`openSet` 함수 앞)
+  - `char.inputs[슬롯]['seal1']['val']`, `['seal1_val']['val']`, `['seal2']['val']`, `['seal2_val']['val']` 값을 읽어 헤더용 HTML 반환
+  - 표시 형식: `고유옵션 수치 / 일반옵션 수치` (값이 없는 항목은 `-`로 표시)
+  - 둘 다 없는 슬롯도 `- / -`로 표시
+  - 텍스트 색상: `#aad4ff` (연하늘색), `font-size: 0.9em`
+
+- `openSet()` 내 각 장비 유형 헤더(`<th>`)에 마법봉인 표시 추가
+  - **방어구 (ARMOR_DISPLAY_NAMES 있음)**: `headerSlots2` 각 `<th>`에 추가
+  - **방어구 (ARMOR_DISPLAY_NAMES 없음)**: `headerSlots` 각 `<th>`에 추가
+  - **악세 (ACCESSORY)**: `headerSlots1` 각 `<th>`에 추가
+  - **특장 (SPECIAL)**: `headerSlots1` 각 `<th>`에 추가
+
+**수정 파일:** `scripts/eq_equipment.js`
+
+---
+
+### 결과
+
+- 세트 버튼 클릭 시 나타나는 표의 각 부위 헤더(슬롯명 + 아이템명) 아래에 현재 캐릭터의 마법봉인 값이 연하늘색으로 표시됨
+- 값이 없는 항목은 `-`로 표시, 둘 다 없어도 `- / -`로 표시
+- 표시 예시:
+  ```
+  지능 46 / 지능 46   ← 둘 다 있는 경우
+  지능 46 / -         ← 첫 번째만 있는 경우
+  - / 지능 46         ← 두 번째만 있는 경우
+  - / -               ← 둘 다 없는 경우
+  ```
+
+---
+

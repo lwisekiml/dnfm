@@ -283,6 +283,24 @@ function makeSetButton(setName, char) {
     return btn;
 }
 
+// ─────────────────────────────────────────
+// 9.0 마법봉인 헤더 표시 헬퍼
+// ─────────────────────────────────────────
+function getSealHeaderHtml(char, slot) {
+    const slotData = char.inputs?.[slot] || {};
+    const seal1 = slotData['seal1']?.val || '';
+    const seal1val = slotData['seal1_val']?.val || '';
+    const seal2 = slotData['seal2']?.val || '';
+    const seal2val = slotData['seal2_val']?.val || '';
+
+    const part1 = seal1 ? `${seal1} ${seal1val}`.trim() : '-';
+    const part2 = seal2 ? `${seal2} ${seal2val}`.trim() : '-';
+
+    const text = `${part1} / ${part2}`;
+
+    return `<div style="color:#aad4ff; font-size:0.78em; margin-top:3px; white-space:nowrap;">${text}</div>`;
+}
+
 function openSet(setName, char) {
     if (currentSetName !== setName || currentChar?.id !== char.id) {
         currentFilter = 'ALL';
@@ -326,7 +344,8 @@ function openSet(setName, char) {
             } else {
                 displayName = displayNames ? (displayNames[s] || s) : s;
             }
-            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div></th>`;
+            const sealHtml = getSealHeaderHtml(char, s);
+            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div>${sealHtml}</th>`;
         }).join("");
         table1.innerHTML = `<thead><tr>
   <th style="white-space:nowrap; padding:8px;">세트 이름</th>
@@ -419,7 +438,8 @@ function openSet(setName, char) {
             } else {
                 displayName = displayNames[s] || s;
             }
-            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div></th>`;
+            const sealHtml = getSealHeaderHtml(char, s);
+            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div>${sealHtml}</th>`;
         }).join("");
         accTable1.innerHTML = `<thead><tr>
   <th style="white-space:nowrap; padding:8px;">세트 이름</th>
@@ -539,7 +559,8 @@ function openSet(setName, char) {
             } else {
                 displayName = displayNames[s] || s;
             }
-            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div></th>`;
+            const sealHtml = getSealHeaderHtml(char, s);
+            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div>${sealHtml}</th>`;
         }).join("");
         armTable2.innerHTML = `<thead><tr>
   <th style="white-space:nowrap; padding:8px;">세트 이름</th>
@@ -590,7 +611,8 @@ function openSet(setName, char) {
     } else {
         // 방어구 기존 로직 (ARMOR_DISPLAY_NAMES 없는 경우)
         const headerSlots = slots.map(s => {
-            return `<th style="max-width:150px; white-space:normal; font-size:0.9em; line-height:1.3; padding:8px;">${s}</th>`;
+            const sealHtml = getSealHeaderHtml(char, s);
+            return `<th style="max-width:150px; white-space:normal; font-size:0.9em; line-height:1.3; padding:8px;">${s}${sealHtml}</th>`;
         }).join("");
         table.innerHTML = `<thead><tr>
   <th style="max-width:200px; white-space:normal;">세트 이름</th>
