@@ -389,6 +389,8 @@
                 <th>메모</th>
                 <th>태그</th>
                 <th>잠금</th>
+                <th>해제</th>
+                <th>삭제</th>
                 <th>순서변경</th>
             </tr>
             </thead>
@@ -413,6 +415,7 @@
                                 <option value="지능">지능</option>
                             </select>
                         </div>
+                        <div style="border-top: 1px solid var(&#45;&#45;border); margin: 4px 0;"></div>
                         <div>
 <!--                            <div style="font-size:11px; color:var(&#45;&#45;gold); margin-bottom:2px;">속강</div>-->
                             <select data-key="info_ele_type" class="info-select" onchange="applySealHighlight('{CHAR_ID}'); autoSave();">
@@ -448,15 +451,19 @@
                 <!-- 5열: 잠금/해제 -->
                 <td style="padding:4px 6px; vertical-align:top;">
                     <button onclick="toggleEdit('{CHAR_ID}', true)" class="btn-char-lock lock-btn" style="display:block; width:100%; margin-bottom:4px;">잠금</button>
+                </td>
+                <td style="padding:4px 6px; vertical-align:top;">
                     <button onclick="toggleEdit('{CHAR_ID}', false)" class="btn-char-unlock unlock-btn" style="display:block; width:100%;">해제</button>
+                </td>
+                <td style="padding:4px 6px; vertical-align:top;">
+                        <button onclick="deleteCharacter('{CHAR_ID}')" class="del-btn" style="width:100%;">삭제</button>
                 </td>
                 <!-- 6열: 순서변경 + 삭제 -->
                 <td style="padding:4px 6px; vertical-align:top;">
                     <div style="display:flex; flex-direction:column; gap:4px;">
                         <button onclick="moveCharacter('{CHAR_ID}', 'up')" class="btn-action btn-move">▲</button>
                         <button onclick="moveCharacter('{CHAR_ID}', 'down')" class="btn-action btn-move">▼</button>
-                        <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
-                        <button onclick="deleteCharacter('{CHAR_ID}')" class="del-btn" style="width:100%;">삭제</button>
+<!--                        <div style="border-top: 1px solid var(&#45;&#45;border); margin: 4px 0;"></div>-->
                     </div>
                 </td>
             </tr>
