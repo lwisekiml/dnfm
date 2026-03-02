@@ -451,6 +451,20 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
 function openSetMenuFromHeader(event, charId) {
     closeSetContextMenu();
 
+    // 현재 캐릭터 데이터 (보유 아이템)
+    let char = (typeof characters !== 'undefined') ? characters.find(c => c.id === charId) : null;
+    if (!char && typeof characters !== 'undefined') {
+        const sec = document.getElementById(charId);
+        if (sec) {
+            const jobVal  = sec.querySelector('[data-key="info_job"]')?.value  || '';
+            const nameVal = sec.querySelector('[data-key="info_name"]')?.value || '';
+            char = characters.find(c =>
+                (jobVal  && c.job  === jobVal ) ||
+                (nameVal && c.name === nameVal)
+            ) || null;
+        }
+    }
+
     const menu = document.createElement('div');
     menu.id = 'setContextMenu';
     menu.style.cssText = `
@@ -461,18 +475,87 @@ function openSetMenuFromHeader(event, charId) {
         border-radius: 6px;
         padding: 6px 0;
         box-shadow: 0 8px 24px rgba(0,0,0,0.9);
-        min-width: 220px;
-        max-height: 500px;
+        min-width: 280px;
+        width: max-content;
+        max-width: 90vw;
         overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+        box-sizing: border-box;
     `;
+    menu.addEventListener('wheel', (e) => {
+        const atTop    = menu.scrollTop === 0;
+        const atBottom = menu.scrollTop + menu.clientHeight >= menu.scrollHeight - 1;
+        if (!(atTop && e.deltaY < 0) && !(atBottom && e.deltaY > 0)) {
+            e.stopPropagation();
+        }
+        if ((atTop && e.deltaY < 0) || (atBottom && e.deltaY > 0)) return;
+        e.preventDefault();
+        menu.scrollTop += e.deltaY;
+    }, { passive: false });
+    let _menuTouchStartY = 0;
+    menu.addEventListener('touchstart', (e) => { _menuTouchStartY = e.touches[0].clientY; }, { passive: true });
+    menu.addEventListener('touchmove', (e) => {
+        const dy = e.touches[0].clientY - _menuTouchStartY;
+        const atTop    = menu.scrollTop === 0;
+        const atBottom = menu.scrollTop + menu.clientHeight >= menu.scrollHeight - 1;
+        if ((atTop && dy > 0) || (atBottom && dy < 0)) return;
+        e.stopPropagation();
+    }, { passive: true });
+
+    function getOwnedSlotsSimple(setName, setsMap, slotTypeSlots) {
+        if (!char) return { count: 0, items: [] };
+        const itemList = setsMap[setName] || [];
+        const owned = [];
+        const counts = char.armorCounts || {};
+        const countKeys = Object.keys(counts).filter(k => (counts[k] || 0) > 0);
+
+        slotTypeSlots.forEach(slot => {
+            const slotSuffix = ' ' + slot;
+            let hasIt = false;
+            let displayItem = getMatchedItemForSlot(slot, itemList) || (setName + ' ' + slot);
+
+            if (counts[setName + slotSuffix] > 0) {
+                hasIt = true;
+            }
+
+            if (!hasIt) {
+                hasIt = itemList.some(item => {
+                    if ((counts[item] || 0) > 0) return true;
+                    return false;
+                });
+            }
+
+            if (!hasIt) {
+                hasIt = countKeys.some(k => {
+                    if (!k.endsWith(slotSuffix)) return false;
+                    const namepart = k.slice(0, k.length - slotSuffix.length);
+                    return namepart === setName || namepart.includes(': ' + setName) || namepart.endsWith(': ' + setName);
+                });
+            }
+
+            if (!hasIt) {
+                const slotItems = itemList.filter(item => item.endsWith(slotSuffix) || item.endsWith(slot));
+                hasIt = slotItems.some(item => (counts[item] || 0) > 0);
+                if (hasIt) {
+                    const found = slotItems.find(item => (counts[item] || 0) > 0);
+                    if (found) displayItem = found;
+                }
+            }
+
+            if (hasIt) owned.push({ slot, item: displayItem });
+        });
+        return { count: owned.length, items: owned };
+    }
 
     const sections = [
-        { label: '🛡️ 방어구', setsMap: armorSets,    slotType: 'armor' },
-        { label: '💍 악세서리', setsMap: accSets,     slotType: 'accessory' },
-        { label: '⚙️ 특수장비', setsMap: specialSets, slotType: 'special' },
+        { label: '🛡️ 방어구', setsMap: armorSets,    slotType: 'armor',     slotTypeSlots: SlotUtils.ARMOR_SLOTS,     fullSize: 5 },
+        { label: '💍 악세서리', setsMap: accSets,     slotType: 'accessory', slotTypeSlots: SlotUtils.ACCESSORY_SLOTS, fullSize: 3 },
+        { label: '⚙️ 특수장비', setsMap: specialSets, slotType: 'special',   slotTypeSlots: SlotUtils.SPECIAL_SLOTS,   fullSize: 3 },
     ];
 
-    sections.forEach(({ label, setsMap, slotType }) => {
+    sections.forEach(({ label, setsMap, slotType, slotTypeSlots, fullSize }) => {
         const header = document.createElement('div');
         header.textContent = label;
         header.style.cssText = `
@@ -482,32 +565,380 @@ function openSetMenuFromHeader(event, charId) {
         menu.appendChild(header);
 
         Object.keys(setsMap).forEach(setName => {
+            const { count, items } = getOwnedSlotsSimple(setName, setsMap, slotTypeSlots);
+            const isFull = count >= fullSize;
+            // ★ 수정1: 방어구 1~4개도 서브패널, 0개만 비활성
+            const isPartial = count >= 1 && !isFull;
+
             const item = document.createElement('div');
-            item.textContent = setName;
-            item.style.cssText = `padding: 7px 20px; color: #fff; font-size: 12px; cursor: pointer;`;
+            item.style.cssText = `display: flex; align-items: center;
+                padding: 0 8px 0 20px; font-size: 12px; cursor: default;`;
             item.onmouseenter = () => item.style.background = '#333';
             item.onmouseleave = () => item.style.background = '';
-            item.onclick = () => { applySetItems(charId, slotType, setsMap, setName); closeSetContextMenu(); };
-            item.ontouchend = (e) => { e.preventDefault(); applySetItems(charId, slotType, setsMap, setName); closeSetContextMenu(); };
+
+            const countLabel = count > 0 ? ` (${count})` : '';
+            const isDisabled = count === 0;
+            const textSpan = document.createElement('span');
+            textSpan.textContent = setName + countLabel;
+            textSpan.style.cssText = `
+                padding: 7px 8px 7px 0;
+                color: ${isFull ? '#ffd700' : isDisabled ? '#555' : '#fff'};
+                font-weight: ${isFull ? 'bold' : 'normal'};
+                cursor: ${isDisabled ? 'default' : 'pointer'};
+                user-select: none;
+                -webkit-user-select: none;
+                white-space: nowrap;
+            `;
+
+            // ★ 수정2: 오른쪽 빈 영역 클릭 시 서브패널 닫기
+            const spacer = document.createElement('span');
+            spacer.style.cssText = `flex: 1; min-width: 40px; padding: 7px 0;
+                display: block; cursor: default;`;
+            spacer.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const ep = document.getElementById('setSlotSelectPanel');
+                if (ep) ep.remove();
+            });
+            spacer._tsx = 0; spacer._tsy = 0;
+            spacer.addEventListener('touchstart', (e) => {
+                spacer._tsx = e.touches[0].clientX;
+                spacer._tsy = e.touches[0].clientY;
+            }, { passive: true });
+            spacer.addEventListener('touchend', (e) => {
+                const dx = e.changedTouches[0].clientX - spacer._tsx;
+                const dy = e.changedTouches[0].clientY - spacer._tsy;
+                if (Math.sqrt(dx * dx + dy * dy) > 8) return;
+                e.preventDefault();
+                e.stopPropagation();
+                const ep = document.getElementById('setSlotSelectPanel');
+                if (ep) ep.remove();
+            });
+
+            item.appendChild(textSpan);
+            item.appendChild(spacer);
+
+            const handleClick = (e) => {
+                if (isFull) {
+                    // 풀세트: 서브패널 닫고 바로 적용
+                    const ep = document.getElementById('setSlotSelectPanel');
+                    if (ep) ep.remove();
+                    applySetItems(charId, slotType, setsMap, setName);
+                    closeSetContextMenu();
+                } else {
+                    // 1개 이상: 서브패널 열기
+                    const cx = e?.clientX || e?.changedTouches?.[0]?.clientX || window.innerWidth / 2;
+                    const cy = e?.clientY || e?.changedTouches?.[0]?.clientY || window.innerHeight / 2;
+                    openSlotSelectPanel(charId, setName, setsMap, slotType, slotTypeSlots, items, cx, cy);
+                }
+            };
+
+            if (!isDisabled) {
+                textSpan.onclick = (e) => {
+                    e.stopPropagation();
+                    const ep = document.getElementById('setSlotSelectPanel');
+                    if (ep) ep.remove();
+                    handleClick(e);
+                };
+                textSpan._tsx = 0; textSpan._tsy = 0;
+                textSpan.addEventListener('touchstart', (e) => {
+                    textSpan._tsx = e.touches[0].clientX;
+                    textSpan._tsy = e.touches[0].clientY;
+                }, { passive: true });
+                textSpan.addEventListener('touchend', (e) => {
+                    const dx = e.changedTouches[0].clientX - textSpan._tsx;
+                    const dy = e.changedTouches[0].clientY - textSpan._tsy;
+                    if (Math.sqrt(dx * dx + dy * dy) > 8) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const ep = document.getElementById('setSlotSelectPanel');
+                    if (ep) ep.remove();
+                    handleClick(e);
+                });
+            }
+
             menu.appendChild(item);
         });
     });
 
-    menu.style.left = event.clientX + 'px';
-    menu.style.top  = event.clientY + 'px';
-    document.body.appendChild(menu);
+    _positionMenu(menu, event);
+    document.body.appendChild(menu);  // _adjustMenuPosition에서 tableContainer로 이동됨
+    _adjustMenuPosition(menu, event);
+    _addOutsideHandler(menu);
+}
 
-    const rect = menu.getBoundingClientRect();
-    if (rect.right  > window.innerWidth)  menu.style.left = (event.clientX - rect.width)  + 'px';
-    if (rect.bottom > window.innerHeight) menu.style.top  = (event.clientY - rect.height) + 'px';
+/**
+ * 부위 선택 서브패널
+ */
+function openSlotSelectPanel(charId, setName, setsMap, slotType, slotTypeSlots, ownedItems, cx, cy) {
+    const existingPanel = document.getElementById('setSlotSelectPanel');
+    if (existingPanel) existingPanel.remove();
 
-    const outsideHandler = (e) => {
-        if (!menu.contains(e.target)) {
-            closeSetContextMenu();
-            document.removeEventListener('click', outsideHandler);
+    const panel = document.createElement('div');
+    panel.id = 'setSlotSelectPanel';
+    panel.style.cssText = `
+        position: absolute;
+        z-index: 10000;
+        background: #1a1a1a;
+        border: 2px solid #ffd700;
+        border-radius: 6px;
+        padding: 10px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.9);
+        min-width: 220px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+        box-sizing: border-box;
+    `;
+    panel.addEventListener('wheel', (e) => {
+        const atTop    = panel.scrollTop === 0;
+        const atBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 1;
+        if ((atTop && e.deltaY < 0) || (atBottom && e.deltaY > 0)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        panel.scrollTop += e.deltaY;
+    }, { passive: false });
+    let _panelTouchStartY = 0;
+    panel.addEventListener('touchstart', (e) => { _panelTouchStartY = e.touches[0].clientY; }, { passive: true });
+    panel.addEventListener('touchmove', (e) => {
+        const dy = e.touches[0].clientY - _panelTouchStartY;
+        const atTop    = panel.scrollTop === 0;
+        const atBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 1;
+        if ((atTop && dy > 0) || (atBottom && dy < 0)) return;
+        e.stopPropagation();
+    }, { passive: true });
+
+    const title = document.createElement('div');
+    title.textContent = setName + ' - 부위 선택';
+    title.style.cssText = `color: #ffd700; font-weight: bold; font-size: 12px;
+        margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #333;`;
+    panel.appendChild(title);
+
+    const checkboxes = [];
+    ownedItems.forEach(({ slot, item }) => {
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.dataset.slot = slot;
+        cb.dataset.item = item;
+        cb.style.cssText = `display: none;`;
+
+        const row = document.createElement('div');
+        row.style.cssText = `display: flex; align-items: center; gap: 8px;
+            padding: 6px 4px; color: #fff; font-size: 12px; cursor: pointer;
+            user-select: none; -webkit-user-select: none;`;
+
+        const box = document.createElement('span');
+        box.style.cssText = `
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 16px; height: 16px; min-width: 16px; min-height: 16px;
+            border: 2px solid #888; border-radius: 3px; background: #222;
+            flex-shrink: 0; font-size: 12px; line-height: 1;
+        `;
+
+        const slotTag = document.createElement('span');
+        slotTag.textContent = `(${slot}) `;
+        slotTag.style.cssText = `color: #ffd700; font-size: 11px; flex-shrink: 0;`;
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = item;
+
+        const toggle = () => {
+            cb.checked = !cb.checked;
+            if (cb.checked) {
+                box.style.background = '#ffd700';
+                box.style.borderColor = '#ffd700';
+                box.textContent = '✓';
+                box.style.color = '#000';
+            } else {
+                box.style.background = '#222';
+                box.style.borderColor = '#888';
+                box.textContent = '';
+            }
+        };
+
+        row.addEventListener('click', toggle);
+        row.addEventListener('touchend', (e) => { e.preventDefault(); toggle(); });
+
+        row.appendChild(box);
+        row.appendChild(cb);
+        row.appendChild(slotTag);
+        row.appendChild(nameSpan);
+        panel.appendChild(row);
+        checkboxes.push(cb);
+    });
+
+    const btnRow = document.createElement('div');
+    btnRow.style.cssText = `display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end;`;
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = '취소';
+    cancelBtn.style.cssText = `padding: 5px 12px; background: #444; color: #fff;
+        border: none; border-radius: 4px; cursor: pointer; font-size: 12px;`;
+    cancelBtn.onclick = () => { panel.remove(); };
+
+    const applyBtn = document.createElement('button');
+    applyBtn.textContent = '적용';
+    applyBtn.style.cssText = `padding: 5px 12px; background: #ffd700; color: #000;
+        border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;`;
+    applyBtn.onclick = () => {
+        const section = document.getElementById(charId);
+        if (!section) return;
+        checkboxes.filter(cb => cb.checked).forEach(cb => {
+            const slot = cb.dataset.slot;
+            const itemName = cb.dataset.item;
+            const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
+            if (nameEl) {
+                nameEl.value = itemName;
+                nameEl.dispatchEvent(new Event('change'));
+            }
+        });
+        if (checkboxes.some(cb => cb.checked)) {
+            runSetCheck(slotTypeSlots[0], charId);
+            autoSave();
         }
+        panel.remove();
+        closeSetContextMenu();
     };
-    setTimeout(() => document.addEventListener('click', outsideHandler), 0);
+
+    btnRow.appendChild(cancelBtn);
+    btnRow.appendChild(applyBtn);
+    panel.appendChild(btnRow);
+
+    // table-container 기준 absolute 배치
+    const _sec = document.getElementById(charId);
+    const _tc  = _sec ? _sec.querySelector('.table-container') : null;
+
+    if (_tc) {
+        if (window.getComputedStyle(_tc).position === 'static') _tc.style.position = 'relative';
+        _tc.appendChild(panel);
+
+        const tcRect = _tc.getBoundingClientRect();
+        const visTop    = Math.max(tcRect.top,    0) - tcRect.top;
+        const visBottom = Math.min(tcRect.bottom, window.innerHeight) - tcRect.top;
+        const visLeft   = Math.max(tcRect.left,   0) - tcRect.left;
+        const visRight  = Math.min(tcRect.right,  window.innerWidth)  - tcRect.left;
+
+        panel.style.maxHeight = Math.max(visBottom - visTop - 8, 100) + 'px';
+
+        const pRect = panel.getBoundingClientRect();
+        let pl = cx - tcRect.left;
+        let pt = cy - tcRect.top;
+
+        if (pl + pRect.width  > visRight)  pl = visRight  - pRect.width;
+        if (pt + pRect.height > visBottom) pt = visBottom - pRect.height;
+        if (pl < visLeft) pl = visLeft;
+        if (pt < visTop)  pt = visTop;
+
+        panel.style.left = pl + 'px';
+        panel.style.top  = pt + 'px';
+    } else {
+        // fallback: fixed
+        panel.style.position = 'fixed';
+        document.body.appendChild(panel);
+        panel.style.maxHeight = Math.floor(window.innerHeight * 0.8) + 'px';
+        const pRect = panel.getBoundingClientRect();
+        let pl = cx, pt = cy;
+        if (pl + pRect.width  > window.innerWidth)  pl = window.innerWidth  - pRect.width  - 4;
+        if (pt + pRect.height > window.innerHeight) pt = window.innerHeight - pRect.height - 4;
+        if (pl < 0) pl = 4;
+        if (pt < 0) pt = 4;
+        panel.style.left = pl + 'px';
+        panel.style.top  = pt + 'px';
+    }
+}
+
+/**
+ * 메뉴 위치 초기 설정
+ */
+function _positionMenu(menu, event) {
+    menu.style.left = '-9999px';
+    menu.style.top  = '-9999px';
+}
+
+/**
+ * 메뉴 위치 최종 조정
+ * - position: absolute, table-container 기준으로 배치
+ * - 페이지 스크롤 시 버튼과 함께 움직임
+ */
+function _adjustMenuPosition(menu, event) {
+    const btn = event.target.closest('button') || event.target;
+    const tableContainer = btn.closest('.table-container');
+
+    if (!tableContainer) {
+        menu.style.position = 'fixed';
+        const maxH = Math.floor(window.innerHeight * 0.8);
+        menu.style.maxHeight = maxH + 'px';
+        const rect = menu.getBoundingClientRect();
+        let left = event.clientX;
+        let top  = event.clientY;
+        if (left + rect.width  > window.innerWidth)  left = window.innerWidth  - rect.width;
+        if (top  + rect.height > window.innerHeight) top  = window.innerHeight - rect.height;
+        if (left < 0) left = 0;
+        if (top  < 0) top  = 0;
+        menu.style.left = left + 'px';
+        menu.style.top  = top  + 'px';
+        return;
+    }
+
+    // table-container 기준 absolute 배치
+    menu.style.position = 'absolute';
+
+    // table-container에 position:relative 보장
+    if (window.getComputedStyle(tableContainer).position === 'static') {
+        tableContainer.style.position = 'relative';
+    }
+
+    tableContainer.appendChild(menu);
+
+    const tcRect  = tableContainer.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+
+    // 버튼 바로 아래, 왼쪽 정렬
+    let left = btnRect.left - tcRect.left;
+    let top  = btnRect.bottom - tcRect.top;
+
+    // table-container 가시 영역 (화면과 교집합)
+    const visTop    = Math.max(tcRect.top,    0) - tcRect.top;
+    const visBottom = Math.min(tcRect.bottom, window.innerHeight) - tcRect.top;
+    const visLeft   = Math.max(tcRect.left,   0) - tcRect.left;
+    const visRight  = Math.min(tcRect.right,  window.innerWidth)  - tcRect.left;
+
+    // max-height = 가시 영역 높이 - 여백 (팝업이 표 세로보다 짧게)
+    const maxH = Math.max(visBottom - visTop - 8, 100);
+    menu.style.maxHeight = maxH + 'px';
+
+    const mRect = menu.getBoundingClientRect();
+
+    if (left + mRect.width > visRight)  left = visRight - mRect.width;
+    if (top  + mRect.height > visBottom) top = (btnRect.top - tcRect.top) - mRect.height;
+    if (left < visLeft) left = visLeft;
+    if (top  < visTop)  top  = visTop;
+
+    menu.style.left = left + 'px';
+    menu.style.top  = top  + 'px';
+}
+
+let _menuOutsideHandler = null;
+
+function _addOutsideHandler(menu) {
+    if (_menuOutsideHandler) {
+        document.removeEventListener('pointerdown', _menuOutsideHandler);
+        _menuOutsideHandler = null;
+    }
+
+    _menuOutsideHandler = (e) => {
+        const panel = document.getElementById('setSlotSelectPanel');
+        const insideMenu  = menu.contains(e.target);
+        const insidePanel = panel && panel.contains(e.target);
+
+        if (insideMenu || insidePanel) return;
+
+        if (panel) panel.remove();
+        closeSetContextMenu();
+    };
+    setTimeout(() => {
+        document.addEventListener('pointerdown', _menuOutsideHandler);
+    }, 200);
 }
 
 /**
@@ -516,6 +947,12 @@ function openSetMenuFromHeader(event, charId) {
 function closeSetContextMenu() {
     const menu = document.getElementById('setContextMenu');
     if (menu) menu.remove();
+    const panel = document.getElementById('setSlotSelectPanel');
+    if (panel) panel.remove();
+    if (_menuOutsideHandler) {
+        document.removeEventListener('pointerdown', _menuOutsideHandler);
+        _menuOutsideHandler = null;
+    }
 }
 
 /**
@@ -577,8 +1014,9 @@ function openPrefixMenuFromHeader(event, charId) {
         padding: 6px 0;
         box-shadow: 0 8px 24px rgba(0,0,0,0.9);
         min-width: 180px;
-        max-height: 500px;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
     `;
 
     const sections = [
@@ -608,26 +1046,22 @@ function openPrefixMenuFromHeader(event, charId) {
                 closeSetContextMenu();
             };
             item.onclick = apply;
-            item.ontouchend = (e) => { e.preventDefault(); apply(); };
+            item._tsx = 0; item._tsy = 0;
+            item.addEventListener('touchstart', (e) => { item._tsx = e.touches[0].clientX; item._tsy = e.touches[0].clientY; }, { passive: true });
+            item.addEventListener('touchend', (e) => {
+                const dx = e.changedTouches[0].clientX - item._tsx;
+                const dy = e.changedTouches[0].clientY - item._tsy;
+                if (Math.sqrt(dx*dx+dy*dy) > 10) return;
+                e.preventDefault(); e.stopPropagation(); apply();
+            });
             menu.appendChild(item);
         });
     });
 
-    menu.style.left = event.clientX + 'px';
-    menu.style.top  = event.clientY + 'px';
+    _positionMenu(menu, event);
     document.body.appendChild(menu);
-
-    const rect = menu.getBoundingClientRect();
-    if (rect.right  > window.innerWidth)  menu.style.left = (event.clientX - rect.width)  + 'px';
-    if (rect.bottom > window.innerHeight) menu.style.top  = (event.clientY - rect.height) + 'px';
-
-    const outsideHandler = (e) => {
-        if (!menu.contains(e.target)) {
-            closeSetContextMenu();
-            document.removeEventListener('click', outsideHandler);
-        }
-    };
-    setTimeout(() => document.addEventListener('click', outsideHandler), 0);
+    _adjustMenuPosition(menu, event);
+    _addOutsideHandler(menu);
 }
 
 /**
@@ -669,8 +1103,9 @@ function openReinforceMenuFromHeader(event, charId) {
         padding: 6px 0;
         box-shadow: 0 8px 24px rgba(0,0,0,0.9);
         min-width: 120px;
-        max-height: 500px;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
     `;
 
     const header = document.createElement('div');
@@ -695,25 +1130,21 @@ function openReinforceMenuFromHeader(event, charId) {
             closeSetContextMenu();
         };
         item.onclick = apply;
-        item.ontouchend = (e) => { e.preventDefault(); apply(); };
+        item._tsx = 0; item._tsy = 0;
+        item.addEventListener('touchstart', (e) => { item._tsx = e.touches[0].clientX; item._tsy = e.touches[0].clientY; }, { passive: true });
+        item.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - item._tsx;
+            const dy = e.changedTouches[0].clientY - item._tsy;
+            if (Math.sqrt(dx*dx+dy*dy) > 10) return;
+            e.preventDefault(); e.stopPropagation(); apply();
+        });
         menu.appendChild(item);
     }
 
-    menu.style.left = event.clientX + 'px';
-    menu.style.top  = event.clientY + 'px';
+    _positionMenu(menu, event);
     document.body.appendChild(menu);
-
-    const rect = menu.getBoundingClientRect();
-    if (rect.right  > window.innerWidth)  menu.style.left = (event.clientX - rect.width)  + 'px';
-    if (rect.bottom > window.innerHeight) menu.style.top  = (event.clientY - rect.height) + 'px';
-
-    const outsideHandler = (e) => {
-        if (!menu.contains(e.target)) {
-            closeSetContextMenu();
-            document.removeEventListener('click', outsideHandler);
-        }
-    };
-    setTimeout(() => document.addEventListener('click', outsideHandler), 0);
+    _adjustMenuPosition(menu, event);
+    _addOutsideHandler(menu);
 }
 
 /**

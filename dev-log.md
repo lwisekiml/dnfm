@@ -2307,3 +2307,38 @@ project/
 **수정 파일:** `merged.html`, `js/ui-character.js`, `styles/merged.css`, `js/ui-memo-tag.js`
 
 ---
+
+## 2026-03-02 (49차)
+
+### 세트/접두어/강화 팝업 - 동작 개선 통합
+
+**수정된 파일:** `js/ui-core.js`
+
+---
+
+### 변경 내용
+
+**1. 팝업 position:absolute 전환 (표 높이 초과 스크롤바 문제 해결)**
+
+- 기존: 모든 팝업이 `position: fixed` + `document.body.appendChild` 구조 → 팝업이 표 바깥에 렌더링되어 페이지 스크롤바 발생
+- 변경: `_adjustMenuPosition()`에서 `tableContainer.appendChild(menu)`로 이동, `position: absolute` 전환
+  - 팝업이 `.table-container` 내부 요소가 되어 페이지 레이아웃에 영향 없음
+  - `max-height = 표 가시 높이 - 8px` 기준으로 제한 → 팝업이 표 세로를 넘지 않음
+  - 서브패널도 동일하게 `_tc.appendChild(panel)` + `position: absolute`
+  - `_positionMenu()`: 초기 위치를 `-9999px`로 설정 (화면 밖에서 렌더링 후 이동)
+
+**2. 방어구 1~4개 서브패널 허용 (alert 제거)**
+
+- 기존: 방어구 3개 미만이면 `alert('보유 세트가 3개 미만입니다.')` 표시 후 팝업 닫힘
+- 변경: `isPartial = count >= 1 && !isFull` → 1개 이상이면 서브패널 열기
+- 0개일 때만 비활성 (클릭 불가), `hasNone` 변수 및 alert 완전 제거
+
+**3. 서브패널 닫힘 동작 개선**
+
+- 세트 항목 텍스트 클릭 시: 기존 서브패널 먼저 닫고 새 서브패널 열기 (onclick/touchend 양쪽 처리)
+- 세트 항목 오른쪽 빈 공간(`spacer`) 클릭/터치 시: 서브패널 닫기
+  - 기존 `pointer-events: none` → 이벤트 수신 가능하도록 변경
+- 풀세트 클릭 시: 서브패널 있으면 먼저 닫고 바로 적용
+- 취소 버튼: `panel.remove()`만 실행 (세트 팝업은 유지)
+
+---
