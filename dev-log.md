@@ -2443,3 +2443,48 @@ project/
 
 ---
 
+## 2026-03-02 (52차)
+
+### 탭별 상단 공백 통합 관리 및 구조 정리
+
+---
+
+### 변경 배경
+
+각 탭 전환 시 툴바/버튼과의 거리(상단 공백)가 탭마다 제각각이었음. 원인은 각 섹션에 인라인 `padding`이 제각각으로 붙어있고, `.toolbar`/`.control-bar` 등 서로 다른 요소가 공백을 담당하고 있었기 때문. 또한 `.toolbar`에 인라인 `padding: 10px 0`이 직접 붙어있어 CSS 클래스 수정이 무시되고 있었음.
+
+---
+
+### 수정 내용
+
+**`merged.html`**
+
+- 5개 섹션 div 모두 `class="section-view"` 추가, 인라인 `padding` 제거
+  - `section-equipment-view`: `padding: 20px` 제거
+  - `section-weapon-view`: `padding-top: 0` 제거, `<h2>[무기]</h2>` 구조를 다른 탭과 동일하게 `margin:0` 적용
+  - `section-craft-view`: `padding: 20px` 제거
+  - `section-detail-view`: `padding-top: 0` 인라인 추가 (sticky control-bar가 별도로 padding 처리)
+- `.toolbar` div 인라인 스타일에서 `padding: 10px 0` 제거
+
+**`merged.css`**
+
+- `.section-view { padding-top: 15px; }` 신규 추가
+  - **이 값 하나로 모든 탭의 상단 공백을 한번에 조절 가능**
+- `.toolbar`의 `margin: 15px 0` → `margin: 0` 으로 초기화 (section-view로 통합)
+- `#section-detail-view .control-bar`의 `padding: var(--spacing-md) 0` → `padding: 15px 0 0 0` 으로 변경
+  - `control-bar`는 `position: sticky`라 부모의 `padding-top`을 무시함
+  - 대신 `control-bar` 자체에 `padding-top: 15px`을 줘서 `.section-view`와 동일한 값으로 맞춤
+  - `.section-view`의 `padding-top` 값 변경 시 이 값도 같이 맞춰줘야 함
+
+**수정 파일:** `merged.html`, `merged.css`
+
+---
+
+### 결과
+
+- 모든 탭(획득 장비 등록 / 무기 등록 / 장비 현황 / 제작 등록 / 캐릭터 관리)의 상단 공백이 동일하게 통일됨
+- 공백 조절은 `merged.css`의 `.section-view { padding-top: 15px; }` 값 하나만 수정하면 됨
+  - 단, 캐릭터 관리 탭은 `#section-detail-view .control-bar`의 `padding-top`도 같은 값으로 같이 수정 필요
+
+---
+

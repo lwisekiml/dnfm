@@ -85,7 +85,7 @@
     </div>
 </div>
 
-<div id="section-equipment-view" style="display:none; padding: 20px;">
+<div id="section-equipment-view" class="section-view" style="display:none;">
     <div class="toolbar"
          style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
 
@@ -174,7 +174,7 @@
 </div>
 
 
-<div id="section-character-view">
+<div id="section-character-view" class="section-view">
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
         <h2 style="margin:0;">[캐릭터]</h2>
         <button id="edit-order-btn" class="edit-btn" style="background: linear-gradient(135deg, #3399cc, #2a6f9e);"
@@ -188,8 +188,10 @@
     <div id="panel"></div>
 </div>
 
-<div id="section-weapon-view" style="display: none; padding-top: 0;">
-    <h2>[무기]</h2>
+<div id="section-weapon-view" class="section-view" style="display: none;">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+        <h2 style="margin:0;">[무기]</h2>
+    </div>
     <div class="toolbar" id="weaponJobButtons">
         <button class="char-btn" onclick="selectWeaponJob('귀검사')">귀검사</button>
         <button class="char-btn" onclick="selectWeaponJob('격투가')">격투가</button>
@@ -203,7 +205,7 @@
     <div id="weaponPanel"></div>
 </div>
 
-<div id="section-craft-view" style="display:none; padding:20px;">
+<div id="section-craft-view" class="section-view" style="display:none;">
     <div style="display:flex; align-items:center; gap:10px;">
         <h2 style="margin:0;">[제작]</h2>
 
@@ -264,7 +266,7 @@
 <!-- ================================================
      상세 입력 탭 (project1)
 ================================================ -->
-<div id="section-detail-view" style="display: none;">
+<div id="section-detail-view" class="section-view" style="display: none; padding-top: 0;">
 
     <!-- 컨트롤바 -->
     <div class="control-bar">

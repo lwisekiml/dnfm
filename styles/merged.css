@@ -1161,7 +1161,7 @@
     top: 0;
     background: var(--bg);
     z-index: var(--z-sticky);
-    padding: var(--spacing-md) 0;
+    padding: 15px 0 0 0;
 }
 
 #section-detail-view .char-section {
@@ -2258,10 +2258,18 @@ h2 {
 }
 
 /* ========================================
+   탭 섹션 공통 상단 여백
+   - 이 값 하나로 모든 탭의 툴바/버튼과의 거리 조절 가능
+======================================== */
+.section-view {
+    padding-top: 15px;
+}
+
+/* ========================================
    3. 툴바 영역
    ======================================== */
 .toolbar {
-    margin: 15px 0;
+    margin: 0;
     display: flex;
     gap: 10px;
     align-items: center;
