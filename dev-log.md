@@ -2533,3 +2533,62 @@ project/
 
 ---
 
+## 2026-03-02 (54차)
+
+### 캐릭터 관리 탭 - 모바일 버튼 크기 및 장비 표 스크롤 구조 수정
+
+---
+
+### 변경 배경
+
+모바일(844px 기준)에서 두 가지 문제 발생:
+1. 캐릭터 추가/전체 잠금/기본/비교/검색/태그 버튼(`ctrl-btn`)과 잠금/해제/삭제/순서변경 버튼이 모바일에서 크기가 줄어들지 않음
+2. 직업/이름 표는 전체 페이지 가로 스크롤로 볼 수 있는데, 장비 표는 컨테이너 안에서만 스크롤되어 구조가 다름
+
+---
+
+### 원인 분석
+
+**버튼 크기 문제**
+- CSS 선언 순서 문제: 기본 `.ctrl-btn` 스타일(2200번대 줄)이 미디어쿼리(300번대 줄)보다 뒤에 위치하여 미디어쿼리 수정이 덮어씌워짐
+- `btn-char-lock`, `btn-char-unlock`, `del-btn` 버튼에 모바일 미디어쿼리 스타일이 아예 없었음
+- HTML 템플릿의 잠금/해제/삭제 버튼에 인라인 `style="width:100%"`가 있어 CSS 무시됨
+
+**장비 표 스크롤 문제**
+- `.table-container`에 `overflow-x: auto`가 설정되어 장비 표가 컨테이너 안에서만 스크롤됨
+- 직업/이름 표(`char-info-table`)는 overflow 설정 없이 전체 페이지 스크롤
+
+---
+
+### 수정 내용
+
+**`merged.css`**
+
+버튼 크기:
+- `max-width: 1024px` 미디어쿼리에 `.ctrl-btn` `!important` 추가
+- `max-width: 1024px` 미디어쿼리에 `.btn-char-lock`, `.btn-char-unlock`, `.del-btn`, `.btn-move` 크기 축소 추가
+- `max-width: 480px` 미디어쿼리에 `.ctrl-btn`, `.btn-char-lock` 등 `!important` 추가
+- 중복 미디어쿼리 3세트(`max-width: 1024px`, `max-width: 767px`, `max-width: 480px`) → 1세트로 통합
+- `.control-bar button` → `.ctrl-btn`으로 교체 (일반 미디어쿼리 + orientation 미디어쿼리 모두)
+
+장비 표 스크롤:
+- `.table-container` `overflow-x: auto` → `visible` (기본 스타일 + 미디어쿼리 전체)
+- `portrait` 미디어쿼리의 `table-container` 내 `overflow-x: auto`, scrollbar 스타일 제거 → `overflow-x: visible`로 교체
+- `min-width: 700px`, `min-width: 800px` 제거
+
+**`merged.html`**
+
+- 잠금/해제/삭제 버튼 인라인 `style`에서 `width: 100%` 제거
+
+---
+
+### 참고
+
+- 중복 미디어쿼리 제거 시 두 블록의 차이: 첫 번째 블록은 `font-size: var(--fs-button)`, 두 번째 블록은 `font-size: var(--fs-xs)` → 두 번째 기준으로 통합
+- `.section-view`의 `padding-top` 값 변경 시 `.control-bar`의 `padding-top`도 같이 맞춰야 함 (52차 참고)
+- `portrait` 미디어쿼리의 scrollbar 스타일은 `overflow-x: visible` 전환으로 적용 대상이 없어져 함께 제거
+
+**수정 파일:** `merged.css`, `merged.html`
+
+---
+
