@@ -2307,8 +2307,292 @@ project/
 **수정 파일:** `merged.html`, `js/ui-character.js`, `styles/merged.css`, `js/ui-memo-tag.js`
 
 ---
+## 2026-03-01 (49차)
 
-## 2026-03-02 (49차)
+### 획득 장비 등록 탭 - 세트 표 헤더에 마법봉인 값 표시
+
+---
+
+### 변경 배경
+
+획득 장비 등록 탭에서 방어구/악세/특장 세트를 열었을 때, 각 부위 헤더에 현재 캐릭터의 마법봉인 값이 표시되지 않아 별도로 캐릭터 관리 탭을 확인해야 했음.
+
+---
+
+### 수정 내용
+
+**`scripts/eq_equipment.js`**
+
+- `getSealHeaderHtml(char, slot)` 헬퍼 함수 추가 (`openSet` 함수 앞)
+  - `char.inputs[슬롯]['seal1']['val']`, `['seal1_val']['val']`, `['seal2']['val']`, `['seal2_val']['val']` 값을 읽어 헤더용 HTML 반환
+  - 표시 형식: `고유옵션 수치 / 일반옵션 수치` (값이 없는 항목은 `-`로 표시)
+  - 둘 다 없는 슬롯도 `- / -`로 표시
+  - 텍스트 색상: `#aad4ff` (연하늘색), `font-size: 0.9em`
+
+- `openSet()` 내 각 장비 유형 헤더(`<th>`)에 마법봉인 표시 추가
+  - **방어구 (ARMOR_DISPLAY_NAMES 있음)**: `headerSlots2` 각 `<th>`에 추가
+  - **방어구 (ARMOR_DISPLAY_NAMES 없음)**: `headerSlots` 각 `<th>`에 추가
+  - **악세 (ACCESSORY)**: `headerSlots1` 각 `<th>`에 추가
+  - **특장 (SPECIAL)**: `headerSlots1` 각 `<th>`에 추가
+
+**수정 파일:** `scripts/eq_equipment.js`
+
+---
+
+### 결과
+
+- 세트 버튼 클릭 시 나타나는 표의 각 부위 헤더(슬롯명 + 아이템명) 아래에 현재 캐릭터의 마법봉인 값이 연하늘색으로 표시됨
+- 값이 없는 항목은 `-`로 표시, 둘 다 없어도 `- / -`로 표시
+- 표시 예시:
+  ```
+  지능 46 / 지능 46   ← 둘 다 있는 경우
+  지능 46 / -         ← 첫 번째만 있는 경우
+  - / 지능 46         ← 두 번째만 있는 경우
+  - / -               ← 둘 다 없는 경우
+  ```
+
+---
+
+## 2026-03-01 (50차)
+
+### 캐릭터별 장비 보유 현황 / 검색 결과 - 달성 열 추가
+
+---
+
+### 변경 배경
+
+캐릭터별 장비 보유 현황 표와 검색 결과 표에 달성 열이 없어, 세트 달성 여부를 한눈에 확인하기 어려웠음.
+모두/일반/접두어 탭의 달성 열과 동일한 방식으로 추가 요청.
+
+---
+
+### 수정 내용
+
+**`scripts/eq_equipment.js`**
+
+- `renderCharacterEquipmentDetail()` 수정
+  - 표 헤더 맨 끝에 `달성` `<th>` 추가
+  - 각 행 맨 끝에 달성 `<td>` 추가
+    - 익시드 행: 빈 칸
+    - 일반/접두어 행: 보유 슬롯 수 표시
+  - 세트 구분선 `colspan` 수정: `3 + slots` → `4 + slots`
+  - 색상 기준: 방어구 5부위 달성 시 금색(`#ffd700`), 3부위 이상 초록(`#2ecc71`) / 악세·특장 3부위 달성 시 초록
+
+- `searchEquipment()` 수정
+  - 표 헤더 맨 끝에 `달성` `<th>` 추가
+  - 각 행 맨 끝에 달성 `<td>` 추가 (동일한 색상 기준 적용)
+  - 세트 구분선 `colspan` 수정: `3 + slots` → `4 + slots`
+
+**수정 파일:** `scripts/eq_equipment.js`
+
+---
+
+### 결과
+
+- 캐릭터별 장비 보유 현황 표와 검색 결과 표 오른쪽 끝에 달성 열 표시
+- 모두/일반/접두어 탭과 동일한 색상 기준으로 세트 달성 여부 표시
+
+---
+
+## 2026-03-02 (51차)
+
+### 버튼 스타일 정리 및 통합
+
+---
+
+### 변경 배경
+
+상단 툴바 버튼(JSON 저장/불러오기)과 캐릭터 관리 탭 버튼들이 서로 다른 클래스를 사용하고 있어 크기 조절 시 여러 곳을 수정해야 하는 불편함이 있었음. 또한 `<label>` 태그로 구현된 JSON 불러오기 버튼이 `<button>`과 렌더링 크기가 달랐음.
+
+---
+
+### 수정 내용
+
+**`merged.html`**
+
+- JSON 불러오기: `<label class="file-label">` → `<button class="action-btn">` 으로 변경
+  - `<input type="file">`은 바깥으로 분리, 버튼 클릭 시 `document.getElementById('jsonFile').click()`으로 동작
+- JSON 경로 지정 저장: `class="char-btn"` → `class="action-btn"` 으로 변경
+  - 세 JSON 버튼(저장/경로지정저장/불러오기) 모두 `action-btn`으로 통일
+- 획득 장비 등록 탭 편집 버튼: `class="add-btn"` → `class="edit-btn"` 으로 변경
+- 캐릭터 관리 탭 6개 버튼: 모두 `class="ctrl-btn"` 으로 통일
+  - 캐릭터 추가: `add-btn` → `ctrl-btn`
+  - 전체 잠금: `btn-all-lock` → `ctrl-btn`
+  - 기본/비교/검색/태그: `btn-mode` → `ctrl-btn`
+
+**`merged.css`**
+
+- `.file-label` 관련 스타일 사실상 미사용 (JSON 불러오기가 button으로 전환됨)
+- `.add-btn` → `.edit-btn` 으로 클래스명 변경 (편집 버튼 전용)
+- `.ctrl-btn` 신규 추가: 캐릭터 관리 탭 6개 버튼 공통 스타일
+- `.ctrl-btn.active` 추가: 기본/비교/검색/태그 눌린 상태 스타일
+- `#section-detail-view .btn-all-lock` 제거 → `.ctrl-btn`으로 통합
+- `#section-detail-view .btn-mode` / `.btn-mode.active` 제거 → `.ctrl-btn`으로 통합
+- `#section-detail-view .ctrl-btn` 중복 블록 제거 → `.ctrl-btn` 단일 블록으로 통합
+- 미디어쿼리(초소형/소형 화면) 및 프린트 스타일에서 `btn-mode`, `btn-all-lock` → `ctrl-btn` 으로 교체
+
+**수정 파일:** `merged.html`, `merged.css`
+
+---
+
+### 결과
+
+- JSON 저장/경로지정저장/불러오기: `.action-btn` 하나로 크기 통합 관리
+- 캐릭터 관리 탭 6개 버튼: `.ctrl-btn` 하나로 크기 통합 관리
+- 획득 장비 등록 탭 편집 버튼: `.edit-btn` 으로 독립 관리
+
+---
+
+## 2026-03-02 (52차)
+
+### 탭별 상단 공백 통합 관리 및 구조 정리
+
+---
+
+### 변경 배경
+
+각 탭 전환 시 툴바/버튼과의 거리(상단 공백)가 탭마다 제각각이었음. 원인은 각 섹션에 인라인 `padding`이 제각각으로 붙어있고, `.toolbar`/`.control-bar` 등 서로 다른 요소가 공백을 담당하고 있었기 때문. 또한 `.toolbar`에 인라인 `padding: 10px 0`이 직접 붙어있어 CSS 클래스 수정이 무시되고 있었음.
+
+---
+
+### 수정 내용
+
+**`merged.html`**
+
+- 5개 섹션 div 모두 `class="section-view"` 추가, 인라인 `padding` 제거
+  - `section-equipment-view`: `padding: 20px` 제거
+  - `section-weapon-view`: `padding-top: 0` 제거, `<h2>[무기]</h2>` 구조를 다른 탭과 동일하게 `margin:0` 적용
+  - `section-craft-view`: `padding: 20px` 제거
+  - `section-detail-view`: `padding-top: 0` 인라인 추가 (sticky control-bar가 별도로 padding 처리)
+- `.toolbar` div 인라인 스타일에서 `padding: 10px 0` 제거
+
+**`merged.css`**
+
+- `.section-view { padding-top: 15px; }` 신규 추가
+  - **이 값 하나로 모든 탭의 상단 공백을 한번에 조절 가능**
+- `.toolbar`의 `margin: 15px 0` → `margin: 0` 으로 초기화 (section-view로 통합)
+- `#section-detail-view .control-bar`의 `padding: var(--spacing-md) 0` → `padding: 15px 0 0 0` 으로 변경
+  - `control-bar`는 `position: sticky`라 부모의 `padding-top`을 무시함
+  - 대신 `control-bar` 자체에 `padding-top: 15px`을 줘서 `.section-view`와 동일한 값으로 맞춤
+  - `.section-view`의 `padding-top` 값 변경 시 이 값도 같이 맞춰줘야 함
+
+**수정 파일:** `merged.html`, `merged.css`
+
+---
+
+### 결과
+
+- 모든 탭(획득 장비 등록 / 무기 등록 / 장비 현황 / 제작 등록 / 캐릭터 관리)의 상단 공백이 동일하게 통일됨
+- 공백 조절은 `merged.css`의 `.section-view { padding-top: 15px; }` 값 하나만 수정하면 됨
+  - 단, 캐릭터 관리 탭은 `#section-detail-view .control-bar`의 `padding-top`도 같은 값으로 같이 수정 필요
+
+---
+
+## 2026-03-02 (53차)
+
+### 제작 등록 탭 - 숫자 입력 시 깜박임 및 스크롤 이동 문제 수정
+
+---
+
+### 변경 배경
+
+제작 등록 탭에서 숫자를 입력할 때마다 화면이 깜박이고 스크롤 위치가 초기화되는 문제가 있었음.
+
+---
+
+### 원인
+
+`input` 이벤트 발생 시마다 `renderCraftTable()`을 호출하여 테이블 전체를 DOM에서 삭제하고 다시 생성했기 때문. 전체 재렌더링으로 인해 깜박임과 스크롤 위치 초기화가 발생.
+
+---
+
+### 수정 내용
+
+**`scripts/eq_weapon.js`**
+
+- `updateCraftTotals()` 함수 신규 추가
+  - 기존 DOM은 그대로 유지하고 합계 셀 숫자만 업데이트
+  - 캐릭터별 합계 셀(각 행 마지막 `td`) 갱신
+  - 재료별 합계 행(마지막 `tr`) 갱신
+  - 전체 합계 셀 갱신
+
+- `input` 이벤트 핸들러 수정
+  - 수정 전: `renderCraftTable()` 호출 (전체 재렌더링)
+  - 수정 후: `updateCraftTotals()` 호출 (합계만 갱신)
+
+- `renderCraftTable()`은 기존대로 탭 전환 / 계산 / 실행취소 시에만 호출
+
+**수정 파일:** `scripts/eq_weapon.js`
+
+---
+
+### 결과
+
+- 숫자 입력 시 깜박임 없음
+- 스크롤 위치 유지
+
+---
+
+## 2026-03-02 (54차)
+
+### 캐릭터 관리 탭 - 모바일 버튼 크기 및 장비 표 스크롤 구조 수정
+
+---
+
+### 변경 배경
+
+모바일(844px 기준)에서 두 가지 문제 발생:
+1. 캐릭터 추가/전체 잠금/기본/비교/검색/태그 버튼(`ctrl-btn`)과 잠금/해제/삭제/순서변경 버튼이 모바일에서 크기가 줄어들지 않음
+2. 직업/이름 표는 전체 페이지 가로 스크롤로 볼 수 있는데, 장비 표는 컨테이너 안에서만 스크롤되어 구조가 다름
+
+---
+
+### 원인 분석
+
+**버튼 크기 문제**
+- CSS 선언 순서 문제: 기본 `.ctrl-btn` 스타일(2200번대 줄)이 미디어쿼리(300번대 줄)보다 뒤에 위치하여 미디어쿼리 수정이 덮어씌워짐
+- `btn-char-lock`, `btn-char-unlock`, `del-btn` 버튼에 모바일 미디어쿼리 스타일이 아예 없었음
+- HTML 템플릿의 잠금/해제/삭제 버튼에 인라인 `style="width:100%"`가 있어 CSS 무시됨
+
+**장비 표 스크롤 문제**
+- `.table-container`에 `overflow-x: auto`가 설정되어 장비 표가 컨테이너 안에서만 스크롤됨
+- 직업/이름 표(`char-info-table`)는 overflow 설정 없이 전체 페이지 스크롤
+
+---
+
+### 수정 내용
+
+**`merged.css`**
+
+버튼 크기:
+- `max-width: 1024px` 미디어쿼리에 `.ctrl-btn` `!important` 추가
+- `max-width: 1024px` 미디어쿼리에 `.btn-char-lock`, `.btn-char-unlock`, `.del-btn`, `.btn-move` 크기 축소 추가
+- `max-width: 480px` 미디어쿼리에 `.ctrl-btn`, `.btn-char-lock` 등 `!important` 추가
+- 중복 미디어쿼리 3세트(`max-width: 1024px`, `max-width: 767px`, `max-width: 480px`) → 1세트로 통합
+- `.control-bar button` → `.ctrl-btn`으로 교체 (일반 미디어쿼리 + orientation 미디어쿼리 모두)
+
+장비 표 스크롤:
+- `.table-container` `overflow-x: auto` → `visible` (기본 스타일 + 미디어쿼리 전체)
+- `portrait` 미디어쿼리의 `table-container` 내 `overflow-x: auto`, scrollbar 스타일 제거 → `overflow-x: visible`로 교체
+- `min-width: 700px`, `min-width: 800px` 제거
+
+**`merged.html`**
+
+- 잠금/해제/삭제 버튼 인라인 `style`에서 `width: 100%` 제거
+
+---
+
+### 참고
+
+- 중복 미디어쿼리 제거 시 두 블록의 차이: 첫 번째 블록은 `font-size: var(--fs-button)`, 두 번째 블록은 `font-size: var(--fs-xs)` → 두 번째 기준으로 통합
+- `.section-view`의 `padding-top` 값 변경 시 `.control-bar`의 `padding-top`도 같이 맞춰야 함 (52차 참고)
+- `portrait` 미디어쿼리의 scrollbar 스타일은 `overflow-x: visible` 전환으로 적용 대상이 없어져 함께 제거
+
+**수정 파일:** `merged.css`, `merged.html`
+
+---
+
+## 2026-03-02 (55차)
 
 ### 세트/접두어/강화 팝업 - 동작 개선 통합
 

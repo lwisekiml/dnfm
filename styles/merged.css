@@ -241,9 +241,9 @@
         gap: var(--spacing-md);
     }
 
-    #section-detail-view .control-bar button {
-        font-size: var(--fs-button);
-        padding: var(--padding-sm);
+    #section-detail-view .ctrl-btn {
+        font-size: var(--fs-xs) !important;
+        padding: var(--padding-sm) !important;
     }
 
     #section-detail-view table {
@@ -275,19 +275,17 @@
         align-items: stretch;
     }
 
-    #section-detail-view .control-bar button {
+    #section-detail-view .ctrl-btn {
         width: 100%;
         margin-left: 0 !important;
     }
 
     #section-detail-view .table-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+        overflow-x: visible;
     }
 
     #section-detail-view table {
         font-size: 9px;
-        min-width: 800px;
     }
 
     #section-detail-view .col-char-info {
@@ -325,14 +323,13 @@
         gap: var(--spacing-sm);
     }
 
-    #section-detail-view .control-bar button {
-        font-size: 10px;
-        padding: 6px 8px;
+    #section-detail-view .ctrl-btn {
+        font-size: 10px !important;
+        padding: 6px 8px !important;
     }
 
     #section-detail-view table {
         font-size: 8px;
-        min-width: 700px;
     }
 
     #section-detail-view th, #section-detail-view td {
@@ -342,11 +339,6 @@
     #section-detail-view input, #section-detail-view select {
         font-size: 8px;
         padding: 1px;
-    }
-
-    #section-detail-view .btn-action, #section-detail-view .btn-mode {
-        padding: 4px 6px;
-        font-size: 10px;
     }
 
     /* 비교 테이블 최적화 */
@@ -373,7 +365,7 @@
 
 /* 프린트 스타일 */
 @media print {
-    #section-detail-view .control-bar, #section-detail-view .btn-action, #section-detail-view .btn-mode, #section-detail-view .btn-all-lock, #section-detail-view .btn-char-lock, #section-detail-view .btn-char-unlock, #section-detail-view .btn-move, #section-detail-view .del-btn {
+    #section-detail-view .control-bar, #section-detail-view .btn-action, #section-detail-view .ctrl-btn, #section-detail-view .btn-char-lock, #section-detail-view .btn-char-unlock, #section-detail-view .btn-move, #section-detail-view .del-btn {
         display: none !important;
     }
 
@@ -388,306 +380,6 @@
 
     #section-detail-view .char-section {
         page-break-inside: avoid;
-    }
-}
-
-
-/* ========================================
-   반응형 디자인 (Responsive Design)
-======================================== */
-
-/* 태블릿 (768px ~ 1024px) */
-@media screen and (max-width: 1024px) {
-    #section-detail-view {
-        padding: var(--spacing-md);
-    }
-
-    #section-detail-view .control-bar {
-        flex-wrap: wrap;
-        gap: var(--spacing-md);
-    }
-
-    #section-detail-view .control-bar button {
-        font-size: var(--fs-xs);
-        padding: var(--padding-sm);
-    }
-
-    #section-detail-view table {
-        font-size: 10px;
-    }
-
-    #section-detail-view th, #section-detail-view td {
-        padding: 1px;
-    }
-
-    #section-detail-view .col-char-info {
-        width: 100px !important;
-    }
-}
-
-/* 모바일 가로 (481px ~ 767px) */
-@media screen and (max-width: 767px) {
-    #section-detail-view {
-        padding: var(--spacing-sm);
-    }
-
-    #section-detail-view h2 {
-        font-size: var(--fs-md);
-        padding-bottom: var(--spacing-sm);
-    }
-
-    #section-detail-view .control-bar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    #section-detail-view .control-bar button {
-        width: 100%;
-        margin-left: 0 !important;
-    }
-
-    #section-detail-view .table-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    #section-detail-view table {
-        font-size: 9px;
-        min-width: 800px;
-    }
-
-    #section-detail-view .col-char-info {
-        min-width: 80px;
-    }
-
-    /* 비교 모드 */
-    #section-detail-view .compare-select-container {
-        flex-direction: column;
-    }
-
-    #section-detail-view .compare-table {
-        font-size: 9px;
-    }
-
-    /* 모달 */
-    #section-detail-view #skillRunemodal, #section-detail-view #historyModal {
-        width: 90%;
-        max-width: 320px;
-    }
-}
-
-/* 모바일 세로 (~ 480px) */
-@media screen and (max-width: 480px) {
-    #section-detail-view {
-        padding: var(--spacing-xs);
-    }
-
-    #section-detail-view h2 {
-        font-size: var(--fs-sm);
-        margin-bottom: var(--spacing-md);
-    }
-
-    #section-detail-view .control-bar {
-        gap: var(--spacing-sm);
-    }
-
-    #section-detail-view .control-bar button {
-        font-size: 10px;
-        padding: 6px 8px;
-    }
-
-    #section-detail-view table {
-        font-size: 8px;
-        min-width: 700px;
-    }
-
-    #section-detail-view th, #section-detail-view td {
-        padding: 0px 1px;
-    }
-
-    #section-detail-view input, #section-detail-view select {
-        font-size: 8px;
-        padding: 1px;
-    }
-
-    #section-detail-view .btn-action, #section-detail-view .btn-mode {
-        padding: 4px 6px;
-        font-size: 10px;
-    }
-
-    /* 비교 테이블 최적화 */
-    #section-detail-view .compare-table {
-        font-size: 8px;
-    }
-
-    #section-detail-view .compare-table th, #section-detail-view .compare-table td {
-        padding: 2px 1px;
-    }
-}
-
-/* 대형 화면 (1920px 이상) */
-@media screen and (min-width: 1920px) {
-    #section-detail-view {
-        max-width: 1800px;
-        margin: 0 auto;
-    }
-
-    #section-detail-view table {
-        font-size: var(--fs-sm);
-    }
-}
-
-/* 프린트 스타일 */
-@media print {
-    #section-detail-view .control-bar, #section-detail-view .btn-action, #section-detail-view .btn-mode, #section-detail-view .btn-all-lock, #section-detail-view .btn-char-lock, #section-detail-view .btn-char-unlock, #section-detail-view .btn-move, #section-detail-view .del-btn {
-        display: none !important;
-    }
-
-    #section-detail-view {
-        background: white;
-        color: black;
-    }
-
-    #section-detail-view table {
-        border-color: black;
-    }
-
-    #section-detail-view .char-section {
-        page-break-inside: avoid;
-    }
-}
-
-
-/* ========================================
-   반응형 디자인 (Responsive Design)
-======================================== */
-
-/* 태블릿 (768px ~ 1024px) */
-@media screen and (max-width: 1024px) {
-    #section-detail-view {
-        padding: var(--spacing-md);
-    }
-
-    #section-detail-view .control-bar {
-        flex-wrap: wrap;
-        gap: var(--spacing-md);
-    }
-
-    #section-detail-view .control-bar button {
-        font-size: var(--fs-xs);
-        padding: var(--padding-sm);
-    }
-
-    #section-detail-view table {
-        font-size: 10px;
-    }
-
-    #section-detail-view th, #section-detail-view td {
-        padding: 1px;
-    }
-
-    #section-detail-view .col-char-info {
-        width: 100px !important;
-    }
-}
-
-/* 모바일 가로 (481px ~ 767px) */
-@media screen and (max-width: 767px) {
-    #section-detail-view {
-        padding: var(--spacing-sm);
-    }
-
-    #section-detail-view h2 {
-        font-size: var(--fs-md);
-        padding-bottom: var(--spacing-sm);
-    }
-
-    #section-detail-view .control-bar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    #section-detail-view .control-bar button {
-        width: 100%;
-        margin-left: 0 !important;
-    }
-
-    #section-detail-view .table-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    #section-detail-view table {
-        font-size: 9px;
-        min-width: 800px;
-    }
-
-    #section-detail-view .col-char-info {
-        min-width: 80px;
-    }
-
-    /* 비교 모드 */
-    #section-detail-view .compare-select-container {
-        flex-direction: column;
-    }
-
-    #section-detail-view .compare-table {
-        font-size: 9px;
-    }
-
-    /* 모달 */
-    #section-detail-view #skillRunemodal, #section-detail-view #historyModal {
-        width: 90%;
-        max-width: 320px;
-    }
-}
-
-/* 모바일 세로 (~ 480px) */
-@media screen and (max-width: 480px) {
-    #section-detail-view {
-        padding: var(--spacing-xs);
-    }
-
-    #section-detail-view h2 {
-        font-size: var(--fs-sm);
-        margin-bottom: var(--spacing-md);
-    }
-
-    #section-detail-view .control-bar {
-        gap: var(--spacing-sm);
-    }
-
-    #section-detail-view .control-bar button {
-        font-size: 10px;
-        padding: 6px 8px;
-    }
-
-    #section-detail-view table {
-        font-size: 8px;
-        min-width: 700px;
-    }
-
-    #section-detail-view th, #section-detail-view td {
-        padding: 0px 1px;
-    }
-
-    #section-detail-view input, #section-detail-view select {
-        font-size: 8px;
-        padding: 1px;
-    }
-
-    #section-detail-view .btn-action, #section-detail-view .btn-mode {
-        padding: 4px 6px;
-        font-size: 10px;
-    }
-
-    /* 비교 테이블 최적화 */
-    #section-detail-view .compare-table {
-        font-size: 8px;
-    }
-
-    #section-detail-view .compare-table th, #section-detail-view .compare-table td {
-        padding: 2px 1px;
     }
 }
 
@@ -731,7 +423,7 @@
         padding: var(--spacing-xs) 0;
     }
 
-    #section-detail-view .control-bar button {
+    #section-detail-view .ctrl-btn {
         flex: 1 1 calc(25% - var(--spacing-xs));
         min-width: 80px;
         padding: var(--spacing-xs) var(--spacing-sm);
@@ -799,7 +491,7 @@
         gap: var(--spacing-sm);
     }
 
-    #section-detail-view .control-bar button {
+    #section-detail-view .ctrl-btn {
         padding: var(--spacing-sm) var(--spacing-md);
     }
 
@@ -820,31 +512,9 @@
 
 /* 3. 모바일 세로 모드 (Portrait) - 추가 최적화 */
 @media screen and (max-width: 767px) and (orientation: portrait) {
-    /* 세로 모드에서는 너비가 부족하므로 수평 스크롤 강화 */
+    /* 세로 모드에서는 전체 페이지 가로 스크롤로 표 전체 표시 (직업/이름 표와 동일) */
     #section-detail-view .table-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        /* 스크롤바 항상 표시 */
-        scrollbar-width: thin;
-        scrollbar-color: var(--gold) var(--bg-dark);
-    }
-
-    #section-detail-view .table-container::-webkit-scrollbar {
-        height: 8px;
-    }
-
-    #section-detail-view .table-container::-webkit-scrollbar-track {
-        background: var(--bg-dark);
-    }
-
-    #section-detail-view .table-container::-webkit-scrollbar-thumb {
-        background: var(--gold);
-        border-radius: 4px;
-    }
-
-    /* 테이블 최소 너비 보장 */
-    #section-detail-view table {
-        min-width: 800px;
+        overflow-x: visible;
     }
 
     /* 컨트롤바 세로 배치 최적화 */
@@ -853,7 +523,7 @@
         align-items: stretch;
     }
 
-    #section-detail-view .control-bar button {
+    #section-detail-view .ctrl-btn {
         width: 100%;
         text-align: center;
     }
@@ -876,7 +546,7 @@
         justify-content: center;
     }
 
-    #section-detail-view .control-bar button {
+    #section-detail-view .ctrl-btn {
         flex: 0 1 auto;
     }
 
@@ -1063,7 +733,7 @@
     color: var(--color-black);
 }
 
-/* 8. 터치 타겟 최소 크기 보장 */
+/* 8. 터치 타겟 최소 크기 보조장비 */
 @media (pointer: coarse) {
     #section-detail-view button, #section-detail-view a, #section-detail-view input[type="checkbox"], #section-detail-view input[type="radio"] {
         min-width: 44px;
@@ -1106,7 +776,7 @@
 }
 
 @media print {
-    #section-detail-view .control-bar, #section-detail-view .btn-action, #section-detail-view .btn-mode, #section-detail-view .btn-all-lock, #section-detail-view .btn-char-lock, #section-detail-view .btn-char-unlock, #section-detail-view .btn-move, #section-detail-view .del-btn {
+    #section-detail-view .control-bar, #section-detail-view .btn-action, #section-detail-view .ctrl-btn, #section-detail-view .btn-char-lock, #section-detail-view .btn-char-unlock, #section-detail-view .btn-move, #section-detail-view .del-btn {
         display: none !important;
     }
 
@@ -1161,7 +831,7 @@
     top: 0;
     background: var(--bg);
     z-index: var(--z-sticky);
-    padding: var(--spacing-md) 0;
+    padding: 15px 0 0 0;
 }
 
 #section-detail-view .char-section {
@@ -1204,7 +874,7 @@
 }
 
 #section-detail-view .table-container {
-    overflow-x: auto;
+    overflow-x: visible;
 }
 
 /* ========================================
@@ -1345,17 +1015,6 @@
     background: var(--btn-add);
 }
 
-#section-detail-view .btn-all-lock {
-    background: linear-gradient(135deg, #555e7a, #3a4260);
-    color: #fff;
-    border: none;
-    padding: 8px 14px;
-    cursor: pointer;
-    border-radius: 6px;
-    font-weight: bold;
-    margin-left: var(--spacing-lg);
-    transition: 0.2s;
-}
 
 #section-detail-view .btn-char-lock {
     background: var(--btn-lock);
@@ -1378,25 +1037,6 @@
 
 #section-detail-view .btn-active {
     border: var(--border-width-heavy) var(--border-style) var(--color-white) !important;
-}
-
-/* 캐릭터 관리 - 기본, 비교, 검색, 태그 배경색 / 모든 btn-mode (안 눌린 상태) */
-#section-detail-view .btn-mode {
-    background: linear-gradient(135deg, #e6a817, #e6a817);
-    color: #fff;
-    border: none;
-    padding: 8px 14px;
-    cursor: pointer;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: var(--fs-button);
-    transition: 0.2s;
-}
-
-/* 눌린 상태 */
-#section-detail-view .btn-mode.active {
-    background: linear-gradient(135deg, #e6a800, #e6a800);
-    border: 2px solid #fff;
 }
 
 #section-detail-view .btn-move {
@@ -2214,10 +1854,11 @@ h2 {
 /* ========================================
    2. 공통 버튼 스타일
    ======================================== */
+/* JSON 저장(백업), JSON 경로 지정 저장, JSON 불러오기, 최근 업데이트, 설정 */
 .action-btn, .file-label {
     min-width: 140px;
     text-align: center;
-    padding: 10px 16px;
+    padding: 5px 8px;
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
@@ -2248,26 +1889,57 @@ h2 {
     display: none;
 }
 
-.add-btn {
+/* 획득 장비 등록 - 편집 버튼 */
+.edit-btn {
     background: linear-gradient(135deg, #ffd700, #e6b800);
     border: none;
     color: #fff;
-    padding: 8px 14px;
+    padding: 4px 7px;
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
     transition: 0.2s;
 }
 
-.add-btn:hover {
+.edit-btn:hover {
     background: linear-gradient(135deg, #e6b800, #ffd700);
+}
+
+/* 캐릭터 관리 - 캐릭터 추가, 전체 잠금, 기본, 비교, 검색, 태그 버튼 */
+.ctrl-btn {
+    background: linear-gradient(135deg, #e6a817, #e6a817);
+    border: none;
+    color: #fff;
+    padding: 4px 7px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: var(--fs-button);
+    transition: 0.2s;
+}
+
+.ctrl-btn:hover {
+    opacity: 0.85;
+}
+
+.ctrl-btn.active {
+    background: linear-gradient(135deg, #e6a800, #e6a800);
+    border: 2px solid #fff;
+}
+
+/* ========================================
+   탭 섹션 공통 상단 여백
+   - 이 값 하나로 모든 탭의 툴바/버튼과의 거리 조절 가능
+======================================== */
+.section-view {
+    padding-top: 15px;
 }
 
 /* ========================================
    3. 툴바 영역
    ======================================== */
 .toolbar {
-    margin: 15px 0;
+    margin: 0;
     display: flex;
     gap: 10px;
     align-items: center;
@@ -2535,9 +2207,9 @@ tr.set5 {
     margin-top: 20px;
 }
 
-/* 모달 버튼 공통 */
+/* 모달 버튼 공통(획득 장비 등록, 무기 등록, 장비 현황, 제작 등록, 캐릭터 관리 버튼) */
 .modal-btn {
-    padding: 10px 20px;
+    padding: 5px 8px;
     border: none;
     border-radius: 6px;
     font-weight: bold;

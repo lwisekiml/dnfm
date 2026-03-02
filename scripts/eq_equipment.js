@@ -283,6 +283,24 @@ function makeSetButton(setName, char) {
     return btn;
 }
 
+// ─────────────────────────────────────────
+// 9.0 마법봉인 헤더 표시 헬퍼
+// ─────────────────────────────────────────
+function getSealHeaderHtml(char, slot) {
+    const slotData = char.inputs?.[slot] || {};
+    const seal1 = slotData['seal1']?.val || '';
+    const seal1val = slotData['seal1_val']?.val || '';
+    const seal2 = slotData['seal2']?.val || '';
+    const seal2val = slotData['seal2_val']?.val || '';
+
+    const part1 = seal1 ? `${seal1} ${seal1val}`.trim() : '-';
+    const part2 = seal2 ? `${seal2} ${seal2val}`.trim() : '-';
+
+    const text = `${part1} / ${part2}`;
+
+    return `<div style="color:#aad4ff; font-size:0.78em; margin-top:3px; white-space:nowrap;">${text}</div>`;
+}
+
 function openSet(setName, char) {
     if (currentSetName !== setName || currentChar?.id !== char.id) {
         currentFilter = 'ALL';
@@ -326,7 +344,8 @@ function openSet(setName, char) {
             } else {
                 displayName = displayNames ? (displayNames[s] || s) : s;
             }
-            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div></th>`;
+            const sealHtml = getSealHeaderHtml(char, s);
+            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div>${sealHtml}</th>`;
         }).join("");
         table1.innerHTML = `<thead><tr>
   <th style="white-space:nowrap; padding:8px;">세트 이름</th>
@@ -419,7 +438,8 @@ function openSet(setName, char) {
             } else {
                 displayName = displayNames[s] || s;
             }
-            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div></th>`;
+            const sealHtml = getSealHeaderHtml(char, s);
+            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div>${sealHtml}</th>`;
         }).join("");
         accTable1.innerHTML = `<thead><tr>
   <th style="white-space:nowrap; padding:8px;">세트 이름</th>
@@ -539,7 +559,8 @@ function openSet(setName, char) {
             } else {
                 displayName = displayNames[s] || s;
             }
-            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div></th>`;
+            const sealHtml = getSealHeaderHtml(char, s);
+            return `<th style="white-space:nowrap; font-size:0.9em; padding:8px; text-align:center;"><div style="color:#888; font-size:0.85em; margin-bottom:3px;">${s}</div><div>${displayName}</div>${sealHtml}</th>`;
         }).join("");
         armTable2.innerHTML = `<thead><tr>
   <th style="white-space:nowrap; padding:8px;">세트 이름</th>
@@ -590,7 +611,8 @@ function openSet(setName, char) {
     } else {
         // 방어구 기존 로직 (ARMOR_DISPLAY_NAMES 없는 경우)
         const headerSlots = slots.map(s => {
-            return `<th style="max-width:150px; white-space:normal; font-size:0.9em; line-height:1.3; padding:8px;">${s}</th>`;
+            const sealHtml = getSealHeaderHtml(char, s);
+            return `<th style="max-width:150px; white-space:normal; font-size:0.9em; line-height:1.3; padding:8px;">${s}${sealHtml}</th>`;
         }).join("");
         table.innerHTML = `<thead><tr>
   <th style="max-width:200px; white-space:normal;">세트 이름</th>
@@ -1581,6 +1603,8 @@ function renderCharacterEquipmentDetail(char) {
             html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: normal; max-width: 120px; font-size: 0.85em; line-height: 1.2;">${slot}</th>`;
         });
 
+        html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">달성</th>`;
+
         html += `</tr></thead><tbody>`;
 
         // 각 세트별 데이터
@@ -1697,11 +1721,27 @@ function renderCharacterEquipmentDetail(char) {
                     }
                 });
 
+                // 달성 열
+                if (row.type === 'exceed') {
+                    html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center;"></td>`;
+                } else {
+                    const achieved = setSlots.filter(slot => (row.slots[slot] || 0) > 0).length;
+                    const fullSize = setSlots.length;
+                    let achieveColor = "#fff";
+                    if (fullSize === 5) {
+                        if (achieved === 5) achieveColor = "#ffd700";
+                        else if (achieved >= 3) achieveColor = "#2ecc71";
+                    } else {
+                        if (achieved === 3) achieveColor = "#2ecc71";
+                    }
+                    html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; font-weight: bold; color: ${achieveColor};">${achieved}</td>`;
+                }
+
                 html += `</tr>`;
             });
 
             // 세트 구분선 (두꺼운 선)
-            html += `<tr style="height: 3px; background: #2a3158;"><td colspan="${3 + setSlots.length}" style="padding: 0; border: none;"></td></tr>`;
+            html += `<tr style="height: 3px; background: #2a3158;"><td colspan="${4 + setSlots.length}" style="padding: 0; border: none;"></td></tr>`;
         });
 
         html += `</tbody></table>`;
@@ -2065,6 +2105,7 @@ function searchEquipment() {
             set.slots.forEach(slot => {
                 html += `<th style="padding:10px; border:1px solid #2a3158; white-space:normal; max-width:120px; font-size:0.85em; line-height:1.2;">${slot}</th>`;
             });
+            html += `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">달성</th>`;
             html += `</tr></thead><tbody>`;
 
             characters.forEach(char => {
@@ -2128,10 +2169,27 @@ function searchEquipment() {
                         const count = row.slots[slot] || 0;
                         html += `<td style="padding:10px; border:1px solid #2a3158; text-align:center; color:#fff; font-weight:bold;">${count > 0 ? count : ''}</td>`;
                     });
+
+                    // 달성 열
+                    if (row.exceed) {
+                        html += `<td style="padding:10px; border:1px solid #2a3158; text-align:center;"></td>`;
+                    } else {
+                        const achieved = set.slots.filter(slot => (row.slots[slot] || 0) > 0).length;
+                        const fullSize = set.slots.length;
+                        let achieveColor = "#fff";
+                        if (fullSize === 5) {
+                            if (achieved === 5) achieveColor = "#ffd700";
+                            else if (achieved >= 3) achieveColor = "#2ecc71";
+                        } else {
+                            if (achieved === 3) achieveColor = "#2ecc71";
+                        }
+                        html += `<td style="padding:10px; border:1px solid #2a3158; text-align:center; font-weight:bold; color:${achieveColor};">${achieved}</td>`;
+                    }
+
                     html += `</tr>`;
                 });
 
-                html += `<tr style="height:3px; background:#666;"><td colspan="${3 + set.slots.length}" style="padding:0; border:none;"></td></tr>`;
+                html += `<tr style="height:3px; background:#666;"><td colspan="${4 + set.slots.length}" style="padding:0; border:none;"></td></tr>`;
             });
 
             html += `</tbody></table>`;
