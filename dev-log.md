@@ -2394,3 +2394,52 @@ project/
 
 ---
 
+## 2026-03-02 (51차)
+
+### 버튼 스타일 정리 및 통합
+
+---
+
+### 변경 배경
+
+상단 툴바 버튼(JSON 저장/불러오기)과 캐릭터 관리 탭 버튼들이 서로 다른 클래스를 사용하고 있어 크기 조절 시 여러 곳을 수정해야 하는 불편함이 있었음. 또한 `<label>` 태그로 구현된 JSON 불러오기 버튼이 `<button>`과 렌더링 크기가 달랐음.
+
+---
+
+### 수정 내용
+
+**`merged.html`**
+
+- JSON 불러오기: `<label class="file-label">` → `<button class="action-btn">` 으로 변경
+  - `<input type="file">`은 바깥으로 분리, 버튼 클릭 시 `document.getElementById('jsonFile').click()`으로 동작
+- JSON 경로 지정 저장: `class="char-btn"` → `class="action-btn"` 으로 변경
+  - 세 JSON 버튼(저장/경로지정저장/불러오기) 모두 `action-btn`으로 통일
+- 획득 장비 등록 탭 편집 버튼: `class="add-btn"` → `class="edit-btn"` 으로 변경
+- 캐릭터 관리 탭 6개 버튼: 모두 `class="ctrl-btn"` 으로 통일
+  - 캐릭터 추가: `add-btn` → `ctrl-btn`
+  - 전체 잠금: `btn-all-lock` → `ctrl-btn`
+  - 기본/비교/검색/태그: `btn-mode` → `ctrl-btn`
+
+**`merged.css`**
+
+- `.file-label` 관련 스타일 사실상 미사용 (JSON 불러오기가 button으로 전환됨)
+- `.add-btn` → `.edit-btn` 으로 클래스명 변경 (편집 버튼 전용)
+- `.ctrl-btn` 신규 추가: 캐릭터 관리 탭 6개 버튼 공통 스타일
+- `.ctrl-btn.active` 추가: 기본/비교/검색/태그 눌린 상태 스타일
+- `#section-detail-view .btn-all-lock` 제거 → `.ctrl-btn`으로 통합
+- `#section-detail-view .btn-mode` / `.btn-mode.active` 제거 → `.ctrl-btn`으로 통합
+- `#section-detail-view .ctrl-btn` 중복 블록 제거 → `.ctrl-btn` 단일 블록으로 통합
+- 미디어쿼리(초소형/소형 화면) 및 프린트 스타일에서 `btn-mode`, `btn-all-lock` → `ctrl-btn` 으로 교체
+
+**수정 파일:** `merged.html`, `merged.css`
+
+---
+
+### 결과
+
+- JSON 저장/경로지정저장/불러오기: `.action-btn` 하나로 크기 통합 관리
+- 캐릭터 관리 탭 6개 버튼: `.ctrl-btn` 하나로 크기 통합 관리
+- 획득 장비 등록 탭 편집 버튼: `.edit-btn` 으로 독립 관리
+
+---
+

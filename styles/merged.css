@@ -344,7 +344,7 @@
         padding: 1px;
     }
 
-    #section-detail-view .btn-action, #section-detail-view .btn-mode {
+    #section-detail-view .btn-action, #section-detail-view .ctrl-btn {
         padding: 4px 6px;
         font-size: 10px;
     }
@@ -373,7 +373,7 @@
 
 /* 프린트 스타일 */
 @media print {
-    #section-detail-view .control-bar, #section-detail-view .btn-action, #section-detail-view .btn-mode, #section-detail-view .btn-all-lock, #section-detail-view .btn-char-lock, #section-detail-view .btn-char-unlock, #section-detail-view .btn-move, #section-detail-view .del-btn {
+    #section-detail-view .control-bar, #section-detail-view .btn-action, #section-detail-view .ctrl-btn, #section-detail-view .btn-char-lock, #section-detail-view .btn-char-unlock, #section-detail-view .btn-move, #section-detail-view .del-btn {
         display: none !important;
     }
 
@@ -510,7 +510,7 @@
         padding: 1px;
     }
 
-    #section-detail-view .btn-action, #section-detail-view .btn-mode {
+    #section-detail-view .btn-action, #section-detail-view .ctrl-btn {
         padding: 4px 6px;
         font-size: 10px;
     }
@@ -539,7 +539,7 @@
 
 /* 프린트 스타일 */
 @media print {
-    #section-detail-view .control-bar, #section-detail-view .btn-action, #section-detail-view .btn-mode, #section-detail-view .btn-all-lock, #section-detail-view .btn-char-lock, #section-detail-view .btn-char-unlock, #section-detail-view .btn-move, #section-detail-view .del-btn {
+    #section-detail-view .control-bar, #section-detail-view .btn-action, #section-detail-view .ctrl-btn, #section-detail-view .btn-char-lock, #section-detail-view .btn-char-unlock, #section-detail-view .btn-move, #section-detail-view .del-btn {
         display: none !important;
     }
 
@@ -676,7 +676,7 @@
         padding: 1px;
     }
 
-    #section-detail-view .btn-action, #section-detail-view .btn-mode {
+    #section-detail-view .btn-action, #section-detail-view .ctrl-btn {
         padding: 4px 6px;
         font-size: 10px;
     }
@@ -1106,7 +1106,7 @@
 }
 
 @media print {
-    #section-detail-view .control-bar, #section-detail-view .btn-action, #section-detail-view .btn-mode, #section-detail-view .btn-all-lock, #section-detail-view .btn-char-lock, #section-detail-view .btn-char-unlock, #section-detail-view .btn-move, #section-detail-view .del-btn {
+    #section-detail-view .control-bar, #section-detail-view .btn-action, #section-detail-view .ctrl-btn, #section-detail-view .btn-char-lock, #section-detail-view .btn-char-unlock, #section-detail-view .btn-move, #section-detail-view .del-btn {
         display: none !important;
     }
 
@@ -1345,18 +1345,6 @@
     background: var(--btn-add);
 }
 
-/* 캐릭터 관리 - 전체 잠금 버튼 */
-#section-detail-view .btn-all-lock {
-    background: linear-gradient(135deg, #555e7a, #3a4260);
-    color: #fff;
-    border: none;
-    padding: 2px 3px;
-    cursor: pointer;
-    border-radius: 6px;
-    font-weight: bold;
-    margin-left: var(--spacing-lg);
-    transition: 0.2s;
-}
 
 #section-detail-view .btn-char-lock {
     background: var(--btn-lock);
@@ -1379,25 +1367,6 @@
 
 #section-detail-view .btn-active {
     border: var(--border-width-heavy) var(--border-style) var(--color-white) !important;
-}
-
-/* 캐릭터 관리 - 기본, 비교, 검색, 태그 배경색 / 모든 btn-mode (안 눌린 상태) */
-#section-detail-view .btn-mode {
-    background: linear-gradient(135deg, #e6a817, #e6a817);
-    color: #fff;
-    border: none;
-    padding: 8px 14px;
-    cursor: pointer;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: var(--fs-button);
-    transition: 0.2s;
-}
-
-/* 눌린 상태 */
-#section-detail-view .btn-mode.active {
-    background: linear-gradient(135deg, #e6a800, #e6a800);
-    border: 2px solid #fff;
 }
 
 #section-detail-view .btn-move {
@@ -2250,20 +2219,42 @@ h2 {
     display: none;
 }
 
-/* 캐릭터 관리에서 캐릭터 추가 버튼 */
-.add-btn {
+/* 획득 장비 등록 - 편집 버튼 */
+.edit-btn {
     background: linear-gradient(135deg, #ffd700, #e6b800);
     border: none;
     color: #fff;
-    padding: 8px 14px;
+    padding: 4px 7px;
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
     transition: 0.2s;
 }
 
-.add-btn:hover {
+.edit-btn:hover {
     background: linear-gradient(135deg, #e6b800, #ffd700);
+}
+
+/* 캐릭터 관리 - 캐릭터 추가, 전체 잠금, 기본, 비교, 검색, 태그 버튼 */
+.ctrl-btn {
+    background: linear-gradient(135deg, #e6a817, #e6a817);
+    border: none;
+    color: #fff;
+    padding: 4px 7px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: var(--fs-button);
+    transition: 0.2s;
+}
+
+.ctrl-btn:hover {
+    opacity: 0.85;
+}
+
+.ctrl-btn.active {
+    background: linear-gradient(135deg, #e6a800, #e6a800);
+    border: 2px solid #fff;
 }
 
 /* ========================================

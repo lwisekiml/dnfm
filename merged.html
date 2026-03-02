@@ -177,7 +177,7 @@
 <div id="section-character-view">
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
         <h2 style="margin:0;">[캐릭터]</h2>
-        <button id="edit-order-btn" class="add-btn" style="background: linear-gradient(135deg, #3399cc, #2a6f9e);"
+        <button id="edit-order-btn" class="edit-btn" style="background: linear-gradient(135deg, #3399cc, #2a6f9e);"
                 onclick="toggleEditMode()">✏️편집</button>
     </div>
 
@@ -268,12 +268,12 @@
 
     <!-- 컨트롤바 -->
     <div class="control-bar">
-        <button onclick="addCharacter()" class="add-btn" style="background: linear-gradient(135deg, #25c2a0, #1a8a70); color: #fff;">➕ 캐릭터 추가</button>
-        <button onclick="lockAllCharacters()" class="btn-all-lock">전체 잠금</button>
-        <button class="btn-mode active" id="btnBasicMode" onclick="switchToBasicMode()">📋 기본</button>
-        <button class="btn-mode" id="btnCompareMode" onclick="enterCompareMode()">⚖️ 비교</button>
-        <button class="btn-mode" id="btnSearchMode" onclick="enterSearchMode()">🔍 검색</button>
-        <button class="btn-mode" id="btnTagFilter" onclick="toggleTagFilterPanel()">🏷️ 태그</button>
+        <button onclick="addCharacter()" class="ctrl-btn" style="background: linear-gradient(135deg, #25c2a0, #1a8a70);">➕ 캐릭터 추가</button>
+        <button onclick="lockAllCharacters()" class="ctrl-btn" style="background: linear-gradient(135deg, #555e7a, #3a4260);">전체 잠금</button>
+        <button class="ctrl-btn active" id="btnBasicMode" onclick="switchToBasicMode()">📋 기본</button>
+        <button class="ctrl-btn" id="btnCompareMode" onclick="enterCompareMode()">⚖️ 비교</button>
+        <button class="ctrl-btn" id="btnSearchMode" onclick="enterSearchMode()">🔍 검색</button>
+        <button class="ctrl-btn" id="btnTagFilter" onclick="toggleTagFilterPanel()">🏷️ 태그</button>
         <span id="statusMsg" class="status-msg"></span>
     </div>
 
