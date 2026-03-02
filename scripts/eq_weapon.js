@@ -759,7 +759,7 @@ function renderCraftTable() {
                 }
 
                 saveLocalData();
-                renderCraftTable(); // 합계 갱신을 위해 재렌더링
+                updateCraftTotals(); // 전체 재렌더링 없이 합계만 갱신
             });
 
             // 잠금 상태에서 td 클릭 → 선택 토글
@@ -904,6 +904,49 @@ function renderCraftTable() {
     area.appendChild(specialTable);
     area.appendChild(table);
     setCraftLock(craftLocked);
+}
+
+// 재렌더링 없이 합계만 갱신 (깜박임/스크롤 이동 방지)
+function updateCraftTotals() {
+    const table = document.querySelector("#craft-table-area table:last-child");
+    if (!table) return;
+
+    const materials = [
+        "망가진 기계 캡슐", "스펙쿨룸 파편", "망가진 강철 톱니바퀴", "강철 화로의 파편",
+        "빛의 저장소", "마누스 메모리얼", "데이터 칩 상자", "강화된 데이터 칩 상자"
+    ];
+
+    const rows = table.querySelectorAll("tr");
+    // 첫 행은 헤더, 마지막 행은 합계 행
+    const dataRows = Array.from(rows).slice(1, rows.length - 1);
+    const totalRow = rows[rows.length - 1];
+    const materialTotals = new Array(materials.length).fill(0);
+    let grandTotal = 0;
+
+    // 각 캐릭터 행의 합계 셀 갱신
+    dataRows.forEach((tr, charIdx) => {
+        const char = characters[charIdx];
+        if (!char) return;
+        let charTotal = 0;
+        const inputs = tr.querySelectorAll("input.craft-input");
+        inputs.forEach((input, matIdx) => {
+            const val = parseInt(input.value) || 0;
+            materialTotals[matIdx] += val;
+            charTotal += val;
+        });
+        // 마지막 td가 캐릭터 합계 셀
+        const charTotalTd = tr.querySelector("td:last-child");
+        if (charTotalTd) charTotalTd.textContent = charTotal > 0 ? charTotal : "";
+        grandTotal += charTotal;
+    });
+
+    // 합계 행 갱신 (첫 td는 "합계" 라벨, 마지막 td는 전체 합계)
+    const totalCells = totalRow.querySelectorAll("td");
+    materialTotals.forEach((total, i) => {
+        if (totalCells[i + 1]) totalCells[i + 1].textContent = total > 0 ? total : "";
+    });
+    const grandTotalTd = totalCells[totalCells.length - 1];
+    if (grandTotalTd) grandTotalTd.textContent = grandTotal > 0 ? grandTotal : "";
 }
 
 function setCraftLock(lock) {
