@@ -297,6 +297,7 @@ const FORCED_PREFIX_ITEMS = new Set([
     "홀리 미스릴 렐릭"
 ]);
 
+
 // ※ project1 호환용: accSets
 const accSets = (() => {
     const result = {};
@@ -366,6 +367,26 @@ const SPECIAL_DISPLAY_NAMES = {
         "보조장비":   "콰트로 마누스의 에너지 코어"
     }
 };
+
+// ※ project1 호환용: SPECIAL_ITEM_INFO
+// 아이템이름 → { setName, prefixes, isExceed } 역방향 맵
+// 귀걸이 배열에서 index 0 = 익시드 아이템, index 1 = 일반 아이템
+const SPECIAL_ITEM_INFO = (() => {
+    const result = {};
+    Object.entries(SPECIAL_DISPLAY_NAMES).forEach(([setName, slotMap]) => {
+        const prefixes = SPECIAL_PREFIX[setName] || [];
+        Object.entries(slotMap).forEach(([slot, val]) => {
+            if (Array.isArray(val)) {
+                val.forEach((itemName, idx) => {
+                    if (itemName) result[itemName] = { setName, prefixes, isExceed: idx === 0 };
+                });
+            } else {
+                if (val) result[val] = { setName, prefixes, isExceed: false };
+            }
+        });
+    });
+    return result;
+})();
 
 // 특장 추가 정보 (project2 전용이지만 shared에 보관)
 const SPECIAL_EXTRA_INFO = {

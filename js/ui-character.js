@@ -153,6 +153,7 @@ function createCharacterTable(savedData = null) {
         setTimeout(() => {
             if (typeof refreshAllArmorSlotStates === 'function') refreshAllArmorSlotStates(charId);
             if (typeof refreshAllAccSlotStates === 'function') refreshAllAccSlotStates(charId);
+            if (typeof refreshAllSpecialSlotStates === 'function') refreshAllSpecialSlotStates(charId);
         }, 0);
     }
 }
@@ -274,6 +275,13 @@ function handleItemNameField(rowFragment, slot, charId) {
                 runSetCheck(slot, charId);
                 autoSave();
             };
+        } else if (slot === '귀걸이') {
+            select.onchange = () => {
+                if (typeof refreshSpecialSlotState === 'function') refreshSpecialSlotState(slot, charId);
+                updateSpecialImage(select);
+                runSetCheck(slot, charId);
+                autoSave();
+            };
         } else if (["하의", "어깨", "벨트", "신발"].includes(slot)) {
             select.onchange = () => {
                 if (typeof refreshArmorSlotState === 'function') refreshArmorSlotState(slot, charId);
@@ -298,8 +306,8 @@ function handleItemNameField(rowFragment, slot, charId) {
 
         existingField.replaceWith(select);
 
-        // 상의/팔찌 슬롯: select 왼쪽에 이미지 미리보기 공간 추가
-        if (slot === '상의' || slot === '팔찌') {
+        // 상의/팔찌/귀걸이 슬롯: select 왼쪽에 이미지 미리보기 공간 추가
+        if (slot === '상의' || slot === '팔찌' || slot === '귀걸이') {
             const img = document.createElement('img');
             img.className = 'itemname-img-preview';
             img.src = '';
@@ -393,6 +401,46 @@ function updateAccImage(select) {
     img.src = `images/ACCESSORY/${fileName}.png`;
     img.classList.add('has-image');
 }
+
+/**
+ * 귀걸이 아이템 이미지 미리보기 업데이트
+ * 파일명 규칙:
+ *   접두어 없음 → images/SPECIAL/{아이템이름}.png
+ *   접두어 있음 → images/SPECIAL/{접두어}_{아이템이름}.png
+ */
+function updateSpecialImage(select) {
+    const td = select.parentElement;
+    const img = td.querySelector('.itemname-img-preview');
+    if (!img) return;
+
+    const itemName = select.value;
+
+    img.onerror = null;
+    img.src = '';
+    img.classList.remove('has-image');
+
+    if (!itemName) {
+        img.alt = '';
+        return;
+    }
+
+    const row = select.closest('tr');
+    const prefixSel = row ? row.querySelector('select[data-key="귀걸이_prefix"]') : null;
+    const prefix = prefixSel ? prefixSel.value.trim() : "";
+
+    const safeName = itemName.replace(/:\s*/g, '_');
+    const fileName = (prefix && !safeName.startsWith(prefix + '_')) ? `${prefix}_${safeName}` : safeName;
+
+    img.alt = itemName;
+    img.onerror = function() {
+        this.onerror = null;
+        this.src = '';
+        this.classList.remove('has-image');
+    };
+    img.src = `images/SPECIAL/${fileName}.png`;
+    img.classList.add('has-image');
+}
+
 function initializePrefixSelects(section) {
     section.querySelectorAll('select[data-key$="_prefix"]').forEach(sel => {
         const slot = sel.getAttribute('data-slot');
@@ -483,23 +531,29 @@ function restoreSavedData(section, savedData, charId) {
         if (typeof refreshAllAccSlotStates === 'function') {
             refreshAllAccSlotStates(charId);
         }
+        if (typeof refreshAllSpecialSlotStates === 'function') {
+            refreshAllSpecialSlotStates(charId);
+        }
 
         // 상의 이미지 복구 (접두어 복구 완료 후 갱신)
         if (typeof updateItemImage === 'function') {
             const section = document.getElementById(charId);
             const itemnameSel = section?.querySelector('[data-key="상의_itemname"]');
-            if (itemnameSel && itemnameSel.tagName === 'SELECT') {
-                updateItemImage(itemnameSel);
-            }
+            if (itemnameSel && itemnameSel.tagName === 'SELECT') updateItemImage(itemnameSel);
         }
 
-        // 팔찌 이미지 복구 (접두어 복구 완료 후 갱신)
+        // 팔찌 이미지 복구
         if (typeof updateAccImage === 'function') {
             const section = document.getElementById(charId);
             const itemnameSel = section?.querySelector('[data-key="팔찌_itemname"]');
-            if (itemnameSel && itemnameSel.tagName === 'SELECT') {
-                updateAccImage(itemnameSel);
-            }
+            if (itemnameSel && itemnameSel.tagName === 'SELECT') updateAccImage(itemnameSel);
+        }
+
+        // 귀걸이 이미지 복구
+        if (typeof updateSpecialImage === 'function') {
+            const section = document.getElementById(charId);
+            const itemnameSel = section?.querySelector('[data-key="귀걸이_itemname"]');
+            if (itemnameSel && itemnameSel.tagName === 'SELECT') updateSpecialImage(itemnameSel);
         }
 
         applySealHighlight(charId);

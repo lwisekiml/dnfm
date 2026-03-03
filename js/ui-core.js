@@ -321,6 +321,12 @@ function refreshAccSlotState(slot, charId, isRestore = false) {
     _refreshSlotState(slot, charId, isRestore, infoMap);
 }
 
+/** 특수장비 슬롯 접두어/익시드 상태 갱신 */
+function refreshSpecialSlotState(slot, charId, isRestore = false) {
+    const infoMap = (typeof SPECIAL_ITEM_INFO !== 'undefined') ? SPECIAL_ITEM_INFO : null;
+    _refreshSlotState(slot, charId, isRestore, infoMap);
+}
+
 /** 캐릭터 전체 방어구 슬롯 상태 일괄 갱신 */
 function refreshAllArmorSlotStates(charId) {
     ["상의", "하의", "어깨", "벨트", "신발"].forEach(slot => {
@@ -332,6 +338,13 @@ function refreshAllArmorSlotStates(charId) {
 function refreshAllAccSlotStates(charId) {
     ["팔찌", "목걸이", "반지"].forEach(slot => {
         refreshAccSlotState(slot, charId, true);
+    });
+}
+
+/** 캐릭터 전체 특수장비 슬롯 상태 일괄 갱신 */
+function refreshAllSpecialSlotStates(charId) {
+    ["귀걸이", "마법석", "보조장비"].forEach(slot => {
+        refreshSpecialSlotState(slot, charId, true);
     });
 }
 
@@ -534,19 +547,22 @@ function updateStyle(el, type, isInitial = false) {
 
     }
 
-    // 방어구/악세서리 접두어 변경 시 익시드 활성화 재계산
+    // 방어구/악세서리/특수장비 접두어 변경 시 익시드 활성화 재계산
     if (type === 'prefix') {
-        const armorSlots = ["상의", "하의", "어깨", "벨트", "신발"];
-        const accSlots   = ["팔찌", "목걸이", "반지"];
+        const armorSlots   = ["상의", "하의", "어깨", "벨트", "신발"];
+        const accSlots     = ["팔찌", "목걸이", "반지"];
+        const specialSlots = ["귀걸이", "마법석", "보조장비"];
 
-        if (armorSlots.includes(slot) || accSlots.includes(slot)) {
+        if (armorSlots.includes(slot) || accSlots.includes(slot) || specialSlots.includes(slot)) {
             const exceedSel = row.querySelector(`select[data-key="${slot}_exceed"]`);
             if (exceedSel) {
                 const itemnameSel = row.querySelector(`[data-key="${slot}_itemname"]`);
                 const itemName = itemnameSel ? itemnameSel.value.trim() : "";
                 const infoMap = armorSlots.includes(slot)
-                    ? (typeof ARMOR_ITEM_INFO !== 'undefined' ? ARMOR_ITEM_INFO : null)
-                    : (typeof ACC_ITEM_INFO   !== 'undefined' ? ACC_ITEM_INFO   : null);
+                    ? (typeof ARMOR_ITEM_INFO   !== 'undefined' ? ARMOR_ITEM_INFO   : null)
+                    : accSlots.includes(slot)
+                        ? (typeof ACC_ITEM_INFO     !== 'undefined' ? ACC_ITEM_INFO     : null)
+                        : (typeof SPECIAL_ITEM_INFO !== 'undefined' ? SPECIAL_ITEM_INFO : null);
                 const info = infoMap ? infoMap[itemName] : null;
                 if (info?.isExceed && el.value !== "") {
                     exceedSel.disabled = false;
@@ -567,6 +583,12 @@ function updateStyle(el, type, isInitial = false) {
         if (slot === "팔찌" && typeof updateAccImage === 'function') {
             const itemnameSel = row.querySelector('[data-key="팔찌_itemname"]');
             if (itemnameSel) updateAccImage(itemnameSel);
+        }
+
+        // 귀걸이 슬롯: 접두어 변경 시 이미지 갱신
+        if (slot === "귀걸이" && typeof updateSpecialImage === 'function') {
+            const itemnameSel = row.querySelector('[data-key="귀걸이_itemname"]');
+            if (itemnameSel) updateSpecialImage(itemnameSel);
         }
     }
 
@@ -626,6 +648,13 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
             runSetCheck(slot, charId);
             autoSave();
         });
+    } else if (slot === '귀걸이' && rarity === '에픽') {
+        newEl.addEventListener('change', () => {
+            if (typeof refreshSpecialSlotState === 'function') refreshSpecialSlotState(slot, charId);
+            if (typeof updateSpecialImage === 'function') updateSpecialImage(newEl);
+            runSetCheck(slot, charId);
+            autoSave();
+        });
     } else if (["하의", "어깨", "벨트", "신발"].includes(slot)) {
         newEl.addEventListener('change', () => {
             if (typeof refreshArmorSlotState === 'function') refreshArmorSlotState(slot, charId);
@@ -649,8 +678,8 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
         autoSave();
     });
 
-    // 상의/팔찌 에픽: 이미지 미리보기를 select 앞에 삽입
-    if ((slot === '상의' || slot === '팔찌') && rarity === '에픽') {
+    // 상의/팔찌/귀걸이 에픽: 이미지 미리보기를 select 앞에 삽입
+    if ((slot === '상의' || slot === '팔찌' || slot === '귀걸이') && rarity === '에픽') {
         const img = document.createElement('img');
         img.className = 'itemname-img-preview';
         img.src = '';
@@ -670,6 +699,11 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
         updateAccImage(newEl);
     }
 
+    // 귀걸이 에픽: 현재 값에 맞게 이미지 즉시 업데이트
+    if (slot === '귀걸이' && rarity === '에픽' && typeof updateSpecialImage === 'function') {
+        updateSpecialImage(newEl);
+    }
+
     runSetCheck(slot, charId);
 
     // 방어구 슬롯: 접두어/익시드 상태 재계산
@@ -680,6 +714,9 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     }
     if (accSlots.includes(slot) && typeof refreshAccSlotState === 'function') {
         refreshAccSlotState(slot, charId, true);
+    }
+    if (["귀걸이", "마법석", "보조장비"].includes(slot) && typeof refreshSpecialSlotState === 'function') {
+        refreshSpecialSlotState(slot, charId, true);
     }
 }
 

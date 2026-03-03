@@ -2862,3 +2862,43 @@ project/
 - 레거시: `"아이언 엠벨리시드 밴드"` + 접두어 `"레거시"` → `레거시_아이언 엠벨리시드 밴드.png`
 
 ---
+
+## 2026-03-03 (61차)
+
+### 귀걸이 슬롯 접두어/익시드/이미지 연동 구현
+
+**수정된 파일:** `js/ui-core.js`, `js/ui-character.js`, `shared/shared_data.js`
+
+---
+
+### 변경 내용
+
+**`shared/shared_data.js`**
+
+- `SPECIAL_ITEM_INFO` 맵 추가 (`SPECIAL_DISPLAY_NAMES` + `SPECIAL_PREFIX` 기반, 기존 INFO 맵과 동일 구조)
+  - 귀걸이 배열 index 0 = 익시드, index 1 = 일반
+  - 레거시 없음
+
+**`js/ui-core.js`**
+
+- `refreshSpecialSlotState(slot, charId, isRestore)` 추가 — `SPECIAL_ITEM_INFO` 기반
+- `refreshAllSpecialSlotStates(charId)` 추가 — 귀걸이/마법석/보조장비 일괄 갱신
+- `replaceItemNameField` 이벤트 분기 확장
+  - 귀걸이: `refreshSpecialSlotState` → `updateSpecialImage` → `runSetCheck`
+  - 귀걸이 이미지 미리보기 img 태그 추가
+  - 귀걸이 에픽 즉시 이미지 갱신 추가
+  - 귀걸이/마법석/보조장비 `refreshSpecialSlotState` 호출 추가
+- 접두어 변경 시 익시드 재계산 블록을 특수장비 슬롯까지 확장
+- 귀걸이 접두어 변경 시 `updateSpecialImage` 갱신 추가
+
+**`js/ui-character.js`**
+
+- `updateSpecialImage` 함수 추가
+  - 경로: `images/SPECIAL/{접두어}_{아이템이름}.png` / `images/SPECIAL/{아이템이름}.png`
+- `handleItemNameField` 귀걸이 분기 추가
+  - `refreshSpecialSlotState` → `updateSpecialImage` → `runSetCheck`
+  - 귀걸이 이미지 미리보기 img 태그 추가
+- `restoreSavedData` setTimeout에 `refreshAllSpecialSlotStates` + 귀걸이 이미지 복구 추가
+- 신규 캐릭터 생성 시 `refreshAllSpecialSlotStates` 호출 추가
+
+---
