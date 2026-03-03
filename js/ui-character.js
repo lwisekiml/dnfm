@@ -250,16 +250,64 @@ function handleItemNameField(rowFragment, slot, charId) {
 
         // 세트 체크 이벤트 추가
         const needsSetCheck = ["상의", "하의", "어깨", "벨트", "신발"].includes(slot);
-        select.onchange = () => {
-            if (needsSetCheck) checkArmorSetColor(charId);
-            autoSave();
-        };
 
-        // 옵션 추가
-        select.innerHTML = '<option value=""></option>' +
-            itemOptions[slot].map(opt => `<option value="${opt}">${opt}</option>`).join('');
+        // 상의 슬롯: 선택 시 왼쪽 이미지 미리보기 업데이트
+        if (slot === '상의') {
+            select.onchange = () => {
+                updateItemImage(select);
+                runSetCheck(slot, charId);
+                autoSave();
+            };
+        } else {
+            select.onchange = () => {
+                runSetCheck(slot, charId);
+                autoSave();
+            };
+        }
+
+        // 옵션 추가 (itemOptions 배열 자체에 이미 첫 번째 빈 값이 포함되어 있으므로 그대로 사용)
+        select.innerHTML = itemOptions[slot].map(opt => `<option value="${opt}">${opt}</option>`).join('');
 
         existingField.replaceWith(select);
+
+        // 상의 슬롯: select 왼쪽에 이미지 미리보기 공간 추가
+        if (slot === '상의') {
+            const img = document.createElement('img');
+            img.className = 'itemname-img-preview';
+            img.src = '';
+            img.alt = '';
+            select.parentElement.insertBefore(img, select);
+        }
+    }
+}
+
+/**
+ * 상의 아이템 이미지 미리보기 업데이트
+ * 파일명 규칙: images/{아이템명}.png
+ */
+function updateItemImage(select) {
+    const td = select.parentElement;
+    const img = td.querySelector('.itemname-img-preview');
+    if (!img) return;
+
+    const value = select.value;
+
+    // 이전 onerror 핸들러 제거 후 src 초기화 (캐시 문제 방지)
+    img.onerror = null;
+    img.src = '';
+    img.classList.remove('has-image');
+
+    if (value) {
+        img.alt = value;
+        img.onerror = function() {
+            this.onerror = null;
+            this.src = '';
+            this.classList.remove('has-image');
+        };
+        img.src = `images/${value}.png`;
+        img.classList.add('has-image');
+    } else {
+        img.alt = '';
     }
 }
 
@@ -311,8 +359,9 @@ function restoreSavedData(section, savedData, charId) {
     });
 
     // 2) 모든 입력값 복구
-    const inputs = section.querySelectorAll('input[data-key], select[data-key], textarea[data-key]');
-    inputs.forEach(el => {
+    // ※ 1단계에서 updateStyle(rarity)가 replaceItemNameField를 호출해 새 select를 생성하므로
+    //   querySelectorAll을 const로 미리 저장하지 않고 직접 호출해야 새 요소도 포함됨
+    section.querySelectorAll('input[data-key], select[data-key], textarea[data-key]').forEach(el => {
         const key = el.getAttribute('data-key');
         const data = getInputData(savedData.inputs, key);
 
@@ -320,11 +369,20 @@ function restoreSavedData(section, savedData, charId) {
 
         el.value = data.val;
 
+        // 상의 아이템이름 복구 시 이미지 미리보기도 업데이트
+        if (key === '상의_itemname' && el.tagName === 'SELECT') {
+            updateItemImage(el);
+        }
+
         // 크리쳐 아티팩트 배경색 동기화
         if (key.includes('_art_') && key.includes('_bg_')) {
             updateStyle(el, 'artBg', true);
         } else if (data.cls) {
-            el.className = data.cls;
+            // set-highlight, ex-itemname-light는 구버전 저장 데이터 잔재 — 제거
+            el.className = data.cls
+                .replace(/\bset-highlight\b/g, '')
+                .replace(/\bex-itemname-light\b/g, '')
+                .trim();
         }
 
         if (key.endsWith('_prefix')) {
@@ -332,17 +390,11 @@ function restoreSavedData(section, savedData, charId) {
         }
     });
 
-    // 3) 세트 체크 및 하이라이트
+    // 3) 색상 갱신 및 기타 후처리
     setTimeout(() => {
-        if (typeof checkArmorSetColor === "function") {
-            checkArmorSetColor(charId);
+        if (typeof refreshAllItemNameColors === 'function') {
+            refreshAllItemNameColors(charId);
         }
-
-        ["목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석"].forEach(slot => {
-            if (typeof runSetCheck === "function") {
-                runSetCheck(slot, charId);
-            }
-        });
 
         applySealHighlight(charId);
 

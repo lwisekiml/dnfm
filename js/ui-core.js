@@ -62,125 +62,140 @@ function handleSealChange(el) {
     autoSave();
 }
 
+// ============================================
+// 아이템이름 색상 적용 (세트 / 익시드)
+//
+// 우선순위:
+//   1순위: 3세트 이상 해당 슬롯 → 파란색
+//   2순위: 익시드 선택됨          → 초록색
+//   기본:  (없음)                 → 노란색 (CSS rare-에픽 기본값)
+// ============================================
+
 /**
- * 세트 체크 실행
+ * 단일 슬롯의 아이템이름 색상을 계산하여 적용
+ * @param {Element} nameEl  - [data-key="${slot}_itemname"] 요소
+ * @param {boolean} isSet   - 이 슬롯이 3세트 이상에 포함되는지
+ * @param {boolean} isExceed - 이 슬롯에 익시드가 선택됐는지
  */
-function runSetCheck(slot, charId) {
-    const slotType = SlotUtils.getSlotType(slot);
-    if (slotType === 'armor') checkSetColor(charId, 'armor');
-    else if (slotType === 'accessory') checkSetColor(charId, 'accessory');
-    else if (slotType === 'special') checkSetColor(charId, 'special');
+function applyItemNameColor(nameEl, isSet, isExceed) {
+    if (!nameEl) return;
+    // 기존 인라인 color 초기화
+    nameEl.style.removeProperty('color');
+    nameEl.title = "";
+
+    if (isSet) {
+        nameEl.style.setProperty('color', '#71D2E5', 'important'); // 파란색
+    } else if (isExceed) {
+        nameEl.style.setProperty('color', '#85EFAD', 'important'); // 초록색 (익시드)
+    }
+    // 기본(노란색)은 CSS .rare-에픽 / itemname-color-sync 가 처리
 }
 
 /**
- * 세트 색상 체크 (통합 버전)
- * 3개 함수를 1개로 통합하여 중복 제거
+ * 세트 판정 — setsMap에서 3개 이상인 세트에 속하는 슬롯 집합을 반환
+ * @param {Element} section
+ * @param {string[]} slots
+ * @param {Object} setsMap
+ * @returns {Set<string>} 3세트 이상 활성 슬롯 이름 집합
  */
-function checkSetColor(charId, setType) {
-    const section = document.getElementById(charId);
-    if (!section) return;
-
-    // 세트 타입별 설정
-    const setConfig = {
-        armor: {
-            slots: ["상의", "하의", "어깨", "벨트", "신발"],
-            sets: armorSets,
-            requireRarity: false
-        },
-        accessory: {
-            slots: ["팔찌", "목걸이", "반지"],
-            sets: accSets,
-            requireRarity: true,
-            requiredRarity: "에픽"
-        },
-        special: {
-            slots: ["귀걸이", "마법석", "보조장비"],
-            sets: specialSets,
-            requireRarity: true,
-            requiredRarity: "에픽"
-        }
-    };
-
-    const config = setConfig[setType];
-    if (!config) return;
-
-    // 1. 현재 장착 아이템 수집
-    const currentItems = {};
-    let isAllCorrectRarity = true;
-
-    config.slots.forEach(slot => {
-        if (config.requireRarity) {
-            const raritySel = section.querySelector(`select[data-key="${slot}_rarity"]`);
-            const rarity = raritySel ? raritySel.value : "";
-            if (rarity !== config.requiredRarity) {
-                isAllCorrectRarity = false;
-            }
-        }
-
-        const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
-        const name = nameEl ? nameEl.value.trim() : "";
-        if (name) currentItems[slot] = name;
+function getActiveSetSlots(section, slots, setsMap) {
+    // 각 슬롯의 아이템이름 수집
+    const itemOf = {};
+    slots.forEach(slot => {
+        const el = section.querySelector(`[data-key="${slot}_itemname"]`);
+        itemOf[slot] = el ? el.value.trim() : "";
     });
 
-    // 2. 세트 카운팅
-    const setCounts = {};
-    const slotToSetName = {};
-
-    for (const [setName, setList] of Object.entries(config.sets)) {
-        setCounts[setName] = 0;
-        config.slots.forEach(slot => {
-            const itemName = currentItems[slot];
-            if (itemName && setList.includes(itemName)) {
-                setCounts[setName]++;
-                slotToSetName[slot] = setName;
-            }
+    // 아이템→세트 역방향 맵 먼저 구성 (아이템이 어느 세트 소속인지)
+    const itemToSet = {};
+    for (const [setName, setList] of Object.entries(setsMap)) {
+        setList.forEach(item => {
+            itemToSet[item] = setName;
         });
     }
 
-    // 3. 세트 효과 활성화된 세트명 목록 수집
-    // 방어구: 3개 이상이면 세트 효과, 악세/특장: 3개(풀세트)이면 세트 효과
-    const activeSetNames = new Set();
-    if (!config.requireRarity || isAllCorrectRarity) {
-        for (const setName in setCounts) {
-            if (setCounts[setName] >= 3) {
-                activeSetNames.add(setName);
-            }
+    // 슬롯별로 소속 세트 결정
+    const slotToSet = {};
+    slots.forEach(slot => {
+        const item = itemOf[slot];
+        if (item && itemToSet[item]) {
+            slotToSet[slot] = itemToSet[item];
         }
-    }
+    });
 
-    // 4. 하이라이트 적용
-    // - 해당 슬롯이 활성화된 세트에 속한 경우만 파란색
-    // - 세트에 속하지 않거나 세트 효과 미달이면 색상 제거
-    config.slots.forEach(slot => {
+    // 세트별 카운트
+    const setCounts = {};
+    Object.values(slotToSet).forEach(setName => {
+        setCounts[setName] = (setCounts[setName] || 0) + 1;
+    });
+
+    // 3개 이상인 세트에 속하는 슬롯만 추출
+    const activeSlots = new Set();
+    slots.forEach(slot => {
+        const sn = slotToSet[slot];
+        if (sn && (setCounts[sn] || 0) >= 3) activeSlots.add(slot);
+    });
+    return { activeSlots, slotToSet, setCounts };
+}
+
+/**
+ * 특정 슬롯 그룹 전체의 아이템이름 색상을 갱신
+ */
+function refreshItemNameColors(charId, slots, setsMap) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    const { activeSlots, slotToSet, setCounts } = getActiveSetSlots(section, slots, setsMap);
+
+    slots.forEach(slot => {
         const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
         if (!nameEl) return;
 
-        const setName = slotToSetName[slot];
-        if (setName && activeSetNames.has(setName)) {
-            nameEl.style.setProperty('color', '#71D2E5', 'important');
-            nameEl.style.fontWeight = 'bold';
-            nameEl.title = `${setName} 세트 효과 활성화 (${setCounts[setName]}셋)`;
-        } else {
-            nameEl.style.color = "";
-            nameEl.style.fontWeight = "";
-            nameEl.title = "";
+        const isSet = activeSlots.has(slot);
+        const exceedSel = section.querySelector(`select[data-key="${slot}_exceed"]`);
+        const isExceed = !!(exceedSel && exceedSel.value !== "");
+
+        applyItemNameColor(nameEl, isSet, isExceed);
+
+        if (isSet) {
+            const setName = slotToSet[slot] ?? "";
+            const count = setCounts[setName] ?? 0;
+            nameEl.title = `${setName} 세트 효과 활성화 (${count}셋)`;
         }
     });
 }
 
-/**
- * 호환성을 위한 래퍼 함수들
- */
+/** 방어구 슬롯 전체 색상 갱신 */
 function checkArmorSetColor(charId) {
-    checkSetColor(charId, 'armor');
+    refreshItemNameColors(charId, ["상의", "하의", "어깨", "벨트", "신발"], armorSets);
 }
 
+/** 악세서리 슬롯 전체 색상 갱신 */
 function checkAccSetColor(charId) {
-    checkSetColor(charId, 'accessory');
+    refreshItemNameColors(charId, ["팔찌", "목걸이", "반지"], accSets);
 }
 
+/** 특수장비 슬롯 전체 색상 갱신 */
 function checkSpecialSetColor(charId) {
-    checkSetColor(charId, 'special');
+    refreshItemNameColors(charId, ["귀걸이", "마법석", "보조장비"], specialSets);
+}
+
+/**
+ * 슬롯 하나가 속하는 그룹을 판별해 해당 그룹 전체 갱신
+ * (기존 runSetCheck 호환)
+ */
+function runSetCheck(slot, charId) {
+    const slotType = SlotUtils.getSlotType(slot);
+    if (slotType === 'armor')     checkArmorSetColor(charId);
+    else if (slotType === 'accessory') checkAccSetColor(charId);
+    else if (slotType === 'special')   checkSpecialSetColor(charId);
+}
+
+/** 모든 슬롯 그룹 한번에 갱신 (페이지 로드 등) */
+function refreshAllItemNameColors(charId) {
+    checkArmorSetColor(charId);
+    checkAccSetColor(charId);
+    checkSpecialSetColor(charId);
 }
 
 /**
@@ -349,15 +364,7 @@ function updateStyle(el, type, isInitial = false) {
             el.classList.remove('ex-이상', 'ex-선봉', 'ex-의지');
             if (el.value) el.classList.add('ex-' + el.value);
 
-            const nameEl = row.querySelector(`[data-key="${slot}_itemname"]`);
-            if (nameEl) {
-                if (el.value !== "") {
-                    nameEl.classList.add('ex-itemname-light');
-                } else {
-                    nameEl.classList.remove('ex-itemname-light');
-                }
-            }
-
+            // 색상은 runSetCheck가 익시드 여부까지 포함해 처리
             if (typeof runSetCheck === "function") runSetCheck(slot, charId);
         }
 
@@ -393,8 +400,13 @@ function updateStyle(el, type, isInitial = false) {
  * 아이템 이름 필드 교체
  */
 function replaceItemNameField(parentTd, slot, rarity, value, charId) {
+    // 기존 itemname 요소 제거
     const oldEl = parentTd.querySelector(`[data-key="${slot}_itemname"]`);
     if (oldEl) oldEl.remove();
+
+    // 상의 슬롯: 기존 이미지 미리보기도 제거 (재생성 예정)
+    const oldImg = parentTd.querySelector('.itemname-img-preview');
+    if (oldImg) oldImg.remove();
 
     const section = document.getElementById(charId);
     const isLocked = section?.querySelector('.lock-btn')?.classList.contains('btn-active');
@@ -402,10 +414,10 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     let newEl;
     if (rarity === "에픽") {
         newEl = document.createElement('select');
-        newEl.innerHTML = `<option value=""></option>` +
-            (itemOptions[slot] || []).map(opt =>
-                `<option value="${opt}">${opt}</option>`
-            ).join('');
+        // itemOptions 배열 자체에 이미 첫 번째 빈 값이 포함되어 있으므로 중복 추가 없이 그대로 사용
+        newEl.innerHTML = (itemOptions[slot] || []).map(opt =>
+            `<option value="${opt}">${opt}</option>`
+        ).join('');
 
         if (isLocked) newEl.disabled = true;
     } else {
@@ -422,23 +434,41 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     newEl.setAttribute('data-key', `${slot}_itemname`);
     newEl.className = `rare-${rarity} itemname-color-sync`;
 
-    newEl.addEventListener('change', () => {
-        runSetCheck(slot, charId);
-        autoSave();
-    });
+    // 상의 슬롯 이벤트: 이미지 미리보기 업데이트 포함
+    if (slot === '상의' && rarity === '에픽') {
+        newEl.addEventListener('change', () => {
+            if (typeof updateItemImage === 'function') updateItemImage(newEl);
+            runSetCheck(slot, charId);
+            autoSave();
+        });
+    } else {
+        newEl.addEventListener('change', () => {
+            runSetCheck(slot, charId);
+            autoSave();
+        });
+    }
     newEl.addEventListener('input', () => {
         runSetCheck(slot, charId);
         autoSave();
     });
 
+    // 상의 에픽: 이미지 미리보기를 select 앞에 삽입
+    if (slot === '상의' && rarity === '에픽') {
+        const img = document.createElement('img');
+        img.className = 'itemname-img-preview';
+        img.src = '';
+        img.alt = '';
+        parentTd.appendChild(img);
+    }
+
     parentTd.appendChild(newEl);
 
-    runSetCheck(slot, charId);
-
-    const exceedSel = parentTd.closest('tr').querySelector(`select[data-key="${slot}_exceed"]`);
-    if (exceedSel && exceedSel.value !== "") {
-        newEl.classList.add('ex-itemname-light');
+    // 상의 에픽: 현재 값에 맞게 이미지 즉시 업데이트
+    if (slot === '상의' && rarity === '에픽' && typeof updateItemImage === 'function') {
+        updateItemImage(newEl);
     }
+
+    runSetCheck(slot, charId);
 }
 
 // ============================================

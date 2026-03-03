@@ -2626,3 +2626,66 @@ project/
 - 취소 버튼: `panel.remove()`만 실행 (세트 팝업은 유지)
 
 ---
+
+## 2026-03-03 (56차)
+
+### 세트/익시드 아이템이름 색상 로직 전면 재작성 및 버그 수정
+
+**수정된 파일:** `js/ui-core.js`, `js/ui-character.js`, `styles/styles.css`, `styles/merged.css`
+
+---
+
+### 변경 배경
+
+세트 색상 표시가 잘못 동작하는 문제 지속 발생:
+1. 세트가 아닌 부위에 파란색이 표시됨
+2. 익시드 장비는 초록색으로 잘 표시되나 세트 판정이 전혀 안 됨
+3. 페이지 로드(데이터 복구) 시에만 색상이 잘못 나오고, 직접 변경하면 정상
+
+---
+
+### 원인 분석
+
+**1. 구조적 문제 — 기존 `checkSetColor()` 로직**
+- `armorSets` 순회 시 `slotToSet[slot] = setName`을 반복 덮어써서 마지막 순회 세트명으로 판정되는 버그
+
+**2. NodeList static 스냅샷 문제 — `restoreSavedData`**
+- `const inputs = section.querySelectorAll(...)` 으로 미리 저장하면 static snapshot
+- 1단계 rarity 복구 시 `replaceItemNameField`가 새 select를 생성하는데 이 요소가 목록에 없어 값 복구 누락
+- 결과적으로 `refreshAllItemNameColors` 실행 시 itemname 값이 모두 `""`로 읽혀 세트 판정 실패
+
+**3. localStorage 저장 데이터 잔재 클래스 — 근본 원인**
+- 구버전 코드에서 세트/익시드 색상을 CSS 클래스(`.set-highlight`, `.ex-itemname-light`)로 처리
+- 이 클래스가 localStorage `cls` 필드에 저장된 채 남아있어, 복구 시 `el.className = data.cls`로 적용되어 잘못된 색상 표시
+- 콘솔로 localStorage 직접 확인하여 발견:
+```json
+"itemname": { "val": "퀸 스파이더 상의", "cls": "itemname-color-sync set-highlight" }
+```
+
+---
+
+### 수정 내용
+
+**`js/ui-core.js` — 색상 로직 전면 재작성**
+
+기존 `checkSetColor()` 계열 함수 전부 제거 후 새로 작성:
+- 제거: `checkSetColor()`, `clearAllArmorSetColors()`, 기존 `runSetCheck()` 및 래퍼 3종
+- 추가: `applyItemNameColor()`, `getActiveSetSlots()`, `refreshItemNameColors()`, `refreshAllItemNameColors()`
+
+색상 우선순위:
+1. 3세트 이상 해당 슬롯 → 파란색 `#71D2E5`
+2. 익시드 선택됨 → 초록색 `#85EFAD`
+3. 기본 → 노란색 (CSS `.rare-에픽` 기본값)
+
+세트 판정 방식 변경: 기존 세트 순회 덮어쓰기 → 아이템→세트 역방향 맵으로 정확하게 판정
+
+**`js/ui-character.js` — `restoreSavedData` 수정**
+
+- `const inputs = querySelectorAll(...)` 제거 → `querySelectorAll(...).forEach(...)` 직접 호출로 변경
+- cls 복구 시 `set-highlight`, `ex-itemname-light` 클래스 정규식으로 제거
+
+**`styles/styles.css`, `styles/merged.css`**
+
+- `.set-highlight`, `.ex-itemname-light` 규칙 제거 (JS 미사용, inline style로 처리)
+
+---

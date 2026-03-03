@@ -1116,10 +1116,7 @@
     font-weight: bold;
 }
 
-#section-detail-view .ex-itemname-light {
-    color: var(--ex-itemname-light) !important;
-    font-weight: bold;
-}
+/* .ex-itemname-light, .set-highlight 제거 - JS 미사용, inline style로 처리 */
 
 /* ========================================
    접두어 색상 (Prefix Colors)
@@ -1181,10 +1178,6 @@
     text-shadow: var(--shadow-text);
 }
 
-#section-detail-view .set-highlight {
-    color: var(--highlight-cyan) !important;
-    font-weight: bold;
-}
 
 #section-detail-view .itemname-color-sync {
     font-weight: bold;
@@ -2685,4 +2678,37 @@ body.theme-mixed2 #section-detail-view .border-gold-2 {
 body.theme-mixed2 #section-detail-view .control-bar {
     background: #0f0f12 !important;
     background-color: #0f0f12 !important;
+}/* ========================================
+
+/* ========================================
+   상의 아이템이름 이미지 미리보기
+   ======================================== */
+
+/* select 왼쪽 이미지 공간 - 항상 고정 크기 유지 */
+.itemname-img-preview {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    vertical-align: middle;
+    flex-shrink: 0;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.04);
+    margin-right: 2px;
+    visibility: hidden;
+}
+
+.itemname-img-preview.has-image {
+    visibility: visible;
+}
+
+/* td 안에서 img + select가 나란히 정렬되도록 */
+td:has(.itemname-img-preview) {
+    display: flex;
+    align-items: center;
+    padding: 0 2px;
+}
+
+td:has(.itemname-img-preview) select {
+    flex: 1;
+    min-width: 0;
 }
