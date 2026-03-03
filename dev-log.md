@@ -2689,3 +2689,19 @@ project/
 - `.set-highlight`, `.ex-itemname-light` 규칙 제거 (JS 미사용, inline style로 처리)
 
 ---
+
+## 2026-03-03 (57차)
+
+### 방어구 이미지 경로 수정
+
+**수정된 파일:** `js/ui-character.js`
+
+---
+
+### 변경 내용
+
+- 상의 아이템이름 이미지 미리보기 경로 변경
+  - 기존: `images/{아이템명}.png`
+  - 변경: `images/ARMOR/{아이템명}.png`
+
+---

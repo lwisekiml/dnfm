@@ -283,7 +283,7 @@ function handleItemNameField(rowFragment, slot, charId) {
 
 /**
  * 상의 아이템 이미지 미리보기 업데이트
- * 파일명 규칙: images/{아이템명}.png
+ * 파일명 규칙: images/ARMOR/{아이템명}.png
  */
 function updateItemImage(select) {
     const td = select.parentElement;
@@ -304,7 +304,7 @@ function updateItemImage(select) {
             this.src = '';
             this.classList.remove('has-image');
         };
-        img.src = `images/${value}.png`;
+        img.src = `images/ARMOR/${value}.png`;
         img.classList.add('has-image');
     } else {
         img.alt = '';
@@ -359,9 +359,8 @@ function restoreSavedData(section, savedData, charId) {
     });
 
     // 2) 모든 입력값 복구
-    // ※ 1단계에서 updateStyle(rarity)가 replaceItemNameField를 호출해 새 select를 생성하므로
-    //   querySelectorAll을 const로 미리 저장하지 않고 직접 호출해야 새 요소도 포함됨
-    section.querySelectorAll('input[data-key], select[data-key], textarea[data-key]').forEach(el => {
+    const inputs = section.querySelectorAll('input[data-key], select[data-key], textarea[data-key]');
+    inputs.forEach(el => {
         const key = el.getAttribute('data-key');
         const data = getInputData(savedData.inputs, key);
 
@@ -378,11 +377,7 @@ function restoreSavedData(section, savedData, charId) {
         if (key.includes('_art_') && key.includes('_bg_')) {
             updateStyle(el, 'artBg', true);
         } else if (data.cls) {
-            // set-highlight, ex-itemname-light는 구버전 저장 데이터 잔재 — 제거
-            el.className = data.cls
-                .replace(/\bset-highlight\b/g, '')
-                .replace(/\bex-itemname-light\b/g, '')
-                .trim();
+            el.className = data.cls;
         }
 
         if (key.endsWith('_prefix')) {
