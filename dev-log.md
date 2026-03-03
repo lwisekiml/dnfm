@@ -2902,3 +2902,46 @@ project/
 - 신규 캐릭터 생성 시 `refreshAllSpecialSlotStates` 호출 추가
 
 ---
+
+## 2026-03-03 (62차)
+
+### 전체 슬롯 접두어/이미지 연동 구현
+
+**수정된 파일:** `js/ui-core.js`, `js/ui-character.js`
+
+---
+
+### 변경 내용
+
+**`js/ui-character.js`**
+
+- `_applySlotImage(select, slot, folder)` 공통 헬퍼 추가
+  - 기존 `updateItemImage`, `updateAccImage`, `updateSpecialImage` 3개 함수를 헬퍼 기반으로 리팩토링
+  - 신규 8개 슬롯 이미지 함수 추가
+    - ARMOR: `updatePantsImage`(하의), `updateShoulderImage`(어깨), `updateBeltImage`(벨트), `updateShoesImage`(신발)
+    - ACCESSORY: `updateNecklaceImage`(목걸이), `updateRingImage`(반지)
+    - SPECIAL: `updateMagicImage`(마법석), `updateSubImage`(보조장비)
+- `handleItemNameField` 슬롯별 이벤트 분기 확장
+  - 하의/어깨/벨트/신발: `refreshArmorSlotState` + 이미지 갱신
+  - 목걸이/반지: `refreshAccSlotState` + 이미지 갱신
+  - 마법석/보조장비: `refreshSpecialSlotState` + 이미지 갱신
+- 이미지 미리보기 img 태그 삽입 조건을 전체 11개 슬롯으로 확장
+- `restoreSavedData` 이미지 복구를 11개 슬롯 루프로 통합
+
+**`js/ui-core.js`**
+
+- `replaceItemNameField` change 이벤트를 슬롯맵(`_slotRefreshFn`, `_slotImgFn`) 기반으로 통합
+  - 슬롯에 따라 refresh 함수와 이미지 함수 자동 선택
+- 접두어 변경 시 이미지 갱신 블록을 `_prefixImgFnMap` 기반으로 통합 (11개 슬롯 일괄 처리)
+- 이미지 미리보기 img 태그 삽입 및 즉시 업데이트 조건을 전체 슬롯으로 확장
+- `refreshSpecialSlotState` 호출을 `replaceItemNameField` 내 슬롯맵으로 통합
+
+### 이미지 경로 규칙 (전체)
+
+| 슬롯 | 폴더 |
+|------|------|
+| 상의/하의/어깨/벨트/신발 | `images/ARMOR/` |
+| 팔찌/목걸이/반지 | `images/ACCESSORY/` |
+| 귀걸이/마법석/보조장비 | `images/SPECIAL/` |
+
+---

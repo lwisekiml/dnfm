@@ -573,22 +573,16 @@ function updateStyle(el, type, isInitial = false) {
             }
         }
 
-        // 상의 슬롯: 접두어 변경 시 이미지 갱신
-        if (slot === "상의" && typeof updateItemImage === 'function') {
-            const itemnameSel = row.querySelector('[data-key="상의_itemname"]');
-            if (itemnameSel) updateItemImage(itemnameSel);
-        }
-
-        // 팔찌 슬롯: 접두어 변경 시 이미지 갱신
-        if (slot === "팔찌" && typeof updateAccImage === 'function') {
-            const itemnameSel = row.querySelector('[data-key="팔찌_itemname"]');
-            if (itemnameSel) updateAccImage(itemnameSel);
-        }
-
-        // 귀걸이 슬롯: 접두어 변경 시 이미지 갱신
-        if (slot === "귀걸이" && typeof updateSpecialImage === 'function') {
-            const itemnameSel = row.querySelector('[data-key="귀걸이_itemname"]');
-            if (itemnameSel) updateSpecialImage(itemnameSel);
+        // 접두어 변경 시 해당 슬롯 이미지 갱신
+        const _prefixImgFnMap = {
+            '상의': updateItemImage,    '하의': updatePantsImage,    '어깨': updateShoulderImage,
+            '벨트': updateBeltImage,    '신발': updateShoesImage,
+            '팔찌': updateAccImage,     '목걸이': updateNecklaceImage, '반지': updateRingImage,
+            '귀걸이': updateSpecialImage, '마법석': updateMagicImage,  '보조장비': updateSubImage
+        };
+        if (_prefixImgFnMap[slot]) {
+            const itemnameSel = row.querySelector(`[data-key="${slot}_itemname"]`);
+            if (itemnameSel) _prefixImgFnMap[slot](itemnameSel);
         }
     }
 
@@ -633,53 +627,34 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     newEl.setAttribute('data-key', `${slot}_itemname`);
     newEl.className = `rare-${rarity} itemname-color-sync`;
 
-    // 상의 슬롯 이벤트: 이미지 미리보기 업데이트 포함
-    if (slot === '상의' && rarity === '에픽') {
-        newEl.addEventListener('change', () => {
-            if (typeof refreshArmorSlotState === 'function') refreshArmorSlotState(slot, charId);
-            if (typeof updateItemImage === 'function') updateItemImage(newEl);
-            runSetCheck(slot, charId);
-            autoSave();
-        });
-    } else if (slot === '팔찌' && rarity === '에픽') {
-        newEl.addEventListener('change', () => {
-            if (typeof refreshAccSlotState === 'function') refreshAccSlotState(slot, charId);
-            if (typeof updateAccImage === 'function') updateAccImage(newEl);
-            runSetCheck(slot, charId);
-            autoSave();
-        });
-    } else if (slot === '귀걸이' && rarity === '에픽') {
-        newEl.addEventListener('change', () => {
-            if (typeof refreshSpecialSlotState === 'function') refreshSpecialSlotState(slot, charId);
-            if (typeof updateSpecialImage === 'function') updateSpecialImage(newEl);
-            runSetCheck(slot, charId);
-            autoSave();
-        });
-    } else if (["하의", "어깨", "벨트", "신발"].includes(slot)) {
-        newEl.addEventListener('change', () => {
-            if (typeof refreshArmorSlotState === 'function') refreshArmorSlotState(slot, charId);
-            runSetCheck(slot, charId);
-            autoSave();
-        });
-    } else if (["목걸이", "반지"].includes(slot)) {
-        newEl.addEventListener('change', () => {
-            if (typeof refreshAccSlotState === 'function') refreshAccSlotState(slot, charId);
-            runSetCheck(slot, charId);
-            autoSave();
-        });
-    } else {
-        newEl.addEventListener('change', () => {
-            runSetCheck(slot, charId);
-            autoSave();
-        });
-    }
+    // 슬롯 → refresh 함수 / 이미지 함수 맵
+    const _slotRefreshFn = {
+        '상의': refreshArmorSlotState,   '하의': refreshArmorSlotState,
+        '어깨': refreshArmorSlotState,   '벨트': refreshArmorSlotState,   '신발': refreshArmorSlotState,
+        '팔찌': refreshAccSlotState,     '목걸이': refreshAccSlotState,   '반지': refreshAccSlotState,
+        '귀걸이': refreshSpecialSlotState, '마법석': refreshSpecialSlotState, '보조장비': refreshSpecialSlotState
+    };
+    const _slotImgFn = {
+        '상의': updateItemImage,    '하의': updatePantsImage,    '어깨': updateShoulderImage,
+        '벨트': updateBeltImage,    '신발': updateShoesImage,
+        '팔찌': updateAccImage,     '목걸이': updateNecklaceImage, '반지': updateRingImage,
+        '귀걸이': updateSpecialImage, '마법석': updateMagicImage, '보조장비': updateSubImage
+    };
+
+    newEl.addEventListener('change', () => {
+        if (typeof _slotRefreshFn[slot] === 'function') _slotRefreshFn[slot](slot, charId);
+        if (rarity === '에픽' && typeof _slotImgFn[slot] === 'function') _slotImgFn[slot](newEl);
+        runSetCheck(slot, charId);
+        autoSave();
+    });
     newEl.addEventListener('input', () => {
         runSetCheck(slot, charId);
         autoSave();
     });
 
-    // 상의/팔찌/귀걸이 에픽: 이미지 미리보기를 select 앞에 삽입
-    if ((slot === '상의' || slot === '팔찌' || slot === '귀걸이') && rarity === '에픽') {
+    // 에픽 슬롯: 이미지 미리보기 img 태그 삽입
+    const _allImgSlots = ['상의','하의','어깨','벨트','신발','팔찌','목걸이','반지','귀걸이','마법석','보조장비'];
+    if (_allImgSlots.includes(slot) && rarity === '에픽') {
         const img = document.createElement('img');
         img.className = 'itemname-img-preview';
         img.src = '';
@@ -689,34 +664,16 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
 
     parentTd.appendChild(newEl);
 
-    // 상의 에픽: 현재 값에 맞게 이미지 즉시 업데이트
-    if (slot === '상의' && rarity === '에픽' && typeof updateItemImage === 'function') {
-        updateItemImage(newEl);
-    }
-
-    // 팔찌 에픽: 현재 값에 맞게 이미지 즉시 업데이트
-    if (slot === '팔찌' && rarity === '에픽' && typeof updateAccImage === 'function') {
-        updateAccImage(newEl);
-    }
-
-    // 귀걸이 에픽: 현재 값에 맞게 이미지 즉시 업데이트
-    if (slot === '귀걸이' && rarity === '에픽' && typeof updateSpecialImage === 'function') {
-        updateSpecialImage(newEl);
+    // 에픽: 현재 값에 맞게 이미지 즉시 업데이트
+    if (rarity === '에픽' && typeof _slotImgFn[slot] === 'function') {
+        _slotImgFn[slot](newEl);
     }
 
     runSetCheck(slot, charId);
 
-    // 방어구 슬롯: 접두어/익시드 상태 재계산
-    const armorSlots = ["상의", "하의", "어깨", "벨트", "신발"];
-    const accSlots   = ["팔찌", "목걸이", "반지"];
-    if (armorSlots.includes(slot) && typeof refreshArmorSlotState === 'function') {
-        refreshArmorSlotState(slot, charId, true);
-    }
-    if (accSlots.includes(slot) && typeof refreshAccSlotState === 'function') {
-        refreshAccSlotState(slot, charId, true);
-    }
-    if (["귀걸이", "마법석", "보조장비"].includes(slot) && typeof refreshSpecialSlotState === 'function') {
-        refreshSpecialSlotState(slot, charId, true);
+    // 슬롯별 접두어/익시드 상태 초기화
+    if (typeof _slotRefreshFn[slot] === 'function') {
+        _slotRefreshFn[slot](slot, charId, true);
     }
 }
 
