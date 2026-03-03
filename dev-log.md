@@ -2805,3 +2805,60 @@ project/
 - `.col-exceed select:disabled`, `.col-prefix select:disabled` → `opacity: 0.5` 추가
 
 ---
+
+## 2026-03-03 (60차)
+
+### 팔찌 슬롯 접두어/익시드/이미지 연동 구현 + 레거시 아이템이름 정리 + 강제 접두어 처리
+
+**수정된 파일:** `js/ui-core.js`, `js/ui-character.js`, `shared/shared_data.js`
+
+---
+
+### 변경 내용
+
+**`shared/shared_data.js`**
+
+- `ACC_ITEM_INFO` 맵 추가 (`ACCESSORY_DISPLAY_NAMES` + `ACCESSORY_PREFIX` 기반, `ARMOR_ITEM_INFO`와 동일 구조)
+- `ARMOR_DISPLAY_NAMES`, `ACCESSORY_DISPLAY_NAMES` 내 레거시 아이템이름에서 `"레거시: "` 접두 제거 (방어구 12개, 악세서리 8개)
+  - 예: `"레거시: 휘몰아치는 마력의 태풍"` → `"휘몰아치는 마력의 태풍"`
+  - 세트명 키(`"레거시: 마력의 소용돌이"` 등)는 변경하지 않음
+  - 이유: 레거시는 접두어 자체가 "레거시"이므로 아이템이름에 중복 포함할 필요 없음
+- `FORCED_PREFIX_ITEMS` 상수 추가
+  - 일반 아이템이지만 접두어가 강제 지정되는 아이템 목록 (공백 선택 없음, 첫 번째 값 자동 선택)
+  - 해당 아이템: `"라이트니스 오토 상의"`, `"마력의 폭풍우"`, `"강철 리스트 가드"`, `"홀리 미스릴 렐릭"`
+
+**`js/ui-core.js`**
+
+- `_refreshSlotState` 공통 함수로 추출 (방어구/악세서리 공통 로직)
+- `refreshAccSlotState(slot, charId, isRestore)` 추가 — `ACC_ITEM_INFO` 기반
+- `refreshAllAccSlotStates(charId)` 추가 — 팔찌/목걸이/반지 일괄 갱신
+- `_refreshSlotState` 케이스 3(일반 아이템)에 `FORCED_PREFIX_ITEMS` 체크 추가
+  - 해당 아이템 선택 시 공백 없이 첫 번째 접두어 자동 선택
+  - 무효 접두어 복구 시에도 첫 번째 값으로 자동 보정
+- `replaceItemNameField` 이벤트 분기 확장
+  - 팔찌: `refreshAccSlotState` → `updateAccImage` → `runSetCheck`
+  - 목걸이/반지: `refreshAccSlotState` → `runSetCheck`
+- 팔찌 접두어 변경 시 `updateAccImage` 갱신 추가
+- 익시드 재계산 블록을 방어구 + 악세서리 슬롯 모두 처리하도록 확장
+
+**`js/ui-character.js`**
+
+- `updateAccImage` 함수 추가
+  - 경로: `images/ACCESSORY/{접두어}_{아이템이름}.png` / `images/ACCESSORY/{아이템이름}.png`
+  - 콜론+공백 → `_` 치환, 접두어 중복 방지 (레거시 케이스)
+- `updateItemImage`도 동일하게 접두어 중복 방지 로직 적용
+  - `(prefix && !safeName.startsWith(prefix + '_'))` 조건 추가
+- `handleItemNameField` 이벤트 분기 확장
+  - 팔찌: `refreshAccSlotState` → `updateAccImage` → `runSetCheck`
+  - 목걸이/반지: `refreshAccSlotState` → `runSetCheck`
+  - 팔찌 슬롯 이미지 미리보기 img 태그 추가
+- `restoreSavedData` setTimeout에 `refreshAllAccSlotStates` + 팔찌 이미지 복구 추가
+- 신규 캐릭터 생성 시 `refreshAllAccSlotStates` 호출 추가
+
+### 이미지 파일명 규칙
+
+- 접두어 없음 → `images/ACCESSORY/{아이템이름}.png`
+- 접두어 있음 → `images/ACCESSORY/{접두어}_{아이템이름}.png`
+- 레거시: `"아이언 엠벨리시드 밴드"` + 접두어 `"레거시"` → `레거시_아이언 엠벨리시드 밴드.png`
+
+---

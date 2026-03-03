@@ -149,8 +149,11 @@ function createCharacterTable(savedData = null) {
     toggleEdit(charId, savedData ? !!savedData.locked : false);
 
     // 10) 신규 캐릭터도 접두어/익시드 초기 상태 설정
-    if (!savedData && typeof refreshAllArmorSlotStates === 'function') {
-        setTimeout(() => refreshAllArmorSlotStates(charId), 0);
+    if (!savedData) {
+        setTimeout(() => {
+            if (typeof refreshAllArmorSlotStates === 'function') refreshAllArmorSlotStates(charId);
+            if (typeof refreshAllAccSlotStates === 'function') refreshAllAccSlotStates(charId);
+        }, 0);
     }
 }
 
@@ -264,9 +267,27 @@ function handleItemNameField(rowFragment, slot, charId) {
                 runSetCheck(slot, charId);
                 autoSave();
             };
-        } else {
+        } else if (slot === '팔찌') {
+            select.onchange = () => {
+                if (typeof refreshAccSlotState === 'function') refreshAccSlotState(slot, charId);
+                updateAccImage(select);
+                runSetCheck(slot, charId);
+                autoSave();
+            };
+        } else if (["하의", "어깨", "벨트", "신발"].includes(slot)) {
             select.onchange = () => {
                 if (typeof refreshArmorSlotState === 'function') refreshArmorSlotState(slot, charId);
+                runSetCheck(slot, charId);
+                autoSave();
+            };
+        } else if (["목걸이", "반지"].includes(slot)) {
+            select.onchange = () => {
+                if (typeof refreshAccSlotState === 'function') refreshAccSlotState(slot, charId);
+                runSetCheck(slot, charId);
+                autoSave();
+            };
+        } else {
+            select.onchange = () => {
                 runSetCheck(slot, charId);
                 autoSave();
             };
@@ -277,8 +298,8 @@ function handleItemNameField(rowFragment, slot, charId) {
 
         existingField.replaceWith(select);
 
-        // 상의 슬롯: select 왼쪽에 이미지 미리보기 공간 추가
-        if (slot === '상의') {
+        // 상의/팔찌 슬롯: select 왼쪽에 이미지 미리보기 공간 추가
+        if (slot === '상의' || slot === '팔찌') {
             const img = document.createElement('img');
             img.className = 'itemname-img-preview';
             img.src = '';
@@ -317,9 +338,9 @@ function updateItemImage(select) {
     const prefixSel = row ? row.querySelector('select[data-key="상의_prefix"]') : null;
     const prefix = prefixSel ? prefixSel.value.trim() : "";
 
-    // 파일명 생성 (콜론 → _ 치환)
+    // 파일명 생성 (콜론+공백 → _ 치환, 접두어 중복 방지)
     const safeName = itemName.replace(/:\s*/g, '_');
-    const fileName = prefix ? `${prefix}_${safeName}` : safeName;
+    const fileName = (prefix && !safeName.startsWith(prefix + '_')) ? `${prefix}_${safeName}` : safeName;
 
     img.alt = itemName;
     img.onerror = function() {
@@ -332,8 +353,46 @@ function updateItemImage(select) {
 }
 
 /**
- * 접두어 select 초기화
+ * 팔찌 아이템 이미지 미리보기 업데이트
+ * 파일명 규칙:
+ *   접두어 없음 → images/ACCESSORY/{아이템이름}.png
+ *   접두어 있음 → images/ACCESSORY/{접두어}_{아이템이름}.png
+ *   아이템이름에 콜론(:) 포함 시 → _ 로 대체
  */
+function updateAccImage(select) {
+    const td = select.parentElement;
+    const img = td.querySelector('.itemname-img-preview');
+    if (!img) return;
+
+    const itemName = select.value;
+
+    img.onerror = null;
+    img.src = '';
+    img.classList.remove('has-image');
+
+    if (!itemName) {
+        img.alt = '';
+        return;
+    }
+
+    // 같은 행의 접두어 select 참조
+    const row = select.closest('tr');
+    const prefixSel = row ? row.querySelector('select[data-key="팔찌_prefix"]') : null;
+    const prefix = prefixSel ? prefixSel.value.trim() : "";
+
+    // 파일명 생성 (콜론+공백 → _ 치환, 접두어 중복 방지)
+    const safeName = itemName.replace(/:\s*/g, '_');
+    const fileName = (prefix && !safeName.startsWith(prefix + '_')) ? `${prefix}_${safeName}` : safeName;
+
+    img.alt = itemName;
+    img.onerror = function() {
+        this.onerror = null;
+        this.src = '';
+        this.classList.remove('has-image');
+    };
+    img.src = `images/ACCESSORY/${fileName}.png`;
+    img.classList.add('has-image');
+}
 function initializePrefixSelects(section) {
     section.querySelectorAll('select[data-key$="_prefix"]').forEach(sel => {
         const slot = sel.getAttribute('data-slot');
@@ -421,6 +480,9 @@ function restoreSavedData(section, savedData, charId) {
         if (typeof refreshAllArmorSlotStates === 'function') {
             refreshAllArmorSlotStates(charId);
         }
+        if (typeof refreshAllAccSlotStates === 'function') {
+            refreshAllAccSlotStates(charId);
+        }
 
         // 상의 이미지 복구 (접두어 복구 완료 후 갱신)
         if (typeof updateItemImage === 'function') {
@@ -428,6 +490,15 @@ function restoreSavedData(section, savedData, charId) {
             const itemnameSel = section?.querySelector('[data-key="상의_itemname"]');
             if (itemnameSel && itemnameSel.tagName === 'SELECT') {
                 updateItemImage(itemnameSel);
+            }
+        }
+
+        // 팔찌 이미지 복구 (접두어 복구 완료 후 갱신)
+        if (typeof updateAccImage === 'function') {
+            const section = document.getElementById(charId);
+            const itemnameSel = section?.querySelector('[data-key="팔찌_itemname"]');
+            if (itemnameSel && itemnameSel.tagName === 'SELECT') {
+                updateAccImage(itemnameSel);
             }
         }
 
