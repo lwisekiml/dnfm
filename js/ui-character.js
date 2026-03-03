@@ -147,6 +147,11 @@ function createCharacterTable(savedData = null) {
 
     // 9) 잠금 상태 설정
     toggleEdit(charId, savedData ? !!savedData.locked : false);
+
+    // 10) 신규 캐릭터도 접두어/익시드 초기 상태 설정
+    if (!savedData && typeof refreshAllArmorSlotStates === 'function') {
+        setTimeout(() => refreshAllArmorSlotStates(charId), 0);
+    }
 }
 
 /**
@@ -255,11 +260,13 @@ function handleItemNameField(rowFragment, slot, charId) {
         if (slot === '상의') {
             select.onchange = () => {
                 updateItemImage(select);
+                if (typeof refreshArmorSlotState === 'function') refreshArmorSlotState(slot, charId);
                 runSetCheck(slot, charId);
                 autoSave();
             };
         } else {
             select.onchange = () => {
+                if (typeof refreshArmorSlotState === 'function') refreshArmorSlotState(slot, charId);
                 runSetCheck(slot, charId);
                 autoSave();
             };
@@ -359,8 +366,9 @@ function restoreSavedData(section, savedData, charId) {
     });
 
     // 2) 모든 입력값 복구
-    const inputs = section.querySelectorAll('input[data-key], select[data-key], textarea[data-key]');
-    inputs.forEach(el => {
+    // ※ 1단계에서 updateStyle(rarity)가 replaceItemNameField를 호출해 새 select를 생성하므로
+    //   querySelectorAll을 const로 미리 저장하지 않고 직접 호출해야 새 요소도 포함됨
+    section.querySelectorAll('input[data-key], select[data-key], textarea[data-key]').forEach(el => {
         const key = el.getAttribute('data-key');
         const data = getInputData(savedData.inputs, key);
 
@@ -377,7 +385,17 @@ function restoreSavedData(section, savedData, charId) {
         if (key.includes('_art_') && key.includes('_bg_')) {
             updateStyle(el, 'artBg', true);
         } else if (data.cls) {
-            el.className = data.cls;
+            // set-highlight, ex-itemname-light는 구버전 저장 데이터 잔재 — 제거
+            el.className = data.cls
+                .replace(/\bset-highlight\b/g, '')
+                .replace(/\bex-itemname-light\b/g, '')
+                .trim();
+        }
+
+        // itemname 필드: rare-에픽 + itemname-color-sync 클래스 보장
+        if (key.endsWith('_itemname')) {
+            if (!el.classList.contains('rare-에픽')) el.classList.add('rare-에픽');
+            if (!el.classList.contains('itemname-color-sync')) el.classList.add('itemname-color-sync');
         }
 
         if (key.endsWith('_prefix')) {
@@ -389,6 +407,11 @@ function restoreSavedData(section, savedData, charId) {
     setTimeout(() => {
         if (typeof refreshAllItemNameColors === 'function') {
             refreshAllItemNameColors(charId);
+        }
+
+        // 접두어/익시드 활성화 상태 복구
+        if (typeof refreshAllArmorSlotStates === 'function') {
+            refreshAllArmorSlotStates(charId);
         }
 
         applySealHighlight(charId);

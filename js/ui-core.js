@@ -198,6 +198,128 @@ function refreshAllItemNameColors(charId) {
     checkSpecialSetColor(charId);
 }
 
+// ============================================
+// 방어구 슬롯 접두어/익시드 활성화 상태 관리
+// ============================================
+
+/**
+ * 아이템이름 기준으로 해당 행의 접두어/익시드 select 상태를 갱신
+ * - 아이템이름 없음  → 접두어 disabled, 익시드 disabled
+ * - 일반 아이템      → 접두어 enabled(세트 접두어), 익시드 disabled
+ * - 익시드 아이템    → 접두어 enabled(세트 접두어), 익시드는 접두어 선택 시 enabled
+ * @param {string} slot
+ * @param {string} charId
+ * @param {boolean} isRestore - true이면 초기화 없이 현재값 유지
+ */
+function refreshArmorSlotState(slot, charId, isRestore = false) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    const row = section.querySelector(`tr[data-slot="${slot}"]`)
+        || section.querySelector(`[data-key="${slot}_itemname"]`)?.closest('tr');
+    if (!row) return;
+
+    const itemnameSel = row.querySelector(`[data-key="${slot}_itemname"]`);
+    const prefixSel   = row.querySelector(`select[data-key="${slot}_prefix"]`);
+    const exceedSel   = row.querySelector(`select[data-key="${slot}_exceed"]`);
+
+    if (!prefixSel) return;
+
+    const itemName = itemnameSel ? itemnameSel.value.trim() : "";
+    const info = (typeof ARMOR_ITEM_INFO !== 'undefined') ? ARMOR_ITEM_INFO[itemName] : null;
+
+    // ── 케이스 1: 아이템이름 없음 ──────────────────────────────
+    if (!itemName || !info) {
+        prefixSel.disabled = true;
+        prefixSel.innerHTML = '<option value=""></option>';
+        prefixSel.value = "";
+        prefixSel.classList.remove('prefix-selected', 'prefix-tier');
+        if (exceedSel) {
+            exceedSel.disabled = true;
+            exceedSel.value = "";
+        }
+        return;
+    }
+
+    // ── 케이스 2: 익시드 아이템 (index 0) ──────────────────────
+    if (info.isExceed) {
+        // 접두어: 공백 없이 세트 접두어만
+        const setPrefixes = [...info.prefixes]; // 공백 없음
+
+        // ※ innerHTML 교체 전에 현재 값 저장 (교체 후엔 value 초기화됨)
+        const savedPrefix = prefixSel.value;
+
+        prefixSel.disabled = false;
+        prefixSel.innerHTML = setPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
+
+        if (isRestore) {
+            // 복구: 저장값이 목록에 있으면 유지, 없으면 첫 번째 값
+            prefixSel.value = setPrefixes.includes(savedPrefix) ? savedPrefix : setPrefixes[0];
+        } else {
+            // 신규 선택: 첫 번째 값 자동 선택
+            prefixSel.value = setPrefixes[0];
+        }
+        prefixSel.classList.remove('prefix-tier');
+        prefixSel.classList.add('prefix-selected');
+
+        // 익시드: innerHTML 교체로 공백 옵션 제거 + 값 설정
+        if (exceedSel) {
+            // ※ innerHTML 교체 전에 현재 값 저장
+            const savedExceed = exceedSel.value;
+            exceedSel.innerHTML = '<option>이상</option><option>선봉</option><option>의지</option>';
+            exceedSel.disabled = false;
+            if (isRestore) {
+                // 복구: 저장값 유지, 없으면 "이상"
+                exceedSel.value = ["이상", "선봉", "의지"].includes(savedExceed) ? savedExceed : "이상";
+            } else {
+                // 신규 선택: "이상" 자동 선택
+                exceedSel.value = "이상";
+            }
+        }
+        return;
+    }
+
+    // ── 케이스 3: 일반 아이템 (index 1) ────────────────────────
+    // 접두어: 공백 포함 세트 접두어
+    const setPrefixes = ["", ...info.prefixes];
+
+    // ※ innerHTML 교체 전에 현재 값 저장
+    const savedPrefix = prefixSel.value;
+
+    prefixSel.disabled = false;
+    prefixSel.innerHTML = setPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
+
+    if (isRestore) {
+        // 복구: 저장값이 목록에 있으면 유지, 없으면 공백
+        prefixSel.value = setPrefixes.includes(savedPrefix) ? savedPrefix : "";
+    } else {
+        // 신규 선택: 공백
+        prefixSel.value = "";
+    }
+    prefixSel.classList.remove('prefix-tier');
+    if (prefixSel.value !== "") {
+        prefixSel.classList.add('prefix-selected');
+    } else {
+        prefixSel.classList.remove('prefix-selected');
+    }
+
+    // 익시드: HTML 원본 옵션 복원 + disabled (공백 포함 원래 상태로)
+    if (exceedSel) {
+        exceedSel.innerHTML = '<option></option><option>이상</option><option>선봉</option><option>의지</option>';
+        exceedSel.disabled = true;
+        exceedSel.value = "";
+    }
+}
+
+/**
+ * 캐릭터 전체 방어구 슬롯 상태 일괄 갱신 (페이지 로드 시)
+ */
+function refreshAllArmorSlotStates(charId) {
+    ["상의", "하의", "어깨", "벨트", "신발"].forEach(slot => {
+        refreshArmorSlotState(slot, charId, true);
+    });
+}
+
 /**
  * 봉인 하이라이트 적용
  */
@@ -351,7 +473,11 @@ function updateStyle(el, type, isInitial = false) {
                 prefixSel.innerHTML = optionsHTML;
                 if (savedPrefixValue) prefixSel.value = savedPrefixValue;
 
-                updateStyle(prefixSel, 'prefix', isInitial);
+                // 방어구 슬롯은 접두어를 refreshArmorSlotState가 처리하므로 여기서는 비방어구만 updateStyle
+                const isArmorSlot = !["목걸이", "팔찌", "반지", "보조장비", "귀걸이", "마법석", "무기"].includes(slot);
+                if (!isArmorSlot) {
+                    updateStyle(prefixSel, 'prefix', isInitial);
+                }
             }
 
             if (nameEl && itemOptions[slot]) {
@@ -391,6 +517,28 @@ function updateStyle(el, type, isInitial = false) {
             if (optSelect) optSelect.className = 'art-opt-select bg-' + el.value;
         }
 
+    }
+
+    // 방어구 접두어 변경 시 익시드 활성화 재계산
+    // (익시드 상의는 공백 없이 항상 선택값이 있으므로 이 코드는 주로 안전장치 역할)
+    if (type === 'prefix') {
+        const armorSlots = ["상의", "하의", "어깨", "벨트", "신발"];
+        if (armorSlots.includes(slot)) {
+            const exceedSel = row.querySelector(`select[data-key="${slot}_exceed"]`);
+            if (exceedSel) {
+                const itemnameSel = row.querySelector(`[data-key="${slot}_itemname"]`);
+                const itemName = itemnameSel ? itemnameSel.value.trim() : "";
+                const info = (typeof ARMOR_ITEM_INFO !== 'undefined') ? ARMOR_ITEM_INFO[itemName] : null;
+                // 익시드 아이템 + 접두어 선택됨 → enabled, 나머지 → disabled
+                if (info?.isExceed && el.value !== "") {
+                    exceedSel.disabled = false;
+                } else if (!info?.isExceed) {
+                    // 일반 아이템은 항상 disabled
+                    exceedSel.disabled = true;
+                    exceedSel.value = "";
+                }
+            }
+        }
     }
 
     if (!isInitial) autoSave();
@@ -438,11 +586,13 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     if (slot === '상의' && rarity === '에픽') {
         newEl.addEventListener('change', () => {
             if (typeof updateItemImage === 'function') updateItemImage(newEl);
+            if (typeof refreshArmorSlotState === 'function') refreshArmorSlotState(slot, charId);
             runSetCheck(slot, charId);
             autoSave();
         });
     } else {
         newEl.addEventListener('change', () => {
+            if (typeof refreshArmorSlotState === 'function') refreshArmorSlotState(slot, charId);
             runSetCheck(slot, charId);
             autoSave();
         });
@@ -469,6 +619,12 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     }
 
     runSetCheck(slot, charId);
+
+    // 방어구 슬롯: 접두어/익시드 상태 재계산
+    const armorSlots = ["상의", "하의", "어깨", "벨트", "신발"];
+    if (armorSlots.includes(slot) && typeof refreshArmorSlotState === 'function') {
+        refreshArmorSlotState(slot, charId, true);
+    }
 }
 
 // ============================================

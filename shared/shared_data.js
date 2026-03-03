@@ -166,6 +166,26 @@ const armorSets = (() => {
     return result;
 })();
 
+// ※ project1 호환용: ARMOR_ITEM_INFO
+// 아이템이름 → { setName, prefixes, isExceed } 역방향 맵
+// 상의 배열에서 index 0 = 익시드 아이템, index 1 = 일반 아이템
+const ARMOR_ITEM_INFO = (() => {
+    const result = {};
+    Object.entries(ARMOR_DISPLAY_NAMES).forEach(([setName, slotMap]) => {
+        const prefixes = ARMOR_PREFIX[setName] || [];
+        Object.entries(slotMap).forEach(([slot, val]) => {
+            if (Array.isArray(val)) {
+                val.forEach((itemName, idx) => {
+                    if (itemName) result[itemName] = { setName, prefixes, isExceed: idx === 0 };
+                });
+            } else {
+                if (val) result[val] = { setName, prefixes, isExceed: false };
+            }
+        });
+    });
+    return result;
+})();
+
 
 /* ============================================================
    [섹션 2] 악세서리 세트

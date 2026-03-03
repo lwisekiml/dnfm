@@ -1321,6 +1321,12 @@ input:disabled, select:disabled {
     pointer-events: none !important;
 }
 
+/* 접두어/익시드 선택 불가 상태 시각적 표시 */
+.col-exceed select:disabled,
+.col-prefix select:disabled {
+    opacity: var(--opacity-disabled);
+}
+
 textarea {
     background: var(--bg-dark);
     color: var(--color-white);
@@ -1489,7 +1495,10 @@ textarea {
     font-weight: bold;
 }
 
-/* .set-highlight, .ex-itemname-light 제거 - JS 미사용, inline style로 처리 */
+.ex-itemname-light {
+    color: var(--ex-itemname-light) !important;
+    font-weight: bold;
+}
 
 /* ========================================
    접두어 색상 (Prefix Colors)
@@ -1551,6 +1560,10 @@ select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
     text-shadow: var(--shadow-text);
 }
 
+.set-highlight {
+    color: var(--highlight-cyan) !important;
+    font-weight: bold;
+}
 
 .itemname-color-sync {
     font-weight: bold;

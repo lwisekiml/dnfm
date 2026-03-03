@@ -2705,3 +2705,52 @@ project/
   - 변경: `images/ARMOR/{아이템명}.png`
 
 ---
+
+## 2026-03-03 (58차)
+
+### 상의 슬롯 접두어/익시드 연동 및 글자색 버그 수정
+
+**수정된 파일:** `js/ui-core.js`, `js/ui-character.js`, `shared/shared_data.js`, `styles/styles.css`, `styles/merged.css`
+
+---
+
+### 변경 내용
+
+**`shared/shared_data.js` — ARMOR_ITEM_INFO 맵 추가**
+
+- 아이템이름 → `{ setName, prefixes, isExceed }` 역방향 맵 자동 생성
+- `ARMOR_DISPLAY_NAMES` 기준으로 상의 배열 index 0 = 익시드 아이템, index 1 = 일반 아이템으로 판별
+
+**`js/ui-core.js` — refreshArmorSlotState / refreshAllArmorSlotStates 추가**
+
+케이스 3개로 명확히 분리:
+
+1. 아이템이름 없음 → 접두어/익시드 모두 disabled + 빈칸 초기화
+2. 익시드 아이템 (index 0) → 접두어 공백 없이 세트 목록 + 첫 번째 자동 선택, 익시드 공백 없이 "이상" 자동 선택 (복구 시 저장값 유지, 유효하지 않으면 첫 번째 값)
+3. 일반 아이템 (index 1) → 접두어 공백 포함 세트 목록 + 공백 선택, 익시드 항상 disabled (복구 시 저장값 유지, 유효하지 않으면 공백)
+
+버그 수정:
+- `innerHTML` 교체 전 현재값 저장 (교체 후 value 초기화되는 타이밍 문제)
+- 익시드 select `innerHTML`도 직접 교체하여 HTML 원본 공백 옵션 제거
+- 일반 아이템 복구 시 exceedSel에 이전 값이 남아 초록색으로 나오던 문제 수정
+- `change` 이벤트 실행 순서 수정: `refreshArmorSlotState` → `runSetCheck` 순서로 변경 (기존 반대 순서로 색상 결정 시 exceedSel이 이전 값이었음)
+- `updateStyle` prefix 블록의 `refreshArmorSlotState` 호출이 무한루프를 일으키던 문제 수정 → 익시드 재계산만 직접 처리
+
+**`js/ui-character.js`**
+
+- `handleItemNameField` itemname onchange 순서 수정: `refreshArmorSlotState` → `runSetCheck`
+- `restoreSavedData` itemname 복구 시 `rare-에픽`, `itemname-color-sync` 클래스 강제 보장 (구버전 저장 데이터 cls에 클래스 누락 시 흰색으로 나오던 문제)
+- `restoreSavedData` setTimeout에 `refreshAllArmorSlotStates` 추가
+- 신규 캐릭터 생성 시 `refreshAllArmorSlotStates` 호출 추가
+
+**`styles/styles.css`, `styles/merged.css`**
+
+- `.col-exceed select:disabled`, `.col-prefix select:disabled` → `opacity: 0.5` 추가
+
+---
+
+### 이미지 경로 수정
+
+- 상의 아이템 이미지 경로: `images/` → `images/ARMOR/`
+
+---
