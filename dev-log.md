@@ -2754,3 +2754,54 @@ project/
 - 상의 아이템 이미지 경로: `images/` → `images/ARMOR/`
 
 ---
+
+## 2026-03-03 (59차)
+
+### 상의 슬롯 접두어/익시드/이미지 연동 구현 및 버그 수정
+
+**수정된 파일:** `js/ui-core.js`, `js/ui-character.js`, `shared/shared_data.js`, `styles/styles.css`, `styles/merged.css`
+
+---
+
+### 변경 내용
+
+**`shared/shared_data.js` — ARMOR_ITEM_INFO 맵 추가**
+
+- 아이템이름 → `{ setName, prefixes, isExceed }` 역방향 맵 자동 생성
+- `ARMOR_DISPLAY_NAMES` 배열 기준 index 0 = 익시드 아이템, index 1 = 일반 아이템으로 자동 판별
+
+**`js/ui-core.js` — refreshArmorSlotState / refreshAllArmorSlotStates 추가**
+
+케이스 3개로 분리:
+
+- 아이템이름 없음 → 접두어/익시드 모두 disabled + 초기화
+- 익시드 아이템 → 접두어 공백 없이 세트 목록, 첫 번째 자동 선택 / 익시드 공백 없이 "이상" 자동 선택 (복구 시 저장값 유지, 유효하지 않으면 첫 번째 값)
+- 일반 아이템 → 접두어 공백 포함 세트 목록, 공백 선택 / 익시드 항상 disabled (복구 시 저장값 유지, 유효하지 않으면 공백)
+
+버그 수정:
+
+- `innerHTML` 교체 전 현재값 저장 (교체 후 value 초기화되는 타이밍 문제)
+- 익시드 select `innerHTML` 직접 교체하여 HTML 원본 공백 옵션 제거
+- `updateStyle` prefix 블록의 `refreshArmorSlotState` 호출 무한루프 방지 → 익시드 재계산만 직접 처리
+- 접두어 변경 시 상의 이미지 갱신 추가 (`updateStyle` prefix 블록)
+- `replaceItemNameField` change 이벤트에 `refreshArmorSlotState` 누락 수정
+
+**`js/ui-character.js`**
+
+- `handleItemNameField` / `replaceItemNameField` change 이벤트 실행 순서 수정
+  - 기존: `updateItemImage` → `refreshArmorSlotState` → `runSetCheck`
+  - 변경: `refreshArmorSlotState` → `updateItemImage` → `runSetCheck`
+- `restoreSavedData` 2단계 조기 `updateItemImage` 호출 제거 (접두어 복구 전 잘못된 이미지 표시 방지)
+- `restoreSavedData` setTimeout에 `refreshAllArmorSlotStates` → `updateItemImage` 순서로 통합
+- 신규 캐릭터 생성 시 `refreshAllArmorSlotStates` 호출 추가
+- itemname 복구 시 `rare-에픽`, `itemname-color-sync` 클래스 강제 보장 (흰색 글자 방지)
+- `updateItemImage` 파일명 규칙 변경
+  - 접두어 없음 → `images/ARMOR/{아이템이름}.png`
+  - 접두어 있음 → `images/ARMOR/{접두어}_{아이템이름}.png`
+  - 아이템이름 콜론(`:`) → `_` 치환 (예: `레거시: 라이트니스 오토 상의` → `레거시_라이트니스 오토 상의`)
+
+**`styles/styles.css`, `styles/merged.css`**
+
+- `.col-exceed select:disabled`, `.col-prefix select:disabled` → `opacity: 0.5` 추가
+
+---

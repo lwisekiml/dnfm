@@ -259,8 +259,8 @@ function handleItemNameField(rowFragment, slot, charId) {
         // 상의 슬롯: 선택 시 왼쪽 이미지 미리보기 업데이트
         if (slot === '상의') {
             select.onchange = () => {
-                updateItemImage(select);
                 if (typeof refreshArmorSlotState === 'function') refreshArmorSlotState(slot, charId);
+                updateItemImage(select);
                 runSetCheck(slot, charId);
                 autoSave();
             };
@@ -290,32 +290,45 @@ function handleItemNameField(rowFragment, slot, charId) {
 
 /**
  * 상의 아이템 이미지 미리보기 업데이트
- * 파일명 규칙: images/ARMOR/{아이템명}.png
+ * 파일명 규칙:
+ *   접두어 없음 → images/ARMOR/{아이템이름}.png
+ *   접두어 있음 → images/ARMOR/{접두어}_{아이템이름}.png
+ *   아이템이름에 콜론(:) 포함 시 → _ 로 대체
  */
 function updateItemImage(select) {
     const td = select.parentElement;
     const img = td.querySelector('.itemname-img-preview');
     if (!img) return;
 
-    const value = select.value;
+    const itemName = select.value;
 
     // 이전 onerror 핸들러 제거 후 src 초기화 (캐시 문제 방지)
     img.onerror = null;
     img.src = '';
     img.classList.remove('has-image');
 
-    if (value) {
-        img.alt = value;
-        img.onerror = function() {
-            this.onerror = null;
-            this.src = '';
-            this.classList.remove('has-image');
-        };
-        img.src = `images/ARMOR/${value}.png`;
-        img.classList.add('has-image');
-    } else {
+    if (!itemName) {
         img.alt = '';
+        return;
     }
+
+    // 같은 행의 접두어 select 참조
+    const row = select.closest('tr');
+    const prefixSel = row ? row.querySelector('select[data-key="상의_prefix"]') : null;
+    const prefix = prefixSel ? prefixSel.value.trim() : "";
+
+    // 파일명 생성 (콜론 → _ 치환)
+    const safeName = itemName.replace(/:\s*/g, '_');
+    const fileName = prefix ? `${prefix}_${safeName}` : safeName;
+
+    img.alt = itemName;
+    img.onerror = function() {
+        this.onerror = null;
+        this.src = '';
+        this.classList.remove('has-image');
+    };
+    img.src = `images/ARMOR/${fileName}.png`;
+    img.classList.add('has-image');
 }
 
 /**
@@ -376,11 +389,6 @@ function restoreSavedData(section, savedData, charId) {
 
         el.value = data.val;
 
-        // 상의 아이템이름 복구 시 이미지 미리보기도 업데이트
-        if (key === '상의_itemname' && el.tagName === 'SELECT') {
-            updateItemImage(el);
-        }
-
         // 크리쳐 아티팩트 배경색 동기화
         if (key.includes('_art_') && key.includes('_bg_')) {
             updateStyle(el, 'artBg', true);
@@ -412,6 +420,15 @@ function restoreSavedData(section, savedData, charId) {
         // 접두어/익시드 활성화 상태 복구
         if (typeof refreshAllArmorSlotStates === 'function') {
             refreshAllArmorSlotStates(charId);
+        }
+
+        // 상의 이미지 복구 (접두어 복구 완료 후 갱신)
+        if (typeof updateItemImage === 'function') {
+            const section = document.getElementById(charId);
+            const itemnameSel = section?.querySelector('[data-key="상의_itemname"]');
+            if (itemnameSel && itemnameSel.tagName === 'SELECT') {
+                updateItemImage(itemnameSel);
+            }
         }
 
         applySealHighlight(charId);

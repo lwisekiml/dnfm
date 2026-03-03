@@ -539,6 +539,12 @@ function updateStyle(el, type, isInitial = false) {
                 }
             }
         }
+
+        // 상의 슬롯: 접두어 변경 시 이미지 갱신
+        if (slot === "상의" && typeof updateItemImage === 'function') {
+            const itemnameSel = row.querySelector('[data-key="상의_itemname"]');
+            if (itemnameSel) updateItemImage(itemnameSel);
+        }
     }
 
     if (!isInitial) autoSave();
@@ -585,8 +591,8 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     // 상의 슬롯 이벤트: 이미지 미리보기 업데이트 포함
     if (slot === '상의' && rarity === '에픽') {
         newEl.addEventListener('change', () => {
-            if (typeof updateItemImage === 'function') updateItemImage(newEl);
             if (typeof refreshArmorSlotState === 'function') refreshArmorSlotState(slot, charId);
+            if (typeof updateItemImage === 'function') updateItemImage(newEl);
             runSetCheck(slot, charId);
             autoSave();
         });
