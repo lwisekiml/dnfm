@@ -150,15 +150,28 @@ document.addEventListener('change', function (e) {
     }
     const newVal = el.value;
 
+    // select 요소인 경우 value 대신 선택된 option의 표시 텍스트(label)를 기록에 사용
+    function getDisplayVal(val, element) {
+        if (!val) return "";
+        if (element && element.tagName === 'SELECT') {
+            const opt = Array.from(element.options).find(o => o.value === val);
+            if (opt) return opt.text;
+        }
+        return val;
+    }
+
     if (oldVal !== newVal) {
         const timeStr = getCurrentDateTime();
+
+        const displayOld = getDisplayVal(oldVal, el);
+        const displayNew = getDisplayVal(newVal, el);
 
         AppState.changeHistory.unshift({
             time: timeStr,
             charName: charName,
             slot: slot,
-            old: (oldVal === "" ? "(빈칸)" : oldVal),
-            new: (newVal === "" ? "(빈칸)" : newVal)
+            old: (displayOld === "" ? "(빈칸)" : displayOld),
+            new: (displayNew === "" ? "(빈칸)" : displayNew)
         });
         if (AppState.changeHistory.length > 10) AppState.changeHistory.pop();
 

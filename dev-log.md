@@ -3244,3 +3244,33 @@ project/
 ### 수정 파일
 
 `shared/shared_weapon.js`, `index.html`, `js/ui-character.js`, `js/ui-core.js`, `js/storage.js`, `styles/styles.css`
+
+---
+
+## 2026-03-04 (69차)
+
+### 상세입력 변경 기록 - select 값 표시 텍스트로 변환
+
+**수정된 파일:** `js/main.js`
+
+---
+
+### 변경 배경
+
+아바타 weapon_stat select에서 "힘, 지능, 체력, 정신력 +18"을 선택하면 변경 기록에 내부 인코딩값(`힘,지능,체력,정신력|18`)이 그대로 표시되는 문제.
+
+### 원인
+
+`main.js`의 change 이벤트 핸들러에서 `el.value`를 그대로 기록에 저장하고 있었음. select 요소의 value는 내부 인코딩값이고, 화면에 표시되는 텍스트는 option의 text 속성이므로 불일치 발생.
+
+### 수정 내용
+
+**`js/main.js`**
+
+- `getDisplayVal(val, element)` 함수 추가
+  - select 요소인 경우 선택된 `option.text`(화면 표시 텍스트)를 반환
+  - select 이외 요소는 value 그대로 반환
+- 변경 기록 저장 시 `oldVal`/`newVal` 대신 `displayOld`/`displayNew` 사용
+  - 모든 select 필드(weapon_stat 포함)의 변경 기록이 value 대신 label로 표시됨
+
+---
