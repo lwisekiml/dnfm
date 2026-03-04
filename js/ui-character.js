@@ -309,11 +309,19 @@ function handleItemNameField(rowFragment, slot, charId) {
                 autoSave();
             };
         } else if (slot === '칭호') {
-            select.onchange = () => { updateTitleImage(select); autoSave(); };
+            select.onchange = () => {
+                updateTitleImage(select);
+                applyItemInfoToDesc(select, slot, charId, GameData.TITLE_ITEM_INFO);
+                autoSave();
+            };
         } else if (slot === '외형칭호') {
             select.onchange = () => { updateAppearanceTitleImage(select); autoSave(); };
         } else if (slot === '오라') {
-            select.onchange = () => { updateAuraImage(select); autoSave(); };
+            select.onchange = () => {
+                updateAuraImage(select);
+                applyItemInfoToDesc(select, slot, charId, GameData.AURA_ITEM_INFO);
+                autoSave();
+            };
         } else {
             select.onchange = () => {
                 runSetCheck(slot, charId);
@@ -817,4 +825,26 @@ function applyWeaponEmblemColor(charId, colorCls) {
     hiddenInput.value = colorCls;
 
     autoSave();
+}
+
+// ============================================
+// 칭호/오라 설명 자동 입력
+// ============================================
+
+/**
+ * 선택한 아이템의 info를 desc textarea에 자동 입력
+ * @param {HTMLElement} select  - itemname select
+ * @param {string} slot         - 슬롯명
+ * @param {string} charId       - 캐릭터 ID
+ * @param {Object} infoMap      - TITLE_ITEM_INFO 또는 AURA_ITEM_INFO
+ */
+function applyItemInfoToDesc(select, slot, charId, infoMap) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+    const descEl = section.querySelector(`[data-key="${slot}_desc"]`);
+    if (!descEl) return;
+
+    const itemName = select.value;
+    const info = infoMap?.[itemName]?.info || '';
+    descEl.value = info;
 }

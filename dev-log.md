@@ -3021,3 +3021,34 @@ project/
 - `images/aura/{아이템이름}.png`
 
 ---
+
+## 2026-03-04 (65차)
+
+### 칭호/외형칭호/오라 텍스트 입력 차단 및 설명 자동 입력
+
+**수정된 파일:** `js/ui-character.js`, `js/ui-core.js`, `js/ui-memo-tag.js`
+
+---
+
+### 변경 내용
+
+**`js/ui-character.js`**
+
+- `applyItemInfoToDesc(select, slot, charId, infoMap)` 함수 추가
+  - 선택한 아이템명으로 `TITLE_ITEM_INFO` 또는 `AURA_ITEM_INFO`에서 info 조회 후 `_desc` textarea에 자동 입력
+- 칭호 onchange: `updateTitleImage` + `applyItemInfoToDesc(TITLE_ITEM_INFO)` 호출
+- 오라 onchange: `updateAuraImage` + `applyItemInfoToDesc(AURA_ITEM_INFO)` 호출
+- 칭호/외형칭호/오라는 `itemOptions` 등록 + `_forceSelectSlots`로 항상 select 보장 → 텍스트 직접 입력 차단
+
+**`js/ui-core.js`**
+
+- `replaceItemNameField` change 이벤트에 칭호/오라 desc 자동 입력 추가
+
+**`js/ui-memo-tag.js`**
+
+- `openDescModal`에서 칭호/외형칭호/오라 desc는 잠금 여부와 무관하게 항상 읽기 전용으로 열림
+  - `data-key`가 `칭호_desc`, `외형칭호_desc`, `오라_desc`인 경우 `isReadonlySlot = true`
+  - `isLocked || isReadonlySlot` 조건으로 편집 불가 처리
+  - 잠금 아이콘은 실제 잠금 상태일 때만 표시
+
+---

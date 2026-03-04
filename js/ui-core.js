@@ -647,6 +647,11 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     newEl.addEventListener('change', () => {
         if (typeof _slotRefreshFn[slot] === 'function') _slotRefreshFn[slot](slot, charId);
         if ((useSelect || rarity === '에픽') && typeof _slotImgFn[slot] === 'function') _slotImgFn[slot](newEl);
+        // 칭호/오라: desc에 아이템 정보 자동 입력
+        if (slot === '칭호' && typeof applyItemInfoToDesc === 'function')
+            applyItemInfoToDesc(newEl, slot, charId, typeof GameData !== 'undefined' ? GameData.TITLE_ITEM_INFO : {});
+        if (slot === '오라' && typeof applyItemInfoToDesc === 'function')
+            applyItemInfoToDesc(newEl, slot, charId, typeof GameData !== 'undefined' ? GameData.AURA_ITEM_INFO : {});
         runSetCheck(slot, charId);
         autoSave();
     });

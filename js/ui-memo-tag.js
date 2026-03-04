@@ -430,6 +430,11 @@ function openDescModal(inputEl) {
     const isLocked = section?.querySelector('.lock-btn')?.classList.contains('btn-active');
     const currentVal = inputEl.value || '';
 
+    // 칭호/외형칭호/오라는 항상 읽기 전용 (선택지로만 변경 가능)
+    const dataKey = inputEl.getAttribute('data-key') || '';
+    const readonlySlots = ['칭호_desc', '외형칭호_desc', '오라_desc'];
+    const isReadonlySlot = readonlySlots.some(k => dataKey === k);
+
     currentDescInput = inputEl;
 
     // 기존 모달 제거
@@ -447,11 +452,11 @@ function openDescModal(inputEl) {
     modal.style.boxShadow   = DESC_POPUP.boxShadow;
     modal.style.zIndex      = DESC_POPUP.zIndex;
 
-    if (isLocked) {
+    if (isLocked || isReadonlySlot) {
         modal.innerHTML = `
             <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #444;">
                 <span style="font-weight: bold; color: #ffd700; font-size: 14px;">📋 설명</span>
-                <span style="color: #f90; font-size: 11px; margin-left: 8px;">🔒 잠금</span>
+                <span style="color: #f90; font-size: 11px; margin-left: 8px;">${isLocked ? '🔒 잠금' : ''}</span>
             </div>
             <div style="width: 100%; min-height: ${DESC_POPUP.readonlyMinHeight}; max-height: ${DESC_POPUP.readonlyMaxHeight}; overflow-y: auto; padding: 10px;
                        background: ${DESC_POPUP.readonlyBg}; color: #fff; border: ${DESC_POPUP.readonlyBorder};
