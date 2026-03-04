@@ -397,7 +397,7 @@
                 <!-- 1열: 직업/이름/항마 -->
                 <td rowspan="3" style="vertical-align:top; padding:6px;">
                     <div style="display:flex; flex-direction:column; gap:4px;">
-                        <input type="text" placeholder="직업" data-key="info_job" oninput="autoSave()">
+                        <select data-key="info_job" onchange="onJobSelectChange(this);" style="width:100%;"></select>
                         <input type="text" placeholder="이름" data-key="info_name" oninput="autoSave()">
                         <input type="text" placeholder="항마력" data-key="info_power" oninput="autoSave()">
                     </div>

@@ -1570,6 +1570,84 @@ select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
 }
 
 /* ========================================
+   무기 아이템이름 2단계 select (div wrapper 세로 배치)
+======================================== */
+
+/* 에픽일 때: td 높이를 두 select에 맞게 auto */
+td.td-weapon-epic {
+    height: auto !important;
+    padding: 1px 2px;
+    vertical-align: middle;
+}
+
+/* 에픽일 때: 무기 행의 나머지 td도 높이 auto */
+tr:has(.td-weapon-epic) td {
+    height: auto;
+    min-height: var(--height-row);
+}
+
+/* 두 select를 세로로 쌓는 wrapper div */
+.weapon-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 100%;
+}
+
+.weapon-wrap select {
+    width: 100%;
+    height: 13px;
+    font-size: var(--fs-table);
+    padding: 0 1px;
+    line-height: 1;
+    box-sizing: border-box;
+}
+
+/* ========================================
+   아이템 아이콘 (td-itemname)
+   - 무기를 제외한 에픽 장비 아이콘 표시용
+======================================== */
+.td-itemname {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 2px;
+    min-width: var(--width-itemname-min);
+}
+
+/* weapon-type-sel(1단계 고정폭) 제외, 나머지만 flex:1 */
+.td-itemname input,
+.td-itemname select:not(.weapon-type-sel) {
+    flex: 1;
+    min-width: 0;
+}
+
+/* 이미지를 가두는 고정 크기 div */
+.item-icon-wrap {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    max-width: 22px;
+    min-height: 22px;
+    max-height: 22px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--input-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item-icon-wrap .item-icon {
+    width: 22px;
+    height: 22px;
+    display: block;
+    flex-shrink: 0;
+}
+
+/* ========================================
    아티팩트 (Creature Artifacts)
 ======================================== */
 .artifact-main-wrapper {

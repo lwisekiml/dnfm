@@ -99,6 +99,13 @@ function createCharacterTable(savedData = null) {
     document.getElementById('characterContainer').appendChild(section);
     updateRuneSummary(charId);
 
+    // info_job select 옵션 초기화 (DOM 삽입 후)
+    const _jobSel = section.querySelector('select[data-key="info_job"]');
+    if (_jobSel && typeof initJobSelect === 'function') initJobSelect(_jobSel);
+
+    // 무기 아이템 select 옵션 초기화
+    if (typeof initWeaponItemSelect === 'function') initWeaponItemSelect(charId);
+
     // 7) 접두어 리스트 초기화
     initializePrefixSelects(section);
 
@@ -269,6 +276,24 @@ function handleItemNameField(rowFragment, slot, charId) {
     const existingField = container.querySelector(`[data-key="${slot}_itemname"]`);
     if (!existingField) return;
 
+    // 무기 슬롯: 직업 기반 단일 select + 이미지
+    if (slot === '무기') {
+        const select = document.createElement('select');
+        select.setAttribute('data-key', '무기_itemname');
+        select.className = 'rare-에픽 itemname-color-sync';
+        select.onchange = () => { updateWeaponImage(select); autoSave(); };
+
+        const img = document.createElement('img');
+        img.className = 'itemname-img-preview';
+        img.src = '';
+        img.alt = '';
+
+        existingField.replaceWith(select);
+        container.insertBefore(img, select);
+        // 옵션은 DOM 삽입 후 initWeaponItemSelect(charId) 에서 채움
+        return;
+    }
+
     // itemOptions에 정의된 슬롯은 select로 변경
     if (itemOptions[slot]) {
         const select = document.createElement('select');
@@ -428,6 +453,130 @@ function updateSubImage(select)     { _applySlotImage(select, '보조장비', 'S
 function updateTitleImage(select)   { _applySlotImage(select, '칭호',   'title'); }
 function updateAppearanceTitleImage(select){ _applySlotImage(select, '외형칭호', 'appearanceTitle'); }
 function updateAuraImage(select)    { _applySlotImage(select, '오라',   'aura'); }
+
+/**
+ * 무기 아이템 이미지 업데이트 (images/WEAPON/{아이템이름}.png)
+ * 콜론+공백 → _ 치환
+ */
+function updateWeaponImage(select) {
+    const td = select.parentElement;
+    const img = td ? td.querySelector('.itemname-img-preview') : null;
+    if (!img) return;
+
+    const itemName = select.value;
+    img.onerror = null;
+    img.src = '';
+    img.classList.remove('has-image');
+
+    if (!itemName) { img.alt = ''; return; }
+
+    // 콜론만 제거 (예: "요도 : 무라마사" → "요도  무라마사" - 공백 두 개 유지)
+    const safeName = itemName.replace(/:/g, '');
+    img.alt = itemName;
+    img.onerror = function() { this.onerror = null; this.src = ''; this.classList.remove('has-image'); };
+    img.src = 'images/WEAPON/' + safeName + '.png';
+    img.classList.add('has-image');
+}
+
+/**
+ * 직업에 맞게 무기_itemname select 옵션을 채운다 (단일 select)
+ * 형식: 무기종류(disabled 헤더) → 에픽 아이템들
+ * @param {string} charId
+ * @param {string} [savedVal] 복구할 선택값
+ */
+function initWeaponItemSelect(charId, savedVal) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    const weaponSel = section.querySelector('select[data-key="무기_itemname"]');
+    if (!weaponSel) return;
+
+    const jobSel = section.querySelector('select[data-key="info_job"]');
+    const jobVal = jobSel ? jobSel.value : '';
+    const weaponData = (typeof getWeaponDataByJob === 'function') ? getWeaponDataByJob(jobVal) : null;
+
+    weaponSel.innerHTML = '<option value="" disabled selected></option>';
+
+    if (weaponData) {
+        const entries = Object.entries(weaponData);
+        entries.forEach(([weaponType, items], idx) => {
+            // 두 번째 무기종류부터 앞에 공백 옵션 추가 (선택 불가)
+            if (idx > 0) {
+                const blank = document.createElement('option');
+                blank.value = '';
+                blank.disabled = true;
+                blank.textContent = '';
+                weaponSel.appendChild(blank);
+            }
+
+            // 무기종류 헤더 (disabled, 선택 불가)
+            const hdr = document.createElement('option');
+            hdr.value = '';
+            hdr.textContent = weaponType;
+            hdr.disabled = true;
+            weaponSel.appendChild(hdr);
+
+            // 에픽 아이템들 (선택 가능)
+            items.forEach(itemName => {
+                const opt = document.createElement('option');
+                opt.value = itemName;
+                opt.textContent = itemName;
+                weaponSel.appendChild(opt);
+            });
+        });
+    }
+
+    if (savedVal) {
+        weaponSel.value = savedVal;
+    } else {
+        // 저장값 없으면 첫 번째 선택 가능한 아이템 자동 선택
+        const firstSelectable = Array.from(weaponSel.options).find(o => !o.disabled && o.value !== '');
+        if (firstSelectable) weaponSel.value = firstSelectable.value;
+    }
+    updateWeaponImage(weaponSel);
+}
+
+/**
+ * info_job select 변경 시 호출
+ * syncCharInfoToP2 + 무기 select 갱신 + 저장
+ */
+function onJobSelectChange(el) {
+    if (typeof syncCharInfoToP2 === 'function') syncCharInfoToP2(el);
+    const section = el.closest('.char-section');
+    if (!section) return;
+    initWeaponItemSelect(section.id);
+    autoSave();
+}
+
+/**
+ * info_job select에 직업 선택지 옵션을 채운다
+ * @param {HTMLSelectElement} sel
+ * @param {string} [savedVal]
+ */
+function initJobSelect(sel, savedVal) {
+    if (!sel || typeof JOB_SELECT_OPTIONS === 'undefined') return;
+
+    sel.innerHTML = '<option value="" disabled selected></option>';
+
+    JOB_SELECT_OPTIONS.forEach(opt => {
+        const o = document.createElement('option');
+        if (opt.type === 'separator') {
+            o.disabled = true;
+            o.textContent = '───────────────';
+            o.value = '';
+        } else if (opt.type === 'disabled') {
+            o.disabled = true;
+            o.value = '';
+            o.textContent = '';
+        } else {
+            o.value = opt.value;
+            o.textContent = opt.value;
+        }
+        sel.appendChild(o);
+    });
+
+    if (savedVal) sel.value = savedVal;
+}
 
 function initializePrefixSelects(section) {
     section.querySelectorAll('select[data-key$="_prefix"]').forEach(sel => {
@@ -597,6 +746,12 @@ function restoreSavedData(section, savedData, charId) {
                 const sel = section?.querySelector(`[data-key="${sl}_itemname"]`);
                 if (sel && sel.tagName === 'SELECT') fn(sel);
             });
+
+            // 무기 이미지 복구
+            if (typeof updateWeaponImage === 'function') {
+                const _wSel = section?.querySelector('select[data-key="무기_itemname"]');
+                if (_wSel) updateWeaponImage(_wSel);
+            }
         }
 
         applySealHighlight(charId);

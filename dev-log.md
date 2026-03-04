@@ -3172,3 +3172,75 @@ project/
   - 빈 선택: `"weapon_stat": { "stats": [], "amount": null }`
 
 ---
+
+## 2026-03-04 (68차)
+
+### 무기 직업 select + 아이템이름 select 구현 + 비에픽 접두어 비활성화
+
+---
+
+### 변경 배경
+
+`info_job` 텍스트 입력을 직업 선택 드롭다운으로, 무기 슬롯 에픽 아이템이름을 직업 기반 단일 select로 교체.
+무기 희귀도가 커먼/언커먼/레어/유니크일 때 접두어를 선택할 수 없도록 비활성화.
+
+---
+
+### 수정 내용
+
+**`shared/shared_weapon.js` — 섹션3 전면 교체**
+
+- `JOB_SELECT_OPTIONS`: 기본직업(11개) + 전직직업(114개) + 구분선/공백 포함 select 옵션 배열
+- `JOB_TO_WEAPON_KEY`: 기본직업명 → `WEAPON_DATA_MAP` 키 매핑
+- `SUBJOB_TO_BASE`: 전직직업 → 기본직업명 매핑 (114개)
+- `getWeaponDataByJob(jobName)`: 기본직업 또는 전직직업으로 무기 데이터 반환
+
+**`index.html`**
+
+- `info_job` `<input type="text">` → `<select onchange="onJobSelectChange(this);">` 교체
+
+**`js/ui-character.js`**
+
+- `initJobSelect(sel, savedVal)`: `info_job` select 옵션 초기화 (기본직업/전직직업/구분선 포함)
+- `onJobSelectChange(el)`: 직업 변경 시 `syncCharInfoToP2` + 무기 select 옵션 갱신 + `autoSave` 호출
+- `initWeaponItemSelect(charId, savedVal)`: 직업 기반 단일 select 옵션 생성
+  - 무기종류 헤더(disabled) + 아이템 목록 구조
+  - 무기종류 그룹 사이에 빈 option(disabled) 추가
+  - 저장값 없으면 첫 번째 선택 가능한 아이템 자동 선택
+- `updateWeaponImage(select)`: `images/WEAPON/` 경로 이미지 업데이트
+  - 콜론만 제거 (`replace(/:/g, '')`) — 공백 유지
+- `handleItemNameField`: 무기 슬롯 분기 추가
+  - 단일 `<select data-key="무기_itemname">` + `<img class="itemname-img-preview">` 생성
+- `createCharacterTable`: DOM 삽입 후 `initJobSelect` + `initWeaponItemSelect` 호출
+- `restoreSavedData`: `info_job` 복구 → `initJobSelect` → `initWeaponItemSelect` 순서 처리 + 무기 이미지 복구
+
+**`js/ui-core.js`**
+
+- `updateStyle` rarity 처리에 무기 슬롯 전용 분기 추가
+  - 에픽 → `<select>` + `<img>` 생성 후 `initWeaponItemSelect` 호출, 접두어 활성화
+  - 커먼/언커먼/레어/유니크 → 텍스트 `<input>`으로 교체 + 접두어 select disabled
+  - 티어 → 텍스트 `<input>`, 접두어 선택 가능 유지
+
+**`js/storage.js`**
+
+- `autoSave()` 내 DOM 수집 시 `무기_weapontype` 키 저장 제외
+  - 무기 종류 select는 `무기_itemname` 복원 시 역추적 가능하므로 저장 불필요
+
+**`styles/styles.css`**
+
+- 무기 에픽일 때 행 높이 auto 처리
+  ```css
+  tr:has(.td-weapon-epic) td, tr:has(.td-weapon-epic) th { height: auto !important; }
+  td.td-weapon-epic { display: block !important; height: auto !important; }
+  ```
+- `.weapon-wrap`: 단일 select를 감싸는 flex column 컨테이너
+- `.weapon-wrap select`: 너비 100%, 높이 `var(--height-select)`
+- `.itemname-img-preview`: 24×24 아이템 이미지 미리보기 (visibility:hidden → has-image 시 visible)
+- `td:has(.itemname-img-preview)`: flex + align-items:center 레이아웃
+- `.td-itemname select:not(.weapon-type-sel)`: flex:1 적용
+
+---
+
+### 수정 파일
+
+`shared/shared_weapon.js`, `index.html`, `js/ui-character.js`, `js/ui-core.js`, `js/storage.js`, `styles/styles.css`
