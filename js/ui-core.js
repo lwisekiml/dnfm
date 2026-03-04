@@ -578,7 +578,8 @@ function updateStyle(el, type, isInitial = false) {
             '상의': updateItemImage,    '하의': updatePantsImage,    '어깨': updateShoulderImage,
             '벨트': updateBeltImage,    '신발': updateShoesImage,
             '팔찌': updateAccImage,     '목걸이': updateNecklaceImage, '반지': updateRingImage,
-            '귀걸이': updateSpecialImage, '마법석': updateMagicImage,  '보조장비': updateSubImage
+            '귀걸이': updateSpecialImage, '마법석': updateMagicImage,  '보조장비': updateSubImage,
+            '칭호': updateTitleImage, '외형칭호': updateAppearanceTitleImage, '오라': updateAuraImage
         };
         if (_prefixImgFnMap[slot]) {
             const itemnameSel = row.querySelector(`[data-key="${slot}_itemname"]`);
@@ -604,19 +605,20 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     const section = document.getElementById(charId);
     const isLocked = section?.querySelector('.lock-btn')?.classList.contains('btn-active');
 
+    // 칭호/외형칭호/오라는 희귀도 무관하게 항상 select
+    const _forceSelectSlots = ['칭호', '외형칭호', '오라'];
+    const useSelect = rarity === "에픽" || _forceSelectSlots.includes(slot);
+
     let newEl;
-    if (rarity === "에픽") {
+    if (useSelect) {
         newEl = document.createElement('select');
-        // itemOptions 배열 자체에 이미 첫 번째 빈 값이 포함되어 있으므로 중복 추가 없이 그대로 사용
         newEl.innerHTML = (itemOptions[slot] || []).map(opt =>
             `<option value="${opt}">${opt}</option>`
         ).join('');
-
         if (isLocked) newEl.disabled = true;
     } else {
         newEl = document.createElement('input');
         newEl.type = 'text';
-
         if (isLocked) {
             newEl.readOnly = true;
             newEl.style.cursor = "default";
@@ -638,12 +640,13 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
         '상의': updateItemImage,    '하의': updatePantsImage,    '어깨': updateShoulderImage,
         '벨트': updateBeltImage,    '신발': updateShoesImage,
         '팔찌': updateAccImage,     '목걸이': updateNecklaceImage, '반지': updateRingImage,
-        '귀걸이': updateSpecialImage, '마법석': updateMagicImage, '보조장비': updateSubImage
+        '귀걸이': updateSpecialImage, '마법석': updateMagicImage, '보조장비': updateSubImage,
+        '칭호': updateTitleImage, '외형칭호': updateAppearanceTitleImage, '오라': updateAuraImage
     };
 
     newEl.addEventListener('change', () => {
         if (typeof _slotRefreshFn[slot] === 'function') _slotRefreshFn[slot](slot, charId);
-        if (rarity === '에픽' && typeof _slotImgFn[slot] === 'function') _slotImgFn[slot](newEl);
+        if ((useSelect || rarity === '에픽') && typeof _slotImgFn[slot] === 'function') _slotImgFn[slot](newEl);
         runSetCheck(slot, charId);
         autoSave();
     });
@@ -652,9 +655,9 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
         autoSave();
     });
 
-    // 에픽 슬롯: 이미지 미리보기 img 태그 삽입
-    const _allImgSlots = ['상의','하의','어깨','벨트','신발','팔찌','목걸이','반지','귀걸이','마법석','보조장비'];
-    if (_allImgSlots.includes(slot) && rarity === '에픽') {
+    // 에픽 슬롯 + 칭호/외형칭호/오라: 이미지 미리보기 img 태그 삽입
+    const _allImgSlots = ['상의','하의','어깨','벨트','신발','팔찌','목걸이','반지','귀걸이','마법석','보조장비','칭호','외형칭호','오라'];
+    if (_allImgSlots.includes(slot) && (rarity === '에픽' || _forceSelectSlots.includes(slot))) {
         const img = document.createElement('img');
         img.className = 'itemname-img-preview';
         img.src = '';
@@ -664,8 +667,8 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
 
     parentTd.appendChild(newEl);
 
-    // 에픽: 현재 값에 맞게 이미지 즉시 업데이트
-    if (rarity === '에픽' && typeof _slotImgFn[slot] === 'function') {
+    // 에픽 또는 칭호/외형칭호/오라: 현재 값에 맞게 이미지 즉시 업데이트
+    if ((useSelect || rarity === '에픽') && typeof _slotImgFn[slot] === 'function') {
         _slotImgFn[slot](newEl);
     }
 

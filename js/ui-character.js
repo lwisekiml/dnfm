@@ -308,6 +308,12 @@ function handleItemNameField(rowFragment, slot, charId) {
                 runSetCheck(slot, charId);
                 autoSave();
             };
+        } else if (slot === '칭호') {
+            select.onchange = () => { updateTitleImage(select); autoSave(); };
+        } else if (slot === '외형칭호') {
+            select.onchange = () => { updateAppearanceTitleImage(select); autoSave(); };
+        } else if (slot === '오라') {
+            select.onchange = () => { updateAuraImage(select); autoSave(); };
         } else {
             select.onchange = () => {
                 runSetCheck(slot, charId);
@@ -321,7 +327,7 @@ function handleItemNameField(rowFragment, slot, charId) {
         existingField.replaceWith(select);
 
         // 이미지 미리보기가 있는 슬롯: select 왼쪽에 img 태그 추가
-        const _imgSlots = ['상의','하의','어깨','벨트','신발','팔찌','목걸이','반지','귀걸이','마법석','보조장비'];
+        const _imgSlots = ['상의','하의','어깨','벨트','신발','팔찌','목걸이','반지','귀걸이','마법석','보조장비','칭호','외형칭호','오라'];
         if (_imgSlots.includes(slot)) {
             const img = document.createElement('img');
             img.className = 'itemname-img-preview';
@@ -394,6 +400,10 @@ function updateRingImage(select)    { _applySlotImage(select, '반지',   'ACCES
 function updateSpecialImage(select) { _applySlotImage(select, '귀걸이', 'SPECIAL'); }
 function updateMagicImage(select)   { _applySlotImage(select, '마법석', 'SPECIAL'); }
 function updateSubImage(select)     { _applySlotImage(select, '보조장비', 'SPECIAL'); }
+// 칭호/외형칭호/오라 슬롯
+function updateTitleImage(select)   { _applySlotImage(select, '칭호',   'title'); }
+function updateAppearanceTitleImage(select){ _applySlotImage(select, '외형칭호', 'appearanceTitle'); }
+function updateAuraImage(select)    { _applySlotImage(select, '오라',   'aura'); }
 
 function initializePrefixSelects(section) {
     section.querySelectorAll('select[data-key$="_prefix"]').forEach(sel => {
@@ -405,6 +415,12 @@ function initializePrefixSelects(section) {
         if (raritySel) {
             updateStyle(raritySel, 'rarity', true);
         }
+    });
+
+    // 칭호/외형칭호/오라는 prefix가 없으므로 rarity를 직접 트리거해 itemname을 select로 교체
+    ['칭호', '외형칭호', '오라'].forEach(slot => {
+        const raritySel = section.querySelector(`select[data-key="${slot}_rarity"]`);
+        if (raritySel) updateStyle(raritySel, 'rarity', true);
     });
 }
 
@@ -499,7 +515,9 @@ function restoreSavedData(section, savedData, charId) {
                 ['팔찌',    updateAccImage],     ['목걸이',  updateNecklaceImage],
                 ['반지',    updateRingImage],
                 ['귀걸이',  updateSpecialImage], ['마법석',  updateMagicImage],
-                ['보조장비', updateSubImage]
+                ['보조장비', updateSubImage],
+                ['칭호',    updateTitleImage],   ['외형칭호', updateAppearanceTitleImage],
+                ['오라',    updateAuraImage]
             ];
             _restoreImgFns.forEach(([sl, fn]) => {
                 if (typeof fn !== 'function') return;

@@ -463,6 +463,41 @@ const sealData = {
 
 // 슬롯별 아이템 선택 옵션 목록 (project1 드롭다운용)
 // DISPLAY_NAMES 에서 자동 생성
+// 칭호/오라 아이템 상세 정보 (나중에 정보 열람 기능에서 사용)
+const TITLE_ITEM_INFO = {
+    "우리들의 Arcade": {
+        info: `기본정보
+힘, 지능 +33
+체력, 정신력 +22
+공격속도 +2%
+캐스팅속도 +2%
+이동속도 +2%
+물리 크리티컬 +30
+마법 크리티컬 +30
+---
+효과
+HP MAX +220(실적용 +2544)
+모든 속성 강화 +10
+데미지 10% 증가
+공격 시 1% 확률로 무색 큐블 조각 1개를 소모하여 30초간 힘 30, 지능 30, 체력 20, 정신력 20, 공격속도 5%, 캐스팅속도 5%, 이동속도 5% 증가합니다.`
+    }
+};
+
+const AURA_ITEM_INFO = {
+    "우리들의 Arcade 오라": {
+        info: `기본정보
+힘, 지능, 체력, 정신력 +45
+물리 크리티컬 +110
+마법 크리티컬 +110
+---
+효과
+화속성 강화 +8
+수속성 강화 +8
+암속성 강화 +8
+명속성 강화 +8`
+    }
+};
+
 const itemOptions = (() => {
     const result = {};
 
@@ -520,6 +555,15 @@ const itemOptions = (() => {
         }
     });
 
+    // 칭호 슬롯
+    result["칭호"] = ["", "우리들의 Arcade"];
+
+    // 외형칭호 슬롯
+    result["외형칭호"] = ["", "포효하는 번개"];
+
+    // 오라 슬롯
+    result["오라"] = ["", "우리들의 Arcade 오라"];
+
     return result;
 })();
 
@@ -529,5 +573,7 @@ const GameData = {
     itemOptions,
     armorSets,
     accSets,
-    specialSets
+    specialSets,
+    TITLE_ITEM_INFO,
+    AURA_ITEM_INFO
 };

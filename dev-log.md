@@ -2973,3 +2973,51 @@ project/
 - `restoreSavedData` setTimeout에 `emb_color` hidden input 기반 복구 로직 추가 (이중 보장)
 
 ---
+
+## 2026-03-04 (64차)
+
+### 칭호/외형칭호/오라 select 전환 및 이미지 연동
+
+**수정된 파일:** `js/ui-character.js`, `js/ui-core.js`, `shared/shared_data.js`
+
+---
+
+### 변경 내용
+
+**`shared/shared_data.js`**
+
+- `itemOptions`에 칭호/외형칭호/오라 선택지 추가
+  - `"칭호"`: `["", "우리들의 Arcade"]`
+  - `"외형칭호"`: `["", "포효하는 번개"]`
+  - `"오라"`: `["", "우리들의 Arcade 오라"]`
+- `TITLE_ITEM_INFO` 상수 추가 — 칭호 아이템 상세 정보 (나중에 열람 기능에서 사용)
+  - `"우리들의 Arcade"` 기본정보 및 효과 텍스트 포함
+- `AURA_ITEM_INFO` 상수 추가 — 오라 아이템 상세 정보
+  - `"우리들의 Arcade 오라"` 기본정보 및 효과 텍스트 포함
+- `GameData`에 `TITLE_ITEM_INFO`, `AURA_ITEM_INFO` 추가
+
+**`js/ui-core.js`**
+
+- `replaceItemNameField`에 `_forceSelectSlots` 추가
+  - 칭호/외형칭호/오라는 희귀도 무관하게 항상 select로 교체
+- 이미지 미리보기 img 태그 삽입 조건에 칭호/외형칭호/오라 추가
+- change 이벤트, 즉시 이미지 업데이트 조건 `_forceSelectSlots` 포함으로 확장
+- `_slotImgFn`, `_prefixImgFnMap`에 칭호/외형칭호/오라 추가
+  - 외형칭호: `updateAppearanceTitleImage` (폴더: `images/appearanceTitle/`)
+
+**`js/ui-character.js`**
+
+- `updateTitleImage` → `images/title/`
+- `updateAppearanceTitleImage` → `images/appearanceTitle/` (기존 `updateCosmeticImage`에서 변경)
+- `updateAuraImage` → `images/aura/`
+- `initializePrefixSelects`에서 칭호/외형칭호/오라 rarity select 직접 트리거
+  - prefix select 없는 슬롯이므로 별도 처리 필요
+- `handleItemNameField` 칭호/외형칭호/오라 분기 추가
+
+### 이미지 파일명 규칙
+
+- `images/title/{아이템이름}.png`
+- `images/appearanceTitle/{아이템이름}.png`
+- `images/aura/{아이템이름}.png`
+
+---
