@@ -18,6 +18,8 @@ function autoSave() {
             const inputsObj = {};
             sec.querySelectorAll('input[data-key], select[data-key], textarea[data-key]').forEach(el => {
                 const key = el.getAttribute('data-key');
+                // 무기 종류 select는 저장 제외 (무기_itemname으로 복원 시 역추적)
+                if (key === '무기_weapontype') return;
                 // info_ 계열은 플랫 구조 유지
                 if (key.startsWith('info_')) {
                     inputsObj[key] = { val: el.value, cls: el.className };

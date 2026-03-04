@@ -48,7 +48,7 @@ function createCharacterTable(savedData = null) {
                         <th rowspan="2" style="min-width:120px;" class="group-header">아이템이름 <button class="set-apply-btn" onclick="event.stopPropagation(); openSetMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
                         <th rowspan="2" class="col-val-short group-header">강화 <button class="set-apply-btn" onclick="event.stopPropagation(); openReinforceMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
                         <th colspan="4">마법봉인</th>
-                        <th colspan="2">엠블렘</th>
+                        <th colspan="2">엠블렘 <button class="set-apply-btn" onclick="event.stopPropagation(); openEmblemColorPicker(event, '${charId}')" tabindex="-1">🎨</button></th>
                         <th colspan="2">마법부여</th>
                         <th rowspan="2" style="min-width:230px;" class="v-border-heavy group-header">설명</th>
                     </tr>
@@ -98,6 +98,13 @@ function createCharacterTable(savedData = null) {
     // 6) 문서에 삽입
     document.getElementById('characterContainer').appendChild(section);
     updateRuneSummary(charId);
+
+    // info_job select 옵션 초기화 (DOM 삽입 후)
+    const _jobSel = section.querySelector('select[data-key="info_job"]');
+    if (_jobSel && typeof initJobSelect === 'function') initJobSelect(_jobSel);
+
+    // 무기 아이템 select 옵션 초기화
+    if (typeof initWeaponItemSelect === 'function') initWeaponItemSelect(charId);
 
     // 7) 접두어 리스트 초기화
     initializePrefixSelects(section);
@@ -251,6 +258,24 @@ function handleItemNameField(rowFragment, slot, charId) {
     const existingField = container.querySelector(`[data-key="${slot}_itemname"]`);
     if (!existingField) return;
 
+    // 무기 슬롯: 직업 기반 단일 select + 이미지
+    if (slot === '무기') {
+        const select = document.createElement('select');
+        select.setAttribute('data-key', '무기_itemname');
+        select.className = 'rare-에픽 itemname-color-sync';
+        select.onchange = () => { updateWeaponImage(select); autoSave(); };
+
+        const img = document.createElement('img');
+        img.className = 'itemname-img-preview';
+        img.src = '';
+        img.alt = '';
+
+        existingField.replaceWith(select);
+        container.insertBefore(img, select);
+        // 옵션은 DOM 삽입 후 initWeaponItemSelect(charId) 에서 채움
+        return;
+    }
+
     // itemOptions에 정의된 슬롯은 select로 변경
     if (itemOptions[slot]) {
         const select = document.createElement('select');
@@ -393,6 +418,130 @@ function updateSpecialImage(select) { _applySlotImage(select, '귀걸이', 'SPEC
 function updateMagicImage(select)   { _applySlotImage(select, '마법석', 'SPECIAL'); }
 function updateSubImage(select)     { _applySlotImage(select, '보조장비', 'SPECIAL'); }
 
+/**
+ * 무기 아이템 이미지 업데이트 (images/WEAPON/{아이템이름}.png)
+ * 콜론+공백 → _ 치환
+ */
+function updateWeaponImage(select) {
+    const td = select.parentElement;
+    const img = td ? td.querySelector('.itemname-img-preview') : null;
+    if (!img) return;
+
+    const itemName = select.value;
+    img.onerror = null;
+    img.src = '';
+    img.classList.remove('has-image');
+
+    if (!itemName) { img.alt = ''; return; }
+
+    // 콜론만 제거 (예: "요도 : 무라마사" → "요도  무라마사" - 공백 두 개 유지)
+    const safeName = itemName.replace(/:/g, '');
+    img.alt = itemName;
+    img.onerror = function() { this.onerror = null; this.src = ''; this.classList.remove('has-image'); };
+    img.src = 'images/WEAPON/' + safeName + '.png';
+    img.classList.add('has-image');
+}
+
+/**
+ * 직업에 맞게 무기_itemname select 옵션을 채운다 (단일 select)
+ * 형식: 무기종류(disabled 헤더) → 에픽 아이템들
+ * @param {string} charId
+ * @param {string} [savedVal] 복구할 선택값
+ */
+function initWeaponItemSelect(charId, savedVal) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    const weaponSel = section.querySelector('select[data-key="무기_itemname"]');
+    if (!weaponSel) return;
+
+    const jobSel = section.querySelector('select[data-key="info_job"]');
+    const jobVal = jobSel ? jobSel.value : '';
+    const weaponData = (typeof getWeaponDataByJob === 'function') ? getWeaponDataByJob(jobVal) : null;
+
+    weaponSel.innerHTML = '<option value="" disabled selected></option>';
+
+    if (weaponData) {
+        const entries = Object.entries(weaponData);
+        entries.forEach(([weaponType, items], idx) => {
+            // 두 번째 무기종류부터 앞에 공백 옵션 추가 (선택 불가)
+            if (idx > 0) {
+                const blank = document.createElement('option');
+                blank.value = '';
+                blank.disabled = true;
+                blank.textContent = '';
+                weaponSel.appendChild(blank);
+            }
+
+            // 무기종류 헤더 (disabled, 선택 불가)
+            const hdr = document.createElement('option');
+            hdr.value = '';
+            hdr.textContent = weaponType;
+            hdr.disabled = true;
+            weaponSel.appendChild(hdr);
+
+            // 에픽 아이템들 (선택 가능)
+            items.forEach(itemName => {
+                const opt = document.createElement('option');
+                opt.value = itemName;
+                opt.textContent = itemName;
+                weaponSel.appendChild(opt);
+            });
+        });
+    }
+
+    if (savedVal) {
+        weaponSel.value = savedVal;
+    } else {
+        // 저장값 없으면 첫 번째 선택 가능한 아이템 자동 선택
+        const firstSelectable = Array.from(weaponSel.options).find(o => !o.disabled && o.value !== '');
+        if (firstSelectable) weaponSel.value = firstSelectable.value;
+    }
+    updateWeaponImage(weaponSel);
+}
+
+/**
+ * info_job select 변경 시 호출
+ * syncCharInfoToP2 + 무기 select 갱신 + 저장
+ */
+function onJobSelectChange(el) {
+    if (typeof syncCharInfoToP2 === 'function') syncCharInfoToP2(el);
+    const section = el.closest('.char-section');
+    if (!section) return;
+    initWeaponItemSelect(section.id);
+    autoSave();
+}
+
+/**
+ * info_job select에 직업 선택지 옵션을 채운다
+ * @param {HTMLSelectElement} sel
+ * @param {string} [savedVal]
+ */
+function initJobSelect(sel, savedVal) {
+    if (!sel || typeof JOB_SELECT_OPTIONS === 'undefined') return;
+
+    sel.innerHTML = '<option value="" disabled selected></option>';
+
+    JOB_SELECT_OPTIONS.forEach(opt => {
+        const o = document.createElement('option');
+        if (opt.type === 'separator') {
+            o.disabled = true;
+            o.textContent = '───────────────';
+            o.value = '';
+        } else if (opt.type === 'disabled') {
+            o.disabled = true;
+            o.value = '';
+            o.textContent = '';
+        } else {
+            o.value = opt.value;
+            o.textContent = opt.value;
+        }
+        sel.appendChild(o);
+    });
+
+    if (savedVal) sel.value = savedVal;
+}
+
 function initializePrefixSelects(section) {
     section.querySelectorAll('select[data-key$="_prefix"]').forEach(sel => {
         const slot = sel.getAttribute('data-slot');
@@ -436,6 +585,17 @@ function restoreSavedData(section, savedData, charId) {
             updateStyle(el, 'rarity', true);
         }
     });
+
+    // 1-a) info_job select 복구 → 무기 select 옵션 재초기화
+    const _jobSelRestore = section.querySelector('select[data-key="info_job"]');
+    if (_jobSelRestore && typeof initJobSelect === 'function') {
+        const _jobData = getInputData(savedData.inputs, 'info_job');
+        initJobSelect(_jobSelRestore, _jobData?.val || '');
+        const _wepData = getInputData(savedData.inputs, '무기_itemname');
+        if (typeof initWeaponItemSelect === 'function') {
+            initWeaponItemSelect(charId, _wepData?.val || '');
+        }
+    }
 
     // 2) 모든 입력값 복구
     // ※ 1단계에서 updateStyle(rarity)가 replaceItemNameField를 호출해 새 select를 생성하므로
@@ -504,9 +664,21 @@ function restoreSavedData(section, savedData, charId) {
                 const sel = section?.querySelector(`[data-key="${sl}_itemname"]`);
                 if (sel && sel.tagName === 'SELECT') fn(sel);
             });
+
+            // 무기 이미지 복구
+            if (typeof updateWeaponImage === 'function') {
+                const _wSel = section?.querySelector('select[data-key="무기_itemname"]');
+                if (_wSel) updateWeaponImage(_wSel);
+            }
         }
 
         applySealHighlight(charId);
+
+        // 무기 엠블렘 색상 복구
+        const embColorData = savedData?.inputs?.['무기']?.['emb_color'];
+        if (embColorData?.val && typeof applyWeaponEmblemColor === 'function') {
+            applyWeaponEmblemColor(charId, embColorData.val);
+        }
 
         // 태그 복원
         if (savedData?.tags && typeof loadTags === 'function') {
@@ -672,6 +844,116 @@ function toggleEdit(charId, isLock) {
     // 설명/메모 팝업이 열려있으면 저장 후 닫기
     if (typeof saveDescFromModal === 'function') saveDescFromModal();
     if (typeof saveMemoFromModal === 'function') saveMemoFromModal();
+
+    autoSave();
+}
+// ============================================
+// 무기 엠블렘 색상 선택
+// ============================================
+
+/**
+ * 엠블렘 색상 선택 팝업 열기
+ */
+function openEmblemColorPicker(event, charId) {
+    // 기존 팝업 제거
+    const existing = document.getElementById('emblemColorPicker');
+    if (existing) { existing.remove(); return; }
+
+    const colors = [
+        { label: '빨강', cls: 'emb-bg-red',    bg: '#c0392b' },
+        { label: '노랑', cls: 'emb-bg-yellow',  bg: '#b8860b' },
+        { label: '파랑', cls: 'emb-bg-blue',    bg: '#1a5276' },
+        { label: '초록', cls: 'emb-bg-green',   bg: '#1e8449' },
+        { label: '없음', cls: 'emb-bg-gray',    bg: '#444'    },
+    ];
+
+    const picker = document.createElement('div');
+    picker.id = 'emblemColorPicker';
+    picker.style.cssText = `
+        position: fixed;
+        z-index: 9999;
+        background: #1a1a1a;
+        border: 2px solid #ffd700;
+        border-radius: 6px;
+        padding: 6px;
+        display: flex;
+        gap: 6px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.8);
+    `;
+
+    colors.forEach(({ label, cls, bg }) => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.style.cssText = `
+            background: ${bg};
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        `;
+        btn.onclick = () => {
+            applyWeaponEmblemColor(charId, cls);
+            picker.remove();
+        };
+        picker.appendChild(btn);
+    });
+
+    // 위치 설정
+    document.body.appendChild(picker);
+    const rect = event.target.getBoundingClientRect();
+    const pw = picker.offsetWidth;
+    const ph = picker.offsetHeight;
+    let left = rect.left;
+    let top  = rect.bottom + 4;
+    if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+    if (top + ph > window.innerHeight - 8) top = rect.top - ph - 4;
+    picker.style.left = left + 'px';
+    picker.style.top  = top + 'px';
+
+    // 외부 클릭 시 닫기
+    setTimeout(() => {
+        document.addEventListener('click', function _close(e) {
+            if (!picker.contains(e.target)) {
+                picker.remove();
+                document.removeEventListener('click', _close);
+            }
+        });
+    }, 0);
+}
+
+/**
+ * 무기 행의 엠블렘 td 색상 클래스 변경 + 저장
+ */
+function applyWeaponEmblemColor(charId, colorCls) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    const emb1 = section.querySelector('[data-key="무기_emb1"]');
+    const emb2 = section.querySelector('[data-key="무기_emb2"]');
+
+    const embClasses = ['emb-bg-red', 'emb-bg-yellow', 'emb-bg-blue', 'emb-bg-green', 'emb-bg-gray'];
+
+    [emb1, emb2].forEach(el => {
+        if (!el) return;
+        const td = el.closest('td');
+        if (!td) return;
+        embClasses.forEach(c => td.classList.remove(c));
+        if (colorCls) td.classList.add(colorCls);
+    });
+
+    // 색상 저장: 무기_emb_color 키로 autoSave 연동
+    // inputs["무기"]["emb_color"] 로 저장되도록 hidden input 활용
+    let hiddenInput = section.querySelector('[data-key="무기_emb_color"]');
+    if (!hiddenInput) {
+        hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.setAttribute('data-key', '무기_emb_color');
+        section.appendChild(hiddenInput);
+    }
+    hiddenInput.value = colorCls;
 
     autoSave();
 }

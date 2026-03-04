@@ -486,8 +486,15 @@ function updateStyle(el, type, isInitial = false) {
 
                 let optionsHTML = "";
                 if (slot === "무기" && el.value === "에픽") {
-                    const weaponEpicPrefixes = ["", "광채", "분쇄", "선명", "강타"];
+                    const weaponEpicPrefixes = ["광채", "분쇄", "선명", "강타"];
                     optionsHTML = weaponEpicPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
+                    prefixSel.disabled = false;
+                } else if (slot === "무기" && ["커먼","언커먼","레어","유니크"].includes(el.value)) {
+                    // 무기 커먼/언커먼/레어/유니크: 접두어 선택 불가
+                    prefixSel.innerHTML = '<option value=""></option>';
+                    prefixSel.value = "";
+                    prefixSel.disabled = true;
+                    updateStyle(prefixSel, 'prefix', isInitial);
                 } else if (el.value === "티어") {
                     optionsHTML = tierPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
                 } else if (accSlots.includes(slot)) {
@@ -511,6 +518,57 @@ function updateStyle(el, type, isInitial = false) {
             if (nameEl && itemOptions[slot]) {
                 replaceItemNameField(nameEl.parentElement, slot, el.value, nameEl.value, charId);
             }
+
+            // 무기 슬롯: 희귀도에 따라 select(에픽) ↔ input(그 외) 전환
+            if (slot === '무기') {
+                const td = nameEl ? nameEl.parentElement : row.querySelector('.td-itemname');
+                if (td) {
+                    const currentVal = nameEl ? nameEl.value : '';
+                    const isEpic = el.value === '에픽';
+
+                    // 기존 요소 제거 (img 포함)
+                    td.querySelectorAll('[data-key="무기_itemname"], .itemname-img-preview').forEach(e => e.remove());
+
+                    if (isEpic) {
+                        // 에픽: select + img
+                        const img = document.createElement('img');
+                        img.className = 'itemname-img-preview';
+                        img.src = '';
+                        img.alt = '';
+                        td.appendChild(img);
+
+                        const sel = document.createElement('select');
+                        sel.setAttribute('data-key', '무기_itemname');
+                        sel.className = 'rare-에픽 itemname-color-sync';
+                        sel.onchange = () => {
+                            if (typeof updateWeaponImage === 'function') updateWeaponImage(sel);
+                            autoSave();
+                        };
+                        td.appendChild(sel);
+
+                        // 직업 기반 옵션 채우기
+                        const charId2 = row.closest('.char-section')?.id;
+                        if (charId2 && typeof initWeaponItemSelect === 'function') {
+                            initWeaponItemSelect(charId2);
+                        }
+                    } else {
+                        // 에픽 외: 텍스트 input
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.setAttribute('data-key', '무기_itemname');
+                        input.className = `rare-${el.value} itemname-color-sync`;
+                        input.value = currentVal || '';
+                        const section2 = row.closest('.char-section');
+                        if (section2 && section2.querySelector('.lock-btn')?.classList.contains('btn-active')) {
+                            input.readOnly = true;
+                            input.style.cursor = 'default';
+                        }
+                        input.addEventListener('input', () => autoSave());
+                        td.appendChild(input);
+                    }
+                }
+            }
+
             runSetCheck(slot, charId);
         }
 
