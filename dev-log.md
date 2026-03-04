@@ -2945,3 +2945,31 @@ project/
 | 귀걸이/마법석/보조장비 | `images/SPECIAL/` |
 
 ---
+
+## 2026-03-04 (63차)
+
+### 무기 엠블렘 색상 선택 버튼 추가
+
+**수정된 파일:** `js/ui-character.js`
+
+---
+
+### 변경 내용
+
+**`js/ui-character.js`**
+
+- 테이블 헤더 `엠블렘` th에 🎨 버튼 추가
+  - 버튼 클릭 시 `openEmblemColorPicker(event, charId)` 호출
+- `openEmblemColorPicker` 함수 추가
+  - 빨강/노랑/파랑/초록 4개 색상 버튼 팝업 표시
+  - 선택 시 `applyWeaponEmblemColor(charId, colorCls)` 호출
+  - 외부 클릭 시 자동 닫힘
+- `applyWeaponEmblemColor` 함수 추가
+  - 무기 행 `emb1`, `emb2` **input 요소에 직접** `emb-bg-*` 클래스 적용
+  - td에 클래스를 주면 input이 위를 덮고, inline style은 `!important` CSS에 지므로 input에 직접 클래스 추가하는 방식 사용
+  - `무기_emb_color` hidden input에 선택 색상 저장 → `autoSave()` 연동
+  - 저장/복구는 `autoSave`가 `el.className` 저장, `restoreSavedData`가 `el.className = data.cls`로 복구하므로 자동 처리됨
+- 신규 캐릭터 생성 시 무기 엠블렘 기본 색상 **빨강** 자동 적용
+- `restoreSavedData` setTimeout에 `emb_color` hidden input 기반 복구 로직 추가 (이중 보장)
+
+---

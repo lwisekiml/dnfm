@@ -48,7 +48,7 @@ function createCharacterTable(savedData = null) {
                         <th rowspan="2" style="min-width:120px;" class="group-header">아이템이름 <button class="set-apply-btn" onclick="event.stopPropagation(); openSetMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
                         <th rowspan="2" class="col-val-short group-header">강화 <button class="set-apply-btn" onclick="event.stopPropagation(); openReinforceMenuFromHeader(event, '${charId}')" tabindex="-1">🎯</button></th>
                         <th colspan="4">마법봉인</th>
-                        <th colspan="2">엠블렘</th>
+                        <th colspan="2">엠블렘 <button class="set-apply-btn" onclick="event.stopPropagation(); openEmblemColorPicker(event, '${charId}')" tabindex="-1">🎨</button></th>
                         <th colspan="2">마법부여</th>
                         <th rowspan="2" style="min-width:230px;" class="v-border-heavy group-header">설명</th>
                     </tr>
@@ -154,6 +154,8 @@ function createCharacterTable(savedData = null) {
             if (typeof refreshAllArmorSlotStates === 'function') refreshAllArmorSlotStates(charId);
             if (typeof refreshAllAccSlotStates === 'function') refreshAllAccSlotStates(charId);
             if (typeof refreshAllSpecialSlotStates === 'function') refreshAllSpecialSlotStates(charId);
+            // 무기 엠블렘 기본 색상: 빨강
+            if (typeof applyWeaponEmblemColor === 'function') applyWeaponEmblemColor(charId, 'emb-bg-red');
         }, 0);
     }
 }
@@ -508,6 +510,12 @@ function restoreSavedData(section, savedData, charId) {
 
         applySealHighlight(charId);
 
+        // 무기 엠블렘 색상 복구
+        const embColorData = savedData?.inputs?.['무기']?.['emb_color'];
+        if (embColorData?.val && typeof applyWeaponEmblemColor === 'function') {
+            applyWeaponEmblemColor(charId, embColorData.val);
+        }
+
         // 태그 복원
         if (savedData?.tags && typeof loadTags === 'function') {
             loadTags(charId);
@@ -672,6 +680,123 @@ function toggleEdit(charId, isLock) {
     // 설명/메모 팝업이 열려있으면 저장 후 닫기
     if (typeof saveDescFromModal === 'function') saveDescFromModal();
     if (typeof saveMemoFromModal === 'function') saveMemoFromModal();
+
+    autoSave();
+}
+// ============================================
+// 무기 엠블렘 색상 선택
+// ============================================
+
+/**
+ * 엠블렘 색상 선택 팝업 열기
+ */
+function openEmblemColorPicker(event, charId) {
+    // 기존 팝업 제거
+    const existing = document.getElementById('emblemColorPicker');
+    if (existing) { existing.remove(); return; }
+
+    const colors = [
+        { label: '빨강', cls: 'emb-bg-red',    bg: '#6a1a1a' },
+        { label: '노랑', cls: 'emb-bg-yellow',  bg: '#6a5a1a' },
+        { label: '파랑', cls: 'emb-bg-blue',    bg: '#1a2a6a' },
+        { label: '초록', cls: 'emb-bg-green',   bg: '#1a6a2a' },
+    ];
+
+    const picker = document.createElement('div');
+    picker.id = 'emblemColorPicker';
+    picker.style.cssText = `
+        position: fixed;
+        z-index: 9999;
+        background: #1a1a1a;
+        border: 2px solid #ffd700;
+        border-radius: 6px;
+        padding: 6px;
+        display: flex;
+        gap: 6px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.8);
+    `;
+
+    colors.forEach(({ label, cls, bg }) => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.style.cssText = `
+            background: ${bg};
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        `;
+        btn.onclick = () => {
+            applyWeaponEmblemColor(charId, cls);
+            picker.remove();
+        };
+        picker.appendChild(btn);
+    });
+
+    // 위치 설정
+    document.body.appendChild(picker);
+    const rect = event.target.getBoundingClientRect();
+    const pw = picker.offsetWidth;
+    const ph = picker.offsetHeight;
+    let left = rect.left;
+    let top  = rect.bottom + 4;
+    if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+    if (top + ph > window.innerHeight - 8) top = rect.top - ph - 4;
+    picker.style.left = left + 'px';
+    picker.style.top  = top + 'px';
+
+    // 외부 클릭 시 닫기
+    setTimeout(() => {
+        document.addEventListener('click', function _close(e) {
+            if (!picker.contains(e.target)) {
+                picker.remove();
+                document.removeEventListener('click', _close);
+            }
+        });
+    }, 0);
+}
+
+/**
+ * 무기 행의 엠블렘 input에 색상 클래스 직접 적용 + 저장
+ * td에 줘도 input이 덮고, inline style은 !important CSS에 지므로
+ * input 요소에 emb-bg-* 클래스를 직접 추가해야 함
+ */
+function applyWeaponEmblemColor(charId, colorCls) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    const emb1 = section.querySelector('[data-key="무기_emb1"]');
+    const emb2 = section.querySelector('[data-key="무기_emb2"]');
+
+    const embClasses = ['emb-bg-red', 'emb-bg-yellow', 'emb-bg-blue', 'emb-bg-green', 'emb-bg-gray'];
+
+    [emb1, emb2].forEach(el => {
+        if (!el) return;
+        // td 클래스도 정리 (보조적)
+        const td = el.closest('td');
+        if (td) embClasses.forEach(c => td.classList.remove(c));
+        // input에 직접 클래스 적용 (.emb-bg-* { background !important } 이용)
+        embClasses.forEach(c => el.classList.remove(c));
+        if (colorCls) {
+            el.classList.add(colorCls);
+            if (td) td.classList.add(colorCls);
+        }
+        // inline style 초기화
+        el.style.background = '';
+    });
+
+    // 색상 저장
+    let hiddenInput = section.querySelector('[data-key="무기_emb_color"]');
+    if (!hiddenInput) {
+        hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.setAttribute('data-key', '무기_emb_color');
+        section.appendChild(hiddenInput);
+    }
+    hiddenInput.value = colorCls;
 
     autoSave();
 }
