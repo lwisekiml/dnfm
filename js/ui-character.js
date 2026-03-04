@@ -186,6 +186,19 @@ function createSlotContent(slot, index, charId, savedData) {
 
     // 오라/아바타 (설명 칸 있음)
     if (["오라", "아바타"].includes(slot)) {
+        // 아바타: 전용 템플릿 (버튼 한 칸으로 합침)
+        if (slot === "아바타") {
+            const rowFrag = TemplateHelper.clone('avatar-row-template');
+            const btn = rowFrag.querySelector('button[data-avatar-btn]');
+            if (btn) {
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    const section = btn.closest('.char-section');
+                    if (section) openAvatarPopup(section.id, btn);
+                };
+            }
+            return rowFrag;
+        }
         return TemplateHelper.createSimpleRow(slot);
     }
 
@@ -495,6 +508,22 @@ function restoreSavedData(section, savedData, charId) {
             updateStyle(el, 'prefix', true);
         }
     });
+
+    // 2-b) 아바타 버튼 복원 (button 요소라 querySelectorAll에서 제외됨)
+    const avatarBtn = section.querySelector('button[data-key="아바타_itemname"]');
+    if (avatarBtn) {
+        const avatarData = getInputData(savedData.inputs, '아바타_itemname');
+        if (avatarData) {
+            const rawVal = avatarData.val || '';
+            avatarBtn.setAttribute('data-avatar-value', rawVal);
+            // 저장된 텍스트를 파싱해 색상 span으로 복원
+            if (typeof renderAvatarBtnHTML === 'function') {
+                avatarBtn.innerHTML = renderAvatarBtnHTML(rawVal);
+            } else {
+                avatarBtn.textContent = rawVal;
+            }
+        }
+    }
 
     // 3) 색상 갱신 및 기타 후처리
     setTimeout(() => {
@@ -847,4 +876,193 @@ function applyItemInfoToDesc(select, slot, charId, infoMap) {
     const itemName = select.value;
     const info = infoMap?.[itemName]?.info || '';
     descEl.value = info;
+}
+
+// ============================================
+// 아바타 팝업
+// ============================================
+
+const AVATAR_PARTS = ["모자", "얼굴", "상의", "목가슴", "신발", "머리", "하의", "허리", "피부", "무기"];
+const AVATAR_GRADES = ["언커먼", "레어"];
+
+// 희귀도별 CSS 클래스
+const AVATAR_GRADE_CLASS = { '언커먼': 'rare-언커먼', '레어': 'rare-레어' };
+
+/**
+ * 저장 텍스트 "모자(언커먼) 상의(레어)" → 색상 span HTML로 변환
+ */
+function renderAvatarBtnHTML(text) {
+    if (!text) return '';
+    const SEP = '<span style="color:var(--color-white);"> </span>';
+    return text.split(' ')
+        .filter(t => t)
+        .map(token => {
+            const m = token.match(/^(.+)\((.+)\)$/);
+            if (m) {
+                const cls = AVATAR_GRADE_CLASS[m[2]] || '';
+                return `<span class="${cls}">${token}</span>`;
+            }
+            return `<span>${token}</span>`;
+        })
+        .join(SEP);
+}
+
+// 현재 팝업 대상 정보
+let _avatarCharId = null;
+let _avatarBtn = null;
+
+/**
+ * 아바타 팝업 열기
+ * @param {string} charId
+ * @param {HTMLElement} btn - 아바타_itemname 버튼
+ */
+function openAvatarPopup(charId, btn) {
+    _avatarCharId = charId;
+    _avatarBtn = btn;
+
+    // 현재 저장된 값 파싱: "모자(언커먼) 상의(레어)" → { 모자: '언커먼', 상의: '레어' }
+    // innerHTML에 span이 있을 수 있으므로 data-avatar-value 속성 우선 사용
+    const currentText = btn.getAttribute('data-avatar-value') || btn.textContent || '';
+    const currentMap = {};
+    const re = /([^\s(]+)\(([^)]+)\)/g;
+    let m;
+    while ((m = re.exec(currentText)) !== null) {
+        currentMap[m[1]] = m[2];
+    }
+
+    // 그리드 생성
+    const grid = document.getElementById('avatar-popup-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    // 헤더 행 - 클릭 시 해당 등급 전체 체크/해제
+    function makeHeader() {
+        const header = document.createElement('div');
+        header.style.cssText = 'display:grid; grid-template-columns:60px 1fr 1fr; gap:4px; align-items:center; font-size:0.85em; text-align:center;';
+
+        header.appendChild(document.createElement('span')); // 빈 칸
+
+        AVATAR_GRADES.forEach(grade => {
+            const span = document.createElement('span');
+            span.textContent = grade;
+            span.style.cssText = 'cursor:pointer; user-select:none; padding:2px 4px; border-radius:4px; color:#aaa;';
+            span.title = `${grade} 전체 체크/해제`;
+
+            // 호버 효과
+            span.addEventListener('mouseenter', () => { span.style.color = '#fff'; span.style.background = 'rgba(255,255,255,0.1)'; });
+            span.addEventListener('mouseleave', () => { span.style.color = '#aaa'; span.style.background = ''; });
+
+            // 클릭: 해당 등급 전체 체크 (이미 전부 체크면 전체 해제)
+            span.addEventListener('click', () => {
+                const allCbs = AVATAR_PARTS.map(p => document.getElementById(`avatar-cb-${p}-${grade}`)).filter(Boolean);
+                const allChecked = allCbs.every(c => c.checked);
+                allCbs.forEach(c => {
+                    c.checked = !allChecked;
+                    // 같은 부위 다른 등급 해제
+                    if (!allChecked) {
+                        AVATAR_GRADES.forEach(g => {
+                            if (g !== grade) {
+                                const other = document.getElementById(`avatar-cb-${c.getAttribute('data-part')}-${g}`);
+                                if (other) other.checked = false;
+                            }
+                        });
+                    }
+                });
+            });
+
+            header.appendChild(span);
+        });
+
+        return header;
+    }
+
+    grid.appendChild(makeHeader());
+    grid.appendChild(makeHeader());
+
+    // 부위 행 (5개씩 2열)
+    const left5  = AVATAR_PARTS.slice(0, 5);
+    const right5 = AVATAR_PARTS.slice(5, 10);
+
+    function makeRow(part) {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:grid; grid-template-columns:60px 1fr 1fr; gap:4px; align-items:center;';
+
+        const label = document.createElement('span');
+        label.textContent = part;
+        label.style.cssText = 'font-size:0.95em; text-align:right; padding-right:6px;';
+        row.appendChild(label);
+
+        let checkedGrade = currentMap[part] || null;
+
+        AVATAR_GRADES.forEach(grade => {
+            const wrapper = document.createElement('div');
+            wrapper.style.cssText = 'display:flex; justify-content:center; align-items:center;';
+
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.setAttribute('data-part', part);
+            cb.setAttribute('data-grade', grade);
+            cb.id = `avatar-cb-${part}-${grade}`;
+            cb.checked = (checkedGrade === grade);
+            cb.style.cssText = 'width:20px; height:20px; cursor:pointer;';
+
+            // 같은 부위에서 하나만 체크
+            cb.addEventListener('change', () => {
+                if (cb.checked) {
+                    AVATAR_GRADES.forEach(g => {
+                        if (g !== grade) {
+                            const other = document.getElementById(`avatar-cb-${part}-${g}`);
+                            if (other) other.checked = false;
+                        }
+                    });
+                }
+            });
+
+            wrapper.appendChild(cb);
+            row.appendChild(wrapper);
+        });
+
+        return row;
+    }
+
+    left5.forEach(part => grid.appendChild(makeRow(part)));
+    right5.forEach(part => grid.appendChild(makeRow(part)));
+
+    // 팝업 표시
+    const overlay = document.getElementById('avatar-popup-overlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+    }
+}
+
+/** 아바타 팝업 저장 */
+function avatarPopupSave() {
+    const parts = [];  // 저장용 순수 텍스트
+
+    AVATAR_PARTS.forEach(part => {
+        AVATAR_GRADES.forEach(grade => {
+            const cb = document.getElementById(`avatar-cb-${part}-${grade}`);
+            if (cb && cb.checked) {
+                parts.push(`${part}(${grade})`);
+            }
+        });
+    });
+
+    const rawVal = parts.join(' ');
+
+    if (_avatarBtn) {
+        _avatarBtn.setAttribute('data-avatar-value', rawVal);
+        _avatarBtn.innerHTML = renderAvatarBtnHTML(rawVal);
+    }
+
+    avatarPopupClose();
+    if (typeof autoSave === 'function') autoSave();
+}
+
+/** 아바타 팝업 닫기 */
+function avatarPopupClose() {
+    const overlay = document.getElementById('avatar-popup-overlay');
+    if (overlay) overlay.style.display = 'none';
+    _avatarCharId = null;
+    _avatarBtn = null;
 }

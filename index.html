@@ -656,7 +656,46 @@
         </tr>
     </template>
 
+    <template id="avatar-row-template">
+        <tr>
+            <td class="col-slot v-border-heavy">아바타</td>
+            <td colspan="13" style="padding:0;">
+                <button data-key="아바타_itemname" data-avatar-btn="1"
+                        class="itemname-color-sync"
+                        style="width:100%; height:var(--height-row); text-align:center; cursor:pointer;
+                               background:var(--input-bg); color:var(--color-white);
+                               border:none; padding:2px 6px; font:inherit;
+                               font-size:var(--fs-table); font-weight:bold;
+                               white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                        title="클릭하여 아바타 설정"></button>
+            </td>
+            <td class="v-border-heavy">
+                <textarea data-key="아바타_desc" readonly onclick="openDescModal(this)"
+                          style="text-align:left; padding-left:6px; cursor:pointer; width:100%; height:var(--height-row);
+                                 resize:none; overflow:hidden; box-sizing:border-box; background:var(--input-bg);
+                                 border:var(--border-width) var(--border-style) var(--border); font:inherit;
+                                 color:var(--color-white); display:block;"></textarea>
+            </td>
+        </tr>
+    </template>
+
 </div><!-- /section-detail-view -->
+
+<!-- 아바타 팝업 -->
+<div id="avatar-popup-overlay" onclick="if(event.target===this) avatarPopupClose();" style="
+    display:none; position:fixed; inset:0; z-index:3000;
+    background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div id="avatar-popup" class="avatar-popup-box">
+        <div class="avatar-popup-title">아바타 설정</div>
+        <div id="avatar-popup-grid" style="
+            display:grid; grid-template-columns:1fr 1fr; gap:10px 28px; margin-bottom:20px;">
+        </div>
+        <div style="display:flex; gap:12px; justify-content:center; margin-top:8px;">
+            <button onclick="avatarPopupSave()" class="avatar-popup-btn">저장</button>
+            <button onclick="avatarPopupClose()" class="avatar-popup-btn">취소</button>
+        </div>
+    </div>
+</div>
 
 <!--gap 값: 화살표 사이 간격-->
 <div class="scroll-buttons" style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 5px; z-index: 1000;">

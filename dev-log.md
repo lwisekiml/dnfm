@@ -3052,3 +3052,68 @@ project/
   - 잠금 아이콘은 실제 잠금 상태일 때만 표시
 
 ---
+
+## 2026-03-04 (66차)
+
+### 아바타 슬롯 - 팝업 방식으로 전면 개편
+
+**수정된 파일:** `js/ui-character.js`, `js/storage.js`, `styles/merged.css`, `index.html`
+
+---
+
+### 변경 배경
+
+아바타 슬롯은 10개 부위(모자/얼굴/상의/목가슴/신발/머리/하의/허리/피부/무기)에 각각 언커먼/레어 희귀도를 선택해야 하는 구조라, 기존 테이블 행 하나에 모든 칸(희귀도 select, 익시드, 접두어, 강화 수치 등)을 배치하는 방식은 불필요하고 테이블도 복잡해짐.
+
+---
+
+### 수정 내용
+
+**`index.html`**
+
+- `avatar-row-template` 신규 추가
+  - 기존 `simple-row-template` 대신 아바타 전용 구조 사용
+  - `슬롯명 | 버튼(colspan=13) | 설명` 형태 — 희귀도·익시드·접두어·봉인·엠블렘·마법부여 칸 전부 제거
+  - 버튼: `itemname-color-sync` 클래스 + `font-size:var(--fs-table); font-weight:bold` → 다른 아이템이름과 동일한 글자 스타일, `text-align:center`
+- 아바타 팝업 HTML 추가
+  - overlay + 그리드 컨테이너 + 저장/취소 버튼
+  - overlay 클릭 시 팝업 닫힘
+  - 팝업 내부 박스는 `avatar-popup-box` 클래스로 테마별 스타일 분리
+
+**`js/ui-character.js`**
+
+- 아바타 행 생성 시 `avatar-row-template` 사용하도록 변경
+- `AVATAR_PARTS` 상수 추가: 모자/얼굴/상의/목가슴/신발/머리/하의/허리/피부/무기 10개 부위
+- `AVATAR_GRADES` 상수 추가: 언커먼/레어
+- `AVATAR_GRADE_CLASS` 상수 추가: 희귀도 → CSS 클래스 매핑
+- `renderAvatarBtnHTML(text)` 함수 추가
+  - `"모자(언커먼) 상의(레어)"` 형태 텍스트 → 희귀도별 `rare-언커먼` / `rare-레어` 색상 span HTML로 변환
+- `openAvatarPopup(charId, btn)` 함수 추가
+  - `data-avatar-value` 속성 기준으로 현재 저장값 파싱 → 팝업 열 때 체크박스 상태 복원
+  - 헤더("언커먼"/"레어" 텍스트)를 클릭 가능한 span으로 생성
+    - 클릭 시 해당 등급 전체 체크, 이미 전부 체크된 상태면 전체 해제(토글)
+    - 전체 체크 시 같은 부위의 다른 등급 자동 해제
+    - 마우스 호버 시 시각적 피드백
+  - 10개 부위를 5개씩 2열로 그리드 배치
+  - 같은 부위에서 언커먼/레어 중 하나만 체크 가능
+- `avatarPopupSave()` 함수 추가
+  - 체크된 항목을 `"모자(언커먼) 상의(레어)"` 형태로 조합
+  - 버튼 `data-avatar-value` 속성에 순수 텍스트 저장, `innerHTML`에 `renderAvatarBtnHTML` 결과 적용
+  - `autoSave()` 호출
+- `avatarPopupClose()` 함수 추가: overlay 클릭으로도 닫힘
+- `restoreSavedData` 수정: button 요소에 `renderAvatarBtnHTML`로 색상 span 복원 추가
+- 아바타 버튼 텍스트 가운데 정렬
+
+**`js/storage.js`**
+
+- `autoSave()`에 `button[data-key]` 요소 별도 수집 로직 추가
+  - `input/select/textarea`는 button을 포함하지 않으므로 별도 처리
+  - `data-avatar-value` 속성 우선 사용 (innerHTML의 span 태그 제외한 순수 텍스트 저장)
+
+**`styles/merged.css`**
+
+- `.avatar-popup-box`, `.avatar-popup-title`, `.avatar-popup-btn` 기본 스타일 추가
+- 남색 테마(`theme-navy`, `theme-navy2`): 남색 배경 + 남색 테두리 + 밝은 텍스트
+- 다크/혼합 테마(`theme-dark`, `theme-mixed`, `theme-dark2`, `theme-mixed2`): 어두운 배경 + 회색 테두리 + 회색 텍스트
+
+---

@@ -35,6 +35,19 @@ function autoSave() {
                 inputsObj[slot][field] = { val: el.value, cls: el.className };
             });
 
+            // 아바타 버튼 값 수집 (button 요소는 querySelectorAll에서 제외되므로 별도 처리)
+            sec.querySelectorAll('button[data-key]').forEach(btn => {
+                const key = btn.getAttribute('data-key');
+                const underIdx = key.indexOf('_');
+                if (underIdx === -1) return;
+                const slot = key.slice(0, underIdx);
+                const field = key.slice(underIdx + 1);
+                if (!inputsObj[slot]) inputsObj[slot] = {};
+                // data-avatar-value 속성이 있으면 그 값 우선 사용 (innerHTML의 span 태그 제거)
+                const rawVal = btn.getAttribute('data-avatar-value') ?? btn.textContent ?? '';
+                inputsObj[slot][field] = { val: rawVal, cls: btn.className };
+            });
+
             // 메모리의 characters 배열에서 해당 캐릭터 찾아 병합
             // (스토리지에서 읽지 않고 메모리 기준으로 처리 → armorCounts 등 덮어쓰기 방지)
             if (typeof characters !== 'undefined') {

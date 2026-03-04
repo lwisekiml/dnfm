@@ -2725,3 +2725,68 @@ td:has(.itemname-img-preview) select {
     flex: 1;
     min-width: 0;
 }
+/* ========================================
+   아바타 팝업 - 기본 스타일
+======================================== */
+.avatar-popup-box {
+    border-radius: 12px;
+    padding: 24px 28px;
+    min-width: 360px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+.avatar-popup-title {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.avatar-popup-btn {
+    padding: 7px 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+/* 남색 테마 팝업 */
+body.theme-navy .avatar-popup-box,
+body.theme-navy2 .avatar-popup-box {
+    background: #0f1222;
+    border: 2px solid #2a3158;
+    color: #e6e9ff;
+}
+body.theme-navy .avatar-popup-btn,
+body.theme-navy2 .avatar-popup-btn {
+    background: #1a1e33;
+    border: 1px solid #2a3158;
+    color: #e6e9ff;
+}
+body.theme-navy .avatar-popup-btn:hover,
+body.theme-navy2 .avatar-popup-btn:hover {
+    background: #2a3158;
+}
+
+/* 다크 테마 / 혼합 테마 팝업 */
+body.theme-dark .avatar-popup-box,
+body.theme-mixed .avatar-popup-box,
+body.theme-dark2 .avatar-popup-box,
+body.theme-mixed2 .avatar-popup-box {
+    background: #1a1a1f;
+    border: 2px solid #444;
+    color: #ddd;
+}
+body.theme-dark .avatar-popup-btn,
+body.theme-mixed .avatar-popup-btn,
+body.theme-dark2 .avatar-popup-btn,
+body.theme-mixed2 .avatar-popup-btn {
+    background: #2a2a32;
+    border: 1px solid #555;
+    color: #ddd;
+}
+body.theme-dark .avatar-popup-btn:hover,
+body.theme-mixed .avatar-popup-btn:hover,
+body.theme-dark2 .avatar-popup-btn:hover,
+body.theme-mixed2 .avatar-popup-btn:hover {
+    background: #3a3a42;
+}
