@@ -3117,3 +3117,58 @@ project/
 - 다크/혼합 테마(`theme-dark`, `theme-mixed`, `theme-dark2`, `theme-mixed2`): 어두운 배경 + 회색 테두리 + 회색 텍스트
 
 ---
+
+## 2026-03-04 (67차)
+
+### 아바타 슬롯 - 무기 제거 및 무기 수치 select 추가
+
+**수정된 파일:** `js/ui-character.js`, `js/storage.js`, `index.html`
+
+---
+
+### 변경 내용
+
+**`index.html`**
+
+- `avatar-row-template` 구조 변경
+  - 버튼: `colspan=13` → `colspan=9` (희귀도~봉인수치 자리까지)
+  - 버튼 오른쪽에 `colspan=4` select 신규 추가 (엠블렘~마법부여 수치 자리)
+    - 옵션은 빈 상태로 두고 JS(`AVATAR_WEAPON_STATS`)에서 채움
+    - `data-key="아바타_weapon_stat"`
+
+**`js/ui-character.js`**
+
+- `AVATAR_PARTS`에서 `"무기"` 제거 → 팝업에 9개 부위만 표시
+- 팝업 그리드: 5개 + 5개 → 5개 + 4개
+- `AVATAR_WEAPON_STATS` 배열 추가 — 선택지 데이터를 JS에서 관리
+  - `label`: 화면 표시 텍스트
+  - `stats`: 저장 시 스탯 키 배열 (쉼표 구분 → 개별 항목으로 분리)
+  - `amount`: 저장 시 숫자값 (없으면 null)
+  - `optgroup`: true면 `<optgroup>`으로 렌더링 → 선택 불가, 흰색 글자 유지
+  - 예시:
+    ```js
+    { label: '무기 아바타 수치',           stats: ['무기 아바타 수치'],              amount: null, optgroup: true }
+    { label: '힘, 지능, 체력, 정신력 +18', stats: ['힘', '지능', '체력', '정신력'], amount: 18 }
+    ```
+  - 항목 추가/수정은 이 배열만 변경하면 자동 반영
+- `_encodeWeaponStatValue(item)` 함수 추가
+  - stats 배열을 쉼표로 join + amount는 파이프로 구분하여 option value 인코딩
+  - 예: `"힘,지능,체력,정신력|18"`, `"무기 아바타 수치"`
+- `initAvatarWeaponStatSelect(section)` 함수 추가
+  - 아바타 행 생성/복원 시 `AVATAR_WEAPON_STATS`로 select 옵션 채움
+  - `optgroup: true` 항목은 `<optgroup label="...">` 으로 렌더링 (브라우저 기본 동작으로 선택 불가, 흰색 글자 유지)
+- 아바타 행 생성 시 `initAvatarWeaponStatSelect` 호출
+  - `DocumentFragment`에 직접 호출 (tmpDiv 우회 없이)
+- `restoreSavedData` - weapon_stat 복원 로직 추가
+  - 신규 구조(`stats` 배열): `stats.join(',') + '|' + amount`로 재조합하여 select value 설정
+  - 구버전 `stat` 단일 문자열 / `val` 형식 fallback 처리
+
+**`js/storage.js`**
+
+- 아바타 weapon_stat 저장 구조 변경: `{ stat, amount }` → `{ stats(배열), amount }`
+  - select value `"힘,지능,체력,정신력|18"` → `split(',')` 로 배열 분리 후 저장
+  - 예: `"weapon_stat": { "stats": ["힘", "지능", "체력", "정신력"], "amount": 18 }`
+  - 단일 스탯: `"weapon_stat": { "stats": ["무기 아바타 수치"], "amount": null }`
+  - 빈 선택: `"weapon_stat": { "stats": [], "amount": null }`
+
+---

@@ -38,15 +38,42 @@ function autoSave() {
             // 아바타 버튼 값 수집 (button 요소는 querySelectorAll에서 제외되므로 별도 처리)
             sec.querySelectorAll('button[data-key]').forEach(btn => {
                 const key = btn.getAttribute('data-key');
-                const underIdx = key.indexOf('_');
-                if (underIdx === -1) return;
-                const slot = key.slice(0, underIdx);
-                const field = key.slice(underIdx + 1);
-                if (!inputsObj[slot]) inputsObj[slot] = {};
-                // data-avatar-value 속성이 있으면 그 값 우선 사용 (innerHTML의 span 태그 제거)
+                if (key !== '아바타_itemname') return;
+
+                if (!inputsObj['아바타']) inputsObj['아바타'] = {};
+
+                // rawVal: "모자(레어) 얼굴(언커먼) ..." 형태
                 const rawVal = btn.getAttribute('data-avatar-value') ?? btn.textContent ?? '';
-                inputsObj[slot][field] = { val: rawVal, cls: btn.className };
+
+                // parts: { "모자": "레어", "얼굴": "언커먼", ... } 구조로 저장
+                const parts = {};
+                rawVal.trim().split(/\s+/).forEach(token => {
+                    const m = token.match(/^(.+)\((.+)\)$/);
+                    if (m) parts[m[1]] = m[2];
+                });
+                inputsObj['아바타']['parts'] = parts;
+
+                // 화면 표시용 원본도 유지 (복원 시 버튼 innerHTML 재생성에 사용)
+                inputsObj['아바타']['itemname'] = { val: rawVal, cls: btn.className };
             });
+
+            // 아바타 weapon_stat select: { stats(배열), amount } 구조로 저장
+            // value 형식: "힘,지능,체력,정신력|18" 또는 "무기 아바타 수치" 또는 ""
+            const weaponStatSel = sec.querySelector('[data-key="아바타_weapon_stat"]');
+            if (weaponStatSel) {
+                if (!inputsObj['아바타']) inputsObj['아바타'] = {};
+                const raw = weaponStatSel.value;
+                if (raw && raw.includes('|')) {
+                    const [statStr, amtStr] = raw.split('|');
+                    // 쉼표로 분리된 스탯 → 배열
+                    const stats = statStr.split(',').map(s => s.trim()).filter(Boolean);
+                    inputsObj['아바타']['weapon_stat'] = { stats, amount: Number(amtStr) };
+                } else if (raw) {
+                    inputsObj['아바타']['weapon_stat'] = { stats: [raw], amount: null };
+                } else {
+                    inputsObj['아바타']['weapon_stat'] = { stats: [], amount: null };
+                }
+            }
 
             // 메모리의 characters 배열에서 해당 캐릭터 찾아 병합
             // (스토리지에서 읽지 않고 메모리 기준으로 처리 → armorCounts 등 덮어쓰기 방지)

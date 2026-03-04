@@ -659,7 +659,7 @@
     <template id="avatar-row-template">
         <tr>
             <td class="col-slot v-border-heavy">아바타</td>
-            <td colspan="13" style="padding:0;">
+            <td colspan="9" style="padding:0;">
                 <button data-key="아바타_itemname" data-avatar-btn="1"
                         class="itemname-color-sync"
                         style="width:100%; height:var(--height-row); text-align:center; cursor:pointer;
@@ -668,6 +668,13 @@
                                font-size:var(--fs-table); font-weight:bold;
                                white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
                         title="클릭하여 아바타 설정"></button>
+            </td>
+            <td colspan="4" style="padding:0;">
+                <select data-key="아바타_weapon_stat" oninput="autoSave()"
+                        style="width:100%; height:var(--height-row); background:var(--input-bg);
+                               color:var(--color-white); border:var(--border-width) var(--border-style) var(--border);
+                               font:inherit; font-size:var(--fs-table); box-sizing:border-box; cursor:pointer;">
+                </select>
             </td>
             <td class="v-border-heavy">
                 <textarea data-key="아바타_desc" readonly onclick="openDescModal(this)"

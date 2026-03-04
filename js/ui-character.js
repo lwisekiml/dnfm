@@ -197,6 +197,9 @@ function createSlotContent(slot, index, charId, savedData) {
                     if (section) openAvatarPopup(section.id, btn);
                 };
             }
+            // weapon_stat select에 AVATAR_WEAPON_STATS 옵션 채우기
+            // (Fragment 상태에서 querySelector 가능 - appendChild 후 firstElementChild 방식 사용 불필요)
+            initAvatarWeaponStatSelect(rowFrag);
             return rowFrag;
         }
         return TemplateHelper.createSimpleRow(slot);
@@ -509,18 +512,51 @@ function restoreSavedData(section, savedData, charId) {
         }
     });
 
-    // 2-b) 아바타 버튼 복원 (button 요소라 querySelectorAll에서 제외됨)
+    // 2-b) 아바타 버튼 & weapon_stat select 복원
     const avatarBtn = section.querySelector('button[data-key="아바타_itemname"]');
     if (avatarBtn) {
-        const avatarData = getInputData(savedData.inputs, '아바타_itemname');
-        if (avatarData) {
-            const rawVal = avatarData.val || '';
-            avatarBtn.setAttribute('data-avatar-value', rawVal);
-            // 저장된 텍스트를 파싱해 색상 span으로 복원
-            if (typeof renderAvatarBtnHTML === 'function') {
-                avatarBtn.innerHTML = renderAvatarBtnHTML(rawVal);
-            } else {
-                avatarBtn.textContent = rawVal;
+        const avatarInputs = savedData?.inputs?.['아바타'] || {};
+
+        // weapon_stat select 옵션 먼저 채우기
+        initAvatarWeaponStatSelect(section);
+
+        // itemname 복원: 신규 구조(parts) 우선, 구버전(itemname.val) fallback
+        let rawVal = '';
+        if (avatarInputs.parts && typeof avatarInputs.parts === 'object') {
+            rawVal = Object.entries(avatarInputs.parts)
+                .map(([p, g]) => `${p}(${g})`)
+                .join(' ');
+        } else if (avatarInputs.itemname?.val) {
+            rawVal = avatarInputs.itemname.val;
+        }
+        avatarBtn.setAttribute('data-avatar-value', rawVal);
+        avatarBtn.innerHTML = typeof renderAvatarBtnHTML === 'function'
+            ? renderAvatarBtnHTML(rawVal)
+            : rawVal;
+
+        // weapon_stat select 복원: { stats(배열), amount } 구조
+        const weaponStatSel = section.querySelector('[data-key="아바타_weapon_stat"]');
+        if (weaponStatSel && avatarInputs.weapon_stat) {
+            const ws = avatarInputs.weapon_stat;
+            // 신규 구조: stats 배열 → "힘,지능,체력,정신력|18" 형태로 재조합
+            let storedValue = '';
+            if (Array.isArray(ws.stats) && ws.stats.length > 0) {
+                const statStr = ws.stats.join(',');
+                storedValue = (ws.amount !== null && ws.amount !== undefined)
+                    ? `${statStr}|${ws.amount}`
+                    : statStr;
+            } else if (ws.stat) {
+                // 구버전 stat 단일 문자열 fallback
+                storedValue = (ws.amount !== null && ws.amount !== undefined)
+                    ? `${ws.stat}|${ws.amount}`
+                    : ws.stat;
+            }
+            weaponStatSel.value = storedValue;
+            // 구버전 val 형식 fallback (이전에 "힘, 지능, 체력, 정신력 +18" 형태로 저장된 경우)
+            if (!weaponStatSel.value && ws.val) {
+                const matched = Array.from(weaponStatSel.options)
+                    .find(o => o.text === ws.val || o.value === ws.val);
+                if (matched) weaponStatSel.value = matched.value;
             }
         }
     }
@@ -882,11 +918,55 @@ function applyItemInfoToDesc(select, slot, charId, infoMap) {
 // 아바타 팝업
 // ============================================
 
-const AVATAR_PARTS = ["모자", "얼굴", "상의", "목가슴", "신발", "머리", "하의", "허리", "피부", "무기"];
+const AVATAR_PARTS = ["모자", "얼굴", "상의", "목가슴", "신발", "머리", "하의", "허리", "피부"];
 const AVATAR_GRADES = ["언커먼", "레어"];
 
 // 희귀도별 CSS 클래스
 const AVATAR_GRADE_CLASS = { '언커먼': 'rare-언커먼', '레어': 'rare-레어' };
+
+/**
+ * 무기 아바타 수치 선택지 데이터
+ * - label      : 화면에 표시될 텍스트
+ * - stats      : 저장 시 스탯 키 배열 (JSON 저장용, 단일 수치면 배열 1개)
+ * - amount     : 저장 시 숫자값 (없으면 null)
+ * - optgroup    : true 이면 optgroup으로 렌더링 (선택 불가, 흰색 글자 유지)
+ *
+ * 추가 시 이 배열에만 항목을 넣으면 select에 자동 반영됨
+ */
+const AVATAR_WEAPON_STATS = [
+    { label: '',                             stats: [],                                       amount: null                      },
+    { label: '무기 아바타 수치',               stats: ['무기 아바타 수치'],                        amount: null, optgroup: true     },
+    { label: '힘, 지능, 체력, 정신력 +18',     stats: ['힘', '지능', '체력', '정신력'],             amount: 18                        },
+];
+
+/**
+ * AVATAR_WEAPON_STATS 항목 → select option value 인코딩
+ * stats 배열을 쉼표로 join, amount는 파이프로 구분
+ * 예: ["힘","지능","체력","정신력"] + 18 → "힘,지능,체력,정신력|18"
+ *     ["무기 아바타 수치"] + null    → "무기 아바타 수치"
+ */
+function _encodeWeaponStatValue(item) {
+    if (!item.stats || item.stats.length === 0) return '';
+    const statStr = item.stats.join(',');
+    return item.amount !== null ? `${statStr}|${item.amount}` : statStr;
+}
+
+/**
+ * 아바타 weapon_stat select에 AVATAR_WEAPON_STATS 옵션을 채운다.
+ * section 내 [data-key="아바타_weapon_stat"] select를 찾아 초기화.
+ * optgroup 항목은 <optgroup label="...">으로 렌더링하여 선택 불가, 흰색 글자 유지
+ */
+function initAvatarWeaponStatSelect(section) {
+    const sel = section.querySelector('[data-key="아바타_weapon_stat"]');
+    if (!sel) return;
+
+    // optgroup 항목은 <optgroup label="...">으로, 일반 항목은 <option>으로 렌더링
+    sel.innerHTML = AVATAR_WEAPON_STATS.map(item =>
+        item.optgroup
+            ? `<optgroup label="${item.label}"></optgroup>`
+            : `<option value="${_encodeWeaponStatValue(item)}">${item.label}</option>`
+    ).join('');
+}
 
 /**
  * 저장 텍스트 "모자(언커먼) 상의(레어)" → 색상 span HTML로 변환
@@ -979,9 +1059,9 @@ function openAvatarPopup(charId, btn) {
     grid.appendChild(makeHeader());
     grid.appendChild(makeHeader());
 
-    // 부위 행 (5개씩 2열)
+    // 부위 행 (5개 + 4개로 2열)
     const left5  = AVATAR_PARTS.slice(0, 5);
-    const right5 = AVATAR_PARTS.slice(5, 10);
+    const right4 = AVATAR_PARTS.slice(5, 9);
 
     function makeRow(part) {
         const row = document.createElement('div');
@@ -1026,7 +1106,7 @@ function openAvatarPopup(charId, btn) {
     }
 
     left5.forEach(part => grid.appendChild(makeRow(part)));
-    right5.forEach(part => grid.appendChild(makeRow(part)));
+    right4.forEach(part => grid.appendChild(makeRow(part)));
 
     // 팝업 표시
     const overlay = document.getElementById('avatar-popup-overlay');
