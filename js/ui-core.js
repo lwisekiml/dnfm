@@ -1490,3 +1490,39 @@ function applyReinforceToSlots(charId, slots, value) {
 }
 
 console.log("✅ ui-core.js 로드 완료");
+
+// ============================================
+// 크리쳐 이름 select 초기화 및 연동
+// ============================================
+
+/**
+ * 크리쳐 이름 select 옵션 초기화
+ * section 내 크리쳐_name select에 CREATURE_DATA 옵션을 채운다
+ */
+function initCreatureNameSelect(section) {
+    const sel = section.querySelector('select[data-key="크리쳐_name"]');
+    if (!sel || typeof CREATURE_DATA === 'undefined') return;
+    const currentVal = sel.value;
+    sel.innerHTML = '<option value="">크리쳐 선택</option>' +
+        CREATURE_DATA.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+    sel.value = currentVal;
+}
+
+/**
+ * 크리쳐 이름 변경 시 desc 자동 입력
+ */
+function onCreatureNameChange(sel) {
+    const section = sel.closest('.char-section') || sel.closest('tr')?.closest('table')?.closest('.char-section');
+    const name = sel.value;
+    const creature = typeof CREATURE_DATA !== 'undefined' ? CREATURE_DATA.find(c => c.name === name) : null;
+
+    if (section) {
+        const descEl = section.querySelector('textarea[data-key="크리쳐_desc"]');
+        if (descEl && creature) {
+            descEl.value = creature.desc;
+        } else if (descEl && !name) {
+            descEl.value = '';
+        }
+    }
+    autoSave();
+}

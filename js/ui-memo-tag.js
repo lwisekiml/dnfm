@@ -432,7 +432,7 @@ function openDescModal(inputEl) {
 
     // 칭호/외형칭호/오라는 항상 읽기 전용 (선택지로만 변경 가능)
     const dataKey = inputEl.getAttribute('data-key') || '';
-    const readonlySlots = ['칭호_desc', '외형칭호_desc', '오라_desc'];
+    const readonlySlots = ['칭호_desc', '외형칭호_desc', '오라_desc', '크리쳐_desc'];
     const isReadonlySlot = readonlySlots.some(k => dataKey === k);
 
     currentDescInput = inputEl;

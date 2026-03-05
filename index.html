@@ -536,7 +536,14 @@
                     <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
                 </select>
             </td>
-            <td colspan="2"><input type="text" data-key="크리쳐_name" placeholder="크리쳐 이름" class="rare-에픽" oninput="autoSave()"></td>
+            <td colspan="2" style="padding:0; position:relative;">
+                <select data-key="크리쳐_name" class="rare-에픽" onchange="onCreatureNameChange(this)"
+                        style="width:100%; height:var(--height-row); background:var(--input-bg); color:var(--color-white);
+                               border:var(--border-width) var(--border-style) var(--border); font:inherit;
+                               font-size:var(--fs-table); font-weight:bold; box-sizing:border-box; cursor:pointer;">
+                    <option value="">크리쳐 선택</option>
+                </select>
+            </td>
             <td colspan="10">
                 <div class="artifact-main-wrapper">
                     <div class="art-group">
@@ -584,7 +591,7 @@
                 </div>
             </td>
             <td class="v-border-heavy">
-                <textarea data-key="크리쳐_desc" readonly onclick="openDescModal(this)"
+                <textarea data-key="크리쳐_desc" readonly onclick="openDescModal(this)" data-creature-desc="1"
                           style="text-align:left; padding-left:6px; cursor:pointer; width:100%; height:var(--height-row);
                                  resize:none; overflow:hidden; box-sizing:border-box; background:var(--input-bg);
                                  border:var(--border-width) var(--border-style) var(--border); font:inherit;

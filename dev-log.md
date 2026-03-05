@@ -3411,3 +3411,43 @@ project/
 - 희귀도 select 변경 시 옵션 select를 `CREATURE_ART_STATS` 기반으로 동적 업데이트
 - data-key의 `_red_` / `_blue_` / `_green_` 으로 색상 판별
 - 기존 선택값 보존 후 옵션 재구성 → 복원 시에도 선택값 유지
+---
+
+## 2026-03-05 (74차)
+
+### 크리쳐 이름 선택지 + 설명 자동 입력 + 설명 잠금 토글
+
+**수정된 파일:** `index.html`, `js/ui-core.js`, `js/ui-character.js`, `js/ui-memo-tag.js`, `shared/shared_data.js`
+
+---
+
+### 변경 내용
+
+**`shared/shared_data.js` — `CREATURE_DATA` 상수 추가**
+
+- 크리쳐 이름 목록 및 선택 시 자동 입력될 설명 데이터
+- 현재 항목: `진 : 옥령왕` (모든 속성 강화 +5 / 공격 시 18% 추가 데미지)
+
+**`index.html` — 크리쳐 이름 input → select 변경**
+
+- `크리쳐_name` : `<input type="text">` → `<select>` (CREATURE_DATA 기반 동적 옵션)
+- 크리쳐_desc textarea에 `data-creature-desc="1"` 속성 추가
+- 컨트롤바에 `🐉 설명 잠금 ON/OFF` 토글 버튼 추가
+
+**`js/ui-core.js` — 크리쳐 관련 함수 추가**
+
+- `initCreatureNameSelect(section)` : select에 CREATURE_DATA 옵션 채우기
+- `onCreatureNameChange(sel)` : 이름 선택 시 해당 크리쳐 desc 자동 입력
+- `toggleCreatureDescLock(btn)` : 설명 잠금 ON/OFF 토글
+  - ON(기본): 설명칸 편집 불가
+  - OFF: 편집 가능
+
+**`js/ui-character.js` — 크리쳐 행 생성/복원 시 select 초기화**
+
+- 크리쳐 행 생성 시 `initCreatureNameSelect` 호출
+- 캐릭터 복원 시 `initCreatureNameSelect` 호출
+
+**`js/ui-memo-tag.js` — 크리쳐 설명 잠금 동적 처리**
+
+- `openDescModal` 내 readonlySlots를 `window._creatureDescLocked` 플래그에 따라 동적 구성
+- 기본값: 잠금(true) → 크리쳐_desc 편집 불가

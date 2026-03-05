@@ -178,7 +178,9 @@ function createSlotContent(slot, index, charId, savedData) {
 
     // 크리쳐
     if (slot === "크리쳐") {
-        return TemplateHelper.createCreatureRow();
+        const rowFrag = TemplateHelper.createCreatureRow();
+        if (typeof initCreatureNameSelect === 'function') initCreatureNameSelect(rowFrag);
+        return rowFrag;
     }
 
     // 칭호 (textarea 특수 처리)
@@ -668,6 +670,8 @@ function restoreSavedData(section, savedData, charId) {
 
         // weapon_stat select 옵션 먼저 채우기
         initAvatarWeaponStatSelect(section);
+        // 크리쳐 이름 select 초기화
+        if (typeof initCreatureNameSelect === 'function') initCreatureNameSelect(section);
 
         // itemname 복원: 신규 구조(parts) 우선, 구버전(itemname.val) fallback
         let rawVal = '';
