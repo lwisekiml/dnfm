@@ -188,6 +188,18 @@ function getSlotDataForSearch(section, slot) {
         };
     }
 
+    // 아바타 슬롯 전용
+    if (slot === "아바타") {
+        const btn = section.querySelector('button[data-key="아바타_itemname"]');
+        return {
+            isSpecial: true,
+            specialType: 'avatar',
+            avatarValue: btn?.getAttribute('data-avatar-value') || btn?.textContent || '',
+            weaponStat: section.querySelector('select[data-key="아바타_weapon_stat"]')?.value || '',
+            desc: section.querySelector('[data-key="아바타_desc"]')?.value || ''
+        };
+    }
+
     // 일반 슬롯
     return {
         isSpecial: false,
@@ -232,9 +244,15 @@ function displaySearchResults(slot, results) {
         return;
     }
 
-    // 오라/아바타 간소화 처리 추가
-    if (slot === "오라" || slot === "아바타") {
+    // 오라 간소화 처리
+    if (slot === "오라") {
         createSimpleSlotSearchTable(container, results, slot);
+        return;
+    }
+
+    // 아바타 전용 처리
+    if (slot === "아바타") {
+        createAvatarSearchTable(container, results);
         return;
     }
 
@@ -410,6 +428,95 @@ function getEmblemHighlight(slot, embValue, eleType) {
         return 'highlight-yellow';
     }
     return '';
+}
+
+/**
+ * 아바타 검색 테이블 생성
+ * | 직업/이름 | 파츠 설정 | 무기 아바타 수치 | 설명 |
+ */
+function createAvatarSearchTable(container, results) {
+    const table = document.createElement('table');
+    table.className = 'compare-table search-result-table search-table-custom';
+    table.style.tableLayout = 'auto';
+    table.style.width = 'auto';
+    table.style.fontWeight = '900';
+
+    const style = document.createElement('style');
+    style.textContent = `
+        .search-table-custom,
+        .search-table-custom th,
+        .search-table-custom td {
+            font-size: var(--fs-search) !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // thead
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th>직업/이름</th>
+            <th>파츠 설정</th>
+            <th>무기 아바타 수치</th>
+            <th>설명 <button class="simple-desc-toggle-btn" title="설명 편집" style="background:#4a5abb;color:#fff;border:none;border-radius:4px;padding:1px 6px;cursor:pointer;font-size:11px;margin-left:4px;">✏️</button></th>
+        </tr>
+    `;
+    table.appendChild(thead);
+
+    // tbody
+    const tbody = document.createElement('tbody');
+    results.forEach(result => {
+        const tr = document.createElement('tr');
+
+        const tdName = document.createElement('td');
+        tdName.style.whiteSpace = 'nowrap';
+        tdName.textContent = `${result.job}(${result.name})`;
+
+        // 파츠 설정 - 언커먼/레어 색상 적용 (renderAvatarBtnHTML 활용)
+        const tdAvatar = document.createElement('td');
+        tdAvatar.style.cssText = 'white-space:nowrap; text-align:left; padding:2px 6px;';
+        if (typeof renderAvatarBtnHTML === 'function') {
+            tdAvatar.innerHTML = renderAvatarBtnHTML(result.avatarValue || '');
+        } else {
+            tdAvatar.textContent = result.avatarValue || '';
+        }
+
+        const tdWeaponStat = document.createElement('td');
+        tdWeaponStat.style.whiteSpace = 'nowrap';
+        // value("힘,지능,체력,정신력|18") 대신 label 표시
+        const weaponStatLabel = (() => {
+            const val = result.weaponStat || '';
+            if (!val) return '';
+            const matched = (typeof AVATAR_WEAPON_STATS !== 'undefined')
+                ? AVATAR_WEAPON_STATS.find(item => {
+                    if (!item.stats || item.stats.length === 0) return false;
+                    const statStr = item.stats.join(',');
+                    const encoded = item.amount !== null ? `${statStr}|${item.amount}` : statStr;
+                    return encoded === val;
+                })
+                : null;
+            return matched ? matched.label : val;
+        })();
+        tdWeaponStat.textContent = weaponStatLabel;
+
+        const tdDesc = document.createElement('td');
+        tdDesc.dataset.descCell = 'true';
+        tdDesc.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px;';
+        tdDesc.textContent = result.desc || '';
+        _makeDescEditable(tdDesc, result.charId, '아바타');
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdAvatar);
+        tr.appendChild(tdWeaponStat);
+        tr.appendChild(tdDesc);
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+
+    container.innerHTML = '';
+    container.appendChild(table);
+
+    _initDescToggleBtn(table, '.simple-desc-toggle-btn');
 }
 
 /**

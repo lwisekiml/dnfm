@@ -3349,3 +3349,35 @@ project/
 - `label` — 화면 표시용 텍스트
 
 백엔드에서 언커먼/레어 개수를 받아 세트 수 계산 후 `cumulative` 플래그로 누적 여부 판단 가능
+
+---
+
+## 2026-03-05 (72차)
+
+### 아바타 검색 결과 테이블 전용 처리
+
+**수정된 파일:** `js/ui-search.js`
+
+---
+
+### 변경 내용
+
+**`getSlotDataForSearch` — 아바타 전용 분기 추가**
+
+- 기존: 일반 슬롯으로 처리 → `itemname`이 button이라 value 읽기 실패
+- 변경: 아바타 전용 분기
+  - `avatarValue`: `button[data-avatar-value]` 속성으로 파츠 설정값 읽기
+  - `weaponStat`: `select[data-key="아바타_weapon_stat"]` value 읽기
+  - `desc`: textarea 그대로 읽기
+
+**`displaySearchResults` — 아바타 분기 분리**
+
+- 기존: 오라/아바타 동일하게 `createSimpleSlotSearchTable` 호출
+- 변경: 아바타는 `createAvatarSearchTable`, 오라는 기존 유지
+
+**`createAvatarSearchTable` 함수 신규 추가**
+
+- 컬럼: 직업/이름 | 파츠 설정 | 무기 아바타 수치 | 설명
+- 파츠 설정: `renderAvatarBtnHTML` 활용해 언커먼(파란색)/레어(보라색) 색상 그대로 표시
+- 무기 아바타 수치: value(`힘,지능,체력,정신력|18`) 대신 `AVATAR_WEAPON_STATS`에서 매칭되는 `label`(`힘, 지능, 체력, 정신력 +18`) 표시
+- 설명 편집 버튼(✏️) 포함
