@@ -600,7 +600,32 @@ function updateStyle(el, type, isInitial = false) {
         else if (type === 'artBg') {
             el.classList.add('bg-' + el.value);
             const optSelect = el.parentElement.querySelector('.art-opt-select');
-            if (optSelect) optSelect.className = 'art-opt-select bg-' + el.value;
+            if (optSelect) {
+                optSelect.className = 'art-opt-select bg-' + el.value;
+
+                // 희귀도에 따라 옵션 수치 업데이트
+                const dataKey = optSelect.getAttribute('data-key') || '';
+                const color = dataKey.includes('_red_') ? 'red'
+                    : dataKey.includes('_blue_') ? 'blue'
+                        : dataKey.includes('_green_') ? 'green'
+                            : null;
+
+                if (color && typeof CREATURE_ART_STATS !== 'undefined') {
+                    const rarity = el.value;
+                    const statList = CREATURE_ART_STATS[color]?.[rarity];
+                    if (statList) {
+                        // 옵션 업데이트 전 현재 선택값 보존 (복원 시 이미 value가 세팅된 상태)
+                        const currentStat = optSelect.value || optSelect.getAttribute('data-stat') || '';
+                        optSelect.innerHTML = '<option value="">옵션 선택</option>' +
+                            statList.map(s =>
+                                `<option value="${s.stat}">${s.label}</option>`
+                            ).join('');
+                        // 보존된 값 재적용
+                        optSelect.value = currentStat;
+                        optSelect.setAttribute('data-stat', optSelect.value);
+                    }
+                }
+            }
         }
 
     }

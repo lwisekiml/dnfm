@@ -745,3 +745,155 @@ const AVATAR_SET_EFFECTS = {
         },
     },
 };
+// ============================================
+// 크리쳐 아티팩트 희귀도별 스탯 데이터
+// ============================================
+/**
+ * 아티팩트 색상별(red=1번, blue=2번, green=3번) × 희귀도별 스탯
+ * - stat  : 스탯 키 (DB 저장용)
+ * - amount: 수치
+ * - label : 화면 표시 텍스트 ("힘 +10")
+ */
+const CREATURE_ART_STATS = {
+    red: {
+        "커먼":   [
+            { stat: '힘',   amount: 10, label: '힘 +10'  },
+            { stat: '지능', amount: 10, label: '지능 +10' },
+            { stat: '체력', amount: 10, label: '체력 +10' },
+            { stat: '정신력', amount: 10, label: '정신력 +10' },
+            { stat: '적중', amount: 2,  label: '적중 +2'  },
+            { stat: '회피', amount: 2,  label: '회피 +2'  },
+        ],
+        "언커먼": [
+            { stat: '힘',   amount: 15, label: '힘 +15'  },
+            { stat: '지능', amount: 15, label: '지능 +15' },
+            { stat: '체력', amount: 15, label: '체력 +15' },
+            { stat: '정신력', amount: 15, label: '정신력 +15' },
+            { stat: '적중', amount: 4,  label: '적중 +4'  },
+            { stat: '회피', amount: 4,  label: '회피 +4'  },
+        ],
+        "레어":   [
+            { stat: '힘',   amount: 20, label: '힘 +20'  },
+            { stat: '지능', amount: 20, label: '지능 +20' },
+            { stat: '체력', amount: 20, label: '체력 +20' },
+            { stat: '정신력', amount: 20, label: '정신력 +20' },
+            { stat: '적중', amount: 6,  label: '적중 +6'  },
+            { stat: '회피', amount: 6,  label: '회피 +6'  },
+        ],
+        "유니크": [
+            { stat: '힘',   amount: 25, label: '힘 +25'  },
+            { stat: '지능', amount: 25, label: '지능 +25' },
+            { stat: '체력', amount: 25, label: '체력 +25' },
+            { stat: '정신력', amount: 25, label: '정신력 +25' },
+            { stat: '적중', amount: 9,  label: '적중 +9'  },
+            { stat: '회피', amount: 9,  label: '회피 +9'  },
+        ],
+        "에픽":   [
+            { stat: '힘',   amount: 30, label: '힘 +30'  },
+            { stat: '지능', amount: 30, label: '지능 +30' },
+            { stat: '체력', amount: 30, label: '체력 +30' },
+            { stat: '정신력', amount: 30, label: '정신력 +30' },
+            { stat: '적중', amount: 12, label: '적중 +12' },
+            { stat: '회피', amount: 12, label: '회피 +12' },
+        ],
+    },
+    blue: {
+        "커먼":   [
+            { stat: 'HP MAX',    amount: 30, label: 'HP MAX +30'    },
+            { stat: 'MP MAX',    amount: 30, label: 'MP MAX +30'    },
+            { stat: '물리공격력', amount: 10, label: '물리 공격력 +10' },
+            { stat: '마법공격력', amount: 10, label: '마법 공격력 +10' },
+            { stat: '물리방어력', amount: 20, label: '물리 방어력 +20' },
+            { stat: '마법방어력', amount: 20, label: '마법 방어력 +20' },
+        ],
+        "언커먼": [
+            { stat: 'HP MAX',    amount: 45, label: 'HP MAX +45'    },
+            { stat: 'MP MAX',    amount: 45, label: 'MP MAX +45'    },
+            { stat: '물리공격력', amount: 15, label: '물리 공격력 +15' },
+            { stat: '마법공격력', amount: 15, label: '마법 공격력 +15' },
+            { stat: '물리방어력', amount: 30, label: '물리 방어력 +30' },
+            { stat: '마법방어력', amount: 30, label: '마법 방어력 +30' },
+        ],
+        "레어":   [
+            { stat: 'HP MAX',    amount: 60, label: 'HP MAX +60'    },
+            { stat: 'MP MAX',    amount: 60, label: 'MP MAX +60'    },
+            { stat: '물리공격력', amount: 20, label: '물리 공격력 +20' },
+            { stat: '마법공격력', amount: 20, label: '마법 공격력 +20' },
+            { stat: '물리방어력', amount: 40, label: '물리 방어력 +40' },
+            { stat: '마법방어력', amount: 40, label: '마법 방어력 +40' },
+        ],
+        "유니크": [
+            { stat: 'HP MAX',    amount: 75, label: 'HP MAX +75'    },
+            { stat: 'MP MAX',    amount: 75, label: 'MP MAX +75'    },
+            { stat: '물리공격력', amount: 25, label: '물리 공격력 +25' },
+            { stat: '마법공격력', amount: 25, label: '마법 공격력 +25' },
+            { stat: '물리방어력', amount: 50, label: '물리 방어력 +50' },
+            { stat: '마법방어력', amount: 50, label: '마법 방어력 +50' },
+        ],
+        "에픽":   [
+            { stat: 'HP MAX',    amount: 90, label: 'HP MAX +90'    },
+            { stat: 'MP MAX',    amount: 90, label: 'MP MAX +90'    },
+            { stat: '물리공격력', amount: 30, label: '물리 공격력 +30' },
+            { stat: '마법공격력', amount: 30, label: '마법 공격력 +30' },
+            { stat: '물리방어력', amount: 60, label: '물리 방어력 +60' },
+            { stat: '마법방어력', amount: 60, label: '마법 방어력 +60' },
+        ],
+    },
+    green: {
+        "커먼":   [
+            { stat: '물리크리티컬', amount: 2,   label: '물리 크리티컬 +2'  },
+            { stat: '마법크리티컬', amount: 2,   label: '마법 크리티컬 +2'  },
+            { stat: '공격속도',     amount: 0.2, label: '공격속도 +0.2%'    },
+            { stat: '캐스팅속도',   amount: 0.2, label: '캐스팅속도 +0.2%'  },
+            { stat: '이동속도',     amount: 0.2, label: '이동속도 +0.2%'    },
+            { stat: '화속강',       amount: 2,   label: '화속강 +2'         },
+            { stat: '수속강',       amount: 2,   label: '수속강 +2'         },
+            { stat: '명속강',       amount: 2,   label: '명속강 +2'         },
+            { stat: '모속강',       amount: 2,   label: '모속강 +2'         },
+        ],
+        "언커먼": [
+            { stat: '물리크리티컬', amount: 4,   label: '물리 크리티컬 +4'  },
+            { stat: '마법크리티컬', amount: 4,   label: '마법 크리티컬 +4'  },
+            { stat: '공격속도',     amount: 0.3, label: '공격속도 +0.3%'    },
+            { stat: '캐스팅속도',   amount: 0.3, label: '캐스팅속도 +0.3%'  },
+            { stat: '이동속도',     amount: 0.3, label: '이동속도 +0.3%'    },
+            { stat: '화속강',       amount: 3,   label: '화속강 +3'         },
+            { stat: '수속강',       amount: 3,   label: '수속강 +3'         },
+            { stat: '명속강',       amount: 3,   label: '명속강 +3'         },
+            { stat: '모속강',       amount: 3,   label: '모속강 +3'         },
+        ],
+        "레어":   [
+            { stat: '물리크리티컬', amount: 7,   label: '물리 크리티컬 +7'  },
+            { stat: '마법크리티컬', amount: 7,   label: '마법 크리티컬 +7'  },
+            { stat: '공격속도',     amount: 0.4, label: '공격속도 +0.4%'    },
+            { stat: '캐스팅속도',   amount: 0.4, label: '캐스팅속도 +0.4%'  },
+            { stat: '이동속도',     amount: 0.4, label: '이동속도 +0.4%'    },
+            { stat: '화속강',       amount: 4,   label: '화속강 +4'         },
+            { stat: '수속강',       amount: 4,   label: '수속강 +4'         },
+            { stat: '명속강',       amount: 4,   label: '명속강 +4'         },
+            { stat: '모속강',       amount: 4,   label: '모속강 +4'         },
+        ],
+        "유니크": [
+            { stat: '물리크리티컬', amount: 10,  label: '물리 크리티컬 +10' },
+            { stat: '마법크리티컬', amount: 10,  label: '마법 크리티컬 +10' },
+            { stat: '공격속도',     amount: 0.5, label: '공격속도 +0.5%'    },
+            { stat: '캐스팅속도',   amount: 0.5, label: '캐스팅속도 +0.5%'  },
+            { stat: '이동속도',     amount: 0.5, label: '이동속도 +0.5%'    },
+            { stat: '화속강',       amount: 5,   label: '화속강 +5'         },
+            { stat: '수속강',       amount: 5,   label: '수속강 +5'         },
+            { stat: '명속강',       amount: 5,   label: '명속강 +5'         },
+            { stat: '모속강',       amount: 5,   label: '모속강 +5'         },
+        ],
+        "에픽":   [
+            { stat: '물리크리티컬', amount: 14,  label: '물리 크리티컬 +14' },
+            { stat: '마법크리티컬', amount: 14,  label: '마법 크리티컬 +14' },
+            { stat: '공격속도',     amount: 0.6, label: '공격속도 +0.6%'    },
+            { stat: '캐스팅속도',   amount: 0.6, label: '캐스팅속도 +0.6%'  },
+            { stat: '이동속도',     amount: 0.6, label: '이동속도 +0.6%'    },
+            { stat: '화속강',       amount: 6,   label: '화속강 +6'         },
+            { stat: '수속강',       amount: 6,   label: '수속강 +6'         },
+            { stat: '명속강',       amount: 6,   label: '명속강 +6'         },
+            { stat: '모속강',       amount: 6,   label: '모속강 +6'         },
+        ],
+    },
+};

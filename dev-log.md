@@ -3381,3 +3381,33 @@ project/
 - 파츠 설정: `renderAvatarBtnHTML` 활용해 언커먼(파란색)/레어(보라색) 색상 그대로 표시
 - 무기 아바타 수치: value(`힘,지능,체력,정신력|18`) 대신 `AVATAR_WEAPON_STATS`에서 매칭되는 `label`(`힘, 지능, 체력, 정신력 +18`) 표시
 - 설명 편집 버튼(✏️) 포함
+---
+
+## 2026-03-05 (73차)
+
+### 크리쳐 아티팩트 희귀도별 스탯 수치 표시
+
+**수정된 파일:** `shared/shared_data.js`, `js/ui-core.js`
+
+---
+
+### 변경 내용
+
+**`shared/shared_data.js` — `CREATURE_ART_STATS` 상수 추가**
+
+아티팩트 색상(red/blue/green) × 희귀도(커먼/언커먼/레어/유니크/에픽)별 스탯 데이터:
+- `stat`: DB 저장용 키
+- `amount`: 수치
+- `label`: 화면 표시 텍스트 ("힘 +10" 형태)
+
+| 색상 | 스탯 항목 |
+|------|----------|
+| red(1번) | 힘, 지능, 체력, 정신력, 적중, 회피 |
+| blue(2번) | HP MAX, MP MAX, 물리/마법 공격력, 물리/마법 방어력 |
+| green(3번) | 물리/마법 크리티컬, 공격/캐스팅/이동속도, 화/수/명/모속강 |
+
+**`js/ui-core.js` — `artBg` 핸들러 수정**
+
+- 희귀도 select 변경 시 옵션 select를 `CREATURE_ART_STATS` 기반으로 동적 업데이트
+- data-key의 `_red_` / `_blue_` / `_green_` 으로 색상 판별
+- 기존 선택값 보존 후 옵션 재구성 → 복원 시에도 선택값 유지
