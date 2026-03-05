@@ -666,3 +666,82 @@ const AVATAR_PART_STATS = {
         "레어":   { stats: ['히트리커버리'], amount: 100,  label: '히트 리커버리(확인필요) +100'                },
     },
 };
+// ============================================
+// 아바타 세트 효과 데이터
+// ============================================
+/**
+ * - label      : 화면 표시 텍스트
+ * - cumulative : true = 이전 세트 효과 누적 적용 (5세트→3세트 포함, 8세트→3+5세트 포함)
+ * - stats      : 해당 단계 고유 스탯 (누적분 미포함)
+ */
+const AVATAR_SET_EFFECTS = {
+    "언커먼": {
+        3: {
+            label: '힘/지능 +20, 체력 +10, 정신력 +10',
+            cumulative: false,
+            stats: [
+                { stats: ['힘', '지능'],  amount: 20 },
+                { stats: ['체력'],        amount: 10 },
+                { stats: ['정신력'],      amount: 10 },
+            ]
+        },
+        5: {
+            label: 'HP MAX +100, MP MAX +100',
+            cumulative: true,
+            stats: [
+                { stats: ['HP MAX'],  amount: 100 },
+                { stats: ['MP MAX'],  amount: 100 },
+            ]
+        },
+        8: {
+            label: '힘/지능 +20, 체력 +20, 정신력 +10, 공격/캐스팅/이동속도 +1%',
+            cumulative: true,
+            stats: [
+                { stats: ['힘', '지능'],  amount: 20  },
+                { stats: ['체력'],        amount: 20  },
+                { stats: ['정신력'],      amount: 10  },
+                { stats: ['공격속도'],    amount: 1   },
+                { stats: ['캐스팅속도'],  amount: 1   },
+                { stats: ['이동속도'],    amount: 1   },
+            ]
+        },
+    },
+    "레어": {
+        3: {
+            label: '힘/지능 +35, 체력/정신력 +20, 공격/캐스팅/이동속도 +1.5%',
+            cumulative: false,
+            stats: [
+                { stats: ['힘', '지능'],  amount: 35  },
+                { stats: ['체력'],        amount: 20  },
+                { stats: ['정신력'],      amount: 20  },
+                { stats: ['공격속도'],    amount: 1.5 },
+                { stats: ['캐스팅속도'],  amount: 1.5 },
+                { stats: ['이동속도'],    amount: 1.5 },
+            ]
+        },
+        5: {
+            label: 'HP MAX +220, MP MAX +220, 적중/회피 확률 +1%',
+            cumulative: true,
+            stats: [
+                { stats: ['HP MAX'],      amount: 220 },
+                { stats: ['MP MAX'],      amount: 220 },
+                { stats: ['적중확률'],    amount: 1   },
+                { stats: ['회피확률'],    amount: 1   },
+            ]
+        },
+        8: {
+            label: '힘/지능 +35, 체력/정신력 +20, 공격/캐스팅/이동속도 +1.5%, 모든 속성 저항 +10, 마을 이동속도 +60%',
+            cumulative: true,
+            stats: [
+                { stats: ['힘', '지능'],       amount: 35  },
+                { stats: ['체력'],             amount: 20  },
+                { stats: ['정신력'],           amount: 20  },
+                { stats: ['공격속도'],         amount: 1.5 },
+                { stats: ['캐스팅속도'],       amount: 1.5 },
+                { stats: ['이동속도'],         amount: 1.5 },
+                { stats: ['모든속성저항'],     amount: 10  },
+                { stats: ['마을이동속도'],     amount: 60  },
+            ]
+        },
+    },
+};
