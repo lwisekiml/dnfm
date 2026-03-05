@@ -2325,3 +2325,18 @@ td:has(.itemname-img-preview) select {
     flex: 1;
     min-width: 0;
 }
+/* ========================================
+   아바타 팝업 레이아웃
+======================================== */
+.avatar-popup-box {
+    min-width: 0 !important;
+    width: auto !important;
+    max-width: 90vw !important;
+}
+
+#avatar-popup-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px 24px !important;
+    margin-bottom: 20px !important;
+}

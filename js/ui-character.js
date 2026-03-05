@@ -1073,26 +1073,6 @@ function applyItemInfoToDesc(select, slot, charId, infoMap) {
 // 아바타 팝업
 // ============================================
 
-const AVATAR_PARTS = ["모자", "얼굴", "상의", "목가슴", "신발", "머리", "하의", "허리", "피부"];
-const AVATAR_GRADES = ["언커먼", "레어"];
-
-// 희귀도별 CSS 클래스
-const AVATAR_GRADE_CLASS = { '언커먼': 'rare-언커먼', '레어': 'rare-레어' };
-
-/**
- * 무기 아바타 수치 선택지 데이터
- * - label      : 화면에 표시될 텍스트
- * - stats      : 저장 시 스탯 키 배열 (JSON 저장용, 단일 수치면 배열 1개)
- * - amount     : 저장 시 숫자값 (없으면 null)
- * - optgroup    : true 이면 optgroup으로 렌더링 (선택 불가, 흰색 글자 유지)
- *
- * 추가 시 이 배열에만 항목을 넣으면 select에 자동 반영됨
- */
-const AVATAR_WEAPON_STATS = [
-    { label: '',                             stats: [],                                       amount: null                      },
-    { label: '무기 아바타 수치',               stats: ['무기 아바타 수치'],                        amount: null, optgroup: true     },
-    { label: '힘, 지능, 체력, 정신력 +18',     stats: ['힘', '지능', '체력', '정신력'],             amount: 18                        },
-];
 
 /**
  * AVATAR_WEAPON_STATS 항목 → select option value 인코딩
@@ -1173,27 +1153,25 @@ function openAvatarPopup(charId, btn) {
     // 헤더 행 - 클릭 시 해당 등급 전체 체크/해제
     function makeHeader() {
         const header = document.createElement('div');
-        header.style.cssText = 'display:grid; grid-template-columns:60px 1fr 1fr; gap:4px; align-items:center; font-size:0.85em; text-align:center;';
+        header.style.cssText = 'display:grid; grid-template-columns:50px 44px 44px 16em; gap:4px; align-items:center; margin-bottom:2px;';
 
-        header.appendChild(document.createElement('span')); // 빈 칸
+        header.appendChild(document.createElement('span')); // 파츠명 빈칸
 
         AVATAR_GRADES.forEach(grade => {
+            const gradeColor = grade === '언커먼' ? '#4dabf7' : '#b197fc';
             const span = document.createElement('span');
             span.textContent = grade;
-            span.style.cssText = 'cursor:pointer; user-select:none; padding:2px 4px; border-radius:4px; color:#aaa;';
+            span.style.cssText = `cursor:pointer; user-select:none; text-align:center; font-size:0.85em; font-weight:bold; color:${gradeColor};`;
             span.title = `${grade} 전체 체크/해제`;
 
-            // 호버 효과
-            span.addEventListener('mouseenter', () => { span.style.color = '#fff'; span.style.background = 'rgba(255,255,255,0.1)'; });
-            span.addEventListener('mouseleave', () => { span.style.color = '#aaa'; span.style.background = ''; });
+            span.addEventListener('mouseenter', () => { span.style.opacity = '0.7'; });
+            span.addEventListener('mouseleave', () => { span.style.opacity = '1'; });
 
-            // 클릭: 해당 등급 전체 체크 (이미 전부 체크면 전체 해제)
             span.addEventListener('click', () => {
                 const allCbs = AVATAR_PARTS.map(p => document.getElementById(`avatar-cb-${p}-${grade}`)).filter(Boolean);
                 const allChecked = allCbs.every(c => c.checked);
                 allCbs.forEach(c => {
                     c.checked = !allChecked;
-                    // 같은 부위 다른 등급 해제
                     if (!allChecked) {
                         AVATAR_GRADES.forEach(g => {
                             if (g !== grade) {
@@ -1202,11 +1180,15 @@ function openAvatarPopup(charId, btn) {
                             }
                         });
                     }
+                    // 스탯 갱신
+                    c.dispatchEvent(new Event('change'));
                 });
             });
 
             header.appendChild(span);
         });
+
+        header.appendChild(document.createElement('span')); // 스탯 열 빈칸
 
         return header;
     }
@@ -1219,15 +1201,36 @@ function openAvatarPopup(charId, btn) {
     const right4 = AVATAR_PARTS.slice(5, 9);
 
     function makeRow(part) {
+        // 파츠명 | □(언커먼) | □(레어) | 스탯(고정너비)
         const row = document.createElement('div');
-        row.style.cssText = 'display:grid; grid-template-columns:60px 1fr 1fr; gap:4px; align-items:center;';
+        row.style.cssText = 'display:grid; grid-template-columns:50px 44px 44px 16em; gap:4px; align-items:center;';
 
         const label = document.createElement('span');
         label.textContent = part;
-        label.style.cssText = 'font-size:0.95em; text-align:right; padding-right:6px;';
+        label.style.cssText = 'font-size:0.95em; text-align:right; padding-right:4px;';
         row.appendChild(label);
 
         let checkedGrade = currentMap[part] || null;
+
+        // 스탯 표시 span - 고정너비(16em = 가장 긴 문장 기준)
+        const statSpan = document.createElement('span');
+        statSpan.style.cssText = 'font-size:0.82em; white-space:nowrap; overflow:hidden;';
+
+        function updateStatSpan() {
+            const uncomCb = document.getElementById(`avatar-cb-${part}-언커먼`);
+            const rareCb  = document.getElementById(`avatar-cb-${part}-레어`);
+            if (uncomCb?.checked) {
+                const d = AVATAR_PART_STATS[part]?.['언커먼'];
+                statSpan.textContent = d?.label || '';
+                statSpan.style.color = '#4dabf7'; // --txt-uncom 파란색
+            } else if (rareCb?.checked) {
+                const d = AVATAR_PART_STATS[part]?.['레어'];
+                statSpan.textContent = d?.label || '';
+                statSpan.style.color = '#b197fc'; // --txt-rare 보라색
+            } else {
+                statSpan.textContent = '';
+            }
+        }
 
         AVATAR_GRADES.forEach(grade => {
             const wrapper = document.createElement('div');
@@ -1239,9 +1242,8 @@ function openAvatarPopup(charId, btn) {
             cb.setAttribute('data-grade', grade);
             cb.id = `avatar-cb-${part}-${grade}`;
             cb.checked = (checkedGrade === grade);
-            cb.style.cssText = 'width:20px; height:20px; cursor:pointer;';
+            cb.style.cssText = 'width:16px; height:16px; cursor:pointer;';
 
-            // 같은 부위에서 하나만 체크
             cb.addEventListener('change', () => {
                 if (cb.checked) {
                     AVATAR_GRADES.forEach(g => {
@@ -1251,17 +1253,32 @@ function openAvatarPopup(charId, btn) {
                         }
                     });
                 }
+                updateStatSpan();
             });
 
             wrapper.appendChild(cb);
             row.appendChild(wrapper);
         });
 
+        row.appendChild(statSpan);
+
+        // 초기 로드 시 저장된 값 반영
+        setTimeout(updateStatSpan, 0);
+
         return row;
     }
 
-    left5.forEach(part => grid.appendChild(makeRow(part)));
-    right4.forEach(part => grid.appendChild(makeRow(part)));
+    // 좌우 2컬럼 레이아웃
+    const colLeft  = document.createElement('div');
+    const colRight = document.createElement('div');
+    colLeft.style.cssText  = 'display:flex; flex-direction:column; gap:4px;';
+    colRight.style.cssText = 'display:flex; flex-direction:column; gap:4px;';
+
+    left5.forEach(part  => colLeft.appendChild(makeRow(part)));
+    right4.forEach(part => colRight.appendChild(makeRow(part)));
+
+    grid.appendChild(colLeft);
+    grid.appendChild(colRight);
 
     // 팝업 표시
     const overlay = document.getElementById('avatar-popup-overlay');

@@ -3274,3 +3274,57 @@ project/
   - 모든 select 필드(weapon_stat 포함)의 변경 기록이 value 대신 label로 표시됨
 
 ---
+
+## 2026-03-05 (70차)
+
+### 아바타 팝업 - 파츠별 스탯 표시 + 레이아웃 수정 + weapon CSS 복원
+
+**수정된 파일:** `js/ui-character.js`, `styles/styles.css`, `shared/shared_data.js`
+
+> **66차 추가:** `AVATAR_PARTS`, `AVATAR_GRADES`, `AVATAR_GRADE_CLASS`, `AVATAR_WEAPON_STATS` 도 `shared/shared_data.js`로 이동
+
+---
+
+### 변경 내용
+
+**`styles/styles.css` — 아바타 팝업 CSS 추가**
+
+- `.avatar-popup-box`: `width: auto`, `max-width: 90vw`
+- `#avatar-popup-grid`: `grid-template-columns: 1fr 1fr`, `gap: 6px 24px`
+
+**`shared/shared_data.js` — `AVATAR_PART_STATS` 상수 추가**
+
+- `TITLE_ITEM_INFO`, `AURA_ITEM_INFO` 등 아이템 데이터와 함께 관리
+- `js/ui-character.js`에서 이동 (데이터와 UI 로직 분리)
+
+**`js/ui-character.js` — `AVATAR_PART_STATS` 제거**
+
+파츠별 등급별 스탯 데이터 정의 (9개 파츠 × 언커먼/레어):
+
+| 파츠 | 언커먼 | 레어 |
+|------|--------|------|
+| 모자 | 캐스팅속도 +12% | 캐스팅속도 +14% |
+| 얼굴 | 공격속도 +5% | 공격속도 +6% |
+| 상의 | 모든 직업 15레벨 스킬Lv+1(TP스킬 제외) | 모든 직업 10~30레벨 스킬Lv+1(TP스킬 제외) |
+| 목가슴 | 공격속도 +5% | 공격속도 +6% |
+| 신발 | 이동속도 +5% | 이동속도 +6% |
+| 머리 | 캐스팅속도 +12% | 캐스팅속도 +14% |
+| 하의 | HP MAX +418 | HP MAX +682 |
+| 허리 | 회피 확률 +4% | 회피 확률 +6.5% |
+| 피부 | 히트 리커버리 +80 | 히트 리커버리(확인필요) +100 |
+
+각 항목 구조: `{ stats, amount, label }` (백엔드 연동 대비 수치 분리)
+
+**`js/ui-character.js` — 팝업 레이아웃 전면 수정**
+
+- 그리드: `grid-template-columns: 50px 44px 44px 16em`
+  - 파츠명(50px) | 언커먼 체크박스(44px) | 레어 체크박스(44px) | 스탯 고정영역(16em)
+- 헤더 행: "언커먼" 파란색(`#4dabf7`), "레어" 보라색(`#b197fc`) 가로 표시
+  - 클릭 시 해당 등급 전체 체크/해제 유지
+- 체크박스 클릭 시 해당 등급 스탯 색으로 표시, 해제 시 숨김
+  - 언커먼 체크 → 파란색 스탯
+  - 레어 체크 → 보라색 스탯
+- 스탯 영역 `16em` 고정 → 가장 긴 문장("모든 직업 10~30레벨 스킬Lv+1(TP스킬 제외)") 기준으로 팝업 크기 고정
+- 좌(모자~신발) / 우(머리~피부) 2컬럼 유지
+
+--

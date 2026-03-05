@@ -594,3 +594,75 @@ const GameData = {
     TITLE_ITEM_INFO,
     AURA_ITEM_INFO
 };
+
+
+// ============================================
+// 아바타 공통 상수
+// ============================================
+const AVATAR_PARTS = ["모자", "얼굴", "상의", "목가슴", "신발", "머리", "하의", "허리", "피부"];
+const AVATAR_GRADES = ["언커먼", "레어"];
+
+// 희귀도별 CSS 클래스
+const AVATAR_GRADE_CLASS = { '언커먼': 'rare-언커먼', '레어': 'rare-레어' };
+
+/**
+ * 무기 아바타 수치 선택지 데이터
+ * - label      : 화면에 표시될 텍스트
+ * - stats      : 저장 시 스탯 키 배열 (JSON 저장용, 단일 수치면 배열 1개)
+ * - amount     : 저장 시 숫자값 (없으면 null)
+ * - optgroup   : true 이면 optgroup으로 렌더링 (선택 불가, 흰색 글자 유지)
+ *
+ * 추가 시 이 배열에만 항목을 넣으면 select에 자동 반영됨
+ */
+const AVATAR_WEAPON_STATS = [
+    { label: '',                             stats: [],                                       amount: null                      },
+    { label: '무기 아바타 수치',               stats: ['무기 아바타 수치'],                        amount: null, optgroup: true     },
+    { label: '힘, 지능, 체력, 정신력 +18',     stats: ['힘', '지능', '체력', '정신력'],             amount: 18                        },
+];
+
+// ============================================
+// 아바타 파츠별 등급별 스탯 데이터
+// ============================================
+/**
+ * - stats  : 스탯 키 배열 (백엔드 연동 시 사용)
+ * - amount : 수치 (텍스트 표현이 필요한 경우 null)
+ * - label  : 화면 표시 텍스트
+ */
+const AVATAR_PART_STATS = {
+    "모자": {
+        "언커먼": { stats: ['캐스팅속도'],   amount: 12,   label: '캐스팅속도 +12%'                             },
+        "레어":   { stats: ['캐스팅속도'],   amount: 14,   label: '캐스팅속도 +14%'                             },
+    },
+    "얼굴": {
+        "언커먼": { stats: ['공격속도'],     amount: 5,    label: '공격속도 +5%'                                },
+        "레어":   { stats: ['공격속도'],     amount: 6,    label: '공격속도 +6%'                                },
+    },
+    "상의": {
+        "언커먼": { stats: ['스킬Lv'],       amount: null, label: '모든 직업 15레벨 스킬Lv+1(TP스킬 제외)'      },
+        "레어":   { stats: ['스킬Lv'],       amount: null, label: '모든 직업 10~30레벨 스킬Lv+1(TP스킬 제외)'  },
+    },
+    "목가슴": {
+        "언커먼": { stats: ['공격속도'],     amount: 5,    label: '공격속도 +5%'                                },
+        "레어":   { stats: ['공격속도'],     amount: 6,    label: '공격속도 +6%'                                },
+    },
+    "신발": {
+        "언커먼": { stats: ['이동속도'],     amount: 5,    label: '이동속도 +5%'                                },
+        "레어":   { stats: ['이동속도'],     amount: 6,    label: '이동속도 +6%'                                },
+    },
+    "머리": {
+        "언커먼": { stats: ['캐스팅속도'],   amount: 12,   label: '캐스팅속도 +12%'                             },
+        "레어":   { stats: ['캐스팅속도'],   amount: 14,   label: '캐스팅속도 +14%'                             },
+    },
+    "하의": {
+        "언커먼": { stats: ['HP MAX'],       amount: 418,  label: 'HP MAX +418'                                 },
+        "레어":   { stats: ['HP MAX'],       amount: 682,  label: 'HP MAX +682'                                 },
+    },
+    "허리": {
+        "언커먼": { stats: ['회피확률'],     amount: 4,    label: '회피 확률 +4%'                               },
+        "레어":   { stats: ['회피확률'],     amount: 6.5,  label: '회피 확률 +6.5%'                             },
+    },
+    "피부": {
+        "언커먼": { stats: ['히트리커버리'], amount: 80,   label: '히트 리커버리 +80'                           },
+        "레어":   { stats: ['히트리커버리'], amount: 100,  label: '히트 리커버리(확인필요) +100'                },
+    },
+};
