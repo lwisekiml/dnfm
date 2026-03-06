@@ -3474,3 +3474,24 @@ project/
 - **ui-tag-filter.js** — `currentFilterTag`, `autocompleteIndex` → `UIState` 참조
 - **main.js** — `_p1Initialized` → `UIState` 참조
 ---
+
+## 2026-03-06 (76차)
+
+### CREATURE_DATA stats 구조 적용
+
+**수정된 파일:** `shared/shared_data.js`, `js/ui-core.js`
+
+---
+
+### 변경 내용
+
+**`shared/shared_data.js` — CREATURE_DATA 구조 변경**
+
+- `desc` 문자열 → `stats` 배열 (`{ stat, amount, label }`) 로 변경
+- `CREATURE_ART_STATS` 등 다른 스탯 데이터와 동일한 형식으로 통일
+
+**`js/ui-core.js` — `onCreatureNameChange` 수정**
+
+- `creature.desc` 직접 참조 → `creature.stats.map(s => s.label).join('\n')` 으로 변경
+
+- `info` 필드 우선 처리 추가: `info` 있으면 `info` 표시, 없으면 `stats` `label` 조합

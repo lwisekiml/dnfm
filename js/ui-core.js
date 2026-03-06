@@ -1519,7 +1519,10 @@ function onCreatureNameChange(sel) {
     if (section) {
         const descEl = section.querySelector('textarea[data-key="크리쳐_desc"]');
         if (descEl && creature) {
-            descEl.value = creature.desc;
+            // info가 있으면 info 우선, 없으면 stats label 조합
+            descEl.value = creature.info
+                ? creature.info
+                : creature.stats.map(s => s.label).join('\n');
         } else if (descEl && !name) {
             descEl.value = '';
         }

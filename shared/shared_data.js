@@ -902,12 +902,17 @@ const CREATURE_ART_STATS = {
 // ============================================
 /**
  * 크리쳐 이름 목록 및 설명
- * - name : 화면 표시 / 저장값
- * - desc : 크리쳐 선택 시 자동 입력되는 설명
+ * - name  : 화면 표시 / 저장값
+ * - info : 있을 경우 info 출력. 없을 경우 stats 출력(사용방법 : ``로 감싸서 사용)
+ * - stats : 스탯 목록 ({ stat, amount, label })
+ *           label 을 줄바꿈으로 이어붙여 desc textarea에 자동 입력
  */
 const CREATURE_DATA = [
     {
         name: "진 : 옥령왕",
-        desc: "모든 속성 강화 +5\n공격 시 18% 추가 데미지"
+        stats: [
+            { stat: '모든속성강화', amount: 5,  label: '모든 속성 강화 +5'        },
+            { stat: '추가데미지',   amount: 18, label: '공격 시 18% 추가 데미지'  },
+        ]
     },
 ];
