@@ -255,7 +255,7 @@ function getAllTags() {
 // 메모 모달 기능
 // ============================================
 
-let currentMemoCharId = null;
+// currentMemoCharId → UIState.memoCharId (state.js)
 
 /**
  * 메모 모달 열기 (라벨 클릭 시)
@@ -267,7 +267,7 @@ function openMemoModal(charId) {
     const lockBtn = section.querySelector('.lock-btn');
     const isLocked = lockBtn?.classList.contains('btn-active');
 
-    currentMemoCharId = charId;
+    UIState.memoCharId = charId;
     const charName = section.querySelector('[data-key="info_job"]')?.value || '미정';
     const memoTextarea = section.querySelector('[data-key="info_memo"]');
     const currentMemo = memoTextarea?.value || '';
@@ -355,9 +355,9 @@ function openMemoModal(charId) {
  * 메모 모달에서 저장
  */
 function saveMemoFromModal() {
-    if (!currentMemoCharId) return;
+    if (!UIState.memoCharId) return;
 
-    const section = document.getElementById(currentMemoCharId);
+    const section = document.getElementById(UIState.memoCharId);
     const memoTextarea = section.querySelector('[data-key="info_memo"]');
     const modalTextarea = document.getElementById('memoModalTextarea');
 
@@ -366,10 +366,10 @@ function saveMemoFromModal() {
         const oldVal = memoTextarea.value;
         const newVal = modalTextarea.value;
         memoTextarea.value = newVal;
-        updateMemoPreview(currentMemoCharId);
+        updateMemoPreview(UIState.memoCharId);
 
         // 히스토리 기록
-        _recordMemoTagHistory(currentMemoCharId, '메모', oldVal, newVal);
+        _recordMemoTagHistory(UIState.memoCharId, '메모', oldVal, newVal);
 
         autoSave();
     }
@@ -385,7 +385,7 @@ function closeMemoModal() {
     if (modal) {
         modal.remove();
     }
-    currentMemoCharId = null;
+    UIState.memoCharId = null;
 }
 
 /**
@@ -419,7 +419,7 @@ function updateMemoPreview(charId) {
 // 설명칸 팝업 기능
 // ============================================
 
-let currentDescInput = null;
+// UIState.descInput  → UIState.descInput  (state.js)
 
 /**
  * 설명칸 팝업 열기
@@ -435,7 +435,7 @@ function openDescModal(inputEl) {
     const readonlySlots = ['칭호_desc', '외형칭호_desc', '오라_desc', '크리쳐_desc'];
     const isReadonlySlot = readonlySlots.some(k => dataKey === k);
 
-    currentDescInput = inputEl;
+    UIState.descInput = inputEl;
 
     // 기존 모달 제거
     const existingModal = document.getElementById('descModal');
@@ -533,13 +533,13 @@ function openDescModal(inputEl) {
  */
 function saveDescFromModal() {
     const ta = document.getElementById('descModalTextarea');
-    if (currentDescInput && ta) {
-        const section = currentDescInput.closest('.char-section');
+    if (UIState.descInput && ta) {
+        const section = UIState.descInput.closest('.char-section');
         const charId = section?.id;
-        const oldVal = currentDescInput.value;
+        const oldVal = UIState.descInput.value;
         const newVal = ta.value;
 
-        currentDescInput.value = newVal;
+        UIState.descInput.value = newVal;
 
         // 히스토리 기록
         if (charId) _recordMemoTagHistory(charId, '설명', oldVal, newVal);
@@ -555,7 +555,7 @@ function saveDescFromModal() {
 function closeDescModal() {
     const modal = document.getElementById('descModal');
     if (modal) modal.remove();
-    currentDescInput = null;
+    UIState.descInput = null;
 }
 
 console.log("✅ ui-memo-tag.js 로드 완료");

@@ -36,10 +36,11 @@ const DOMUtils = {
 // 2. 슬롯 유틸리티
 // ===================================
 const SlotUtils = {
-    ARMOR_SLOTS: ["상의", "어깨", "하의", "신발", "벨트"],
-    ACCESSORY_SLOTS: ["목걸이", "팔찌", "반지"],
-    SPECIAL_SLOTS: ["보조장비", "귀걸이", "마법석"],
-    EMBLEM_HIGHLIGHT_SLOTS: ["보조장비", "귀걸이", "마법석", "칭호"],
+    // shared_constants.js 의 SLOT_TYPES 참조 (중복 제거)
+    ARMOR_SLOTS:            SLOT_TYPES.ARMOR,
+    ACCESSORY_SLOTS:        SLOT_TYPES.ACCESSORY,
+    SPECIAL_SLOTS:          SLOT_TYPES.SPECIAL,
+    EMBLEM_HIGHLIGHT_SLOTS: SLOT_TYPES.EMBLEM_HIGHLIGHT,
 
     isArmorSlot(slot) {
         return this.ARMOR_SLOTS.includes(slot);

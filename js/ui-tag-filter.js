@@ -6,13 +6,13 @@
 // 1. 태그 필터링
 // ============================================
 
-let currentFilterTag = '';  // 현재 필터 상태
+// UIState.filterTag → UIState.filterTag (state.js)
 
 /**
  * 태그로 필터링
  */
 function filterByTag(tag) {
-    currentFilterTag = tag;
+    UIState.filterTag = tag;
     const sections = document.querySelectorAll('.char-section');
 
     sections.forEach(section => {
@@ -78,12 +78,12 @@ function showTagFilterPanel() {
     // 전체보기 버튼
     buttonsHTML += `
         <button 
-            class="tag-filter-btn ${currentFilterTag === '' ? 'tag-filter-active' : ''}"
+            class="tag-filter-btn ${UIState.filterTag === '' ? 'tag-filter-active' : ''}"
             onclick="applyTagFilter('')"
             style="padding: 7px 16px; margin: 4px; font-size: 13px; font-weight: bold;
-                   background: ${currentFilterTag === '' ? '#ffd700' : 'rgba(255,255,255,0.1)'};
-                   color: ${currentFilterTag === '' ? '#000' : '#fff'};
-                   border: 2px solid ${currentFilterTag === '' ? '#ffd700' : '#555'};
+                   background: ${UIState.filterTag === '' ? '#ffd700' : 'rgba(255,255,255,0.1)'};
+                   color: ${UIState.filterTag === '' ? '#000' : '#fff'};
+                   border: 2px solid ${UIState.filterTag === '' ? '#ffd700' : '#555'};
                    border-radius: 20px; cursor: pointer; transition: all 0.2s;">
             전체보기 (${document.querySelectorAll('.char-section').length})
         </button>
@@ -91,7 +91,7 @@ function showTagFilterPanel() {
 
     // 태그별 버튼
     allTags.forEach(({ tag, count }) => {
-        const isActive = currentFilterTag === tag;
+        const isActive = UIState.filterTag === tag;
         const color = getTagDisplayColor(tag);
         buttonsHTML += `
             <button 
@@ -153,7 +153,7 @@ function closeTagFilterPanel() {
     if (panel) panel.remove();
 
     const btn = document.getElementById('btnTagFilter');
-    if (btn && currentFilterTag === '') {
+    if (btn && UIState.filterTag === '') {
         btn.classList.remove('active');
         btn.style.background = '';
         btn.style.color = '';
@@ -284,7 +284,7 @@ function closeAutocompleteOnClickOutside(e) {
 // 키보드 네비게이션
 // ============================================
 
-let autocompleteIndex = -1;
+// UIState.autocompleteIndex → UIState.UIState.autocompleteIndex (state.js)
 
 function handleAutocompleteKeyboard(event, charId) {
     const panel = document.getElementById('tagAutocompletePanel');
@@ -295,13 +295,13 @@ function handleAutocompleteKeyboard(event, charId) {
 
     if (event.key === 'ArrowDown') {
         event.preventDefault();
-        autocompleteIndex = Math.min(autocompleteIndex + 1, items.length - 1);
+        UIState.autocompleteIndex = Math.min(UIState.autocompleteIndex + 1, items.length - 1);
     } else if (event.key === 'ArrowUp') {
         event.preventDefault();
-        autocompleteIndex = Math.max(autocompleteIndex - 1, -1);
-    } else if (event.key === 'Enter' && autocompleteIndex >= 0) {
+        UIState.autocompleteIndex = Math.max(UIState.autocompleteIndex - 1, -1);
+    } else if (event.key === 'Enter' && UIState.autocompleteIndex >= 0) {
         event.preventDefault();
-        items[autocompleteIndex].click();
+        items[UIState.autocompleteIndex].click();
         return;
     } else if (event.key === 'Escape') {
         removeTagAutocomplete();
@@ -309,7 +309,7 @@ function handleAutocompleteKeyboard(event, charId) {
     }
 
     items.forEach((item, i) => {
-        item.style.background = i === autocompleteIndex ? 'rgba(255,215,0,0.3)' : 'transparent';
+        item.style.background = i === UIState.autocompleteIndex ? 'rgba(255,215,0,0.3)' : 'transparent';
     });
 }
 

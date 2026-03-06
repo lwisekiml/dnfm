@@ -3451,3 +3451,26 @@ project/
 
 - `openDescModal` 내 readonlySlots를 `window._creatureDescLocked` 플래그에 따라 동적 구성
 - 기본값: 잠금(true) → 크리쳐_desc 편집 불가
+
+---
+
+## 2026-03-06 (75차)
+
+### 코드 구조 개선 (전역 변수 통합 / 중복 제거 / 위치 정리)
+
+**수정된 파일:** `js/storage.js`, `js/utils.js`, `js/ui-search.js`, `js/state.js`, `js/ui-character.js`, `js/ui-core.js`, `js/ui-memo-tag.js`, `js/ui-tag-filter.js`, `js/main.js`
+
+---
+
+### 변경 내용
+
+- **storage.js** — `migrateRuneData`, `migrateInputs` 함수를 파일 하단으로 이동 (하위 호환용 구버전 코드 구분)
+- **utils.js** — `SlotUtils` 슬롯 배열 4개를 `SLOT_TYPES` 참조로 변경 (중복 제거)
+- **ui-search.js** — `_SEARCH_EDIT_OPTIONS` 상수를 파일 상단으로 이동
+- **state.js** — `UIState` 객체 추가 (각 파일에 흩어진 UI 상태 전역 변수 9개 통합)
+- **ui-character.js** — `_syncInProgress`, `_avatarCharId`, `_avatarBtn` → `UIState` 참조
+- **ui-core.js** — `_menuOutsideHandler` → `UIState` 참조
+- **ui-memo-tag.js** — `currentMemoCharId`, `currentDescInput` → `UIState` 참조
+- **ui-tag-filter.js** — `currentFilterTag`, `autocompleteIndex` → `UIState` 참조
+- **main.js** — `_p1Initialized` → `UIState` 참조
+---

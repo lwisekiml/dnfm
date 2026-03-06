@@ -231,59 +231,6 @@ async function saveJsonWithLocation() {
 }
 
 /**
- * 구버전 character.runeData → inputs["스킬룬"].runeData 마이그레이션
- * ※ 호출 순서: migrateInputs() 먼저 실행 후 이 함수 실행
- *   (migrateInputs가 먼저 스킬룬_desc를 inputs["스킬룬"]["desc"]로 변환해야
- *    이 함수가 inputs["스킬룬"]에 runeData를 안전하게 병합할 수 있음)
- */
-function migrateRuneData(character) {
-    if (!character) return character;
-    // 이미 inputs["스킬룬"].runeData에 있으면 스킵
-    if (character.inputs?.['스킬룬']?.runeData) return character;
-    // character.runeData가 있으면 이동
-    if (character.runeData) {
-        if (!character.inputs) character.inputs = {};
-        if (!character.inputs['스킬룬']) character.inputs['스킬룬'] = {};
-        character.inputs['스킬룬'].runeData = character.runeData;
-        delete character.runeData;
-    }
-    return character;
-}
-
-/**
- * 구버전 inputs(플랫) → 신버전 inputs(중첩) 마이그레이션
- * ※ 호출 순서: 반드시 migrateRuneData() 보다 먼저 실행
- *   - 플랫 구조: { "스킬룬_desc": { val, cls }, "상의_rarity": { val, cls } }
- *   - 중첩 구조: { "스킬룬": { "desc": { val, cls } }, "상의": { "rarity": { val, cls } } }
- */
-function migrateInputs(inputs) {
-    if (!inputs) return inputs;
-    // 이미 중첩 구조인지 확인 (슬롯 키가 객체면 신버전)
-    // 단, 스킬룬(runeData 포함)은 val이 없으므로 예외 처리
-    for (const [key, val] of Object.entries(inputs)) {
-        if (key === '스킬룬') continue;
-        if (!key.startsWith('info_') && typeof val === 'object' && val !== null && !('val' in val)) {
-            return inputs; // 이미 신버전
-        }
-    }
-    const newInputs = {};
-    for (const [key, val] of Object.entries(inputs)) {
-        // info_ 계열, 스킬룬(runeData 객체)은 그대로 유지
-        if (key.startsWith('info_') || key === '스킬룬') {
-            newInputs[key] = val;
-            continue;
-        }
-        const underIdx = key.indexOf('_');
-        if (underIdx === -1) { newInputs[key] = val; continue; }
-        const slot = key.slice(0, underIdx);
-        const field = key.slice(underIdx + 1);
-        if (!newInputs[slot]) newInputs[slot] = {};
-        newInputs[slot][field] = val;
-    }
-    return newInputs;
-}
-
-/**
  * JSON에서 불러오기
  */
 function importFromJSON(input) {
@@ -465,4 +412,54 @@ function migrateToUnified() {
 
     localStorage.setItem(STORAGE_KEYS.UNIFIED, JSON.stringify({ characters: merged, history }));
     console.log(`✅ 마이그레이션 완료: 총 ${merged.length}명`);
+}
+
+// ============================================
+// 구버전 inputs/runeData 마이그레이션 (하위 호환용)
+// ============================================
+
+/**
+ * 구버전 character.runeData → inputs["스킬룬"].runeData 마이그레이션
+ * ※ 호출 순서: migrateInputs() 먼저 실행 후 이 함수 실행
+ */
+function migrateRuneData(character) {
+    if (!character) return character;
+    if (character.inputs?.['스킬룬']?.runeData) return character;
+    if (character.runeData) {
+        if (!character.inputs) character.inputs = {};
+        if (!character.inputs['스킬룬']) character.inputs['스킬룬'] = {};
+        character.inputs['스킬룬'].runeData = character.runeData;
+        delete character.runeData;
+    }
+    return character;
+}
+
+/**
+ * 구버전 inputs(플랫) → 신버전 inputs(중첩) 마이그레이션
+ * ※ 호출 순서: 반드시 migrateRuneData() 보다 먼저 실행
+ *   - 플랫 구조: { "스킬룬_desc": { val, cls }, "상의_rarity": { val, cls } }
+ *   - 중첩 구조: { "스킬룬": { "desc": { val, cls } }, "상의": { "rarity": { val, cls } } }
+ */
+function migrateInputs(inputs) {
+    if (!inputs) return inputs;
+    for (const [key, val] of Object.entries(inputs)) {
+        if (key === '스킬룬') continue;
+        if (!key.startsWith('info_') && typeof val === 'object' && val !== null && !('val' in val)) {
+            return inputs;
+        }
+    }
+    const newInputs = {};
+    for (const [key, val] of Object.entries(inputs)) {
+        if (key.startsWith('info_') || key === '스킬룬') {
+            newInputs[key] = val;
+            continue;
+        }
+        const underIdx = key.indexOf('_');
+        if (underIdx === -1) { newInputs[key] = val; continue; }
+        const slot = key.slice(0, underIdx);
+        const field = key.slice(underIdx + 1);
+        if (!newInputs[slot]) newInputs[slot] = {};
+        newInputs[slot][field] = val;
+    }
+    return newInputs;
 }

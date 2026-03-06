@@ -1245,15 +1245,15 @@ function _adjustMenuPosition(menu, event) {
     menu.style.top  = top  + 'px';
 }
 
-let _menuOutsideHandler = null;
+// _menuOutsideHandler → UIState.menuOutsideHandler (state.js)
 
 function _addOutsideHandler(menu) {
-    if (_menuOutsideHandler) {
-        document.removeEventListener('pointerdown', _menuOutsideHandler);
-        _menuOutsideHandler = null;
+    if (UIState.menuOutsideHandler) {
+        document.removeEventListener('pointerdown', UIState.menuOutsideHandler);
+        UIState.menuOutsideHandler = null;
     }
 
-    _menuOutsideHandler = (e) => {
+    UIState.menuOutsideHandler = (e) => {
         const panel = document.getElementById('setSlotSelectPanel');
         const insideMenu  = menu.contains(e.target);
         const insidePanel = panel && panel.contains(e.target);
@@ -1264,7 +1264,7 @@ function _addOutsideHandler(menu) {
         closeSetContextMenu();
     };
     setTimeout(() => {
-        document.addEventListener('pointerdown', _menuOutsideHandler);
+        document.addEventListener('pointerdown', UIState.menuOutsideHandler);
     }, 200);
 }
 
@@ -1276,9 +1276,9 @@ function closeSetContextMenu() {
     if (menu) menu.remove();
     const panel = document.getElementById('setSlotSelectPanel');
     if (panel) panel.remove();
-    if (_menuOutsideHandler) {
-        document.removeEventListener('pointerdown', _menuOutsideHandler);
-        _menuOutsideHandler = null;
+    if (UIState.menuOutsideHandler) {
+        document.removeEventListener('pointerdown', UIState.menuOutsideHandler);
+        UIState.menuOutsideHandler = null;
     }
 }
 

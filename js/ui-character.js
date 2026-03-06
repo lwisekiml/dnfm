@@ -3,7 +3,7 @@
 // ============================================
 
 // 캐릭터 추가 동기화 무한루프 방지 플래그
-let _syncInProgress = false;
+// _syncInProgress → UIState.syncInProgress (state.js)
 
 /**
  * 캐릭터 테이블 생성 (템플릿 방식)
@@ -125,9 +125,9 @@ function createCharacterTable(savedData = null) {
             savedData.inputs['info_name'] = { val: savedData.name, cls: '' };
         }
         restoreSavedData(section, savedData, charId);
-    } else if (!_syncInProgress) {
+    } else if (!UIState.syncInProgress) {
         // 신규 추가 (savedData 없음) 시 project2 characters 배열에도 동기화
-        _syncInProgress = true;
+        UIState.syncInProgress = true;
         if (typeof characters !== 'undefined') {
             const exists = characters.find(c => c.id === charId);
             if (!exists) {
@@ -149,7 +149,7 @@ function createCharacterTable(savedData = null) {
                 if (typeof renderCharacterList === 'function') renderCharacterList();
             }
         }
-        _syncInProgress = false;
+        UIState.syncInProgress = false;
     }
 
     // 9) 잠금 상태 설정
@@ -1127,8 +1127,8 @@ function renderAvatarBtnHTML(text) {
 }
 
 // 현재 팝업 대상 정보
-let _avatarCharId = null;
-let _avatarBtn = null;
+// _avatarCharId → UIState.avatarCharId (state.js)
+// _avatarBtn     → UIState.avatarBtn     (state.js)
 
 /**
  * 아바타 팝업 열기
@@ -1136,8 +1136,8 @@ let _avatarBtn = null;
  * @param {HTMLElement} btn - 아바타_itemname 버튼
  */
 function openAvatarPopup(charId, btn) {
-    _avatarCharId = charId;
-    _avatarBtn = btn;
+    UIState.avatarCharId = charId;
+    UIState.avatarBtn = btn;
 
     // 현재 저장된 값 파싱: "모자(언커먼) 상의(레어)" → { 모자: '언커먼', 상의: '레어' }
     // innerHTML에 span이 있을 수 있으므로 data-avatar-value 속성 우선 사용
@@ -1306,9 +1306,9 @@ function avatarPopupSave() {
 
     const rawVal = parts.join(' ');
 
-    if (_avatarBtn) {
-        _avatarBtn.setAttribute('data-avatar-value', rawVal);
-        _avatarBtn.innerHTML = renderAvatarBtnHTML(rawVal);
+    if (UIState.avatarBtn) {
+        UIState.avatarBtn.setAttribute('data-avatar-value', rawVal);
+        UIState.avatarBtn.innerHTML = renderAvatarBtnHTML(rawVal);
     }
 
     avatarPopupClose();
@@ -1319,6 +1319,6 @@ function avatarPopupSave() {
 function avatarPopupClose() {
     const overlay = document.getElementById('avatar-popup-overlay');
     if (overlay) overlay.style.display = 'none';
-    _avatarCharId = null;
-    _avatarBtn = null;
+    UIState.avatarCharId = null;
+    UIState.avatarBtn = null;
 }

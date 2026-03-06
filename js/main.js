@@ -7,11 +7,11 @@
  * - 단독 실행: window.onload 에서 호출
  * - 통합 환경: switchTo('detail') 에서 호출 (탭 진입 시)
  */
-let _p1Initialized = false;
+// _p1Initialized → UIState.p1Initialized (state.js)
 
 function initProject1() {
-    if (_p1Initialized) return; // 이미 초기화됐으면 중복 실행 방지
-    _p1Initialized = true;
+    if (UIState.p1Initialized) return; // 이미 초기화됐으면 중복 실행 방지
+    UIState.p1Initialized = true;
 
     console.log("project1 초기화: 데이터 복구를 시작합니다.");
 
