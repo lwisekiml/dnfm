@@ -677,6 +677,9 @@ function updateStyle(el, type, isInitial = false) {
  * 아이템 이름 필드 교체
  */
 function replaceItemNameField(parentTd, slot, rarity, value, charId) {
+    // 칭호는 버튼 팝업 방식 - 이 함수에서 처리하지 않음
+    if (slot === '칭호') return;
+
     // 기존 itemname 요소 제거
     const oldEl = parentTd.querySelector(`[data-key="${slot}_itemname"]`);
     if (oldEl) oldEl.remove();
@@ -688,8 +691,8 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     const section = document.getElementById(charId);
     const isLocked = section?.querySelector('.lock-btn')?.classList.contains('btn-active');
 
-    // 칭호/외형칭호/오라는 희귀도 무관하게 항상 select
-    const _forceSelectSlots = ['칭호', '외형칭호', '오라'];
+    // 외형칭호/오라는 희귀도 무관하게 항상 select (칭호는 버튼 방식으로 제외)
+    const _forceSelectSlots = ['외형칭호', '오라'];
     const useSelect = rarity === "에픽" || _forceSelectSlots.includes(slot);
 
     let newEl;

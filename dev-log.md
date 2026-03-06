@@ -3524,3 +3524,40 @@ project/
   - `_recordMemoTagHistory`와 동일한 패턴 적용
 
 ---
+
+## 2026-03-06 (78차)
+
+### 칭호 팝업 개선 + 스크롤 동작 수정 + 변경 기록 개선 + 저장 버튼 수정
+
+**수정된 파일:** `index.html`, `js/ui-character.js`, `styles/merged.css`, `scripts/eq_weapon.js`
+
+---
+
+### 변경 내용
+
+**칭호 팝업 전면 개선 (`index.html`, `styles/merged.css`)**
+- 팝업 4열 grid 배치 (기본정보 열1/열2, 효과 열3/열4), 최소 너비 1100px
+- 팝업 스크롤 동작: 팝업이 표 위치에 absolute로 배치되어 스크롤 시 표와 함께 이동
+- popup을 `document.body` 직계 자식으로 이동하여 overlay containing block 영향 차단
+- `top = rect.top + window.scrollY` 로 페이지 절대 좌표 계산
+- 닫을 때 popup 숨기고 overlay 안으로 복원
+
+**변경 기록 개선 (`js/ui-character.js`, `scripts/eq_weapon.js`)**
+- `changedParts` 배열을 `details` 필드로 별도 저장
+- 기록 목록에 요약만 표시: `이전이름 → 새이름 (스탯 N개 변경)`
+- `[▶ 상세보기]` 버튼 클릭 시 인라인으로 펼침/접기
+- 이름만 변경: `이전이름 → 새이름` (버튼 없음)
+- 스탯만 변경: `칭호이름 (스탯 N개 변경)`
+- 구버전 기록(details 없음)도 정상 처리
+
+**저장 버튼 수정 (`js/ui-character.js`)**
+- popup을 body로 이동하면서 `overlay.querySelectorAll('[data-title-stat]')`가 스탯을 못 찾는 버그 수정
+- `overlay.querySelectorAll` → `popup.querySelectorAll` 2곳 변경
+- `titlePopupSave()`에 `popup` 변수 선언 추가
+
+**칭호 팝업 위치 조정 (`js/ui-character.js`)**
+- 팝업 상단이 직업/이름/스탯 표(`char-info-table`) 상단에 맞게 위치하도록 수정
+- `_titleBtn.closest('.char-section')`으로 섹션 찾고 `querySelector('.char-info-table')`로 기준 표 참조
+- 가로: `left = rect.left` 로 표 왼쪽 끝에 맞춤
+- 세로: `top = rect.top + 30 + window.scrollY` 로 직업/이름 헤더(약 30px) 아래부터 시작
+

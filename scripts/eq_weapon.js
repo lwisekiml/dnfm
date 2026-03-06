@@ -379,17 +379,54 @@ function showRecentUpdates() {
     if (p1History.length === 0) {
         p1El.innerHTML = '<p style="color:#aaa;">변경 기록이 없습니다.</p>';
     } else {
-        p1El.innerHTML = p1History.map(h =>
-            `<div style="border-bottom:1px solid #333; padding:8px 0;">
+        p1El.innerHTML = p1History.map((h, idx) => {
+            const details = Array.isArray(h.details) ? h.details : [];
+            const hasDetails = details.length > 0;
+
+            // 요약 텍스트 생성
+            const nameChanged = h.old !== h.new;
+            let summary = '';
+            if (nameChanged && hasDetails) {
+                summary = `${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)} <span style="color:#aaa;font-size:0.9em">(스탯 ${details.length}개 변경)</span>`;
+            } else if (nameChanged) {
+                summary = `${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)}`;
+            } else if (hasDetails) {
+                summary = `${getSpanWithColor(h.new)} <span style="color:#aaa;font-size:0.9em">(스탯 ${details.length}개 변경)</span>`;
+            } else {
+                summary = `${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)}`;
+            }
+
+            const detailHtml = hasDetails ? `
+                <div id="hist-detail-${idx}" style="display:none; margin-top:6px; padding:6px 10px;
+                     background:#1a1a2e; border-radius:6px; font-size:0.88em; color:#ccc; line-height:1.7;">
+                    ${details.join('<br>')}
+                </div>
+                <button onclick="toggleHistDetail(${idx})" id="hist-btn-${idx}"
+                    style="margin-top:4px; padding:2px 10px; font-size:0.82em; background:#2a3158;
+                           color:#aaa; border:1px solid #3a4168; border-radius:4px; cursor:pointer;">
+                    ▶ 상세보기
+                </button>` : '';
+
+            return `<div style="border-bottom:1px solid #333; padding:8px 0;">
                 <span style="color:#ffd700;">[${h.time}]</span>
                 <b style="color:#fff;"> ${h.charName}</b>
                 <span style="color:#aaa;"> - ${h.slot}:</span><br>
-                ${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)}
-            </div>`
-        ).join('');
+                ${summary}
+                ${detailHtml}
+            </div>`;
+        }).join('');
     }
 
     document.getElementById("updateModal").style.display = 'flex';
+}
+
+function toggleHistDetail(idx) {
+    const detail = document.getElementById('hist-detail-' + idx);
+    const btn    = document.getElementById('hist-btn-' + idx);
+    if (!detail) return;
+    const isOpen = detail.style.display !== 'none';
+    detail.style.display = isOpen ? 'none' : 'block';
+    if (btn) btn.textContent = isOpen ? '▶ 상세보기' : '▼ 접기';
 }
 
 function switchUpdateTab(tab) {

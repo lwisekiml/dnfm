@@ -2189,7 +2189,7 @@ tr.set5 {
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 3000;
 }
 
 .modal-content {
@@ -2789,4 +2789,47 @@ body.theme-mixed .avatar-popup-btn:hover,
 body.theme-dark2 .avatar-popup-btn:hover,
 body.theme-mixed2 .avatar-popup-btn:hover {
     background: #3a3a42;
+}
+
+/* 칭호 팝업 스탯 행 */
+.title-popup-section-label {
+    font-size: 0.9em;
+    font-weight: bold;
+    margin: 8px 0 4px 0;
+    opacity: 0.7;
+}
+.title-popup-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2px;
+}
+.title-popup-row span {
+    font-size: 0.88em;
+    width: 140px;
+    text-align: right;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+.title-popup-row input {
+    width: 60px;
+    height: 22px;
+    background: var(--input-bg);
+    color: var(--color-white);
+    border: var(--border-width) var(--border-style) var(--border);
+    font: inherit;
+    font-size: 0.88em;
+    padding: 0 4px;
+    box-sizing: border-box;
+}
+.title-popup-row-nospan {
+    padding-left: 126px;
+}
+/* 칭호 팝업 % 단위 라벨 */
+.title-popup-row span.pct-label {
+    width: auto;
+    text-align: left;
+}
+.title-popup-spacer {
+    height: 6px;
 }

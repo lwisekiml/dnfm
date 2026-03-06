@@ -609,7 +609,16 @@
                 </select>
             </td>
             <td>-</td><td>-</td>
-            <td><input type="text" data-key="칭호_itemname" class="rare-에픽 itemname-color-sync" oninput="autoSave()"></td>
+            <td style="padding:0;">
+                <button data-key="칭호_itemname" data-title-btn="1"
+                        class="rare-에픽 itemname-color-sync"
+                        style="width:100%; height:var(--height-row); text-align:center; cursor:pointer;
+                               background:var(--input-bg); color:var(--color-white);
+                               border:none; padding:2px 6px; font:inherit;
+                               font-size:var(--fs-table); font-weight:bold;
+                               white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                        title="클릭하여 칭호 설정"></button>
+            </td>
             <td class="col-val-short">-</td><td>-</td><td class="col-val-short">-</td><td>-</td><td class="col-val-short">-</td>
             <td class="col-emblem">
                 <select data-key="칭호_emb1" class="emb-bg-gray" onchange="autoSave()">
@@ -696,6 +705,127 @@
 </div><!-- /section-detail-view -->
 
 <!-- 아바타 팝업 -->
+<!-- 칭호 팝업 -->
+<div id="title-popup-overlay" style="
+    display:none; position:fixed; inset:0; z-index:3000;
+    background:rgba(0,0,0,0.3);">
+    <div id="title-popup" class="avatar-popup-box" style="
+        position:absolute; min-width:1100px; max-width:96vw; max-height:85vh; overflow-y:auto;">
+        <div class="avatar-popup-title">칭호 설정</div>
+        <div style="margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+            <span style="white-space:nowrap; font-size:0.95em;">칭호 이름</span>
+            <input id="title-popup-name" type="text"
+                   style="width:25%; height:28px; background:var(--input-bg); color:var(--color-white);
+                          border:var(--border-width) var(--border-style) var(--border);
+                          font:inherit; font-size:var(--fs-table); padding:0 6px; box-sizing:border-box;">
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0 24px; align-items:start;">
+            <!-- 기본정보 열1 -->
+            <div>
+                <div class="title-popup-section-label">기본정보</div>
+                <div class="title-popup-row"><span>힘</span><input type="text" data-title-stat="힘_base"></div>
+                <div class="title-popup-row"><span>지능</span><input type="text" data-title-stat="지능_base"></div>
+                <div class="title-popup-row"><span>체력</span><input type="text" data-title-stat="체력_base"></div>
+                <div class="title-popup-row"><span>정신력</span><input type="text" data-title-stat="정신력_base"></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>적중</span><input type="text" data-title-stat="적중_base"></div>
+                <div class="title-popup-row"><span>회피</span><input type="text" data-title-stat="회피_base"></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>공격속도</span><input type="text" data-title-stat="공격속도_base_pct"><span class="pct-label" style="color:#aaa;font-size:0.85em;margin-left:2px;">%</span></div>
+                <div class="title-popup-row"><span>캐스팅속도</span><input type="text" data-title-stat="캐스팅속도_base_pct"><span class="pct-label" style="color:#aaa;font-size:0.85em;margin-left:2px;">%</span></div>
+                <div class="title-popup-row"><span>이동속도</span><input type="text" data-title-stat="이동속도_base_pct"><span class="pct-label" style="color:#aaa;font-size:0.85em;margin-left:2px;">%</span></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>물리 크리티컬</span><input type="text" data-title-stat="물리크리티컬_base"></div>
+                <div class="title-popup-row"><span>마법 크리티컬</span><input type="text" data-title-stat="마법크리티컬_base"></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>물리 크리티컬 확률</span><input type="text" data-title-stat="물리크리티컬확률_base_pct"><span class="pct-label" style="color:#aaa;font-size:0.85em;margin-left:2px;">%</span></div>
+                <div class="title-popup-row"><span>마법 크리티컬 확률</span><input type="text" data-title-stat="마법크리티컬확률_base_pct"><span class="pct-label" style="color:#aaa;font-size:0.85em;margin-left:2px;">%</span></div>
+            </div>
+            <!-- 기본정보 열2 (HP/속성) -->
+            <div style="border-right:1px solid #444; padding-right:20px; margin-right:4px;">
+                <div class="title-popup-section-label">&nbsp;</div>
+                <div class="title-popup-row"><span>HP MAX</span><input type="text" data-title-stat="HPMAX_base"></div>
+                <div class="title-popup-row"><span>MP MAX</span><input type="text" data-title-stat="MPMAX_base"></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>모든 속성 강화</span><input type="text" data-title-stat="모든속성강화_base"></div>
+                <div class="title-popup-row"><span>모든 속성 저항</span><input type="text" data-title-stat="모든속성저항_base"></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>화속강</span><input type="text" data-title-stat="화속강_base"></div>
+                <div class="title-popup-row"><span>수속강</span><input type="text" data-title-stat="수속강_base"></div>
+                <div class="title-popup-row"><span>명속강</span><input type="text" data-title-stat="명속강_base"></div>
+                <div class="title-popup-row"><span>암속강</span><input type="text" data-title-stat="암속강_base"></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>화속성 저항</span><input type="text" data-title-stat="화속성저항_base"></div>
+                <div class="title-popup-row"><span>수속성 저항</span><input type="text" data-title-stat="수속성저항_base"></div>
+                <div class="title-popup-row"><span>명속성 저항</span><input type="text" data-title-stat="명속성저항_base"></div>
+                <div class="title-popup-row"><span>암속성 저항</span><input type="text" data-title-stat="암속성저항_base"></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>기절 내성</span><input type="text" data-title-stat="기절내성_base"></div>
+                <div class="title-popup-row"><span>점프력</span><input type="text" data-title-stat="점프력_base"></div>
+                <div class="title-popup-row"><span>데미지 증가</span><input type="text" data-title-stat="데미지증가_base_pct"><span class="pct-label" style="color:#aaa;font-size:0.85em;margin-left:2px;">%</span></div>
+                <div class="title-popup-row"><span>마을 이동속도 증가</span><input type="text" data-title-stat="마을이동속도_base_pct"><span class="pct-label" style="color:#aaa;font-size:0.85em;margin-left:2px;">%</span></div>
+            </div>
+            <!-- 효과 열3 -->
+            <div>
+                <div class="title-popup-section-label">효과</div>
+                <div class="title-popup-row"><span>힘</span><input type="text" data-title-stat="힘_eff"></div>
+                <div class="title-popup-row"><span>지능</span><input type="text" data-title-stat="지능_eff"></div>
+                <div class="title-popup-row"><span>체력</span><input type="text" data-title-stat="체력_eff"></div>
+                <div class="title-popup-row"><span>정신력</span><input type="text" data-title-stat="정신력_eff"></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>적중</span><input type="text" data-title-stat="적중_eff"></div>
+                <div class="title-popup-row"><span>회피</span><input type="text" data-title-stat="회피_eff"></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>공격속도</span><input type="text" data-title-stat="공격속도_eff_pct"><span class="pct-label" style="color:#aaa;font-size:0.85em;margin-left:2px;">%</span></div>
+                <div class="title-popup-row"><span>캐스팅속도</span><input type="text" data-title-stat="캐스팅속도_eff_pct"><span class="pct-label" style="color:#aaa;font-size:0.85em;margin-left:2px;">%</span></div>
+                <div class="title-popup-row"><span>이동속도</span><input type="text" data-title-stat="이동속도_eff_pct"><span class="pct-label" style="color:#aaa;font-size:0.85em;margin-left:2px;">%</span></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>물리 크리티컬</span><input type="text" data-title-stat="물리크리티컬_eff"></div>
+                <div class="title-popup-row"><span>마법 크리티컬</span><input type="text" data-title-stat="마법크리티컬_eff"></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>물리 크리티컬 확률</span><input type="text" data-title-stat="물리크리티컬확률_eff_pct"><span class="pct-label" style="color:#aaa;font-size:0.85em;margin-left:2px;">%</span></div>
+                <div class="title-popup-row"><span>마법 크리티컬 확률</span><input type="text" data-title-stat="마법크리티컬확률_eff_pct"><span class="pct-label" style="color:#aaa;font-size:0.85em;margin-left:2px;">%</span></div>
+            </div>
+            <!-- 효과 열4 (HP/속성) -->
+            <div>
+                <div class="title-popup-section-label">&nbsp;</div>
+                <div class="title-popup-row"><span>HP MAX</span><input type="text" data-title-stat="HPMAX_eff"></div>
+                <div class="title-popup-row"><span>MP MAX</span><input type="text" data-title-stat="MPMAX_eff"></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>모든 속성 강화</span><input type="text" data-title-stat="모든속성강화_eff"></div>
+                <div class="title-popup-row"><span>모든 속성 저항</span><input type="text" data-title-stat="모든속성저항_eff"></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>화속강</span><input type="text" data-title-stat="화속강_eff"></div>
+                <div class="title-popup-row"><span>수속강</span><input type="text" data-title-stat="수속강_eff"></div>
+                <div class="title-popup-row"><span>명속강</span><input type="text" data-title-stat="명속강_eff"></div>
+                <div class="title-popup-row"><span>암속강</span><input type="text" data-title-stat="암속강_eff"></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>화속성 저항</span><input type="text" data-title-stat="화속성저항_eff"></div>
+                <div class="title-popup-row"><span>수속성 저항</span><input type="text" data-title-stat="수속성저항_eff"></div>
+                <div class="title-popup-row"><span>명속성 저항</span><input type="text" data-title-stat="명속성저항_eff"></div>
+                <div class="title-popup-row"><span>암속성 저항</span><input type="text" data-title-stat="암속성저항_eff"></div>
+                <div class="title-popup-spacer"></div>
+                <div class="title-popup-row"><span>기절 내성</span><input type="text" data-title-stat="기절내성_eff"></div>
+                <div class="title-popup-row"><span>점프력</span><input type="text" data-title-stat="점프력_eff"></div>
+                <div class="title-popup-row"><span>데미지 증가</span><input type="text" data-title-stat="데미지증가_eff_pct"><span class="pct-label" style="color:#aaa;font-size:0.85em;margin-left:2px;">%</span></div>
+                <div class="title-popup-row"><span>마을 이동속도 증가</span><input type="text" data-title-stat="마을이동속도_eff_pct"><span class="pct-label" style="color:#aaa;font-size:0.85em;margin-left:2px;">%</span></div>
+            </div>
+        </div>
+        <div style="margin-top:14px;">
+            <div style="font-size:0.88em; opacity:0.7; margin-bottom:4px;">설명</div>
+            <textarea id="title-popup-desc"
+                      style="width:100%; height:72px; background:var(--input-bg); color:var(--color-white);
+                             border:var(--border-width) var(--border-style) var(--border);
+                             font:inherit; font-size:0.88em; padding:4px 6px;
+                             box-sizing:border-box; resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex; gap:12px; justify-content:center; margin-top:16px;">
+            <button onclick="titlePopupSave()" class="avatar-popup-btn">저장</button>
+            <button onclick="titlePopupClose()" class="avatar-popup-btn">취소</button>
+        </div>
+    </div>
+</div>
+
 <div id="avatar-popup-overlay" onclick="if(event.target===this) avatarPopupClose();" style="
     display:none; position:fixed; inset:0; z-index:3000;
     background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">

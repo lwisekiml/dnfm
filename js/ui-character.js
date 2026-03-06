@@ -183,9 +183,18 @@ function createSlotContent(slot, index, charId, savedData) {
         return rowFrag;
     }
 
-    // 칭호 (textarea 특수 처리)
+    // 칭호 (버튼 팝업 방식)
     if (slot === "칭호") {
-        return TemplateHelper.createTitleRow();
+        const titleFrag = TemplateHelper.createTitleRow();
+        const btn = titleFrag.querySelector('button[data-title-btn]');
+        if (btn) {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                const section = btn.closest('.char-section');
+                if (section) openTitlePopup(section.id, btn);
+            };
+        }
+        return titleFrag;
     }
 
     // 외형칭호 (설명 칸 없음)
@@ -277,6 +286,9 @@ function handleItemNameField(rowFragment, slot, charId) {
 
     const existingField = container.querySelector(`[data-key="${slot}_itemname"]`);
     if (!existingField) return;
+
+    // 칭호: 버튼 팝업 방식 - select 교체 없이 리턴
+    if (slot === '칭호') return;
 
     // 무기 슬롯: 직업 기반 단일 select + 이미지
     if (slot === '무기') {
@@ -378,7 +390,7 @@ function handleItemNameField(rowFragment, slot, charId) {
         existingField.replaceWith(select);
 
         // 이미지 미리보기가 있는 슬롯: select 왼쪽에 img 태그 추가
-        const _imgSlots = ['상의','하의','어깨','벨트','신발','팔찌','목걸이','반지','귀걸이','마법석','보조장비','칭호','외형칭호','오라'];
+        const _imgSlots = ['상의','하의','어깨','벨트','신발','팔찌','목걸이','반지','귀걸이','마법석','보조장비','오라'];
         if (_imgSlots.includes(slot)) {
             const img = document.createElement('img');
             img.className = 'itemname-img-preview';
@@ -592,8 +604,9 @@ function initializePrefixSelects(section) {
         }
     });
 
-    // 칭호/외형칭호/오라는 prefix가 없으므로 rarity를 직접 트리거해 itemname을 select로 교체
-    ['칭호', '외형칭호', '오라'].forEach(slot => {
+    // 외형칭호/오라는 prefix가 없으므로 rarity를 직접 트리거해 itemname을 select로 교체
+    // 칭호는 버튼 팝업 방식이므로 제외
+    ['외형칭호', '오라'].forEach(slot => {
         const raritySel = section.querySelector(`select[data-key="${slot}_rarity"]`);
         if (raritySel) updateStyle(raritySel, 'rarity', true);
     });
@@ -663,7 +676,18 @@ function restoreSavedData(section, savedData, charId) {
         }
     });
 
-    // 2-b) 아바타 버튼 & weapon_stat select 복원
+    // 2-b) 칭호 버튼 복원
+    const titleBtn = section.querySelector('button[data-key="칭호_itemname"]');
+    if (titleBtn) {
+        const titleInputs = savedData?.inputs?.['칭호'] || {};
+        const name  = titleInputs.itemname?.val || '';
+        const stats = titleInputs.title_stats?.val || '{}';
+        titleBtn.setAttribute('data-title-name', name);
+        titleBtn.setAttribute('data-title-stats', stats);
+        titleBtn.textContent = name;
+    }
+
+    // 2-c) 아바타 버튼 & weapon_stat select 복원
     const avatarBtn = section.querySelector('button[data-key="아바타_itemname"]');
     if (avatarBtn) {
         const avatarInputs = savedData?.inputs?.['아바타'] || {};
@@ -1072,6 +1096,252 @@ function applyItemInfoToDesc(select, slot, charId, infoMap) {
     const info = infoMap?.[itemName]?.info || '';
     descEl.value = info;
 }
+
+// ============================================
+// 칭호 팝업
+// ============================================
+
+let _titleCharId = null;
+let _titleBtn    = null;
+
+/**
+ * 칭호 팝업 열기
+ */
+function openTitlePopup(charId, btn) {
+    _titleCharId = charId;
+    _titleBtn    = btn;
+
+    const overlay = document.getElementById('title-popup-overlay');
+    const popup   = document.getElementById('title-popup');
+    if (!overlay || !popup) return;
+
+    // 이름 복원
+    const nameInput = document.getElementById('title-popup-name');
+    if (nameInput) nameInput.value = btn.getAttribute('data-title-name') || '';
+
+    // 스탯 복원: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
+    const savedData = JSON.parse(btn.getAttribute('data-title-stats') || '{}');
+    function _buildStatMap(data) {
+        const map = {};
+        if (!data) return map;
+        // V4 배열 구조
+        if (Array.isArray(data)) {
+            data.forEach(entry => {
+                (entry.stats || []).forEach(s => { map[s] = entry.amount; });
+            });
+        }
+        return map;
+    }
+    const baseMap = _buildStatMap(savedData.base);
+    const effMap  = _buildStatMap(savedData.eff);
+    popup.querySelectorAll('[data-title-stat]').forEach(input => {
+        const raw     = input.getAttribute('data-title-stat');
+        const isPct   = raw.endsWith('_pct');
+        const key     = isPct ? raw.slice(0, -4) : raw;
+        const parts   = key.split('_');
+        const type    = parts[parts.length - 1];
+        const statKey = parts.slice(0, -1).join('_');
+        const val     = (type === 'base' ? baseMap[statKey] : effMap[statKey]);
+        input.value   = val !== undefined ? String(val) : '';
+    });
+    const descTA = document.getElementById('title-popup-desc');
+    if (descTA) descTA.value = savedData.desc || '';
+
+    // 팝업 표시: 표 기준 absolute 위치 (스크롤하면 표와 함께 이동)
+    // overlay는 배경 dim만 담당, popup은 overlay 밖 body에 absolute로 배치
+    if (popup.parentElement !== document.body) {
+        document.body.appendChild(popup);
+    }
+    overlay.style.display = 'block';
+
+    // 직업/이름/스탯 표(char-info-table) 상단 기준으로 위치 계산
+    const section     = _titleBtn ? _titleBtn.closest('.char-section') : null;
+    const infoTable   = section ? section.querySelector('.char-info-table') : null;
+    const refEl       = infoTable || (_titleBtn ? _titleBtn.closest('table') : null) || btn;
+    const rect        = refEl.getBoundingClientRect();
+    const popupW = popup.offsetWidth  || 1100;
+    const popupH = popup.offsetHeight || 500;
+    const vw = window.innerWidth;
+    // getBoundingClientRect는 뷰포트 기준 -> scrollY 더하면 페이지 절대좌표
+    let left = rect.left + 40;  // 표 왼쪽 끝에 맞춤
+    let top  = rect.top + 30 + window.scrollY;  // 직업/이름 헤더 아래부터 시작
+    if (left < 8) left = 8;
+    if (left + popupW > vw - 8) left = vw - popupW - 8;
+    if (top  < 8) top  = 8;
+    popup.style.position = 'absolute';
+    popup.style.zIndex   = '3001';
+    popup.style.left = left + 'px';
+    popup.style.top  = top  + 'px';
+    popup.style.display = 'block';
+}
+
+/** 칭호 팝업 저장 */
+function titlePopupSave() {
+    if (!_titleBtn) { titlePopupClose(); return; }
+
+    const nameInput = document.getElementById('title-popup-name');
+    const name = nameInput ? nameInput.value.trim() : '';
+
+    // 스탯 수집: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
+    const baseMap = {}, effMap = {};
+    const overlay = document.getElementById('title-popup-overlay');
+    const popup   = document.getElementById('title-popup');
+    if (popup) {
+        popup.querySelectorAll('[data-title-stat]').forEach(input => {
+            const val = input.value.trim();
+            if (!val) return;
+            const raw     = input.getAttribute('data-title-stat');
+            const isPct   = raw.endsWith('_pct');
+            const key     = isPct ? raw.slice(0, -4) : raw;
+            const parts   = key.split('_');
+            const type    = parts[parts.length - 1];
+            const statKey = parts.slice(0, -1).join('_');
+            const amount  = parseFloat(val) || 0;
+            const unit    = isPct ? '%' : '';
+            const mapKey  = `${amount}__${unit}`;
+            const target  = type === 'base' ? baseMap : effMap;
+            if (!target[mapKey]) target[mapKey] = { stats: [], amount, unit };
+            target[mapKey].stats.push(statKey);
+        });
+    }
+    const descTA = document.getElementById('title-popup-desc');
+    const stats = {
+        base: Object.values(baseMap),
+        eff:  Object.values(effMap),
+        desc: descTA ? descTA.value.trim() : ''
+    };
+
+    // 변경 기록
+    const oldName = _titleBtn.getAttribute('data-title-name') || '';
+    if (_titleCharId) {
+        const section  = document.getElementById(_titleCharId);
+        const charName = section?.querySelector('[data-key="info_name"]')?.value || '이름없음';
+        const timeStr  = (typeof getCurrentDateTime === 'function') ? getCurrentDateTime() : new Date().toLocaleString();
+
+        const oldStats = JSON.parse(_titleBtn.getAttribute('data-title-stats') || '{}');
+
+        // 스탯 플랫맵 생성: { '힘_base': {amount, unit}, ... }
+        function _buildFlatMap(statsObj) {
+            const map = {};
+            ['base','eff'].forEach(type => {
+                (statsObj[type] || []).forEach(entry => {
+                    (entry.stats || []).forEach(s => {
+                        map[s + '_' + type] = { amount: entry.amount, unit: entry.unit || '' };
+                    });
+                });
+            });
+            return map;
+        }
+        const statLabels = {
+            '힘':'힘','지능':'지능','체력':'체력','정신력':'정신력',
+            '적중':'적중','회피':'회피',
+            '공격속도':'공격속도','캐스팅속도':'캐스팅속도','이동속도':'이동속도',
+            '물리크리티컬':'물리크리','마법크리티컬':'마법크리',
+            '물리크리티컬확률':'물리크리확률','마법크리티컬확률':'마법크리확률',
+            'HPMAX':'HP MAX','MPMAX':'MP MAX',
+            '모든속성강화':'속성강화','모든속성저항':'속성저항',
+            '화속강':'화속강','수속강':'수속강','명속강':'명속강','암속강':'암속강',
+            '데미지증가':'데미지증가','마을이동속도':'마을이동속도',
+        };
+
+        const oldFlat = _buildFlatMap(oldStats);
+        const newFlat = _buildFlatMap(stats);
+        const allKeys = new Set([...Object.keys(oldFlat), ...Object.keys(newFlat)]);
+        const changedParts = [];
+        allKeys.forEach(k => {
+            const ov = oldFlat[k]?.amount ?? '';
+            const nv = newFlat[k]?.amount ?? '';
+            if (String(ov) !== String(nv)) {
+                const lastUnd = k.lastIndexOf('_');
+                const statKey = k.slice(0, lastUnd);
+                const unit    = newFlat[k]?.unit || oldFlat[k]?.unit || '';
+                const label   = statLabels[statKey] || statKey;
+                const oldStr  = ov !== '' ? `${ov}${unit}` : '없음';
+                const newStr  = nv !== '' ? `${nv}${unit}` : '없음';
+                changedParts.push(`${label}: ${oldStr}→${newStr}`);
+            }
+        });
+
+        const displayName = name || '(빈칸)';
+        if (changedParts.length === 0 && oldName === name) return; // 변경 없음
+
+        const recordOld = oldName || '(빈칸)';
+        const recordNew = displayName;
+
+        if (recordOld !== recordNew || changedParts.length > 0) {
+            AppState.changeHistory.unshift({
+                time: timeStr, charName, slot: '칭호',
+                old: recordOld,
+                new: recordNew,
+                details: changedParts  // 스탯 변경 상세 배열
+            });
+            if (AppState.changeHistory.length > 10) AppState.changeHistory.pop();
+            AppState.saveHistory();
+        }
+    }
+
+    // 버튼 업데이트
+    _titleBtn.setAttribute('data-title-name', name);
+    _titleBtn.setAttribute('data-title-stats', JSON.stringify(stats));
+    _titleBtn.textContent = name;
+
+    // desc 자동 입력
+    if (_titleCharId) {
+        const section = document.getElementById(_titleCharId);
+        const descEl = section?.querySelector('[data-key="칭호_desc"]');
+        if (descEl) {
+            const infoEntry = GameData.TITLE_ITEM_INFO?.[name];
+            if (infoEntry?.info) {
+                descEl.value = infoEntry.info;
+            } else {
+                const statLabels = {
+                    '힘':'힘', '지능':'지능', '체력':'체력', '정신력':'정신력',
+                    '적중':'적중', '회피':'회피',
+                    '공격속도':'공격속도', '캐스팅속도':'캐스팅속도', '이동속도':'이동속도',
+                    '물리크리티컬':'물리 크리티컬', '마법크리티컬':'마법 크리티컬',
+                    '물리크리티컬확률':'물리 크리티컬 확률', '마법크리티컬확률':'마법 크리티컬 확률',
+                    'HPMAX':'HP MAX', 'MPMAX':'MP MAX',
+                    '모든속성강화':'모든 속성 강화', '모든속성저항':'모든 속성 저항',
+                    '화속강':'화속강', '수속강':'수속강', '명속강':'명속강', '암속강':'암속강',
+                    '화속성저항':'화속성 저항', '수속성저항':'수속성 저항',
+                    '명속성저항':'명속성 저항', '암속성저항':'암속성 저항',
+                    '기절내성':'기절 내성', '점프력':'점프력',
+                    '데미지증가':'데미지 증가', '마을이동속도':'마을 이동속도 증가',
+                };
+                function _entriesToLines(arr) {
+                    return (arr || []).map(e => {
+                        const labels = e.stats.map(s => statLabels[s] || s).join(', ');
+                        return `${labels} +${e.amount}${e.unit}`;
+                    });
+                }
+                const baseLines = _entriesToLines(stats.base);
+                const effLines  = _entriesToLines(stats.eff);
+                const lines = [];
+                if (baseLines.length) { lines.push('기본정보'); lines.push(...baseLines); }
+                if (effLines.length)  { if (baseLines.length) lines.push('---'); lines.push('효과'); lines.push(...effLines); }
+                descEl.value = lines.join('\n');
+            }
+        }
+    }
+
+    titlePopupClose();
+    if (typeof autoSave === 'function') autoSave();
+}
+
+/** 칭호 팝업 닫기 */
+function titlePopupClose() {
+    const overlay = document.getElementById('title-popup-overlay');
+    const popup   = document.getElementById('title-popup');
+    if (overlay) overlay.style.display = 'none';
+    // popup 숨기고 overlay 안으로 복원
+    if (popup) popup.style.display = 'none';
+    if (popup && overlay && popup.parentElement !== overlay) {
+        overlay.appendChild(popup);
+    }
+    _titleCharId = null;
+    _titleBtn    = null;
+}
+
 
 // ============================================
 // 아바타 팝업

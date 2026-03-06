@@ -37,9 +37,20 @@ function autoSave() {
                 inputsObj[slot][field] = { val: el.value, cls: el.className };
             });
 
-            // 아바타 버튼 값 수집 (button 요소는 querySelectorAll에서 제외되므로 별도 처리)
+            // button[data-key] 수집 (input/select/textarea에는 button 미포함)
             sec.querySelectorAll('button[data-key]').forEach(btn => {
                 const key = btn.getAttribute('data-key');
+
+                // 칭호 버튼 저장
+                if (key === '칭호_itemname') {
+                    if (!inputsObj['칭호']) inputsObj['칭호'] = {};
+                    const name  = btn.getAttribute('data-title-name') || btn.textContent.trim() || '';
+                    const stats = btn.getAttribute('data-title-stats') || '{}';
+                    inputsObj['칭호']['itemname']    = { val: name,  cls: btn.className };
+                    inputsObj['칭호']['title_stats'] = { val: stats, cls: '' };
+                    return;
+                }
+
                 if (key !== '아바타_itemname') return;
 
                 if (!inputsObj['아바타']) inputsObj['아바타'] = {};
