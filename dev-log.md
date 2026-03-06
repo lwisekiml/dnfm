@@ -3495,3 +3495,32 @@ project/
 - `creature.desc` 직접 참조 → `creature.stats.map(s => s.label).join('\n')` 으로 변경
 
 - `info` 필드 우선 처리 추가: `info` 있으면 `info` 표시, 없으면 `stats` `label` 조합
+
+---
+
+## 2026-03-06 (77차)
+
+### 상세입력 변경 기록 - select 표시 텍스트 및 아바타 변경 기록 추가
+
+**수정된 파일:** `js/main.js`, `js/ui-character.js`
+
+---
+
+### 변경 내용
+
+**`js/main.js`**
+
+- `getDisplayVal(val, element)` 함수 추가
+  - select 요소인 경우 `el.value` 대신 선택된 `option.text`(화면 표시 텍스트)를 반환
+  - select 이외 요소는 value 그대로 반환
+  - 변경 기록 저장 시 `oldVal`/`newVal` 대신 `displayOld`/`displayNew` 사용
+  - 모든 select 필드(weapon_stat 포함)의 변경 기록이 인코딩값 대신 label로 표시됨
+
+**`js/ui-character.js`**
+
+- `avatarPopupSave()`에 변경 기록 추가
+  - 아바타는 버튼 클릭 → 팝업 → 저장 방식이라 `document.addEventListener('change', ...)` 이벤트가 발생하지 않아 기록이 남지 않는 문제 수정
+  - 저장 직전 이전 값(`data-avatar-value`)과 새 값을 비교해 변경이 있을 때만 `AppState.changeHistory`에 직접 기록
+  - `_recordMemoTagHistory`와 동일한 패턴 적용
+
+---

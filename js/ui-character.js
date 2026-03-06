@@ -1306,6 +1306,26 @@ function avatarPopupSave() {
 
     const rawVal = parts.join(' ');
 
+    // 변경 기록: 저장 전 이전 값과 비교
+    if (UIState.avatarBtn && UIState.avatarCharId) {
+        const oldVal = UIState.avatarBtn.getAttribute('data-avatar-value') || '';
+        if (oldVal !== rawVal) {
+            const charId = UIState.avatarCharId;
+            const section = document.getElementById(charId);
+            const charName = section?.querySelector('[data-key="info_name"]')?.value || '이름없음';
+            const timeStr = (typeof getCurrentDateTime === 'function') ? getCurrentDateTime() : new Date().toLocaleString();
+            AppState.changeHistory.unshift({
+                time: timeStr,
+                charName: charName,
+                slot: '아바타',
+                old: oldVal === '' ? '(빈칸)' : oldVal,
+                new: rawVal === '' ? '(빈칸)' : rawVal
+            });
+            if (AppState.changeHistory.length > 10) AppState.changeHistory.pop();
+            AppState.saveHistory();
+        }
+    }
+
     if (UIState.avatarBtn) {
         UIState.avatarBtn.setAttribute('data-avatar-value', rawVal);
         UIState.avatarBtn.innerHTML = renderAvatarBtnHTML(rawVal);
