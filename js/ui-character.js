@@ -390,7 +390,7 @@ function handleItemNameField(rowFragment, slot, charId) {
         existingField.replaceWith(select);
 
         // 이미지 미리보기가 있는 슬롯: select 왼쪽에 img 태그 추가
-        const _imgSlots = ['상의','하의','어깨','벨트','신발','팔찌','목걸이','반지','귀걸이','마법석','보조장비','오라'];
+        const _imgSlots = ['상의','하의','어깨','벨트','신발','팔찌','목걸이','반지','귀걸이','마법석','보조장비'];
         if (_imgSlots.includes(slot)) {
             const img = document.createElement('img');
             img.className = 'itemname-img-preview';

@@ -3561,3 +3561,27 @@ project/
 - 가로: `left = rect.left` 로 표 왼쪽 끝에 맞춤
 - 세로: `top = rect.top + 30 + window.scrollY` 로 직업/이름 헤더(약 30px) 아래부터 시작
 
+---
+
+## 2026-03-06 (79차)
+
+### 외형칭호 / 오라 아이템이름 이미지 제거
+
+**수정된 파일:** `js/ui-character.js`, `js/ui-core.js`
+
+---
+
+### 변경 내용
+
+**`js/ui-character.js`**
+
+- `_imgSlots`에서 `'오라'` 제거 (이미 외형칭호는 없었음)
+  - `handleItemNameField` 내 이미지 img 태그 삽입 대상에서 제외
+
+**`js/ui-core.js`**
+
+- `_allImgSlots`에서 `'외형칭호'`, `'오라'` 제거
+  - `replaceItemNameField` 내 이미지 img 태그 삽입 대상에서 제외
+  - 외형칭호/오라 select 교체 시 더 이상 img 태그가 앞에 삽입되지 않음
+
+---

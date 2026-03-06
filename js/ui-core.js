@@ -747,7 +747,7 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     });
 
     // 에픽 슬롯 + 칭호/외형칭호/오라: 이미지 미리보기 img 태그 삽입
-    const _allImgSlots = ['상의','하의','어깨','벨트','신발','팔찌','목걸이','반지','귀걸이','마법석','보조장비','칭호','외형칭호','오라'];
+    const _allImgSlots = ['상의','하의','어깨','벨트','신발','팔찌','목걸이','반지','귀걸이','마법석','보조장비'];
     if (_allImgSlots.includes(slot) && (rarity === '에픽' || _forceSelectSlots.includes(slot))) {
         const img = document.createElement('img');
         img.className = 'itemname-img-preview';
