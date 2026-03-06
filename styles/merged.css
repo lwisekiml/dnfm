@@ -2833,3 +2833,192 @@ body.theme-mixed2 .avatar-popup-btn:hover {
 .title-popup-spacer {
     height: 6px;
 }
+
+/* ============================================
+   크리쳐 팝업
+============================================ */
+.creature-popup-box {
+    padding: 20px 24px;
+}
+
+/* 이름 행 */
+.creature-popup-name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.creature-popup-label {
+    white-space: nowrap;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+.creature-popup-name-select {
+    flex: 1;
+    height: 28px;
+    background: var(--input-bg);
+    color: var(--color-white);
+    border: var(--border-width) var(--border-style) var(--border);
+    font: inherit;
+    font-size: var(--fs-table);
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+/* 아티팩트 3열 */
+.creature-popup-arts {
+    display: flex;
+    gap: 12px;
+}
+
+/* 카드 공통 */
+.creature-art-card {
+    flex: 1;
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+}
+.creature-art-card-red   { border: 2px solid #c0392b; background: rgba(192,57,43,0.08); }
+.creature-art-card-blue  { border: 2px solid #2980b9; background: rgba(41,128,185,0.08); }
+.creature-art-card-green { border: 2px solid #27ae60; background: rgba(39,174,96,0.08); }
+
+.creature-art-card-title {
+    font-size: 0.78em;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    margin-bottom: 2px;
+    opacity: 0.7;
+}
+.creature-art-card-red   .creature-art-card-title { color: #e74c3c; }
+.creature-art-card-blue  .creature-art-card-title { color: #3498db; }
+.creature-art-card-green .creature-art-card-title { color: #2ecc71; }
+
+/* 상단 행 (희귀도 + 텍스트) */
+.creature-art-top-row {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding-bottom: 7px;
+    border-bottom: 1px dashed rgba(255,255,255,0.15);
+    margin-bottom: 2px;
+}
+
+/* 옵션 행 */
+.creature-art-opt-row {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+/* 공통 select/input */
+.creature-art-rarity {
+    width: 62px;
+    flex-shrink: 0;
+    height: 24px;
+    background: var(--input-bg);
+    color: var(--color-white);
+    border: var(--border-width) var(--border-style) var(--border);
+    font: inherit;
+    font-size: 0.82em;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+.creature-art-text {
+    flex: 1;
+    height: 24px;
+    background: var(--input-bg);
+    color: var(--color-white);
+    border: var(--border-width) var(--border-style) var(--border);
+    font: inherit;
+    font-size: 0.82em;
+    padding: 0 4px;
+    box-sizing: border-box;
+    min-width: 0;
+}
+.creature-art-opt {
+    flex: 1;
+    height: 24px;
+    background: var(--input-bg);
+    color: var(--color-white);
+    border: var(--border-width) var(--border-style) var(--border);
+    font: inherit;
+    font-size: 0.82em;
+    box-sizing: border-box;
+    cursor: pointer;
+    min-width: 0;
+}
+
+/* 희귀도 색상 반영 (팝업 내 select) */
+.creature-art-rarity.cr-에픽,  .creature-art-text.cr-에픽,  .creature-art-opt.cr-에픽  { color: var(--txt-epic)   !important; font-weight: bold; }
+.creature-art-rarity.cr-유니크, .creature-art-text.cr-유니크, .creature-art-opt.cr-유니크 { color: var(--txt-unique) !important; font-weight: bold; }
+.creature-art-rarity.cr-레어,  .creature-art-text.cr-레어,  .creature-art-opt.cr-레어  { color: var(--txt-rare)   !important; font-weight: bold; }
+.creature-art-rarity.cr-언커먼, .creature-art-text.cr-언커먼, .creature-art-opt.cr-언커먼 { color: var(--txt-uncom)  !important; font-weight: bold; }
+.creature-art-rarity.cr-커먼,  .creature-art-text.cr-커먼,  .creature-art-opt.cr-커먼  { color: var(--txt-common) !important; font-weight: bold; }
+
+/* 표 내 아티팩트 표시 span */
+.creature-art-display .art-color-select,
+.creature-art-display .art-opt-select {
+    display: inline-block;
+    font-size: var(--fs-table);
+    padding: 0 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+/* 크리쳐 팝업 이름 텍스트 입력 */
+.creature-popup-name-input {
+    width: 120px;
+    height: 28px;
+    background: var(--input-bg);
+    color: var(--color-white);
+    border: var(--border-width) var(--border-style) var(--border);
+    font: inherit;
+    font-size: var(--fs-table);
+    padding: 0 6px;
+    box-sizing: border-box;
+}
+.creature-popup-name-input:disabled,
+.creature-popup-name-select:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* 크리쳐 아티팩트 고정 스탯 입력 행 */
+.creature-art-stat-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.15);
+    margin-bottom: 4px;
+}
+.creature-art-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.creature-art-stat-row span {
+    font-size: 0.82em;
+    opacity: 0.75;
+    white-space: nowrap;
+    width: 62px;
+    flex-shrink: 0;
+}
+.creature-art-stat-input {
+    flex: 1;
+    height: 22px;
+    background: var(--input-bg);
+    color: var(--color-white);
+    border: var(--border-width) var(--border-style) var(--border);
+    font: inherit;
+    font-size: 0.82em;
+    padding: 0 4px;
+    box-sizing: border-box;
+    min-width: 0;
+}

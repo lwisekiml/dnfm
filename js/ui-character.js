@@ -176,10 +176,17 @@ function createSlotContent(slot, index, charId, savedData) {
         return TemplateHelper.createSkillRuneRow(charId);
     }
 
-    // 크리쳐
+    // 크리쳐 (버튼 팝업 방식)
     if (slot === "크리쳐") {
         const rowFrag = TemplateHelper.createCreatureRow();
-        if (typeof initCreatureNameSelect === 'function') initCreatureNameSelect(rowFrag);
+        const btn = rowFrag.querySelector('button[data-creature-btn]');
+        if (btn) {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                const section = btn.closest('.char-section');
+                if (section) openCreaturePopup(section.id, btn);
+            };
+        }
         return rowFrag;
     }
 
@@ -694,8 +701,33 @@ function restoreSavedData(section, savedData, charId) {
 
         // weapon_stat select 옵션 먼저 채우기
         initAvatarWeaponStatSelect(section);
-        // 크리쳐 이름 select 초기화
-        if (typeof initCreatureNameSelect === 'function') initCreatureNameSelect(section);
+        // 크리쳐 버튼 + 아티팩트 표시 복원
+        const creatureBtn = section.querySelector('button[data-creature-btn]');
+        if (creatureBtn) {
+            const cInputs = savedData?.inputs?.['크리쳐'] || {};
+            const cName     = cInputs.name?.val       || '';
+            const cMode     = cInputs.mode?.val        || 'sel';
+            const cSetEff   = cInputs.seteffect?.val   || '';
+            const cSetAuto  = cInputs.setauto?.val     || 'false';
+            creatureBtn.setAttribute('data-creature-name',      cName);
+            creatureBtn.setAttribute('data-creature-mode',      cMode);
+            creatureBtn.setAttribute('data-creature-seteffect', cSetEff);
+            creatureBtn.setAttribute('data-creature-setauto',   cSetAuto);
+            creatureBtn.textContent = cName;
+        }
+        // 아티팩트 hidden input → 표시 span 동기화
+        _CREATURE_ART_KEYS.forEach(key => {
+            const hidden = section.querySelector(`input[type="hidden"][data-key="${key}"]`);
+            const disp   = section.querySelector(`[data-creature-disp="${key}"]`);
+            if (!hidden || !disp) return;
+            const val = hidden.value || '';
+            disp.textContent = val;
+            // 희귀도 칸: bg-X 클래스 동기화
+            if (key.includes('_bg_') || key.includes('_top_rarity')) {
+                disp.className = disp.className.replace(/bg-\S+/g, '').trim();
+                if (val) disp.classList.add('bg-' + val);
+            }
+        });
 
         // itemname 복원: 신규 구조(parts) 우선, 구버전(itemname.val) fallback
         let rawVal = '';
@@ -1098,6 +1130,314 @@ function applyItemInfoToDesc(select, slot, charId, infoMap) {
 }
 
 // ============================================
+// 크리쳐 팝업
+// ============================================
+
+let _creatureCharId = null;
+let _creatureBtn    = null;
+
+const _CREATURE_ART_KEYS = [
+    '크리쳐_art_red_top_rarity',  '크리쳐_art_red_top_text',
+    '크리쳐_art_red_stat_물리공격력', '크리쳐_art_red_stat_마법공격력',
+    '크리쳐_art_red_stat_힘',         '크리쳐_art_red_stat_지능',
+    '크리쳐_art_red_bg_1',        '크리쳐_art_red_opt_1',
+    '크리쳐_art_red_bg_2',        '크리쳐_art_red_opt_2',
+    '크리쳐_art_blue_top_rarity', '크리쳐_art_blue_top_text',
+    '크리쳐_art_blue_stat_공격속도',  '크리쳐_art_blue_stat_캐스팅속도',
+    '크리쳐_art_blue_stat_이동속도',  '크리쳐_art_blue_stat_적중',
+    '크리쳐_art_blue_bg_1',       '크리쳐_art_blue_opt_1',
+    '크리쳐_art_blue_bg_2',       '크리쳐_art_blue_opt_2',
+    '크리쳐_art_green_top_rarity','크리쳐_art_green_top_text',
+    '크리쳐_art_green_stat_HPMAX',    '크리쳐_art_green_stat_MPMAX',
+    '크리쳐_art_green_stat_모속강',
+    '크리쳐_art_green_bg_1',      '크리쳐_art_green_opt_1',
+    '크리쳐_art_green_bg_2',      '크리쳐_art_green_opt_2',
+];
+
+/** 팝업 내 희귀도 select 변경 시 opt/text 색상 동기화 */
+function creaturePopupArtBg(rarity_sel) {
+    const row  = rarity_sel.closest('.creature-art-top-row, .creature-art-opt-row');
+    if (!row) return;
+    const val  = rarity_sel.value;
+    const cls  = 'cr-' + val;
+    const peer = row.querySelector('.creature-art-text, .creature-art-opt');
+    // 희귀도 select 자신
+    rarity_sel.className = rarity_sel.className.replace(/cr-\S+/g, '').trim() + ' ' + cls;
+    // 페어 요소
+    if (peer) peer.className = peer.className.replace(/cr-\S+/g, '').trim() + ' ' + cls;
+}
+
+/**
+ * 크리쳐 이름 상호배타 토글 (텍스트 ↔ 선택)
+ */
+function creatureNameInputToggle() {
+    const textEl = document.getElementById('creature-popup-name-text');
+    const selEl  = document.getElementById('creature-popup-name-sel');
+    if (!textEl || !selEl) return;
+    if (textEl.value.trim()) {
+        // 텍스트 입력 중 → select 비활성
+        selEl.value    = '';
+        selEl.disabled = true;
+    } else {
+        selEl.disabled = false;
+    }
+    _creatureUpdateSetEffect();
+}
+
+function creatureNameSelToggle() {
+    const textEl = document.getElementById('creature-popup-name-text');
+    const selEl  = document.getElementById('creature-popup-name-sel');
+    if (!textEl || !selEl) return;
+    if (selEl.value) {
+        // 선택 중 → 텍스트 비활성
+        textEl.value    = '';
+        textEl.disabled = true;
+    } else {
+        textEl.disabled = false;
+    }
+    _creatureUpdateSetEffect();
+}
+
+/** 세트효과 자동입력/수동 전환 */
+function _creatureUpdateSetEffect() {
+    const selEl     = document.getElementById('creature-popup-name-sel');
+    const setTA     = document.getElementById('creature-popup-seteffect');
+    const badge     = document.getElementById('creature-seteffect-badge');
+    if (!setTA) return;
+
+    const selName = selEl ? selEl.value : '';
+    if (selName && typeof CREATURE_DATA !== 'undefined') {
+        const creature = CREATURE_DATA.find(c => c.name === selName);
+        if (creature) {
+            setTA.value    = creature.info || creature.stats.map(s => s.label).join('\n');
+            setTA.readOnly = true;
+            setTA.style.opacity = '0.7';
+            if (badge) badge.style.display = 'inline';
+            setTA.setAttribute('data-auto', 'true');
+            return;
+        }
+    }
+    // 수동 입력 모드
+    setTA.readOnly = false;
+    setTA.style.opacity = '';
+    if (badge) badge.style.display = 'none';
+    setTA.setAttribute('data-auto', 'false');
+}
+
+/**
+ * 크리쳐 팝업 열기
+ */
+function openCreaturePopup(charId, btn) {
+    _creatureCharId = charId;
+    _creatureBtn    = btn;
+
+    const overlay = document.getElementById('creature-popup-overlay');
+    const popup   = document.getElementById('creature-popup');
+    if (!overlay || !popup) return;
+
+    const section = document.getElementById(charId);
+
+    // 저장된 크리쳐 이름 복원
+    const savedName = btn.getAttribute('data-creature-name') || '';
+    const savedMode = btn.getAttribute('data-creature-mode') || 'sel'; // 'sel' or 'text'
+
+    const textEl = document.getElementById('creature-popup-name-text');
+    const selEl  = document.getElementById('creature-popup-name-sel');
+
+    // select 목록 채우기
+    if (selEl && typeof CREATURE_DATA !== 'undefined') {
+        selEl.innerHTML = '<option value="">크리쳐 선택</option>' +
+            CREATURE_DATA.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+    }
+
+    // 모드에 따라 복원
+    if (savedMode === 'text') {
+        if (textEl) { textEl.value = savedName; textEl.disabled = false; }
+        if (selEl)  { selEl.value  = '';         selEl.disabled  = true;  }
+    } else {
+        if (selEl)  { selEl.value  = savedName;  selEl.disabled  = false; }
+        if (textEl) { textEl.value = '';          textEl.disabled = false; }
+    }
+
+    // 아티팩트 값 복원
+    _CREATURE_ART_KEYS.forEach(key => {
+        const hidden = section?.querySelector(`input[type="hidden"][data-key="${key}"]`);
+        const dest   = popup.querySelector(`[data-creature-art="${key}"]`);
+        if (!hidden || !dest) return;
+        dest.value = hidden.value || (key.includes('_rarity') ? '에픽' : '');
+        if (key.includes('_rarity')) creaturePopupArtBg(dest);
+    });
+
+    // 세트효과 복원
+    const setTA  = document.getElementById('creature-popup-seteffect');
+    const setVal = btn.getAttribute('data-creature-seteffect') || '';
+    const setAuto= btn.getAttribute('data-creature-setauto')   || 'false';
+    if (setTA) {
+        setTA.value = setVal;
+        setTA.setAttribute('data-auto', setAuto);
+        if (setAuto === 'true') {
+            setTA.readOnly = true;
+            setTA.style.opacity = '0.7';
+            const badge = document.getElementById('creature-seteffect-badge');
+            if (badge) badge.style.display = 'inline';
+        } else {
+            setTA.readOnly = false;
+            setTA.style.opacity = '';
+            const badge = document.getElementById('creature-seteffect-badge');
+            if (badge) badge.style.display = 'none';
+        }
+    }
+
+    // 팝업 표시 (fixed 기준 — 스크롤 따라 재계산)
+    overlay.style.display = 'block';
+
+    function _posCreature() {
+        const table  = _creatureBtn ? _creatureBtn.closest('table') : null;
+        const rect   = table ? table.getBoundingClientRect() : _creatureBtn.getBoundingClientRect();
+        const popupW = popup.offsetWidth;
+        const popupH = popup.offsetHeight;
+        const vw = window.innerWidth, vh = window.innerHeight;
+        let left = rect.left + rect.width  / 2 - popupW / 2;
+        let top  = rect.top  + rect.height / 2 - popupH / 2;
+        if (left < 8) left = 8;
+        if (left + popupW > vw - 8) left = vw - popupW - 8;
+        if (top  < 8) top  = 8;
+        if (top  + popupH > vh - 8) top  = vh - popupH - 8;
+        popup.style.left = left + 'px';
+        popup.style.top  = top  + 'px';
+    }
+    _posCreature();
+
+    window._creatureScrollHandler = () => { if (_creatureBtn) _posCreature(); };
+    window.addEventListener('scroll', window._creatureScrollHandler);
+}
+
+/** 크리쳐 팝업 저장 */
+function creaturePopupSave() {
+    if (!_creatureBtn || !_creatureCharId) { creaturePopupClose(); return; }
+
+    const popup   = document.getElementById('creature-popup');
+    const textEl  = document.getElementById('creature-popup-name-text');
+    const selEl   = document.getElementById('creature-popup-name-sel');
+    const setTA   = document.getElementById('creature-popup-seteffect');
+    const section = document.getElementById(_creatureCharId);
+
+    // 이름 및 모드 결정
+    const isText = textEl && !textEl.disabled && textEl.value.trim();
+    const name   = isText ? textEl.value.trim() : (selEl ? selEl.value : '');
+    const mode   = isText ? 'text' : 'sel';
+
+    // 세트효과 및 자동입력 여부
+    const setVal  = setTA ? setTA.value.trim() : '';
+    const setAuto = setTA ? (setTA.getAttribute('data-auto') === 'true' ? 'true' : 'false') : 'false';
+
+    // 변경 기록: 이름/아티팩트/세트효과 모두 비교해서 details 생성
+    const oldName     = _creatureBtn.getAttribute('data-creature-name')      || '';
+    const oldSetEff   = _creatureBtn.getAttribute('data-creature-seteffect') || '';
+    const charName    = section?.querySelector('[data-key="info_name"]')?.value || '이름없음';
+    const timeStr     = (typeof getCurrentDateTime === 'function') ? getCurrentDateTime() : new Date().toLocaleString();
+    const details     = [];
+
+    // 이름 변경
+    if (oldName !== name) {
+        details.push(`크리쳐 이름: ${oldName || '(빈칸)'} → ${name || '(빈칸)'}`);
+    }
+
+    // 세트효과 변경
+    if (oldSetEff !== setVal) {
+        const oldPreview = oldSetEff ? oldSetEff.replace(/\n/g, ' / ').slice(0, 40) + (oldSetEff.length > 40 ? '...' : '') : '(빈칸)';
+        const newPreview = setVal    ? setVal.replace(/\n/g, ' / ').slice(0, 40)    + (setVal.length > 40    ? '...' : '') : '(빈칸)';
+        details.push(`세트효과: ${oldPreview} → ${newPreview}`);
+    }
+
+    // 아티팩트 변경 비교
+    const artLabelMap = {
+        '크리쳐_art_red_top_rarity':'RED 희귀도',   '크리쳐_art_red_top_text':'RED 아티팩트명',
+        '크리쳐_art_red_stat_물리공격력':'RED 물리공격력', '크리쳐_art_red_stat_마법공격력':'RED 마법공격력',
+        '크리쳐_art_red_stat_힘':'RED 힘',           '크리쳐_art_red_stat_지능':'RED 지능',
+        '크리쳐_art_red_bg_1':'RED 옵션1 희귀도',    '크리쳐_art_red_opt_1':'RED 옵션1',
+        '크리쳐_art_red_bg_2':'RED 옵션2 희귀도',    '크리쳐_art_red_opt_2':'RED 옵션2',
+        '크리쳐_art_blue_top_rarity':'BLUE 희귀도',  '크리쳐_art_blue_top_text':'BLUE 아티팩트명',
+        '크리쳐_art_blue_stat_공격속도':'BLUE 공격속도','크리쳐_art_blue_stat_캐스팅속도':'BLUE 캐스팅속도',
+        '크리쳐_art_blue_stat_이동속도':'BLUE 이동속도','크리쳐_art_blue_stat_적중':'BLUE 적중',
+        '크리쳐_art_blue_bg_1':'BLUE 옵션1 희귀도',  '크리쳐_art_blue_opt_1':'BLUE 옵션1',
+        '크리쳐_art_blue_bg_2':'BLUE 옵션2 희귀도',  '크리쳐_art_blue_opt_2':'BLUE 옵션2',
+        '크리쳐_art_green_top_rarity':'GREEN 희귀도','크리쳐_art_green_top_text':'GREEN 아티팩트명',
+        '크리쳐_art_green_stat_HPMAX':'GREEN HP MAX','크리쳐_art_green_stat_MPMAX':'GREEN MP MAX',
+        '크리쳐_art_green_stat_모속강':'GREEN 모속강',
+        '크리쳐_art_green_bg_1':'GREEN 옵션1 희귀도','크리쳐_art_green_opt_1':'GREEN 옵션1',
+        '크리쳐_art_green_bg_2':'GREEN 옵션2 희귀도','크리쳐_art_green_opt_2':'GREEN 옵션2',
+    };
+    _CREATURE_ART_KEYS.forEach(key => {
+        const src    = popup?.querySelector(`[data-creature-art="${key}"]`);
+        const hidden = section?.querySelector(`input[type="hidden"][data-key="${key}"]`);
+        if (!src || !hidden) return;
+        const oldVal = hidden.value || '';
+        const newVal = src.value    || '';
+        if (oldVal !== newVal) {
+            const label = artLabelMap[key] || key;
+            details.push(`${label}: ${oldVal || '(빈칸)'} → ${newVal || '(빈칸)'}`);
+        }
+    });
+
+    if (details.length > 0) {
+        AppState.changeHistory.unshift({
+            time: timeStr, charName, slot: '크리쳐',
+            old: oldName || '(빈칸)',
+            new: name    || '(빈칸)',
+            details
+        });
+        if (AppState.changeHistory.length > 10) AppState.changeHistory.pop();
+        AppState.saveHistory();
+    }
+
+    // 버튼에 저장
+    _creatureBtn.setAttribute('data-creature-name',      name);
+    _creatureBtn.setAttribute('data-creature-mode',      mode);
+    _creatureBtn.setAttribute('data-creature-seteffect', setVal);
+    _creatureBtn.setAttribute('data-creature-setauto',   setAuto);
+    _creatureBtn.textContent = name;
+
+    // 아티팩트: 팝업 값 → hidden input + 표시 span 반영
+    _CREATURE_ART_KEYS.forEach(key => {
+        const src    = popup?.querySelector(`[data-creature-art="${key}"]`);
+        const hidden = section?.querySelector(`input[type="hidden"][data-key="${key}"]`);
+        const disp   = section?.querySelector(`[data-creature-disp="${key}"]`);
+        const val    = src ? src.value : '';
+        if (hidden) hidden.value = val;
+        if (disp) {
+            disp.textContent = val;
+            if (key.includes('_bg_') || key.includes('_top_rarity')) {
+                disp.className = disp.className.replace(/bg-\S+/g, '').trim();
+                if (val) disp.classList.add('bg-' + val);
+            }
+        }
+    });
+
+    // desc textarea 반영 (세트효과)
+    if (section) {
+        const descEl = section.querySelector('textarea[data-key="크리쳐_desc"]');
+        if (descEl) descEl.value = setVal;
+    }
+
+    creaturePopupClose();
+    if (typeof autoSave === 'function') autoSave();
+}
+
+/** 크리쳐 팝업 닫기 */
+function creaturePopupClose() {
+    const overlay = document.getElementById('creature-popup-overlay');
+    if (overlay) overlay.style.display = 'none';
+    if (window._creatureScrollHandler) {
+        window.removeEventListener('scroll', window._creatureScrollHandler);
+        window._creatureScrollHandler = null;
+    }
+    _creatureCharId = null;
+    _creatureBtn    = null;
+}
+
+
+// ============================================
 // 칭호 팝업
 // ============================================
 
@@ -1134,7 +1474,7 @@ function openTitlePopup(charId, btn) {
     }
     const baseMap = _buildStatMap(savedData.base);
     const effMap  = _buildStatMap(savedData.eff);
-    popup.querySelectorAll('[data-title-stat]').forEach(input => {
+    overlay.querySelectorAll('[data-title-stat]').forEach(input => {
         const raw     = input.getAttribute('data-title-stat');
         const isPct   = raw.endsWith('_pct');
         const key     = isPct ? raw.slice(0, -4) : raw;
@@ -1147,32 +1487,30 @@ function openTitlePopup(charId, btn) {
     const descTA = document.getElementById('title-popup-desc');
     if (descTA) descTA.value = savedData.desc || '';
 
-    // 팝업 표시: 표 기준 absolute 위치 (스크롤하면 표와 함께 이동)
-    // overlay는 배경 dim만 담당, popup은 overlay 밖 body에 absolute로 배치
-    if (popup.parentElement !== document.body) {
-        document.body.appendChild(popup);
-    }
+    // 팝업 표시: 표 가운데에 배치
     overlay.style.display = 'block';
 
-    // 직업/이름/스탯 표(char-info-table) 상단 기준으로 위치 계산
-    const section     = _titleBtn ? _titleBtn.closest('.char-section') : null;
-    const infoTable   = section ? section.querySelector('.char-info-table') : null;
-    const refEl       = infoTable || (_titleBtn ? _titleBtn.closest('table') : null) || btn;
-    const rect        = refEl.getBoundingClientRect();
-    const popupW = popup.offsetWidth  || 1100;
-    const popupH = popup.offsetHeight || 500;
-    const vw = window.innerWidth;
-    // getBoundingClientRect는 뷰포트 기준 -> scrollY 더하면 페이지 절대좌표
-    let left = rect.left + 40;  // 표 왼쪽 끝에 맞춤
-    let top  = rect.top + 30 + window.scrollY;  // 직업/이름 헤더 아래부터 시작
-    if (left < 8) left = 8;
-    if (left + popupW > vw - 8) left = vw - popupW - 8;
-    if (top  < 8) top  = 8;
-    popup.style.position = 'absolute';
-    popup.style.zIndex   = '3001';
-    popup.style.left = left + 'px';
-    popup.style.top  = top  + 'px';
-    popup.style.display = 'block';
+    function _positionPopup() {
+        const table     = _titleBtn ? _titleBtn.closest('table') : null;
+        const rect      = table ? table.getBoundingClientRect() : btn.getBoundingClientRect();
+        const popupW    = popup.offsetWidth;
+        const popupH    = popup.offsetHeight;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        let left = rect.left + rect.width  / 2 - popupW / 2;
+        let top  = rect.top  + rect.height / 2 - popupH / 2;
+        if (left < 8) left = 8;
+        if (left + popupW > vw - 8) left = vw - popupW - 8;
+        if (top  < 8) top  = 8;
+        if (top  + popupH > vh - 8) top  = vh - popupH - 8;
+        popup.style.left = left + 'px';
+        popup.style.top  = top  + 'px';
+    }
+    _positionPopup();
+
+    // window scroll: 페이지 스크롤 시 팝업 위치 재계산
+    window._titleScrollHandler = () => { if (_titleBtn) _positionPopup(); };
+    window.addEventListener('scroll', window._titleScrollHandler);
 }
 
 /** 칭호 팝업 저장 */
@@ -1185,9 +1523,8 @@ function titlePopupSave() {
     // 스탯 수집: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
     const baseMap = {}, effMap = {};
     const overlay = document.getElementById('title-popup-overlay');
-    const popup   = document.getElementById('title-popup');
-    if (popup) {
-        popup.querySelectorAll('[data-title-stat]').forEach(input => {
+    if (overlay) {
+        overlay.querySelectorAll('[data-title-stat]').forEach(input => {
             const val = input.value.trim();
             if (!val) return;
             const raw     = input.getAttribute('data-title-stat');
@@ -1218,62 +1555,37 @@ function titlePopupSave() {
         const charName = section?.querySelector('[data-key="info_name"]')?.value || '이름없음';
         const timeStr  = (typeof getCurrentDateTime === 'function') ? getCurrentDateTime() : new Date().toLocaleString();
 
-        const oldStats = JSON.parse(_titleBtn.getAttribute('data-title-stats') || '{}');
-
-        // 스탯 플랫맵 생성: { '힘_base': {amount, unit}, ... }
-        function _buildFlatMap(statsObj) {
-            const map = {};
-            ['base','eff'].forEach(type => {
-                (statsObj[type] || []).forEach(entry => {
-                    (entry.stats || []).forEach(s => {
-                        map[s + '_' + type] = { amount: entry.amount, unit: entry.unit || '' };
-                    });
-                });
+        // 스탯 요약 문자열 생성 (주요 3~4개)
+        function _buildStatSummary(statsObj) {
+            const statLabels = {
+                '힘':'힘','지능':'지능','체력':'체력','정신력':'정신력',
+                '적중':'적중','회피':'회피',
+                '공격속도':'공격속도','캐스팅속도':'캐스팅속도','이동속도':'이동속도',
+                '물리크리티컬':'물리 크리','마법크리티컬':'마법 크리',
+                '물리크리티컬확률':'물리크리확률','마법크리티컬확률':'마법크리확률',
+                'HPMAX':'HP MAX','MPMAX':'MP MAX',
+                '모든속성강화':'속성강화','모든속성저항':'속성저항',
+                '화속강':'화속강','수속강':'수속강','명속강':'명속강','암속강':'암속강',
+                '데미지증가':'데미지증가','마을이동속도':'마을이동속도',
+            };
+            const all = [...(statsObj.base || []), ...(statsObj.eff || [])];
+            if (!all.length) return '';
+            const parts = all.slice(0, 4).map(e => {
+                const label = e.stats.map(s => statLabels[s] || s).join('/');
+                return `${label}+${e.amount}${e.unit}`;
             });
-            return map;
+            return ' (' + parts.join(', ') + (all.length > 4 ? '...' : '') + ')';
         }
-        const statLabels = {
-            '힘':'힘','지능':'지능','체력':'체력','정신력':'정신력',
-            '적중':'적중','회피':'회피',
-            '공격속도':'공격속도','캐스팅속도':'캐스팅속도','이동속도':'이동속도',
-            '물리크리티컬':'물리크리','마법크리티컬':'마법크리',
-            '물리크리티컬확률':'물리크리확률','마법크리티컬확률':'마법크리확률',
-            'HPMAX':'HP MAX','MPMAX':'MP MAX',
-            '모든속성강화':'속성강화','모든속성저항':'속성저항',
-            '화속강':'화속강','수속강':'수속강','명속강':'명속강','암속강':'암속강',
-            '데미지증가':'데미지증가','마을이동속도':'마을이동속도',
-        };
 
-        const oldFlat = _buildFlatMap(oldStats);
-        const newFlat = _buildFlatMap(stats);
-        const allKeys = new Set([...Object.keys(oldFlat), ...Object.keys(newFlat)]);
-        const changedParts = [];
-        allKeys.forEach(k => {
-            const ov = oldFlat[k]?.amount ?? '';
-            const nv = newFlat[k]?.amount ?? '';
-            if (String(ov) !== String(nv)) {
-                const lastUnd = k.lastIndexOf('_');
-                const statKey = k.slice(0, lastUnd);
-                const unit    = newFlat[k]?.unit || oldFlat[k]?.unit || '';
-                const label   = statLabels[statKey] || statKey;
-                const oldStr  = ov !== '' ? `${ov}${unit}` : '없음';
-                const newStr  = nv !== '' ? `${nv}${unit}` : '없음';
-                changedParts.push(`${label}: ${oldStr}→${newStr}`);
-            }
-        });
+        const statSummary = _buildStatSummary(stats);
+        const newVal = (name === '' ? '(빈칸)' : name) + statSummary;
+        const oldVal = oldName === '' ? '(빈칸)' : oldName;
 
-        const displayName = name || '(빈칸)';
-        if (changedParts.length === 0 && oldName === name) return; // 변경 없음
-
-        const recordOld = oldName || '(빈칸)';
-        const recordNew = displayName;
-
-        if (recordOld !== recordNew || changedParts.length > 0) {
+        if (oldVal !== newVal) {
             AppState.changeHistory.unshift({
                 time: timeStr, charName, slot: '칭호',
-                old: recordOld,
-                new: recordNew,
-                details: changedParts  // 스탯 변경 상세 배열
+                old: oldVal,
+                new: newVal
             });
             if (AppState.changeHistory.length > 10) AppState.changeHistory.pop();
             AppState.saveHistory();
@@ -1331,12 +1643,10 @@ function titlePopupSave() {
 /** 칭호 팝업 닫기 */
 function titlePopupClose() {
     const overlay = document.getElementById('title-popup-overlay');
-    const popup   = document.getElementById('title-popup');
     if (overlay) overlay.style.display = 'none';
-    // popup 숨기고 overlay 안으로 복원
-    if (popup) popup.style.display = 'none';
-    if (popup && overlay && popup.parentElement !== overlay) {
-        overlay.appendChild(popup);
+    if (window._titleScrollHandler) {
+        window.removeEventListener('scroll', window._titleScrollHandler);
+        window._titleScrollHandler = null;
     }
     _titleCharId = null;
     _titleBtn    = null;

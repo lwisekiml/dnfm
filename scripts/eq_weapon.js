@@ -385,13 +385,18 @@ function showRecentUpdates() {
 
             // 요약 텍스트 생성
             const nameChanged = h.old !== h.new;
+            const isCreature  = h.slot === '크리쳐';
+            const detailLabel = isCreature ? `항목 ${details.length}개 변경` : `스탯 ${details.length}개 변경`;
             let summary = '';
-            if (nameChanged && hasDetails) {
-                summary = `${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)} <span style="color:#aaa;font-size:0.9em">(스탯 ${details.length}개 변경)</span>`;
+            if (isCreature) {
+                // 크리쳐: "크리쳐 설정 수정" 고정 표시
+                summary = `크리쳐 설정 수정` + (hasDetails ? ` <span style="color:#aaa;font-size:0.9em">(${detailLabel})</span>` : '');
+            } else if (nameChanged && hasDetails) {
+                summary = `${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)} <span style="color:#aaa;font-size:0.9em">(${detailLabel})</span>`;
             } else if (nameChanged) {
                 summary = `${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)}`;
             } else if (hasDetails) {
-                summary = `${getSpanWithColor(h.new)} <span style="color:#aaa;font-size:0.9em">(스탯 ${details.length}개 변경)</span>`;
+                summary = `${getSpanWithColor(h.new)} <span style="color:#aaa;font-size:0.9em">(${detailLabel})</span>`;
             } else {
                 summary = `${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)}`;
             }

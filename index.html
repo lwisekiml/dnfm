@@ -537,57 +537,81 @@
                 </select>
             </td>
             <td colspan="2" style="padding:0; position:relative;">
-                <select data-key="크리쳐_name" class="rare-에픽" onchange="onCreatureNameChange(this)"
-                        style="width:100%; height:var(--height-row); background:var(--input-bg); color:var(--color-white);
-                               border:var(--border-width) var(--border-style) var(--border); font:inherit;
-                               font-size:var(--fs-table); font-weight:bold; box-sizing:border-box; cursor:pointer;">
-                    <option value="">크리쳐 선택</option>
-                </select>
+                <button data-key="크리쳐_name" data-creature-btn="1"
+                        class="rare-에픽 itemname-color-sync"
+                        style="width:100%; height:var(--height-row); text-align:center; cursor:pointer;
+                               background:var(--input-bg); color:var(--color-white);
+                               border:none; padding:2px 6px; font:inherit;
+                               font-size:var(--fs-table); font-weight:bold;
+                               white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                        title="클릭하여 크리쳐 설정"></button>
             </td>
             <td colspan="10">
-                <div class="artifact-main-wrapper">
+                <!-- 아티팩트 표시 칸 (팝업 저장 시 업데이트) -->
+                <div class="creature-art-display artifact-main-wrapper">
                     <div class="art-group">
                         <div class="art-item custom-top-line">
-                            <select data-key="크리쳐_art_red_top_rarity" class="art-color-select bg-에픽" onchange="updateStyle(this,'artBg')"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select>
-                            <input type="text" data-key="크리쳐_art_red_top_text" class="art-opt-select bg-에픽" placeholder="내용 입력" oninput="autoSave()">
+                            <span data-creature-disp="크리쳐_art_red_top_rarity" class="art-color-select bg-에픽"></span>
+                            <span data-creature-disp="크리쳐_art_red_top_text"   class="art-opt-select bg-에픽"></span>
                         </div>
                         <div class="art-item">
-                            <select data-key="크리쳐_art_red_bg_1" class="art-color-select bg-에픽" onchange="updateStyle(this,'artBg')"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select>
-                            <select data-key="크리쳐_art_red_opt_1" class="art-opt-select bg-에픽" onchange="autoSave()"><option value="">옵션 선택</option><option>힘</option><option>지능</option><option>체력</option><option>정신력</option><option>적중</option><option>회피</option></select>
+                            <span data-creature-disp="크리쳐_art_red_bg_1"  class="art-color-select bg-에픽"></span>
+                            <span data-creature-disp="크리쳐_art_red_opt_1" class="art-opt-select bg-에픽"></span>
                         </div>
                         <div class="art-item">
-                            <select data-key="크리쳐_art_red_bg_2" class="art-color-select bg-에픽" onchange="updateStyle(this,'artBg')"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select>
-                            <select data-key="크리쳐_art_red_opt_2" class="art-opt-select bg-에픽" onchange="autoSave()"><option value="">옵션 선택</option><option>힘</option><option>지능</option><option>체력</option><option>정신력</option><option>적중</option><option>회피</option></select>
+                            <span data-creature-disp="크리쳐_art_red_bg_2"  class="art-color-select bg-에픽"></span>
+                            <span data-creature-disp="크리쳐_art_red_opt_2" class="art-opt-select bg-에픽"></span>
                         </div>
                     </div>
                     <div class="art-group">
                         <div class="art-item custom-top-line">
-                            <select data-key="크리쳐_art_blue_top_rarity" class="art-color-select bg-에픽" onchange="updateStyle(this,'artBg')"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select>
-                            <input type="text" data-key="크리쳐_art_blue_top_text" class="art-opt-select bg-에픽" placeholder="내용 입력" oninput="autoSave()">
+                            <span data-creature-disp="크리쳐_art_blue_top_rarity" class="art-color-select bg-에픽"></span>
+                            <span data-creature-disp="크리쳐_art_blue_top_text"   class="art-opt-select bg-에픽"></span>
                         </div>
                         <div class="art-item">
-                            <select data-key="크리쳐_art_blue_bg_1" class="art-color-select bg-에픽" onchange="updateStyle(this,'artBg')"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select>
-                            <select data-key="크리쳐_art_blue_opt_1" class="art-opt-select bg-에픽" onchange="autoSave()"><option value="">옵션 선택</option><option>HP MAX</option><option>MP MAX</option><option>물리 공격력</option><option>마법 공격력</option><option>물리 방어력</option><option>마법 방어력</option></select>
+                            <span data-creature-disp="크리쳐_art_blue_bg_1"  class="art-color-select bg-에픽"></span>
+                            <span data-creature-disp="크리쳐_art_blue_opt_1" class="art-opt-select bg-에픽"></span>
                         </div>
                         <div class="art-item">
-                            <select data-key="크리쳐_art_blue_bg_2" class="art-color-select bg-에픽" onchange="updateStyle(this,'artBg')"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select>
-                            <select data-key="크리쳐_art_blue_opt_2" class="art-opt-select bg-에픽" onchange="autoSave()"><option value="">옵션 선택</option><option>HP MAX</option><option>MP MAX</option><option>물리 공격력</option><option>마법 공격력</option><option>물리 방어력</option><option>마법 방어력</option></select>
+                            <span data-creature-disp="크리쳐_art_blue_bg_2"  class="art-color-select bg-에픽"></span>
+                            <span data-creature-disp="크리쳐_art_blue_opt_2" class="art-opt-select bg-에픽"></span>
                         </div>
                     </div>
                     <div class="art-group">
                         <div class="art-item custom-top-line">
-                            <select data-key="크리쳐_art_green_top_rarity" class="art-color-select bg-에픽" onchange="updateStyle(this,'artBg')"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select>
-                            <input type="text" data-key="크리쳐_art_green_top_text" class="art-opt-select bg-에픽" placeholder="내용 입력" oninput="autoSave()">
+                            <span data-creature-disp="크리쳐_art_green_top_rarity" class="art-color-select bg-에픽"></span>
+                            <span data-creature-disp="크리쳐_art_green_top_text"   class="art-opt-select bg-에픽"></span>
                         </div>
                         <div class="art-item">
-                            <select data-key="크리쳐_art_green_bg_1" class="art-color-select bg-에픽" onchange="updateStyle(this,'artBg')"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select>
-                            <select data-key="크리쳐_art_green_opt_1" class="art-opt-select bg-에픽" onchange="autoSave()"><option value="">옵션 선택</option><option>물리 크리티컬</option><option>마법 크리티컬</option><option>공격속도</option><option>캐스팅속도</option><option>이동속도</option><option>화속강</option><option>수속강</option><option>명속강</option><option>암속강</option><option>모속강</option></select>
+                            <span data-creature-disp="크리쳐_art_green_bg_1"  class="art-color-select bg-에픽"></span>
+                            <span data-creature-disp="크리쳐_art_green_opt_1" class="art-opt-select bg-에픽"></span>
                         </div>
                         <div class="art-item">
-                            <select data-key="크리쳐_art_green_bg_2" class="art-color-select bg-에픽" onchange="updateStyle(this,'artBg')"><option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option></select>
-                            <select data-key="크리쳐_art_green_opt_2" class="art-opt-select bg-에픽" onchange="autoSave()"><option value="">옵션 선택</option><option>물리 크리티컬</option><option>마법 크리티컬</option><option>공격속도</option><option>캐스팅속도</option><option>이동속도</option><option>화속강</option><option>수속강</option><option>명속강</option><option>암속강</option><option>모속강</option></select>
+                            <span data-creature-disp="크리쳐_art_green_bg_2"  class="art-color-select bg-에픽"></span>
+                            <span data-creature-disp="크리쳐_art_green_opt_2" class="art-opt-select bg-에픽"></span>
                         </div>
                     </div>
+                </div>
+                <!-- 저장용 hidden inputs -->
+                <div style="display:none;">
+                    <input type="hidden" data-key="크리쳐_art_red_top_rarity"   value="에픽">
+                    <input type="hidden" data-key="크리쳐_art_red_top_text"     value="">
+                    <input type="hidden" data-key="크리쳐_art_red_bg_1"         value="에픽">
+                    <input type="hidden" data-key="크리쳐_art_red_opt_1"        value="">
+                    <input type="hidden" data-key="크리쳐_art_red_bg_2"         value="에픽">
+                    <input type="hidden" data-key="크리쳐_art_red_opt_2"        value="">
+                    <input type="hidden" data-key="크리쳐_art_blue_top_rarity"  value="에픽">
+                    <input type="hidden" data-key="크리쳐_art_blue_top_text"    value="">
+                    <input type="hidden" data-key="크리쳐_art_blue_bg_1"        value="에픽">
+                    <input type="hidden" data-key="크리쳐_art_blue_opt_1"       value="">
+                    <input type="hidden" data-key="크리쳐_art_blue_bg_2"        value="에픽">
+                    <input type="hidden" data-key="크리쳐_art_blue_opt_2"       value="">
+                    <input type="hidden" data-key="크리쳐_art_green_top_rarity" value="에픽">
+                    <input type="hidden" data-key="크리쳐_art_green_top_text"   value="">
+                    <input type="hidden" data-key="크리쳐_art_green_bg_1"       value="에픽">
+                    <input type="hidden" data-key="크리쳐_art_green_opt_1"      value="">
+                    <input type="hidden" data-key="크리쳐_art_green_bg_2"       value="에픽">
+                    <input type="hidden" data-key="크리쳐_art_green_opt_2"      value="">
                 </div>
             </td>
             <td class="v-border-heavy">
@@ -705,6 +729,153 @@
 </div><!-- /section-detail-view -->
 
 <!-- 아바타 팝업 -->
+<!-- 크리쳐 팝업 -->
+<div id="creature-popup-overlay" style="
+    display:none; position:fixed; inset:0; z-index:3000; background:rgba(0,0,0,0.3);
+    pointer-events:none;">
+    <div id="creature-popup" class="avatar-popup-box creature-popup-box" style="
+        position:absolute; min-width:560px; max-width:92vw; max-height:85vh; overflow-y:auto;
+        pointer-events:all;">
+        <div class="avatar-popup-title">크리쳐 설정</div>
+
+        <!-- 크리쳐 이름: 텍스트 입력 + 선택 상호배타 -->
+        <div class="creature-popup-name-row">
+            <span class="creature-popup-label">크리쳐 이름</span>
+            <input  id="creature-popup-name-text"
+                    type="text"
+                    class="creature-popup-name-input"
+                    placeholder="직접 입력"
+                    oninput="creatureNameInputToggle()">
+            <select id="creature-popup-name-sel"
+                    class="creature-popup-name-select"
+                    onchange="creatureNameSelToggle()">
+                <option value="">크리쳐 선택</option>
+            </select>
+        </div>
+
+        <!-- 아티팩트 3그룹 -->
+        <div class="creature-popup-arts">
+
+            <!-- 레드 -->
+            <div class="creature-art-card creature-art-card-red">
+                <div class="creature-art-card-title">RED</div>
+                <div class="creature-art-top-row">
+                    <select data-creature-art="크리쳐_art_red_top_rarity" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
+                        <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
+                    </select>
+                    <input type="text" data-creature-art="크리쳐_art_red_top_text" class="creature-art-text" placeholder="아티팩트 이름">
+                </div>
+                <div class="creature-art-stat-rows">
+                    <div class="creature-art-stat-row"><span>물리 공격력</span><input type="text" data-creature-art="크리쳐_art_red_stat_물리공격력" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>마법 공격력</span><input type="text" data-creature-art="크리쳐_art_red_stat_마법공격력" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>힘</span><input type="text" data-creature-art="크리쳐_art_red_stat_힘" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>지능</span><input type="text" data-creature-art="크리쳐_art_red_stat_지능" class="creature-art-stat-input"></div>
+                </div>
+                <div class="creature-art-opt-row">
+                    <select data-creature-art="크리쳐_art_red_bg_1" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
+                        <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
+                    </select>
+                    <select data-creature-art="크리쳐_art_red_opt_1" class="creature-art-opt">
+                        <option value="">옵션 선택</option><option>힘</option><option>지능</option><option>체력</option><option>정신력</option><option>적중</option><option>회피</option>
+                    </select>
+                </div>
+                <div class="creature-art-opt-row">
+                    <select data-creature-art="크리쳐_art_red_bg_2" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
+                        <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
+                    </select>
+                    <select data-creature-art="크리쳐_art_red_opt_2" class="creature-art-opt">
+                        <option value="">옵션 선택</option><option>힘</option><option>지능</option><option>체력</option><option>정신력</option><option>적중</option><option>회피</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 블루 -->
+            <div class="creature-art-card creature-art-card-blue">
+                <div class="creature-art-card-title">BLUE</div>
+                <div class="creature-art-top-row">
+                    <select data-creature-art="크리쳐_art_blue_top_rarity" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
+                        <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
+                    </select>
+                    <input type="text" data-creature-art="크리쳐_art_blue_top_text" class="creature-art-text" placeholder="아티팩트 이름">
+                </div>
+                <div class="creature-art-stat-rows">
+                    <div class="creature-art-stat-row"><span>공격속도</span><input type="text" data-creature-art="크리쳐_art_blue_stat_공격속도" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>캐스팅속도</span><input type="text" data-creature-art="크리쳐_art_blue_stat_캐스팅속도" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>이동속도</span><input type="text" data-creature-art="크리쳐_art_blue_stat_이동속도" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>적중</span><input type="text" data-creature-art="크리쳐_art_blue_stat_적중" class="creature-art-stat-input"></div>
+                </div>
+                <div class="creature-art-opt-row">
+                    <select data-creature-art="크리쳐_art_blue_bg_1" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
+                        <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
+                    </select>
+                    <select data-creature-art="크리쳐_art_blue_opt_1" class="creature-art-opt">
+                        <option value="">옵션 선택</option><option>HP MAX</option><option>MP MAX</option><option>물리 공격력</option><option>마법 공격력</option><option>물리 방어력</option><option>마법 방어력</option>
+                    </select>
+                </div>
+                <div class="creature-art-opt-row">
+                    <select data-creature-art="크리쳐_art_blue_bg_2" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
+                        <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
+                    </select>
+                    <select data-creature-art="크리쳐_art_blue_opt_2" class="creature-art-opt">
+                        <option value="">옵션 선택</option><option>HP MAX</option><option>MP MAX</option><option>물리 공격력</option><option>마법 공격력</option><option>물리 방어력</option><option>마법 방어력</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 그린 -->
+            <div class="creature-art-card creature-art-card-green">
+                <div class="creature-art-card-title">GREEN</div>
+                <div class="creature-art-top-row">
+                    <select data-creature-art="크리쳐_art_green_top_rarity" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
+                        <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
+                    </select>
+                    <input type="text" data-creature-art="크리쳐_art_green_top_text" class="creature-art-text" placeholder="아티팩트 이름">
+                </div>
+                <div class="creature-art-stat-rows">
+                    <div class="creature-art-stat-row"><span>HP MAX</span><input type="text" data-creature-art="크리쳐_art_green_stat_HPMAX" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>MP MAX</span><input type="text" data-creature-art="크리쳐_art_green_stat_MPMAX" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>모속강</span><input type="text" data-creature-art="크리쳐_art_green_stat_모속강" class="creature-art-stat-input"></div>
+                </div>
+                <div class="creature-art-opt-row">
+                    <select data-creature-art="크리쳐_art_green_bg_1" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
+                        <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
+                    </select>
+                    <select data-creature-art="크리쳐_art_green_opt_1" class="creature-art-opt">
+                        <option value="">옵션 선택</option><option>물리 크리티컬</option><option>마법 크리티컬</option><option>공격속도</option><option>캐스팅속도</option><option>이동속도</option><option>화속강</option><option>수속강</option><option>명속강</option><option>암속강</option><option>모속강</option>
+                    </select>
+                </div>
+                <div class="creature-art-opt-row">
+                    <select data-creature-art="크리쳐_art_green_bg_2" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
+                        <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
+                    </select>
+                    <select data-creature-art="크리쳐_art_green_opt_2" class="creature-art-opt">
+                        <option value="">옵션 선택</option><option>물리 크리티컬</option><option>마법 크리티컬</option><option>공격속도</option><option>캐스팅속도</option><option>이동속도</option><option>화속강</option><option>수속강</option><option>명속강</option><option>암속강</option><option>모속강</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 세트효과 -->
+        <div style="margin-top:14px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                <span style="font-size:0.88em; opacity:0.7;">세트효과</span>
+                <span id="creature-seteffect-badge" style="display:none; font-size:0.75em; padding:1px 6px; border-radius:10px;
+                      background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a;">자동입력</span>
+            </div>
+            <textarea id="creature-popup-seteffect"
+                      style="width:100%; height:72px; background:var(--input-bg); color:var(--color-white);
+                             border:var(--border-width) var(--border-style) var(--border);
+                             font:inherit; font-size:0.88em; padding:4px 6px;
+                             box-sizing:border-box; resize:vertical;"></textarea>
+        </div>
+
+        <div style="display:flex; gap:12px; justify-content:center; margin-top:18px;">
+            <button onclick="creaturePopupSave()" class="avatar-popup-btn">저장</button>
+            <button onclick="creaturePopupClose()" class="avatar-popup-btn">취소</button>
+        </div>
+    </div>
+</div>
+
 <!-- 칭호 팝업 -->
 <div id="title-popup-overlay" style="
     display:none; position:fixed; inset:0; z-index:3000;

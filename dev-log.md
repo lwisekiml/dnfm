@@ -3585,3 +3585,59 @@ project/
   - 외형칭호/오라 select 교체 시 더 이상 img 태그가 앞에 삽입되지 않음
 
 ---
+
+## 2026-03-06 (80차)
+
+### 크리쳐 팝업 개편 + 변경 기록 개선
+
+**수정된 파일:** `index.html`, `js/ui-character.js`, `js/storage.js`, `styles/merged.css`, `scripts/eq_weapon.js`
+
+---
+
+### 변경 내용
+
+**`index.html`**
+
+- 크리쳐 팝업
+  - 크리쳐 이름: select 단독 → 텍스트 입력 + select 상호배타 방식
+    - 텍스트 입력 시 select 비활성, select 선택 시 텍스트 비활성
+    - 텍스트: CREATURE_DATA 외 직접 입력 용도
+  - 세트효과 textarea 추가 (`id="creature-popup-seteffect"`)
+    - select 선택 → CREATURE_DATA stats 라벨 자동입력 + readonly + "자동입력" badge 표시
+    - 텍스트 직접 입력 → 세트효과 수동 수정 가능
+  - 아티팩트 카드 내 고정 스탯 수치 입력칸 추가
+    - RED: 물리 공격력, 마법 공격력, 힘, 지능
+    - BLUE: 공격속도, 캐스팅속도, 이동속도, 적중
+    - GREEN: HP MAX, MP MAX, 모속강
+  - 저장 시 직접입력/자동입력 여부 구분 플래그 (`data-creature-setauto`) 저장
+
+**`styles/merged.css`**
+
+- `.modal-overlay` z-index `1000` → `3000` (control-bar sticky가 팝업 위 덮는 문제 수정)
+- `.title-popup-row span.pct-label { width:auto }` 추가
+- `.creature-popup-name-input` 추가 (텍스트 입력칸 스타일, disabled 흐림 처리)
+- `.creature-art-stat-rows`, `.creature-art-stat-row`, `.creature-art-stat-input` 추가
+
+**`js/ui-character.js`**
+
+- 크리쳐 팝업
+  - `openCreaturePopup`: fixed 기준 표 가운데 배치, `window.scroll` 재계산, 닫힐 때 제거
+  - `creatureNameInputToggle` / `creatureNameSelToggle`: 상호배타 전환
+  - `_creatureUpdateSetEffect`: select 선택 시 세트효과 자동입력/readonly 전환
+  - `creaturePopupSave`: mode/seteffect/setauto 버튼 속성으로 저장, desc textarea 반영
+  - 복원 시 mode에 따라 텍스트/select 상태 복구
+  - `_CREATURE_ART_KEYS`에 신규 stat 키 등록
+  - 변경 기록 전면 교체: 이름/세트효과/아티팩트 전체 비교 후 `details` 배열 수집
+    - 변경사항이 1개 이상일 때만 기록
+
+**`js/storage.js`**
+
+- 크리쳐 버튼 저장 시 `mode`, `seteffect`, `setauto` 필드 추가 저장
+
+**`scripts/eq_weapon.js`**
+
+- 상세입력 변경 기록 렌더러에서 크리쳐 슬롯 처리 추가
+  - slot이 `'크리쳐'`이면 요약에 `"크리쳐 설정 수정 (항목 N개 변경)"` 고정 표시
+  - 상세보기 클릭 시 변경된 항목 목록 표시
+
+---
