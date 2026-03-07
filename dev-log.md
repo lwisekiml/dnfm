@@ -3786,3 +3786,28 @@ project/
   - 수정: 외형칭호는 희귀도 무관하게 항상 텍스트 input 유지
 
 ---
+
+## 2026-03-07 (86차)
+
+### 칭호/오라/크리쳐 팝업 안내 문구, placeholder 추가 + 크리쳐 이름 행 너비 조정
+
+**수정된 파일:** `index.html`, `styles/merged.css`
+
+---
+
+### 변경 내용
+
+**`index.html`**
+
+- 칭호/오라/크리쳐 팝업 선택지(select) 오른쪽에 안내 문구 추가
+  - `텍스트 입력과 선택은 동시에 할 수 없습니다.` (회색 소문자, `font-size: 0.82em`)
+- 칭호/오라/크리쳐 팝업 이름 입력칸 placeholder 추가 및 통일
+  - 기존 크리쳐: `직접 입력` → `선택지에 없으면 직접 입력`
+  - 칭호/오라: placeholder 없음 → `선택지에 없으면 직접 입력`
+
+**`styles/merged.css`**
+
+- `.creature-popup-name-input` `width: 120px` → `width: 250px`
+- `.creature-popup-name-select` `flex: 1` → `width: 250px`
+
+---

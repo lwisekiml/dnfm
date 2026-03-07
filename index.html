@@ -773,13 +773,14 @@
             <input  id="creature-popup-name-text"
                     type="text"
                     class="creature-popup-name-input"
-                    placeholder="직접 입력"
+                    placeholder="선택지에 없으면 직접 입력"
                     oninput="creatureNameInputToggle()">
             <select id="creature-popup-name-sel"
                     class="creature-popup-name-select"
                     onchange="creatureNameSelToggle()">
                 <option value="">크리쳐 선택</option>
             </select>
+            <span style="white-space:nowrap; font-size:0.82em; color:#888; margin-left:6px;">텍스트 입력과 선택은 동시에 할 수 없습니다.</span>
         </div>
 
         <!-- 아티팩트 3그룹 -->
@@ -914,7 +915,7 @@
         <div class="avatar-popup-title">오라 설정</div>
         <div style="margin-bottom:14px; display:flex; align-items:center; gap:8px;">
             <span style="white-space:nowrap; font-size:0.95em;">오라 이름</span>
-            <input id="aura-popup-name" type="text"
+            <input id="aura-popup-name" type="text" placeholder="선택지에 없으면 직접 입력"
                    style="width:22%; height:28px; background:var(--input-bg); color:var(--color-white);
                           border:var(--border-width) var(--border-style) var(--border);
                           font:inherit; font-size:var(--fs-table); padding:0 6px; box-sizing:border-box;">
@@ -924,6 +925,7 @@
                            font:inherit; font-size:var(--fs-table); box-sizing:border-box; cursor:pointer;">
                 <option value="">-- 선택지에서 선택 --</option>
             </select>
+            <span style="white-space:nowrap; font-size:0.82em; color:#888; margin-left:6px;">텍스트 입력과 선택은 동시에 할 수 없습니다.</span>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0 24px; align-items:start;">
             <!-- 기본정보 열1 -->
@@ -1041,7 +1043,7 @@
         <div class="avatar-popup-title">칭호 설정</div>
         <div style="margin-bottom:14px; display:flex; align-items:center; gap:8px;">
             <span style="white-space:nowrap; font-size:0.95em;">칭호 이름</span>
-            <input id="title-popup-name" type="text"
+            <input id="title-popup-name" type="text" placeholder="선택지에 없으면 직접 입력"
                    style="width:22%; height:28px; background:var(--input-bg); color:var(--color-white);
                           border:var(--border-width) var(--border-style) var(--border);
                           font:inherit; font-size:var(--fs-table); padding:0 6px; box-sizing:border-box;">
@@ -1051,6 +1053,7 @@
                            font:inherit; font-size:var(--fs-table); box-sizing:border-box; cursor:pointer;">
                 <option value="">-- 선택지에서 선택 --</option>
             </select>
+            <span style="white-space:nowrap; font-size:0.82em; color:#888; margin-left:6px;">텍스트 입력과 선택은 동시에 할 수 없습니다.</span>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0 24px; align-items:start;">
             <!-- 기본정보 열1 -->
