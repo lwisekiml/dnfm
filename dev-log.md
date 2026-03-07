@@ -3954,3 +3954,41 @@ project/
   - 크리쳐: 각 color별 ARTIFACT_SET_DATA 매칭 여부로 badge 복원
 
 ---
+
+## 2026-03-07 (91차)
+
+### 테스트 테마 / 테스트 테마2 추가
+
+**수정된 파일:** `index.html`, `js/ui-character.js`, `styles/merged.css`
+
+---
+
+### 변경 내용
+
+**`index.html`**
+
+- 테마 설정 모달에 🧪 테스트 테마, 🧪 테스트 테마2 버튼 추가
+- `applyTheme`, `updateThemeButtons` JS에 `theme-test`, `theme-test2` 추가
+
+**`styles/merged.css`**
+
+- 테스트 테마 (`theme-test`) 추가
+  - 기반: 다크 테마2 색상 + 크리쳐 팝업 카드 디자인
+  - `char-info-table`, 슬롯 표: `border-collapse: separate`, `border-radius: 10px`, 골드 테두리, `box-shadow`
+  - 캐릭터 탭 버튼: `border-radius: 10px`, hover 시 골드 글로우
+  - 장비 슬롯 버튼: `border-radius: 8px`, set3/set5 반투명 컬러 배경
+- 테스트 테마2 (`theme-test2`) 추가
+  - 테스트 테마 전체 + 다크 테마2 진한 구분선 적용
+  - `border-collapse: separate` 환경에서 셀 끊김 방지: `border-right/bottom` 제거, `border-left/top`만 유지
+  - `td[data-heavy-border-bottom]`으로 그룹 구분 가로선 표시
+  - `td.v-border-heavy`, `th.v-border-heavy`: 설명칸 왼쪽 세로선
+  - `th.group-header`, `td.group-header`: 헤더 아래 가로선
+- 혼합/남색/다크 테마 (1세대): `char-info-table` 진한 테두리 제거 (`2px → 1px` 일반 테두리)
+
+**`js/ui-character.js`**
+
+- `heavyBorderSlots` 행 생성 시 `td`에 `data-heavy-border-bottom` 속성 추가
+  - `tr.style.borderBottom`은 `border-collapse: separate` 환경에서 미작동하므로 `td` 직접 타겟팅
+
+---
+---

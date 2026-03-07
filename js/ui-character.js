@@ -90,6 +90,11 @@ function createCharacterTable(savedData = null) {
         // 테두리 적용
         if (heavyBorderSlots.includes(slot)) {
             tr.style.borderBottom = "2px solid var(--border-heavy)";
+            // border-collapse:separate 테마(test2 등)를 위해 td에도 적용
+            tr.querySelectorAll('td').forEach(td => {
+                td.dataset.heavyBorderBottom = '1';
+            });
+            tr.dataset.heavyBorderBottom = '1';
         }
 
         tbody.appendChild(tr);
