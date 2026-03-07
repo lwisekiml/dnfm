@@ -71,8 +71,9 @@ function openActionModal(charId, name, job) {
 
       <div style="margin-bottom:25px; display:flex; align-items:center;">
           <label style="width:60px; font-weight:bold; color:#ccc;">직업 :</label>
-          <input type="text" id="edit-charJob" value="${job}"
-                 style="flex:1; padding:8px; background:#181c33; color:#fff; border:1px solid #2a3158; border-radius:4px;">
+          <select id="edit-charJob"
+                  style="flex:1; padding:8px; background:#181c33; color:#fff; border:1px solid #2a3158; border-radius:4px; cursor:pointer;">
+          </select>
       </div>
 
       <div class="modal-options" style="display:flex; flex-direction:column; gap:10px;">
@@ -88,6 +89,29 @@ function openActionModal(charId, name, job) {
       </div>
   `;
     modal.style.display = "flex";
+
+    // 직업 select 옵션 초기화
+    const jobSel = document.getElementById('edit-charJob');
+    if (jobSel && typeof JOB_SELECT_OPTIONS !== 'undefined') {
+        jobSel.innerHTML = '<option value="" disabled>직업 선택</option>';
+        JOB_SELECT_OPTIONS.forEach(opt => {
+            const o = document.createElement('option');
+            if (opt.type === 'separator') {
+                o.disabled = true;
+                o.textContent = '───────────────';
+                o.value = '';
+            } else if (opt.type === 'disabled') {
+                o.disabled = true;
+                o.value = '';
+                o.textContent = '';
+            } else {
+                o.value = opt.value;
+                o.textContent = opt.value;
+            }
+            jobSel.appendChild(o);
+        });
+        if (job) jobSel.value = job;
+    }
 }
 
 // 모달 닫기 함수가 없다면 아래를 추가하세요.

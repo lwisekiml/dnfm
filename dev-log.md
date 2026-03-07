@@ -3829,3 +3829,22 @@ project/
   - 수정: 파일 상단 CRUD 섹션에 `let _syncInProgress = false;` 선언 추가
 
 ---
+
+## 2026-03-07 (88차)
+
+### 획득 장비 등록 탭 캐릭터 설정 팝업 - 직업 텍스트 입력 → 선택지로 변경
+
+**수정된 파일:** `scripts/eq_equipment.js`
+
+---
+
+### 변경 내용
+
+**`scripts/eq_equipment.js`**
+
+- `openActionModal()` 내 직업 `<input type="text">` → `<select>`로 교체
+- 모달 열릴 때 `JOB_SELECT_OPTIONS`(shared_weapon.js) 기반으로 옵션 동적 생성
+  - separator / disabled 타입 그대로 반영 (구분선, 빈 항목)
+  - 현재 저장된 직업 값으로 선택 상태 자동 복원
+
+---
