@@ -2,6 +2,77 @@
 // ui-character.js - 캐릭터 관리 UI (템플릿 리팩토링 완료)
 // ============================================
 
+// ============================================
+// 칭호/오라 팝업 공통 상수 및 헬퍼 함수
+// (titlePopupSave / auraPopupSave 에서 공유)
+// ============================================
+
+/** 스탯 키 → 변경 히스토리 표시용 짧은 레이블 */
+const _STAT_LABELS_SHORT = {
+    '힘':'힘','지능':'지능','체력':'체력','정신력':'정신력',
+    '적중':'적중','회피':'회피',
+    '공격속도':'공격속도','캐스팅속도':'캐스팅속도','이동속도':'이동속도',
+    '물리크리티컬':'물리크리','마법크리티컬':'마법크리',
+    '물리크리티컬확률':'물리크리확률','마법크리티컬확률':'마법크리확률',
+    'HPMAX':'HP MAX','MPMAX':'MP MAX',
+    '모든속성강화':'속성강화','모든속성저항':'속성저항',
+    '화속강':'화속강','수속강':'수속강','명속강':'명속강','암속강':'암속강',
+    '데미지증가':'데미지증가','마을이동속도':'마을이동속도',
+};
+
+/** 스탯 키 → desc 자동생성용 긴 레이블 */
+const _STAT_LABELS_LONG = {
+    '힘':'힘', '지능':'지능', '체력':'체력', '정신력':'정신력',
+    '적중':'적중', '회피':'회피',
+    '공격속도':'공격속도', '캐스팅속도':'캐스팅속도', '이동속도':'이동속도',
+    '물리크리티컬':'물리 크리티컬', '마법크리티컬':'마법 크리티컬',
+    '물리크리티컬확률':'물리 크리티컬 확률', '마법크리티컬확률':'마법 크리티컬 확률',
+    'HPMAX':'HP MAX', 'MPMAX':'MP MAX',
+    '모든속성강화':'모든 속성 강화', '모든속성저항':'모든 속성 저항',
+    '화속강':'화속강', '수속강':'수속강', '명속강':'명속강', '암속강':'암속강',
+    '화속성저항':'화속성 저항', '수속성저항':'수속성 저항',
+    '명속성저항':'명속성 저항', '암속성저항':'암속성 저항',
+    '기절내성':'기절 내성', '점프력':'점프력',
+    '데미지증가':'데미지 증가', '마을이동속도':'마을 이동속도 증가',
+};
+
+/**
+ * 스탯 배열 → { statKey_type: "amount+unit" } 맵 변환
+ * @param {Array} arr   stats 배열 (base 또는 eff)
+ * @param {string} type 'base' | 'eff'
+ */
+function _toStatMap(arr, type) {
+    const m = {};
+    arr.forEach(e => e.stats.forEach(s => { m[`${s}_${type}`] = `${e.amount}${e.unit}`; }));
+    return m;
+}
+
+/**
+ * 스탯 배열 → popup 복원용 { statKey: amount } 맵 변환
+ * @param {Array|null} data base 또는 eff 배열
+ */
+function _buildStatMap(data) {
+    const map = {};
+    if (!data) return map;
+    if (Array.isArray(data)) {
+        data.forEach(entry => {
+            (entry.stats || []).forEach(s => { map[s] = entry.amount; });
+        });
+    }
+    return map;
+}
+
+/**
+ * 스탯 배열 → desc textarea 용 문자열 배열 변환
+ * @param {Array} arr base 또는 eff 배열
+ */
+function _entriesToLines(arr) {
+    return (arr || []).map(e => {
+        const labels = e.stats.map(s => _STAT_LABELS_LONG[s] || s).join(', ');
+        return `${labels} +${e.amount}${e.unit}`;
+    });
+}
+
 // 캐릭터 추가 동기화 무한루프 방지 플래그
 // _syncInProgress → UIState.syncInProgress (state.js)
 
@@ -1835,17 +1906,6 @@ function openTitlePopup(charId, btn) {
     const savedData = JSON.parse(btn.getAttribute('data-title-stats') || '{}');
     // badge 초기 상태: 저장된 이름이 TITLE_ITEM_INFO에 있으면 자동입력 표시
     setTimeout(() => titleNameApplyStats(btn.getAttribute('data-title-name') || ''), 0);
-    function _buildStatMap(data) {
-        const map = {};
-        if (!data) return map;
-        // V4 배열 구조
-        if (Array.isArray(data)) {
-            data.forEach(entry => {
-                (entry.stats || []).forEach(s => { map[s] = entry.amount; });
-            });
-        }
-        return map;
-    }
     const baseMap = _buildStatMap(savedData.base);
     const effMap  = _buildStatMap(savedData.eff);
     popup.querySelectorAll('[data-title-stat]').forEach(input => {
@@ -1933,23 +1993,6 @@ function titlePopupSave() {
 
         // details: 스탯별 변경 내역
         const details = [];
-        const statLabels2 = {
-            '힘':'힘','지능':'지능','체력':'체력','정신력':'정신력',
-            '적중':'적중','회피':'회피',
-            '공격속도':'공격속도','캐스팅속도':'캐스팅속도','이동속도':'이동속도',
-            '물리크리티컬':'물리크리','마법크리티컬':'마법크리',
-            '물리크리티컬확률':'물리크리확률','마법크리티컬확률':'마법크리확률',
-            'HPMAX':'HP MAX','MPMAX':'MP MAX',
-            '모든속성강화':'속성강화','모든속성저항':'속성저항',
-            '화속강':'화속강','수속강':'수속강','명속강':'명속강','암속강':'암속강',
-            '데미지증가':'데미지증가','마을이동속도':'마을이동속도',
-        };
-        // 이전/이후 스탯을 type 구분 맵으로 변환 (base/eff 분리)
-        function _toStatMap(arr, type) {
-            const m = {};
-            arr.forEach(e => e.stats.forEach(s => { m[`${s}_${type}`] = `${e.amount}${e.unit}`; }));
-            return m;
-        }
         const oldBaseMap = _toStatMap(oldStats.base || [], 'base');
         const oldEffMap  = _toStatMap(oldStats.eff  || [], 'eff');
         const newBaseMap = _toStatMap(stats.base || [], 'base');
@@ -1969,7 +2012,7 @@ function titlePopupSave() {
             if (ov !== nv) {
                 const [statKey, type] = k.split(/_(?=base$|eff$)/);
                 const typeLabel = type === 'eff' ? '[효과] ' : '[기본] ';
-                details.push(`${typeLabel}${statLabels2[statKey] || statKey}: ${ov} → ${nv}`);
+                details.push(`${typeLabel}${_STAT_LABELS_SHORT[statKey] || statKey}: ${ov} → ${nv}`);
             }
         });
         if (oldName !== name) details.unshift(`이름: ${oldName || '(빈칸)'} → ${name || '(빈칸)'}`);
@@ -2003,26 +2046,6 @@ function titlePopupSave() {
             if (infoEntry?.info) {
                 descEl.value = infoEntry.info;
             } else {
-                const statLabels = {
-                    '힘':'힘', '지능':'지능', '체력':'체력', '정신력':'정신력',
-                    '적중':'적중', '회피':'회피',
-                    '공격속도':'공격속도', '캐스팅속도':'캐스팅속도', '이동속도':'이동속도',
-                    '물리크리티컬':'물리 크리티컬', '마법크리티컬':'마법 크리티컬',
-                    '물리크리티컬확률':'물리 크리티컬 확률', '마법크리티컬확률':'마법 크리티컬 확률',
-                    'HPMAX':'HP MAX', 'MPMAX':'MP MAX',
-                    '모든속성강화':'모든 속성 강화', '모든속성저항':'모든 속성 저항',
-                    '화속강':'화속강', '수속강':'수속강', '명속강':'명속강', '암속강':'암속강',
-                    '화속성저항':'화속성 저항', '수속성저항':'수속성 저항',
-                    '명속성저항':'명속성 저항', '암속성저항':'암속성 저항',
-                    '기절내성':'기절 내성', '점프력':'점프력',
-                    '데미지증가':'데미지 증가', '마을이동속도':'마을 이동속도 증가',
-                };
-                function _entriesToLines(arr) {
-                    return (arr || []).map(e => {
-                        const labels = e.stats.map(s => statLabels[s] || s).join(', ');
-                        return `${labels} +${e.amount}${e.unit}`;
-                    });
-                }
                 const baseLines = _entriesToLines(stats.base);
                 const effLines  = _entriesToLines(stats.eff);
                 const lines = [];
@@ -2077,17 +2100,6 @@ function openAuraPopup(charId, btn) {
     const savedData = JSON.parse(btn.getAttribute('data-aura-stats') || '{}');
     // badge 초기 상태: 저장된 이름이 AURA_ITEM_INFO에 있으면 자동입력 표시
     setTimeout(() => auraNameApplyStats(btn.getAttribute('data-aura-name') || ''), 0);
-    function _buildStatMap(data) {
-        const map = {};
-        if (!data) return map;
-        // V4 배열 구조
-        if (Array.isArray(data)) {
-            data.forEach(entry => {
-                (entry.stats || []).forEach(s => { map[s] = entry.amount; });
-            });
-        }
-        return map;
-    }
     const baseMap = _buildStatMap(savedData.base);
     const effMap  = _buildStatMap(savedData.eff);
     popup.querySelectorAll('[data-aura-stat]').forEach(input => {
@@ -2175,23 +2187,6 @@ function auraPopupSave() {
 
         // details: 스탯별 변경 내역
         const details = [];
-        const statLabels2 = {
-            '힘':'힘','지능':'지능','체력':'체력','정신력':'정신력',
-            '적중':'적중','회피':'회피',
-            '공격속도':'공격속도','캐스팅속도':'캐스팅속도','이동속도':'이동속도',
-            '물리크리티컬':'물리크리','마법크리티컬':'마법크리',
-            '물리크리티컬확률':'물리크리확률','마법크리티컬확률':'마법크리확률',
-            'HPMAX':'HP MAX','MPMAX':'MP MAX',
-            '모든속성강화':'속성강화','모든속성저항':'속성저항',
-            '화속강':'화속강','수속강':'수속강','명속강':'명속강','암속강':'암속강',
-            '데미지증가':'데미지증가','마을이동속도':'마을이동속도',
-        };
-        // 이전/이후 스탯을 type 구분 맵으로 변환 (base/eff 분리)
-        function _toStatMap(arr, type) {
-            const m = {};
-            arr.forEach(e => e.stats.forEach(s => { m[`${s}_${type}`] = `${e.amount}${e.unit}`; }));
-            return m;
-        }
         const oldBaseMap = _toStatMap(oldStats.base || [], 'base');
         const oldEffMap  = _toStatMap(oldStats.eff  || [], 'eff');
         const newBaseMap = _toStatMap(stats.base || [], 'base');
@@ -2211,7 +2206,7 @@ function auraPopupSave() {
             if (ov !== nv) {
                 const [statKey, type] = k.split(/_(?=base$|eff$)/);
                 const typeLabel = type === 'eff' ? '[효과] ' : '[기본] ';
-                details.push(`${typeLabel}${statLabels2[statKey] || statKey}: ${ov} → ${nv}`);
+                details.push(`${typeLabel}${_STAT_LABELS_SHORT[statKey] || statKey}: ${ov} → ${nv}`);
             }
         });
         if (oldName !== name) details.unshift(`이름: ${oldName || '(빈칸)'} → ${name || '(빈칸)'}`);
@@ -2245,26 +2240,6 @@ function auraPopupSave() {
             if (infoEntry?.info) {
                 descEl.value = infoEntry.info;
             } else {
-                const statLabels = {
-                    '힘':'힘', '지능':'지능', '체력':'체력', '정신력':'정신력',
-                    '적중':'적중', '회피':'회피',
-                    '공격속도':'공격속도', '캐스팅속도':'캐스팅속도', '이동속도':'이동속도',
-                    '물리크리티컬':'물리 크리티컬', '마법크리티컬':'마법 크리티컬',
-                    '물리크리티컬확률':'물리 크리티컬 확률', '마법크리티컬확률':'마법 크리티컬 확률',
-                    'HPMAX':'HP MAX', 'MPMAX':'MP MAX',
-                    '모든속성강화':'모든 속성 강화', '모든속성저항':'모든 속성 저항',
-                    '화속강':'화속강', '수속강':'수속강', '명속강':'명속강', '암속강':'암속강',
-                    '화속성저항':'화속성 저항', '수속성저항':'수속성 저항',
-                    '명속성저항':'명속성 저항', '암속성저항':'암속성 저항',
-                    '기절내성':'기절 내성', '점프력':'점프력',
-                    '데미지증가':'데미지 증가', '마을이동속도':'마을 이동속도 증가',
-                };
-                function _entriesToLines(arr) {
-                    return (arr || []).map(e => {
-                        const labels = e.stats.map(s => statLabels[s] || s).join(', ');
-                        return `${labels} +${e.amount}${e.unit}`;
-                    });
-                }
                 const baseLines = _entriesToLines(stats.base);
                 const effLines  = _entriesToLines(stats.eff);
                 const lines = [];

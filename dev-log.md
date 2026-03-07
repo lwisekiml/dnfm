@@ -3954,6 +3954,7 @@ project/
   - 크리쳐: 각 color별 ARTIFACT_SET_DATA 매칭 여부로 badge 복원
 
 ---
+
 ## 2026-03-07 (91차)
 
 ### `_syncInProgress` 이중 관리 통합
@@ -3970,5 +3971,27 @@ project/
   - 기존: `eq_character.js`에 별도 `let _syncInProgress` 선언 → `ui-character.js`의 `UIState.syncInProgress`와 서로 다른 변수를 참조하는 이중 관리 상태
   - 수정: `_syncInProgress` → `UIState.syncInProgress` 로 교체하여 `state.js`에서 일괄 관리
   - 주석 추가: `// _syncInProgress → UIState.syncInProgress (state.js) 로 통합`
+
+---
+
+## 2026-03-07 (92차)
+
+### 칭호/오라 팝업 공통 헬퍼 중복 정의 제거
+
+**수정된 파일:** `js/ui-character.js`
+
+---
+
+### 변경 내용
+
+**`js/ui-character.js`**
+
+- `titlePopupSave()`, `auraPopupSave()`, `openTitlePopup()`, `openAuraPopup()` 4개 함수 안에 각각 중복 정의되어 있던 상수/함수를 파일 상단 공통 영역으로 통합
+  - `const statLabels2` (2곳) → `const _STAT_LABELS_SHORT` (상단 1회)
+  - `const statLabels` (2곳) → `const _STAT_LABELS_LONG` (상단 1회)
+  - `function _toStatMap()` (2곳) → 상단 1회
+  - `function _buildStatMap()` (2곳) → 상단 1회
+  - `function _entriesToLines()` (2곳) → 상단 1회, 내부 참조를 `_STAT_LABELS_LONG` 로 통일
+- 각 함수 내 `statLabels2[...]` 참조 → `_STAT_LABELS_SHORT[...]` 로 교체
 
 ---
