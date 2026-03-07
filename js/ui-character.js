@@ -1523,7 +1523,7 @@ function openTitlePopup(charId, btn) {
     const rect_t      = refEl_t.getBoundingClientRect();
     const popupW_t    = popup.offsetWidth  || 1100;
     const vw_t = window.innerWidth;
-    let left_t = rect_t.left;
+    let left_t = rect_t.left+60;
     let top_t  = rect_t.top + 30 + window.scrollY;
     if (left_t < 8) left_t = 8;
     if (left_t + popupW_t > vw_t - 8) left_t = vw_t - popupW_t - 8;
@@ -1759,7 +1759,7 @@ function openAuraPopup(charId, btn) {
     const rect_a      = refEl_a.getBoundingClientRect();
     const popupW_a    = popup.offsetWidth  || 1100;
     const vw_a = window.innerWidth;
-    let left_a = rect_a.left;
+    let left_a = rect_a.left+60;
     let top_a  = rect_a.top + 30 + window.scrollY;
     if (left_a < 8) left_a = 8;
     if (left_a + popupW_a > vw_a - 8) left_a = vw_a - popupW_a - 8;
