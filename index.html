@@ -78,6 +78,15 @@
                     style="padding:14px 20px; border-radius:8px; border:2px solid #444; background:#0f0f12; color:#ddd; cursor:pointer; font-size:14px; text-align:left;">
                 ⚫ 다크 테마2 <span id="theme-label-dark2" style="font-size:12px; margin-left:8px;"></span>
             </button>
+            <hr style="border-color:#333; margin:4px 0;">
+            <button id="theme-btn-test" onclick="applyTheme('test')"
+                    style="padding:14px 20px; border-radius:8px; border:2px solid #555; background:#1a1a1f; color:#ddd; cursor:pointer; font-size:14px; text-align:left;">
+                🧪 테스트 테마 <span id="theme-label-test" style="font-size:12px; margin-left:8px;"></span>
+            </button>
+            <button id="theme-btn-test2" onclick="applyTheme('test2')"
+                    style="padding:14px 20px; border-radius:8px; border:2px solid #555; background:#1a1a1f; color:#ddd; cursor:pointer; font-size:14px; text-align:left;">
+                🧪 테스트 테마2 <span id="theme-label-test2" style="font-size:12px; margin-left:8px;"></span>
+            </button>
         </div>
         <div style="margin-top:20px; text-align:right;">
             <button onclick="closeThemeModal()" style="padding:8px 20px; border-radius:6px; border:1px solid #444; background:#2a3158; color:#e6e9ff; cursor:pointer;">닫기</button>
@@ -817,7 +826,7 @@
                         <option value="">옵션 선택</option><option>힘</option><option>지능</option><option>체력</option><option>정신력</option><option>적중</option><option>회피</option>
                     </select>
                 </div>
-                <span id="creature-art-badge-red" style="display:none; font-size:0.75em; padding:1px 6px 0 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; line-height:1; margin-bottom:0px; width:fit-content;">자동입력</span>
+                <span id="creature-art-badge-red" style="display:none; font-size:0.75em; padding:1px 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; margin-bottom:4px; width:fit-content;">자동입력</span>
                 <div class="creature-art-stat-rows">
                     <div class="creature-art-stat-row"><span>물리 공격력</span><input type="text" data-creature-art="크리쳐_art_red_stat_물리 공격력" class="creature-art-stat-input"></div>
                     <div class="creature-art-stat-row"><span>마법 공격력</span><input type="text" data-creature-art="크리쳐_art_red_stat_마법 공격력" class="creature-art-stat-input"></div>
@@ -856,7 +865,7 @@
                         <option value="">옵션 선택</option><option>HP MAX</option><option>MP MAX</option><option>물리 공격력</option><option>마법 공격력</option><option>물리 방어력</option><option>마법 방어력</option>
                     </select>
                 </div>
-                <span id="creature-art-badge-blue" style="display:none; font-size:0.75em; padding:1px 6px 0 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; line-height:1; margin-bottom:0px; width:fit-content;">자동입력</span>
+                <span id="creature-art-badge-blue" style="display:none; font-size:0.75em; padding:1px 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; margin-bottom:4px; width:fit-content;">자동입력</span>
                 <div class="creature-art-stat-rows">
                     <div class="creature-art-stat-row"><span>공격속도</span><input type="text" data-creature-art="크리쳐_art_blue_stat_공격속도" class="creature-art-stat-input"></div>
                     <div class="creature-art-stat-row"><span>캐스팅속도</span><input type="text" data-creature-art="크리쳐_art_blue_stat_캐스팅속도" class="creature-art-stat-input"></div>
@@ -895,7 +904,7 @@
                         <option value="">옵션 선택</option><option>물리 크리티컬</option><option>마법 크리티컬</option><option>공격속도</option><option>캐스팅속도</option><option>이동속도</option><option>화속강</option><option>수속강</option><option>명속강</option><option>암속강</option><option>모속강</option>
                     </select>
                 </div>
-                <span id="creature-art-badge-green" style="display:none; font-size:0.75em; padding:1px 6px 0 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; line-height:1; margin-bottom:0px; width:fit-content;">자동입력</span>
+                <span id="creature-art-badge-green" style="display:none; font-size:0.75em; padding:1px 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; margin-bottom:4px; width:fit-content;">자동입력</span>
                 <div class="creature-art-stat-rows">
                     <div class="creature-art-stat-row"><span>HP MAX</span><input type="text" data-creature-art="크리쳐_art_green_stat_HPMAX" class="creature-art-stat-input"></div>
                     <div class="creature-art-stat-row"><span>MP MAX</span><input type="text" data-creature-art="크리쳐_art_green_stat_MPMAX" class="creature-art-stat-input"></div>
@@ -1268,14 +1277,14 @@
 
     function applyTheme(theme) {
         const body = document.body;
-        body.classList.remove('theme-mixed', 'theme-navy', 'theme-dark', 'theme-mixed2', 'theme-navy2', 'theme-dark2');
+        body.classList.remove('theme-mixed', 'theme-navy', 'theme-dark', 'theme-mixed2', 'theme-navy2', 'theme-dark2', 'theme-test', 'theme-test2');
         body.classList.add('theme-' + theme);
         localStorage.setItem('selectedTheme', theme);
         updateThemeButtons(theme);
     }
 
     function updateThemeButtons(theme) {
-        const ids = ['mixed', 'navy', 'dark', 'mixed2', 'navy2', 'dark2'];
+        const ids = ['mixed', 'navy', 'dark', 'mixed2', 'navy2', 'dark2', 'test', 'test2'];
         const btns = {}, labels = {};
         ids.forEach(id => {
             btns[id] = document.getElementById('theme-btn-' + id);
@@ -1284,6 +1293,7 @@
 
         // 테두리 초기화
         ['mixed', 'navy', 'mixed2', 'navy2'].forEach(id => { if (btns[id]) btns[id].style.border = '2px solid #6472a8'; });
+        ['test', 'test2'].forEach(id => { if (btns[id]) btns[id].style.border = '2px solid #555'; });
         ['dark', 'dark2'].forEach(id => { if (btns[id]) btns[id].style.border = '2px solid #444'; });
         ids.forEach(id => { if (labels[id]) labels[id].textContent = ''; });
 
