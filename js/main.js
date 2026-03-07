@@ -229,6 +229,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof closeRuneModal === "function") closeRuneModal();
         });
     }
+
+    // 칭호/오라 팝업 숫자 input에서 e, E, +, - 입력 차단
+    ['title-popup', 'aura-popup'].forEach(id => {
+        const popup = document.getElementById(id);
+        if (!popup) return;
+        popup.addEventListener('keydown', e => {
+            if (e.target.type === 'number' && ['e', 'E', '+', '-'].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+    });
 });
 
 console.log("✅ main.js 로드 완료");

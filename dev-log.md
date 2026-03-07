@@ -3703,3 +3703,32 @@ project/
   - 수정: `allKeys` 배열 정렬 추가 — `_base` 키(0) → `_eff` 키(1) 순으로 정렬하여 `[기본]` 항목이 모두 먼저, `[효과]` 항목이 이후에 출력되도록 개선
 
 ---
+
+## 2026-03-07 (83차)
+
+### 칭호/오라 스탯 입력 숫자 전용 제한
+
+**수정된 파일:** `index.html`, `js/main.js`, `styles/merged.css`
+
+---
+
+### 변경 내용
+
+**칭호/오라 스탯 input 숫자 전용 전환 (`index.html`)**
+
+- `data-title-stat` / `data-aura-stat` 속성을 가진 input 116개 `type="text"` → `type="number" inputmode="numeric" step="any"` 변경
+  - 이름(`title-popup-name`, `aura-popup-name`) / 설명 input은 제외
+
+**스피너(증감 버튼) 제거 (`styles/merged.css`)**
+
+- `.title-popup-row input[type="number"]`에 스피너 제거 CSS 추가
+  - `::-webkit-outer-spin-button`, `::-webkit-inner-spin-button` → `-webkit-appearance: none` (Chrome/Safari)
+  - `-moz-appearance: textfield` (Firefox)
+
+**`e`, `E`, `+`, `-` 입력 차단 (`js/main.js`)**
+
+- `DOMContentLoaded`에 keydown 이벤트 추가
+  - `title-popup`, `aura-popup` 내 `type="number"` input에서 `e`, `E`, `+`, `-` 키 `preventDefault()`로 차단
+  - 이벤트 위임 방식으로 팝업 전체에 한 번만 등록
+
+---
