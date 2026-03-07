@@ -3732,3 +3732,39 @@ project/
   - 이벤트 위임 방식으로 팝업 전체에 한 번만 등록
 
 ---
+
+## 2026-03-07 (84차)
+
+### 칭호/오라 팝업 - 이름 선택지 추가 + 스탯/desc 자동 입력
+
+**수정된 파일:** `index.html`, `js/ui-character.js`
+
+---
+
+### 변경 내용
+
+**칭호/오라 팝업 이름 선택지 추가 (`index.html`)**
+
+- 칭호 이름 input 오른쪽에 `#title-popup-select` select 추가 (TITLE_ITEM_INFO 키 목록)
+- 오라 이름 input 오른쪽에 `#aura-popup-select` select 추가 (AURA_ITEM_INFO 키 목록)
+
+**이름 input ↔ select 상호 배타 (`js/ui-character.js`)**
+
+- 이름 input에 텍스트 입력 시 → select 비활성화, select 값 초기화
+- select에서 항목 선택 시 → 이름 input 비활성화, input 값 초기화
+- 팝업 열 때 저장된 이름이 select 항목과 일치하면 select 선택 상태로 복원, input 비활성화
+- 저장 시 이름 결정 우선순위: select 값 → input 값
+
+**스탯 자동 입력 헬퍼 함수 추가 (`js/ui-character.js`)**
+
+- `_applyTitleStats(popup, stats)`: stats 배열 → 칭호 팝업 input 자동 입력
+- `_applyAuraStats(popup, stats)`: stats 배열 → 오라 팝업 input 자동 입력
+- select 선택 시 TITLE_ITEM_INFO / AURA_ITEM_INFO의 `stats` 배열을 읽어 해당 stat key와 일치하는 input에 amount 값 자동 입력
+
+**desc 자동 입력 구현 (`js/ui-character.js`)**
+
+- select 선택 시 해당 항목의 `desc` 값을 팝업 설명 textarea에 자동 입력
+- `shared_data.js` 템플릿에 `desc` 필드 추가 시 동작
+  - 예: `desc: '설명 텍스트'`
+
+---

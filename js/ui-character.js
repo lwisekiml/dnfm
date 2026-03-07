@@ -1462,6 +1462,54 @@ function creaturePopupClose() {
 
 
 // ============================================
+// ============================================
+// 칭호/오라 팝업 스탯 자동 입력 헬퍼
+// ============================================
+
+/**
+ * stats 배열 → 칭호 팝업 input 자동 입력
+ * stats: [{stats:['힘','지능'], amount:33, unit:''}, ...]
+ * base/eff 구분 없이 모든 stat input에 매핑
+ */
+function _applyTitleStats(popup, stats) {
+    if (!popup || !stats) return;
+    // 기존 값 초기화
+    popup.querySelectorAll('[data-title-stat]').forEach(el => { el.value = ''; });
+    // statKey → amount 맵 생성
+    const map = {};
+    stats.forEach(entry => {
+        (entry.stats || []).forEach(s => { map[s] = entry.amount; });
+    });
+    popup.querySelectorAll('[data-title-stat]').forEach(input => {
+        const raw     = input.getAttribute('data-title-stat');
+        const isPct   = raw.endsWith('_pct');
+        const key     = isPct ? raw.slice(0, -4) : raw;
+        const parts   = key.split('_');
+        const statKey = parts.slice(0, -1).join('_');
+        if (map[statKey] !== undefined) input.value = String(map[statKey]);
+    });
+}
+
+/**
+ * stats 배열 → 오라 팝업 input 자동 입력
+ */
+function _applyAuraStats(popup, stats) {
+    if (!popup || !stats) return;
+    popup.querySelectorAll('[data-aura-stat]').forEach(el => { el.value = ''; });
+    const map = {};
+    stats.forEach(entry => {
+        (entry.stats || []).forEach(s => { map[s] = entry.amount; });
+    });
+    popup.querySelectorAll('[data-aura-stat]').forEach(input => {
+        const raw     = input.getAttribute('data-aura-stat');
+        const isPct   = raw.endsWith('_pct');
+        const key     = isPct ? raw.slice(0, -4) : raw;
+        const parts   = key.split('_');
+        const statKey = parts.slice(0, -1).join('_');
+        if (map[statKey] !== undefined) input.value = String(map[statKey]);
+    });
+}
+
 // 칭호 팝업
 // ============================================
 
@@ -1482,6 +1530,49 @@ function openTitlePopup(charId, btn) {
     // 이름 복원
     const nameInput = document.getElementById('title-popup-name');
     if (nameInput) nameInput.value = btn.getAttribute('data-title-name') || '';
+
+    // 선택지 초기화 (TITLE_ITEM_INFO 키 목록)
+    const titleSel = document.getElementById('title-popup-select');
+    if (titleSel) {
+        const currentName = btn.getAttribute('data-title-name') || '';
+        titleSel.innerHTML = '<option value="">-- 선택지에서 선택 --</option>' +
+            Object.keys(GameData.TITLE_ITEM_INFO || {})
+                .map(k => `<option value="${k}"${k === currentName ? ' selected' : ''}>${k}</option>`)
+                .join('');
+        // 이름 입력 중이면 select 비활성화
+        if (nameInput) {
+            nameInput.oninput = () => {
+                titleSel.disabled = nameInput.value.trim() !== '';
+                if (nameInput.value.trim() !== '') titleSel.value = '';
+            };
+        }
+        // select 선택 시 이름 input 비활성화 + 스탯 자동 입력
+        titleSel.onchange = () => {
+            const selName = titleSel.value;
+            if (!selName) {
+                if (nameInput) nameInput.disabled = false;
+                return;
+            }
+            if (nameInput) {
+                nameInput.disabled = true;
+                nameInput.value = '';
+            }
+            // 스탯 자동 입력
+            const info = (GameData.TITLE_ITEM_INFO || {})[selName];
+            if (info?.stats) _applyTitleStats(popup, info.stats);
+            // desc 자동 입력
+            const descTA = document.getElementById('title-popup-desc');
+            if (descTA) descTA.value = info?.desc || '';
+        };
+        // 초기 상태: 선택지에 값이 있으면 이름 input 비활성화
+        if (titleSel.value && nameInput) {
+            nameInput.disabled = true;
+            nameInput.value = '';
+        } else if (nameInput) {
+            nameInput.disabled = false;
+            titleSel.disabled = nameInput.value.trim() !== '';
+        }
+    }
 
     // 스탯 복원: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
     const savedData = JSON.parse(btn.getAttribute('data-title-stats') || '{}');
@@ -1539,8 +1630,10 @@ function openTitlePopup(charId, btn) {
 function titlePopupSave() {
     if (!_titleBtn) { titlePopupClose(); return; }
 
-    const nameInput = document.getElementById('title-popup-name');
-    const name = nameInput ? nameInput.value.trim() : '';
+    const nameInput  = document.getElementById('title-popup-name');
+    const titleSel_s = document.getElementById('title-popup-select');
+    // select 선택 시 select 값 사용, 직접 입력 시 input 값 사용
+    const name = (titleSel_s?.value) || (nameInput ? nameInput.value.trim() : '');
 
     // 스탯 수집: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
     const baseMap = {}, effMap = {};
@@ -1719,6 +1812,45 @@ function openAuraPopup(charId, btn) {
     const nameInput = document.getElementById('aura-popup-name');
     if (nameInput) nameInput.value = btn.getAttribute('data-aura-name') || '';
 
+    // 선택지 초기화 (AURA_ITEM_INFO 키 목록)
+    const auraSel = document.getElementById('aura-popup-select');
+    if (auraSel) {
+        const currentName_a = btn.getAttribute('data-aura-name') || '';
+        auraSel.innerHTML = '<option value="">-- 선택지에서 선택 --</option>' +
+            Object.keys(GameData.AURA_ITEM_INFO || {})
+                .map(k => `<option value="${k}"${k === currentName_a ? ' selected' : ''}>${k}</option>`)
+                .join('');
+        if (nameInput) {
+            nameInput.oninput = () => {
+                auraSel.disabled = nameInput.value.trim() !== '';
+                if (nameInput.value.trim() !== '') auraSel.value = '';
+            };
+        }
+        auraSel.onchange = () => {
+            const selName = auraSel.value;
+            if (!selName) {
+                if (nameInput) nameInput.disabled = false;
+                return;
+            }
+            if (nameInput) {
+                nameInput.disabled = true;
+                nameInput.value = '';
+            }
+            const info = (GameData.AURA_ITEM_INFO || {})[selName];
+            if (info?.stats) _applyAuraStats(popup, info.stats);
+            // desc 자동 입력
+            const descTA_a = document.getElementById('aura-popup-desc');
+            if (descTA_a) descTA_a.value = info?.desc || '';
+        };
+        if (auraSel.value && nameInput) {
+            nameInput.disabled = true;
+            nameInput.value = '';
+        } else if (nameInput) {
+            nameInput.disabled = false;
+            auraSel.disabled = nameInput.value.trim() !== '';
+        }
+    }
+
     // 스탯 복원: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
     const savedData = JSON.parse(btn.getAttribute('data-aura-stats') || '{}');
     function _buildStatMap(data) {
@@ -1775,8 +1907,9 @@ function openAuraPopup(charId, btn) {
 function auraPopupSave() {
     if (!_auraBtn) { auraPopupClose(); return; }
 
-    const nameInput = document.getElementById('aura-popup-name');
-    const name = nameInput ? nameInput.value.trim() : '';
+    const nameInput  = document.getElementById('aura-popup-name');
+    const auraSel_s  = document.getElementById('aura-popup-select');
+    const name = (auraSel_s?.value) || (nameInput ? nameInput.value.trim() : '');
 
     // 스탯 수집: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
     const baseMap = {}, effMap = {};

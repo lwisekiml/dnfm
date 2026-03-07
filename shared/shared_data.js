@@ -464,8 +464,9 @@ const sealData = {
 // 슬롯별 아이템 선택 옵션 목록 (project1 드롭다운용)
 // DISPLAY_NAMES 에서 자동 생성
 // 칭호/오라 아이템 상세 정보 (나중에 정보 열람 기능에서 사용)
-const TITLE_ITEM_INFO = {
-    "우리들의 Arcade": {
+// desc는 팝업창 설명칸에 나온다.
+const _TITLE_TEMPLATES = {
+    V1: {
         info: `기본정보
 힘, 지능 +33
 체력, 정신력 +22
@@ -476,43 +477,184 @@ const TITLE_ITEM_INFO = {
 마법 크리티컬 +30
 ---
 효과
-HP MAX +220(실적용 +2544)
+HP MAX +220
 모든 속성 강화 +10
 데미지 10% 증가
 공격 시 1% 확률로 무색 큐블 조각 1개를 소모하여 30초간 힘 30, 지능 30, 체력 20, 정신력 20, 공격속도 5%, 캐스팅속도 5%, 이동속도 5% 증가합니다.`,
+    desc: `공격 시 1% 확률로 무색 큐블 조각 1개를 소모하여 30초간 힘 30, 지능 30, 체력 20, 정신력 20, 공격속도 5%, 캐스팅속도 5%, 이동속도 5% 증가합니다.`,
         stats: [
-            { stats: ['힘', '지능'],           amount: 33  },
-            { stats: ['체력', '정신력'],        amount: 22  },
-            { stats: ['공격속도'],              amount: 2   },
-            { stats: ['캐스팅속도'],            amount: 2   },
-            { stats: ['이동속도'],              amount: 2   },
-            { stats: ['물리 크리티컬'],         amount: 30  },
-            { stats: ['마법 크리티컬'],         amount: 30  },
-            { stats: ['HP MAX'],               amount: 220 },
-            { stats: ['모든 속성 강화'],        amount: 10  },
-            { stats: ['데미지'],               amount: 10  },
+            {stats: ['힘', '지능'], amount: 33, unit: ''},
+            {stats: ['체력', '정신력'], amount: 22, unit: ''},
+            {stats: ['공격속도'], amount: 2, unit: '%'},
+            {stats: ['캐스팅속도'], amount: 2, unit: '%'},
+            {stats: ['이동속도'], amount: 2, unit: '%'},
+            {stats: ['물리 크리티컬'], amount: 30, unit: ''},
+            {stats: ['마법 크리티컬'], amount: 30, unit: ''},
+            {stats: ['HP MAX'], amount: 220, unit: ''},
+            {stats: ['모든 속성 강화'], amount: 10, unit: ''},
+            {stats: ['데미지'], amount: 10, unit: '%'},
+        ],
+    },
+    V2: {
+        info: `기본정보
+힘, 지능 +33
+체력, 정신력 +22
+공격속도 +2%
+캐스팅속도 +3%
+이동속도 +2%
+물리 크리티컬 +30
+마법 크리티컬 +30
+---
+효과
+HP MAX +220
+모든 속성 강화 +3
+데미지 15% 증가
+공격 시 1% 확률로 무색 큐블 조각 1개를 소모하여 30초간 힘 30, 지능 30, 체력 20, 정신력 20, 공격속도 5%, 캐스팅속도 5%, 이동속도 5% 증가합니다.`,
+        desc: `공격 시 1% 확률로 무색 큐블 조각 1개를 소모하여 30초간 힘 30, 지능 30, 체력 20, 정신력 20, 공격속도 5%, 캐스팅속도 5%, 이동속도 5% 증가합니다.`,
+        stats: [
+            { stats: ['힘', '지능'],           amount: 33  , unit: ''},
+            { stats: ['체력', '정신력'],        amount: 22  , unit: ''},
+            { stats: ['공격속도'],              amount: 2   , unit: '%'},
+            { stats: ['캐스팅속도'],            amount: 3  , unit: '%'},
+            { stats: ['이동속도'],              amount: 2   , unit: '%'},
+            { stats: ['물리 크리티컬'],         amount: 30  , unit: ''},
+            { stats: ['마법 크리티컬'],         amount: 30  , unit: ''},
+            { stats: ['HP MAX'],               amount: 220 , unit: ''},
+            { stats: ['모든 속성 강화'],        amount: 3  , unit: ''},
+            { stats: ['데미지'],               amount: 15  , unit: '%'},
+        ]
+    },
+    V3: {
+        info: `기본정보
+힘 +32
+지능 +32
+정신력 +32
+공격속도 +2%
+캐스팅속도 +3%
+이동속도 +2%
+---
+효과
+HP MAX +55
+MP MAX +110
+수속성 저항 +7
+수속강 +3`,
+        stats: [
+            { stats: ['힘', '지능', '정신력'],           amount: 32  , unit: ''},
+            { stats: ['공격속도'],              amount: 2   , unit: '%'},
+            { stats: ['캐스팅속도'],            amount: 3  , unit: '%'},
+            { stats: ['이동속도'],              amount: 2   , unit: '%'},
+            { stats: ['HP MAX'],               amount: 55 , unit: ''},
+            { stats: ['MP MAX'],               amount: 110 , unit: ''},
+            { stats: ['수속성 저항'],        amount: 7  , unit: ''},
+            { stats: ['수속강'],               amount: 3  , unit: ''},
+        ]
+    },
+    V4: {
+        info: `기본정보
+힘, 지능, 체력, 정신력 +18
+공격속도 +1.5%
+캐스팅속도 +2.2%
+이동속도 +1.5%`,
+        stats: [
+            { stats: ['힘', '지능', '체력', '정신력'],           amount: 18  , unit: ''},
+            { stats: ['공격속도'],              amount: 1.5   , unit: '%'},
+            { stats: ['캐스팅속도'],            amount: 2.2  , unit: '%'},
+            { stats: ['이동속도'],              amount: 1.5   , unit: '%'},
         ]
     }
 };
 
-const AURA_ITEM_INFO = {
-    "우리들의 Arcade 오라": {
+const TITLE_ITEM_INFO = {
+    "우리들의 Arcade": _TITLE_TEMPLATES.V1,
+    "2nd Anniversary 칭호": _TITLE_TEMPLATES.V1,
+    "우리함께 Arcade": _TITLE_TEMPLATES.V2,
+    "3rd Anniversary": _TITLE_TEMPLATES.V2,
+    "천해의 수호자": _TITLE_TEMPLATES.V3,
+    "Specialist": _TITLE_TEMPLATES.V4
+};
+
+const _AURA_TEMPLATES = {
+    V1: {
         info: `기본정보
 힘, 지능, 체력, 정신력 +45
 물리 크리티컬 +110
 마법 크리티컬 +110
 ---
 효과
-화속성 강화 +8
-수속성 강화 +8
-암속성 강화 +8
-명속성 강화 +8`,
+화속강 +8
+수속강 +8
+암속강 +8
+명속강 +8`,
         stats: [
-            { stats: ['힘', '지능', '체력', '정신력'], amount: 45 },
-            { stats: ['물리 크리티컬', '마법 크리티컬'], amount: 110 },
-            { stats: ['화속성 강화', '수속성 강화', '암속성 강화', '명속성 강화'], amount: 8 },
+            {stats: ['힘', '지능', '체력', '정신력'], amount: 45, unit: ''},
+            {stats: ['물리 크리티컬', '마법 크리티컬'], amount: 110, unit: ''},
+            {stats: ['화속강', '수속강', '암속강', '명속강'], amount: 8, unit: ''},
+        ]
+    },
+    V2: {
+        info: `기본정보
+힘, 지능, 체력, 정신력 +50
+물리 크리티컬 확률 +2%
+마법 크리티컬 확률 +2%
+물리 크리티컬 +130
+마법 크리티컬 +130
+---
+효과
+모든 속성 강화 +10
+마을 이동속도 증가 +5%
+데미지 5% 증가`,
+        stats: [
+            { stats: ['힘', '지능', '체력', '정신력'], amount: 50, unit: ''},
+            { stats: ['물리 크리티컬 확률', '마법 크리티컬 확률'], amount: 2, unit: '%'},
+            { stats: ['물리 크리티컬', '마법 크리티컬'], amount: 130, unit: ''},
+            { stats: ['모든 속성 강화'], amount: 10, unit: ''},
+            { stats: ['마을 이동속도 증가'], amount: 5, unit: '%'},
+            { stats: ['데미지'], amount: 5, unit: "%" },
+        ]
+    },
+    V3: {
+        info: `기본정보
+힘, 지능, 체력, 정신력 +45
+물리 크리티컬 +110
+마법 크리티컬 +110
+---
+효과
+모든 속성 강화 +8`,
+        stats: [
+            { stats: ['힘', '지능', '체력', '정신력'], amount: 45, unit: ''},
+            { stats: ['물리 크리티컬', '마법 크리티컬'], amount: 110, unit: ''},
+            { stats: ['모든 속성 강화'], amount: 8, unit: ''},
+        ]
+    },
+    V4: {
+        info: `기본정보
+힘, 지능, 체력, 정신력 +9
+`,
+        stats: [
+            { stats: ['힘', '지능', '체력', '정신력'], amount: 9, unit: ''},
+        ]
+    },
+    V5: {
+        info: `기본정보
+힘, 지능, 체력, 정신력 +24
+적중 +80
+`,
+        stats: [
+            { stats: ['힘', '지능', '체력', '정신력'], amount: 24, unit: ''},
+            { stats: ['적중'], amount: 80, unit: ''},
         ]
     }
+};
+
+const AURA_ITEM_INFO = {
+    "우리들의 Arcade 오라":  _AURA_TEMPLATES.V1,
+    "2nd Anniversary 오라": _AURA_TEMPLATES.V1,
+    "3rd Anniversary 오라": _AURA_TEMPLATES.V2,
+    "해방전력 오라": _AURA_TEMPLATES.V3,
+    "성안의 봉인 오라": _AURA_TEMPLATES.V4,
+    "검의 기억 오라": _AURA_TEMPLATES.V4,
+    "즐거운 새로움이 가득한 오라": _AURA_TEMPLATES.V4,
+    "눈꽃 오라": _AURA_TEMPLATES.V5
 };
 
 const itemOptions = (() => {
