@@ -3848,3 +3848,67 @@ project/
   - 현재 저장된 직업 값으로 선택 상태 자동 복원
 
 ---
+
+---
+
+## 2026-03-07 (89차)
+
+### 크리쳐 팝업 개편 + 아티팩트 자동완성
+
+**수정된 파일:** `index.html`, `js/ui-character.js`, `js/storage.js`, `styles/merged.css`, `scripts/eq_weapon.js`, `shared/shared_data.js`
+
+---
+
+### 변경 내용
+
+**`index.html`**
+
+- 크리쳐 팝업 전면 재설계
+  - 크리쳐 이름: select 단독 → 텍스트 input 하나로 통합 (자동완성 드롭다운)
+  - 아티팩트 카드(RED/BLUE/GREEN) 내 고정 스탯 수치 입력칸 추가
+    - RED: 물리 공격력, 마법 공격력, 힘, 지능
+    - BLUE: 공격속도, 캐스팅속도, 이동속도, 적중
+    - GREEN: HP MAX, MP MAX, 모속강
+  - 기존 세트효과 → **크리쳐 스킬 효과**로 명칭 변경
+  - **아티팩트 세트 효과** 칸 추가 (크리쳐 스킬 효과와 나란히 flex 배치)
+  - 아티팩트 이름 input에 커스텀 자동완성 드롭다운 연결 (개별 `<ul class="ac-dropdown">`)
+  - 크리쳐/아티팩트 이름 input에 `onkeydown="acDropdownKeydown(...)"` 추가
+  - 자동입력 badge (`creature-seteffect-badge`, `creature-art-seteffect-badge`) 추가
+
+**`styles/merged.css`**
+
+- `.modal-overlay` z-index `1000` → `3000` (control-bar sticky 위 덮힘 문제 수정)
+- `.creature-popup-name-input` 추가
+- `.creature-art-stat-rows`, `.creature-art-stat-row`, `.creature-art-stat-input` 추가
+- `.ac-dropdown` 공통 자동완성 드롭다운 스타일 추가 (다크 테마, hover/방향키 활성 강조)
+
+**`js/ui-character.js`**
+
+- 크리쳐 팝업 위치: 표 가운데 fixed 배치, `window.scroll` 재계산, 닫힐 때 제거
+- 공통 자동완성 드롭다운 시스템 추가
+  - `acDropdownShow()`: 후보 목록 렌더링
+  - `acDropdownKeydown()`: 방향키(↑↓) 이동, Enter 선택, Escape 닫기
+  - `_acDropdownInit()`: 외부 클릭 시 전체 드롭다운 닫기 (최초 1회 등록)
+- 크리쳐 이름 자동완성
+  - `creatureNameDropdownShow()`: CREATURE_DATA 기반 후보 표시, 타이핑 시 스킬 효과 즉시 갱신
+  - `creatureNameDropdownSelect()`: 선택 시 스킬 효과 자동입력
+  - `_creatureUpdateSetEffect()`: 이름 수정 시 자동입력 해제 + 내용 초기화
+- 아티팩트 이름 자동완성
+  - `creatureArtNameInput()`: ARTIFACT_SET_DATA 기반 후보 표시, 일치 시 스탯 자동입력
+  - `creatureArtDropdownSelect()`: 선택 시 스탯 자동입력 + 세트 감지
+  - `_creatureCheckArtSet()`: RED/BLUE/GREEN 세트 완성 시 아티팩트 세트 효과 자동입력 + badge 표시
+- 저장 시 `mode`, `seteffect`, `setauto`, `art-seteffect`, `art-setauto` 버튼 속성으로 관리
+- 변경 기록: 이름/세트효과/아티팩트 전체 비교 후 `details` 배열 수집, 변경사항 있을 때만 기록
+- `_CREATURE_ART_KEYS`에 신규 stat 키 등록
+
+**`js/storage.js`**
+
+- 크리쳐 버튼 저장 시 `mode`, `seteffect`, `setauto`, `art-seteffect`, `art-setauto` 필드 추가 저장
+
+**`shared/shared_data.js`**
+
+- `ARTIFACT_SET_DATA` 배열 추가
+  - 세트 단위로 RED/BLUE/GREEN 아티팩트명 + 각 카드 스탯 + 세트효과 묶음
+  - 흑룡 세트 1개 포함 (어둠을 부리는 지팡이 / 복수를 가리는 가면 / 마법이 깃든 망토)
+
+---

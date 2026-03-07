@@ -731,12 +731,14 @@ function restoreSavedData(section, savedData, charId) {
             const cInputs = savedData?.inputs?.['크리쳐'] || {};
             const cName     = cInputs.name?.val       || '';
             const cMode     = cInputs.mode?.val        || 'sel';
-            const cSetEff   = cInputs.seteffect?.val   || '';
-            const cSetAuto  = cInputs.setauto?.val     || 'false';
-            creatureBtn.setAttribute('data-creature-name',      cName);
-            creatureBtn.setAttribute('data-creature-mode',      cMode);
-            creatureBtn.setAttribute('data-creature-seteffect', cSetEff);
-            creatureBtn.setAttribute('data-creature-setauto',   cSetAuto);
+            const cSetEff     = cInputs.seteffect?.val        || '';
+            const cSetAuto    = cInputs.setauto?.val          || 'false';
+            const cArtSetEff  = cInputs['art-seteffect']?.val || '';
+            creatureBtn.setAttribute('data-creature-name',          cName);
+            creatureBtn.setAttribute('data-creature-mode',          cMode);
+            creatureBtn.setAttribute('data-creature-seteffect',     cSetEff);
+            creatureBtn.setAttribute('data-creature-setauto',       cSetAuto);
+            creatureBtn.setAttribute('data-creature-art-seteffect', cArtSetEff);
             creatureBtn.textContent = cName;
         }
         // 아티팩트 hidden input → 표시 span 동기화
@@ -1194,42 +1196,120 @@ function creaturePopupArtBg(rarity_sel) {
 /**
  * 크리쳐 이름 상호배타 토글 (텍스트 ↔ 선택)
  */
-function creatureNameInputToggle() {
-    const textEl = document.getElementById('creature-popup-name-text');
-    const selEl  = document.getElementById('creature-popup-name-sel');
-    if (!textEl || !selEl) return;
-    if (textEl.value.trim()) {
-        // 텍스트 입력 중 → select 비활성
-        selEl.value    = '';
-        selEl.disabled = true;
+// ============================================
+// 공통 자동완성 드롭다운 시스템
+// ============================================
+
+/**
+ * 드롭다운 표시
+ * @param {string} ddId      - ul 요소 id
+ * @param {string[]} items   - 후보 목록
+ * @param {function} onSelect - 항목 선택 콜백(name, ...extraArgs)
+ * @param {...*} extraArgs
+ */
+function acDropdownShow(ddId, items, onSelect, ...extraArgs) {
+    const dd = document.getElementById(ddId);
+    if (!dd) return;
+    if (items.length === 0) { dd.style.display = 'none'; return; }
+
+    dd.innerHTML = items.map((name, i) =>
+        `<li data-idx="${i}" data-name="${name}">${name}</li>`
+    ).join('');
+    dd.querySelectorAll('li').forEach(li => {
+        li.addEventListener('mousedown', e => {
+            e.preventDefault();
+            onSelect(li.getAttribute('data-name'), ...extraArgs);
+            dd.style.display = 'none';
+        });
+    });
+    dd.style.display = 'block';
+}
+
+/**
+ * 방향키 / Enter / Escape 처리
+ */
+function acDropdownKeydown(e, ddId, onSelect, ...extraArgs) {
+    const dd = document.getElementById(ddId);
+    if (!dd || dd.style.display === 'none') return;
+    const items = Array.from(dd.querySelectorAll('li'));
+    if (!items.length) return;
+
+    const active = dd.querySelector('li.ac-active');
+    let idx = active ? parseInt(active.getAttribute('data-idx')) : -1;
+
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        idx = Math.min(idx + 1, items.length - 1);
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        idx = Math.max(idx - 1, 0);
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (active) {
+            onSelect(active.getAttribute('data-name'), ...extraArgs);
+            dd.style.display = 'none';
+        }
+        return;
+    } else if (e.key === 'Escape') {
+        dd.style.display = 'none';
+        return;
     } else {
-        selEl.disabled = false;
+        return;
     }
+
+    items.forEach(li => li.classList.remove('ac-active'));
+    const target = items[idx];
+    if (target) {
+        target.classList.add('ac-active');
+        target.scrollIntoView({ block: 'nearest' });
+    }
+}
+
+/** 드롭다운 외부 클릭 시 닫기 (최초 1회 등록) */
+function _acDropdownInit() {
+    if (window._acDropdownListenerAdded) return;
+    window._acDropdownListenerAdded = true;
+    document.addEventListener('mousedown', e => {
+        document.querySelectorAll('.ac-dropdown').forEach(dd => {
+            if (!dd.contains(e.target) && !dd.previousElementSibling?.contains(e.target)) {
+                dd.style.display = 'none';
+            }
+        });
+    });
+}
+
+// ============================================
+// 크리쳐 이름 자동완성
+// ============================================
+
+/** 크리쳐 이름 드롭다운 표시 + 스킬 효과 갱신 */
+function creatureNameDropdownShow() {
+    const input = document.getElementById('creature-popup-name-text');
+    if (!input || typeof CREATURE_DATA === 'undefined') return;
+    const val = input.value.trim();
+    const candidates = CREATURE_DATA
+        .map(c => c.name)
+        .filter(name => !val || name.includes(val));
+    acDropdownShow('creature-name-dropdown', candidates, creatureNameDropdownSelect);
+    // 타이핑할 때마다 스킬 효과 갱신 (이름 수정 시 자동입력 해제)
     _creatureUpdateSetEffect();
 }
 
-function creatureNameSelToggle() {
-    const textEl = document.getElementById('creature-popup-name-text');
-    const selEl  = document.getElementById('creature-popup-name-sel');
-    if (!textEl || !selEl) return;
-    if (selEl.value) {
-        // 선택 중 → 텍스트 비활성
-        textEl.value    = '';
-        textEl.disabled = true;
-    } else {
-        textEl.disabled = false;
-    }
-    _creatureUpdateSetEffect();
+/** 크리쳐 이름 항목 선택 */
+function creatureNameDropdownSelect(name) {
+    const input = document.getElementById('creature-popup-name-text');
+    if (input) input.value = name;
+    _creatureUpdateSetEffect(name);
 }
 
-/** 세트효과 자동입력/수동 전환 */
-function _creatureUpdateSetEffect() {
-    const selEl     = document.getElementById('creature-popup-name-sel');
-    const setTA     = document.getElementById('creature-popup-seteffect');
-    const badge     = document.getElementById('creature-seteffect-badge');
+/** 크리쳐 스킬 효과 자동입력/수동 전환 */
+function _creatureUpdateSetEffect(forceName) {
+    const textEl = document.getElementById('creature-popup-name-text');
+    const setTA  = document.getElementById('creature-popup-seteffect');
+    const badge  = document.getElementById('creature-seteffect-badge');
     if (!setTA) return;
 
-    const selName = selEl ? selEl.value : '';
+    const selName = forceName !== undefined ? forceName : (textEl ? textEl.value.trim() : '');
     if (selName && typeof CREATURE_DATA !== 'undefined') {
         const creature = CREATURE_DATA.find(c => c.name === selName);
         if (creature) {
@@ -1241,12 +1321,16 @@ function _creatureUpdateSetEffect() {
             return;
         }
     }
-    // 수동 입력 모드
+    // 수동 입력 모드 (자동입력 상태였다면 내용 초기화)
+    if (setTA.getAttribute('data-auto') === 'true') {
+        setTA.value = '';
+    }
     setTA.readOnly = false;
     setTA.style.opacity = '';
     if (badge) badge.style.display = 'none';
     setTA.setAttribute('data-auto', 'false');
 }
+
 
 /**
  * 크리쳐 팝업 열기
@@ -1275,13 +1359,8 @@ function openCreaturePopup(charId, btn) {
     }
 
     // 모드에 따라 복원
-    if (savedMode === 'text') {
-        if (textEl) { textEl.value = savedName; textEl.disabled = false; }
-        if (selEl)  { selEl.value  = '';         selEl.disabled  = true;  }
-    } else {
-        if (selEl)  { selEl.value  = savedName;  selEl.disabled  = false; }
-        if (textEl) { textEl.value = '';          textEl.disabled = false; }
-    }
+    // select 제거됨 — 이름은 항상 텍스트 input에 복원
+    if (textEl) { textEl.value = savedName; textEl.disabled = false; }
 
     // 아티팩트 값 복원
     _CREATURE_ART_KEYS.forEach(key => {
@@ -1292,7 +1371,7 @@ function openCreaturePopup(charId, btn) {
         if (key.includes('_rarity')) creaturePopupArtBg(dest);
     });
 
-    // 세트효과 복원
+    // 크리쳐 스킬 효과 복원
     const setTA  = document.getElementById('creature-popup-seteffect');
     const setVal = btn.getAttribute('data-creature-seteffect') || '';
     const setAuto= btn.getAttribute('data-creature-setauto')   || 'false';
@@ -1311,6 +1390,28 @@ function openCreaturePopup(charId, btn) {
             if (badge) badge.style.display = 'none';
         }
     }
+
+    // 아티팩트 세트 효과 복원
+    const artSetTA = document.getElementById('creature-popup-art-seteffect');
+    if (artSetTA) {
+        artSetTA.value = btn.getAttribute('data-creature-art-seteffect') || '';
+        const artAuto  = btn.getAttribute('data-creature-art-setauto') || 'false';
+        const artBadge = document.getElementById('creature-art-seteffect-badge');
+        if (artAuto === 'true') {
+            artSetTA.readOnly = true;
+            artSetTA.style.opacity = '0.7';
+            artSetTA.setAttribute('data-auto', 'true');
+            if (artBadge) artBadge.style.display = 'inline';
+        } else {
+            artSetTA.readOnly = false;
+            artSetTA.style.opacity = '';
+            artSetTA.setAttribute('data-auto', 'false');
+            if (artBadge) artBadge.style.display = 'none';
+        }
+    }
+
+    // 공통 자동완성 드롭다운 외부클릭 닫기 초기화
+    _acDropdownInit();
 
     // 팝업 표시 (fixed 기준 — 스크롤 따라 재계산)
     overlay.style.display = 'block';
@@ -1351,9 +1452,11 @@ function creaturePopupSave() {
     const name   = isText ? textEl.value.trim() : (selEl ? selEl.value : '');
     const mode   = isText ? 'text' : 'sel';
 
-    // 세트효과 및 자동입력 여부
-    const setVal  = setTA ? setTA.value.trim() : '';
-    const setAuto = setTA ? (setTA.getAttribute('data-auto') === 'true' ? 'true' : 'false') : 'false';
+    // 크리쳐 스킬 효과 및 자동입력 여부
+    const setVal    = setTA ? setTA.value.trim() : '';
+    const setAuto   = setTA ? (setTA.getAttribute('data-auto') === 'true' ? 'true' : 'false') : 'false';
+    const artSetTA  = document.getElementById('creature-popup-art-seteffect');
+    const artSetVal = artSetTA ? artSetTA.value.trim() : '';
 
     // 변경 기록: 이름/아티팩트/세트효과 모두 비교해서 details 생성
     const oldName     = _creatureBtn.getAttribute('data-creature-name')      || '';
@@ -1416,10 +1519,13 @@ function creaturePopupSave() {
     }
 
     // 버튼에 저장
-    _creatureBtn.setAttribute('data-creature-name',      name);
-    _creatureBtn.setAttribute('data-creature-mode',      mode);
-    _creatureBtn.setAttribute('data-creature-seteffect', setVal);
-    _creatureBtn.setAttribute('data-creature-setauto',   setAuto);
+    const artSetAuto = artSetTA ? (artSetTA.getAttribute('data-auto') === 'true' ? 'true' : 'false') : 'false';
+    _creatureBtn.setAttribute('data-creature-name',          name);
+    _creatureBtn.setAttribute('data-creature-mode',          mode);
+    _creatureBtn.setAttribute('data-creature-seteffect',     setVal);
+    _creatureBtn.setAttribute('data-creature-setauto',       setAuto);
+    _creatureBtn.setAttribute('data-creature-art-seteffect', artSetVal);
+    _creatureBtn.setAttribute('data-creature-art-setauto',   artSetAuto);
     _creatureBtn.textContent = name;
 
     // 아티팩트: 팝업 값 → hidden input + 표시 span 반영
@@ -1448,6 +1554,87 @@ function creaturePopupSave() {
     if (typeof autoSave === 'function') autoSave();
 }
 
+/**
+ * 아티팩트 이름 입력 시 자동완성 → 스탯 자동입력 + 세트효과 감지
+ * @param {HTMLInputElement} input
+ * @param {'red'|'blue'|'green'} color
+ */
+function creatureArtNameInput(input, color) {
+    if (typeof ARTIFACT_SET_DATA === 'undefined') return;
+    const val   = input.value.trim();
+    const popup = document.getElementById('creature-popup');
+    if (!popup) return;
+
+    // 후보 필터링
+    const candidates = ARTIFACT_SET_DATA
+        .map(s => s[color]?.name || '')
+        .filter(name => name && (!val || name.includes(val)));
+
+    acDropdownShow(`artifact-dropdown-${color}`, candidates, creatureArtDropdownSelect, color);
+
+    // 정확히 일치하면 스탯 자동입력
+    const matched = ARTIFACT_SET_DATA.find(s => s[color]?.name === val);
+    if (matched) {
+        Object.entries(matched[color].stats).forEach(([key, statVal]) => {
+            const el = popup.querySelector(`[data-creature-art="${key}"]`);
+            if (el) el.value = statVal;
+        });
+    }
+
+    _creatureCheckArtSet(popup);
+}
+
+/** 아티팩트 드롭다운 항목 선택 */
+function creatureArtDropdownSelect(name, color) {
+    const popup = document.getElementById('creature-popup');
+    if (!popup) return;
+    const input = popup.querySelector(`[data-creature-art="크리쳐_art_${color}_top_text"]`);
+    if (input) input.value = name;
+
+    const matched = ARTIFACT_SET_DATA.find(s => s[color]?.name === name);
+    if (matched) {
+        Object.entries(matched[color].stats).forEach(([key, statVal]) => {
+            const el = popup.querySelector(`[data-creature-art="${key}"]`);
+            if (el) el.value = statVal;
+        });
+    }
+    _creatureCheckArtSet(popup);
+}
+
+/** 아티팩트 세트 완성 감지 → 세트효과 자동입력 */
+function _creatureCheckArtSet(popup) {
+    if (typeof ARTIFACT_SET_DATA === 'undefined') return;
+    const redName   = popup.querySelector('[data-creature-art="크리쳐_art_red_top_text"]')?.value.trim()   || '';
+    const blueName  = popup.querySelector('[data-creature-art="크리쳐_art_blue_top_text"]')?.value.trim()  || '';
+    const greenName = popup.querySelector('[data-creature-art="크리쳐_art_green_top_text"]')?.value.trim() || '';
+
+    const artSetTA  = document.getElementById('creature-popup-art-seteffect');
+    const artBadge  = document.getElementById('creature-art-seteffect-badge');
+    if (!artSetTA) return;
+
+    const matchedSet = ARTIFACT_SET_DATA.find(s =>
+        s.red?.name   === redName  &&
+        s.blue?.name  === blueName &&
+        s.green?.name === greenName
+    );
+
+    if (matchedSet) {
+        artSetTA.value         = matchedSet.setEffect || '';
+        artSetTA.readOnly      = true;
+        artSetTA.style.opacity = '0.7';
+        artSetTA.setAttribute('data-auto', 'true');
+        if (artBadge) artBadge.style.display = 'inline';
+    } else {
+        if (artSetTA.getAttribute('data-auto') === 'true') {
+            artSetTA.value = '';
+        }
+        artSetTA.readOnly      = false;
+        artSetTA.style.opacity = '';
+        artSetTA.setAttribute('data-auto', 'false');
+        if (artBadge) artBadge.style.display = 'none';
+    }
+}
+
 /** 크리쳐 팝업 닫기 */
 function creaturePopupClose() {
     const overlay = document.getElementById('creature-popup-overlay');
@@ -1456,6 +1643,7 @@ function creaturePopupClose() {
         window.removeEventListener('scroll', window._creatureScrollHandler);
         window._creatureScrollHandler = null;
     }
+    document.querySelectorAll('.ac-dropdown').forEach(d => d.style.display = 'none');
     _creatureCharId = null;
     _creatureBtn    = null;
 }

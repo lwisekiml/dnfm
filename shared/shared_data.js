@@ -1058,3 +1058,46 @@ const CREATURE_DATA = [
         ]
     },
 ];
+// ============================================
+// 아티팩트 세트 데이터
+// ============================================
+/**
+ * ARTIFACT_SET_DATA
+ * - setName  : 세트 이름 (아티팩트 세트 효과 라벨)
+ * - red/blue/green
+ *     - name   : 아티팩트 이름 (datalist 후보 + 자동입력 키)
+ *     - stats  : 아티팩트 스탯 ({ key: data-creature-art key, val: 값 })
+ * - setEffect : 세트 효과 텍스트 (줄바꿈 구분)
+ */
+const ARTIFACT_SET_DATA = [
+    {
+        setName: '흑룡 아티팩트 3세트 효과',
+        red: {
+            name: '어둠을 부리는 지팡이',
+            stats: {
+                '크리쳐_art_red_stat_물리공격력': '22',
+                '크리쳐_art_red_stat_마법공격력': '22',
+                '크리쳐_art_red_stat_힘':         '36',
+                '크리쳐_art_red_stat_지능':        '36',
+            }
+        },
+        blue: {
+            name: '복수를 가리는 가면',
+            stats: {
+                '크리쳐_art_blue_stat_공격속도':   '5',
+                '크리쳐_art_blue_stat_캐스팅속도':  '7.5',
+                '크리쳐_art_blue_stat_이동속도':   '2.5',
+                '크리쳐_art_blue_stat_적중':       '100',
+            }
+        },
+        green: {
+            name: '마법이 깃든 망토',
+            stats: {
+                '크리쳐_art_green_stat_HPMAX':  '165',
+                '크리쳐_art_green_stat_MPMAX':  '165',
+                '크리쳐_art_green_stat_모속강': '4',
+            }
+        },
+        setEffect: '모속강 +10\n공격 시 5% 추가 데미지\n30초 마다 공격속도 3%, 이동속도 3%, 캐스팅속도 3% 증가',
+    },
+];

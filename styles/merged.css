@@ -2822,15 +2822,6 @@ body.theme-mixed2 .avatar-popup-btn:hover {
     padding: 0 4px;
     box-sizing: border-box;
 }
-/* 숫자 증감 버튼(스피너) 제거 */
-.title-popup-row input[type="number"]::-webkit-outer-spin-button,
-.title-popup-row input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-.title-popup-row input[type="number"] {
-    -moz-appearance: textfield;
-}
 .title-popup-row-nospan {
     padding-left: 126px;
 }
@@ -2863,7 +2854,7 @@ body.theme-mixed2 .avatar-popup-btn:hover {
     opacity: 0.8;
 }
 .creature-popup-name-select {
-    width: 250px;
+    flex: 1;
     height: 28px;
     background: var(--input-bg);
     color: var(--color-white);
@@ -2982,7 +2973,7 @@ body.theme-mixed2 .avatar-popup-btn:hover {
 
 /* 크리쳐 팝업 이름 텍스트 입력 */
 .creature-popup-name-input {
-    width: 250px;
+    width: 120px;
     height: 28px;
     background: var(--input-bg);
     color: var(--color-white);
@@ -3030,4 +3021,37 @@ body.theme-mixed2 .avatar-popup-btn:hover {
     padding: 0 4px;
     box-sizing: border-box;
     min-width: 0;
+}
+
+/* ===== 자동완성 공통 드롭다운 ===== */
+.ac-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 9999;
+    background: #1e2235;
+    border: 1px solid #4a5580;
+    border-radius: 6px;
+    margin: 2px 0 0 0;
+    padding: 4px 0;
+    list-style: none;
+    min-width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.55);
+    font-size: 0.88em;
+    color: #dde;
+}
+.ac-dropdown li {
+    padding: 6px 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: background 0.1s;
+}
+.ac-dropdown li:hover,
+.ac-dropdown li.ac-active {
+    background: #2e3a5a;
+    color: #fff;
 }

@@ -44,14 +44,18 @@ function autoSave() {
                 // 크리쳐 버튼 저장 (이름/모드/세트효과 - 아티팩트는 hidden input으로 별도 저장)
                 if (key === '크리쳐_name') {
                     if (!inputsObj['크리쳐']) inputsObj['크리쳐'] = {};
-                    const cName    = btn.getAttribute('data-creature-name')      || btn.textContent.trim() || '';
-                    const cMode    = btn.getAttribute('data-creature-mode')      || 'sel';
-                    const cSetEff  = btn.getAttribute('data-creature-seteffect') || '';
-                    const cSetAuto = btn.getAttribute('data-creature-setauto')   || 'false';
-                    inputsObj['크리쳐']['name']      = { val: cName,    cls: btn.className };
-                    inputsObj['크리쳐']['mode']      = { val: cMode,    cls: '' };
-                    inputsObj['크리쳐']['seteffect'] = { val: cSetEff,  cls: '' };
-                    inputsObj['크리쳐']['setauto']   = { val: cSetAuto, cls: '' };
+                    const cName       = btn.getAttribute('data-creature-name')          || btn.textContent.trim() || '';
+                    const cMode       = btn.getAttribute('data-creature-mode')          || 'sel';
+                    const cSetEff     = btn.getAttribute('data-creature-seteffect')     || '';
+                    const cSetAuto    = btn.getAttribute('data-creature-setauto')       || 'false';
+                    const cArtSetEff   = btn.getAttribute('data-creature-art-seteffect') || '';
+                    const cArtSetAuto  = btn.getAttribute('data-creature-art-setauto')   || 'false';
+                    inputsObj['크리쳐']['name']           = { val: cName,       cls: btn.className };
+                    inputsObj['크리쳐']['mode']           = { val: cMode,       cls: '' };
+                    inputsObj['크리쳐']['seteffect']      = { val: cSetEff,     cls: '' };
+                    inputsObj['크리쳐']['setauto']        = { val: cSetAuto,    cls: '' };
+                    inputsObj['크리쳐']['art-seteffect']  = { val: cArtSetEff,  cls: '' };
+                    inputsObj['크리쳐']['art-setauto']    = { val: cArtSetAuto, cls: '' };
                     return;
                 }
 
