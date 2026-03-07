@@ -3811,3 +3811,21 @@ project/
 - `.creature-popup-name-select` `flex: 1` → `width: 250px`
 
 ---
+
+## 2026-03-07 (87차)
+
+### 캐릭터 추가 버튼 ReferenceError 수정
+
+**수정된 파일:** `scripts/eq_character.js`
+
+---
+
+### 변경 내용
+
+**`scripts/eq_character.js`**
+
+- `_syncInProgress` 변수 선언 누락으로 인한 `ReferenceError` 수정
+  - 기존: 선언 없이 `_syncInProgress` 사용 → `Uncaught ReferenceError: _syncInProgress is not defined`
+  - 수정: 파일 상단 CRUD 섹션에 `let _syncInProgress = false;` 선언 추가
+
+---

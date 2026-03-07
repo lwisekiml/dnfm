@@ -5,6 +5,8 @@
 // ─────────────────────────────────────────
 // 7.1 캐릭터 CRUD
 // ─────────────────────────────────────────
+let _syncInProgress = false;
+
 // Create
 function addCharacter() {
     const newChar = {
