@@ -3641,3 +3641,40 @@ project/
   - 상세보기 클릭 시 변경된 항목 목록 표시
 
 ---
+
+---
+
+---
+
+## 2026-03-07 (81차)
+
+### 오라 슬롯 팝업 구현 + 칭호/오라 변경 기록 개선
+
+**수정된 파일:** `index.html`, `js/ui-character.js`, `js/ui-core.js`, `js/storage.js`
+
+---
+
+### 변경 내용
+
+**오라 슬롯 - 아이템이름 버튼 팝업 (`index.html`, `js/ui-character.js`, `js/ui-core.js`, `js/storage.js`)**
+- `index.html`: `aura-row-template` 추가 (simple-row-template 구조 동일, itemname만 button으로 교체) + 오라 팝업 HTML 추가 (칭호 팝업과 동일 구조, id/data만 aura로 변경)
+- `js/ui-core.js`: `replaceItemNameField`에서 오라 예외처리 추가 (`if (slot === '칭호' || slot === '오라') return`)
+- `js/ui-character.js`:
+  - 오라 행 생성 시 `aura-row-template` 사용
+  - `['외형칭호', '오라'].forEach` → `['외형칭호'].forEach` 로 변경 (오라 itemname이 select로 교체되던 버그 수정)
+  - `openAuraPopup` / `auraPopupSave` / `auraPopupClose` 함수 추가
+  - 팝업 위치: body 직계 자식으로 이동 후 `position: absolute`, `top = rect.top + 30 + window.scrollY` (칭호 팝업과 동일)
+  - 오라 버튼 복원 코드 추가 (restoreSavedData)
+  - `data-title-stat` → `data-aura-stat` 수정 (오라 팝업 스탯 읽기 오류 수정)
+  - `overlay.querySelectorAll` → `popup.querySelectorAll` 수정 (popup이 body로 이동된 후 스탯 읽기 오류 수정)
+- `js/storage.js`: 오라 버튼(`오라_itemname`) 저장/복원 로직 추가
+
+**칭호/오라 변경 기록 개선 (`js/ui-character.js`)**
+- `titlePopupSave()` / `auraPopupSave()` 변경 기록에 `details` 배열 추가
+  - 이전/이후 스탯을 statKey 기준 맵으로 변환 후 변경된 항목만 추출
+  - 이름 변경 시 `이름: 이전 → 이후` 항목을 details 맨 앞에 추가
+  - `old`/`new`에는 이름만 저장 (스탯 요약 제거)
+  - `details.length > 0` 인 경우에만 기록 저장
+  - 표시 형식: `이름 (스탯 N개 변경) [▶ 상세보기]` (이름 동일 시) / `이전이름 → 새이름 (스탯 N개 변경) [▶ 상세보기]` (이름 변경 시)
+
+---

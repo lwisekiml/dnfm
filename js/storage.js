@@ -65,6 +65,15 @@ function autoSave() {
                     return;
                 }
 
+                if (key === '오라_itemname') {
+                    if (!inputsObj['오라']) inputsObj['오라'] = {};
+                    const name  = btn.getAttribute('data-aura-name') || btn.textContent.trim() || '';
+                    const stats = btn.getAttribute('data-aura-stats') || '{}';
+                    inputsObj['오라']['itemname']   = { val: name,  cls: btn.className };
+                    inputsObj['오라']['aura_stats'] = { val: stats, cls: '' };
+                    return;
+                }
+
                 if (key !== '아바타_itemname') return;
 
                 if (!inputsObj['아바타']) inputsObj['아바타'] = {};

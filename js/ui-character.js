@@ -227,6 +227,19 @@ function createSlotContent(slot, index, charId, savedData) {
             initAvatarWeaponStatSelect(rowFrag);
             return rowFrag;
         }
+        // 오라: 전용 템플릿 (itemname이 버튼)
+        if (slot === '오라') {
+            const frag = TemplateHelper.clone('aura-row-template');
+            const btn = frag.querySelector('button[data-aura-btn]');
+            if (btn) {
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    const section = btn.closest('.char-section');
+                    if (section) openAuraPopup(section.id, btn);
+                };
+            }
+            return frag;
+        }
         return TemplateHelper.createSimpleRow(slot);
     }
 
@@ -613,7 +626,7 @@ function initializePrefixSelects(section) {
 
     // 외형칭호/오라는 prefix가 없으므로 rarity를 직접 트리거해 itemname을 select로 교체
     // 칭호는 버튼 팝업 방식이므로 제외
-    ['외형칭호', '오라'].forEach(slot => {
+    ['외형칭호'].forEach(slot => {
         const raritySel = section.querySelector(`select[data-key="${slot}_rarity"]`);
         if (raritySel) updateStyle(raritySel, 'rarity', true);
     });
@@ -692,6 +705,17 @@ function restoreSavedData(section, savedData, charId) {
         titleBtn.setAttribute('data-title-name', name);
         titleBtn.setAttribute('data-title-stats', stats);
         titleBtn.textContent = name;
+    }
+
+    // 2-b2) 오라 버튼 복원
+    const auraBtn = section.querySelector('button[data-key="오라_itemname"]');
+    if (auraBtn) {
+        const auraInputs = savedData?.inputs?.['오라'] || {};
+        const aName  = auraInputs.itemname?.val || '';
+        const aStats = auraInputs.aura_stats?.val || '{}';
+        auraBtn.setAttribute('data-aura-name', aName);
+        auraBtn.setAttribute('data-aura-stats', aStats);
+        auraBtn.textContent = aName;
     }
 
     // 2-c) 아바타 버튼 & weapon_stat select 복원
@@ -1474,7 +1498,7 @@ function openTitlePopup(charId, btn) {
     }
     const baseMap = _buildStatMap(savedData.base);
     const effMap  = _buildStatMap(savedData.eff);
-    overlay.querySelectorAll('[data-title-stat]').forEach(input => {
+    popup.querySelectorAll('[data-title-stat]').forEach(input => {
         const raw     = input.getAttribute('data-title-stat');
         const isPct   = raw.endsWith('_pct');
         const key     = isPct ? raw.slice(0, -4) : raw;
@@ -1487,30 +1511,28 @@ function openTitlePopup(charId, btn) {
     const descTA = document.getElementById('title-popup-desc');
     if (descTA) descTA.value = savedData.desc || '';
 
-    // 팝업 표시: 표 가운데에 배치
+    // 팝업 표시: body 직계 자식으로 이동 후 absolute 배치 (스크롤 시 표와 함께 이동)
+    if (popup.parentElement !== document.body) {
+        document.body.appendChild(popup);
+    }
     overlay.style.display = 'block';
 
-    function _positionPopup() {
-        const table     = _titleBtn ? _titleBtn.closest('table') : null;
-        const rect      = table ? table.getBoundingClientRect() : btn.getBoundingClientRect();
-        const popupW    = popup.offsetWidth;
-        const popupH    = popup.offsetHeight;
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        let left = rect.left + rect.width  / 2 - popupW / 2;
-        let top  = rect.top  + rect.height / 2 - popupH / 2;
-        if (left < 8) left = 8;
-        if (left + popupW > vw - 8) left = vw - popupW - 8;
-        if (top  < 8) top  = 8;
-        if (top  + popupH > vh - 8) top  = vh - popupH - 8;
-        popup.style.left = left + 'px';
-        popup.style.top  = top  + 'px';
-    }
-    _positionPopup();
-
-    // window scroll: 페이지 스크롤 시 팝업 위치 재계산
-    window._titleScrollHandler = () => { if (_titleBtn) _positionPopup(); };
-    window.addEventListener('scroll', window._titleScrollHandler);
+    const section_t   = _titleBtn ? _titleBtn.closest('.char-section') : null;
+    const infoTable_t = section_t ? section_t.querySelector('.char-info-table') : null;
+    const refEl_t     = infoTable_t || (_titleBtn ? _titleBtn.closest('table') : null) || btn;
+    const rect_t      = refEl_t.getBoundingClientRect();
+    const popupW_t    = popup.offsetWidth  || 1100;
+    const vw_t = window.innerWidth;
+    let left_t = rect_t.left;
+    let top_t  = rect_t.top + 30 + window.scrollY;
+    if (left_t < 8) left_t = 8;
+    if (left_t + popupW_t > vw_t - 8) left_t = vw_t - popupW_t - 8;
+    if (top_t  < 8) top_t  = 8;
+    popup.style.position = 'absolute';
+    popup.style.zIndex   = '3001';
+    popup.style.left = left_t + 'px';
+    popup.style.top  = top_t  + 'px';
+    popup.style.display = 'block';
 }
 
 /** 칭호 팝업 저장 */
@@ -1523,8 +1545,9 @@ function titlePopupSave() {
     // 스탯 수집: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
     const baseMap = {}, effMap = {};
     const overlay = document.getElementById('title-popup-overlay');
-    if (overlay) {
-        overlay.querySelectorAll('[data-title-stat]').forEach(input => {
+    const popupEl = document.getElementById('title-popup');
+    if (popupEl) {
+        popupEl.querySelectorAll('[data-title-stat]').forEach(input => {
             const val = input.value.trim();
             if (!val) return;
             const raw     = input.getAttribute('data-title-stat');
@@ -1555,37 +1578,49 @@ function titlePopupSave() {
         const charName = section?.querySelector('[data-key="info_name"]')?.value || '이름없음';
         const timeStr  = (typeof getCurrentDateTime === 'function') ? getCurrentDateTime() : new Date().toLocaleString();
 
-        // 스탯 요약 문자열 생성 (주요 3~4개)
-        function _buildStatSummary(statsObj) {
-            const statLabels = {
-                '힘':'힘','지능':'지능','체력':'체력','정신력':'정신력',
-                '적중':'적중','회피':'회피',
-                '공격속도':'공격속도','캐스팅속도':'캐스팅속도','이동속도':'이동속도',
-                '물리크리티컬':'물리 크리','마법크리티컬':'마법 크리',
-                '물리크리티컬확률':'물리크리확률','마법크리티컬확률':'마법크리확률',
-                'HPMAX':'HP MAX','MPMAX':'MP MAX',
-                '모든속성강화':'속성강화','모든속성저항':'속성저항',
-                '화속강':'화속강','수속강':'수속강','명속강':'명속강','암속강':'암속강',
-                '데미지증가':'데미지증가','마을이동속도':'마을이동속도',
-            };
-            const all = [...(statsObj.base || []), ...(statsObj.eff || [])];
-            if (!all.length) return '';
-            const parts = all.slice(0, 4).map(e => {
-                const label = e.stats.map(s => statLabels[s] || s).join('/');
-                return `${label}+${e.amount}${e.unit}`;
-            });
-            return ' (' + parts.join(', ') + (all.length > 4 ? '...' : '') + ')';
-        }
+        // 이전 스탯
+        const oldStats = JSON.parse(_titleBtn.getAttribute('data-title-stats') || '{}');
+        const oldAll = [...(oldStats.base || []), ...(oldStats.eff || [])];
+        const newAll = [...(stats.base || []), ...(stats.eff || [])];
 
-        const statSummary = _buildStatSummary(stats);
-        const newVal = (name === '' ? '(빈칸)' : name) + statSummary;
+        // details: 스탯별 변경 내역
+        const details = [];
+        const statLabels2 = {
+            '힘':'힘','지능':'지능','체력':'체력','정신력':'정신력',
+            '적중':'적중','회피':'회피',
+            '공격속도':'공격속도','캐스팅속도':'캐스팅속도','이동속도':'이동속도',
+            '물리크리티컬':'물리크리','마법크리티컬':'마법크리',
+            '물리크리티컬확률':'물리크리확률','마법크리티컬확률':'마법크리확률',
+            'HPMAX':'HP MAX','MPMAX':'MP MAX',
+            '모든속성강화':'속성강화','모든속성저항':'속성저항',
+            '화속강':'화속강','수속강':'수속강','명속강':'명속강','암속강':'암속강',
+            '데미지증가':'데미지증가','마을이동속도':'마을이동속도',
+        };
+        // 이전/이후 스탯을 statKey 기준 맵으로 변환
+        function _toStatMap(arr) {
+            const m = {};
+            arr.forEach(e => e.stats.forEach(s => { m[s] = `${e.amount}${e.unit}`; }));
+            return m;
+        }
+        const oldStatMap = _toStatMap(oldAll);
+        const newStatMap = _toStatMap(newAll);
+        const allKeys = new Set([...Object.keys(oldStatMap), ...Object.keys(newStatMap)]);
+        allKeys.forEach(k => {
+            const ov = oldStatMap[k] || '없음';
+            const nv = newStatMap[k] || '없음';
+            if (ov !== nv) details.push(`${statLabels2[k] || k}: ${ov} → ${nv}`);
+        });
+        if (oldName !== name) details.unshift(`이름: ${oldName || '(빈칸)'} → ${name || '(빈칸)'}`);
+
+        const newVal = name === '' ? '(빈칸)' : name;
         const oldVal = oldName === '' ? '(빈칸)' : oldName;
 
-        if (oldVal !== newVal) {
+        if (details.length > 0) {
             AppState.changeHistory.unshift({
                 time: timeStr, charName, slot: '칭호',
                 old: oldVal,
-                new: newVal
+                new: newVal,
+                details
             });
             if (AppState.changeHistory.length > 10) AppState.changeHistory.pop();
             AppState.saveHistory();
@@ -1643,13 +1678,237 @@ function titlePopupSave() {
 /** 칭호 팝업 닫기 */
 function titlePopupClose() {
     const overlay = document.getElementById('title-popup-overlay');
+    const popup   = document.getElementById('title-popup');
     if (overlay) overlay.style.display = 'none';
-    if (window._titleScrollHandler) {
-        window.removeEventListener('scroll', window._titleScrollHandler);
-        window._titleScrollHandler = null;
+    if (popup && popup.parentElement !== overlay) {
+        overlay.appendChild(popup);
+        popup.style.display = '';
     }
     _titleCharId = null;
     _titleBtn    = null;
+}
+
+
+let _auraCharId = null;
+let _auraBtn    = null;
+
+/**
+ * 오라 팝업 열기
+ */
+function openAuraPopup(charId, btn) {
+    _auraCharId = charId;
+    _auraBtn    = btn;
+
+    const overlay = document.getElementById('aura-popup-overlay');
+    const popup   = document.getElementById('aura-popup');
+    if (!overlay || !popup) return;
+
+    // 이름 복원
+    const nameInput = document.getElementById('aura-popup-name');
+    if (nameInput) nameInput.value = btn.getAttribute('data-aura-name') || '';
+
+    // 스탯 복원: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
+    const savedData = JSON.parse(btn.getAttribute('data-aura-stats') || '{}');
+    function _buildStatMap(data) {
+        const map = {};
+        if (!data) return map;
+        // V4 배열 구조
+        if (Array.isArray(data)) {
+            data.forEach(entry => {
+                (entry.stats || []).forEach(s => { map[s] = entry.amount; });
+            });
+        }
+        return map;
+    }
+    const baseMap = _buildStatMap(savedData.base);
+    const effMap  = _buildStatMap(savedData.eff);
+    popup.querySelectorAll('[data-aura-stat]').forEach(input => {
+        const raw     = input.getAttribute('data-aura-stat');
+        const isPct   = raw.endsWith('_pct');
+        const key     = isPct ? raw.slice(0, -4) : raw;
+        const parts   = key.split('_');
+        const type    = parts[parts.length - 1];
+        const statKey = parts.slice(0, -1).join('_');
+        const val     = (type === 'base' ? baseMap[statKey] : effMap[statKey]);
+        input.value   = val !== undefined ? String(val) : '';
+    });
+    const descTA = document.getElementById('aura-popup-desc');
+    if (descTA) descTA.value = savedData.desc || '';
+
+    // 팝업 표시: body 직계 자식으로 이동 후 absolute 배치 (스크롤 시 표와 함께 이동)
+    if (popup.parentElement !== document.body) {
+        document.body.appendChild(popup);
+    }
+    overlay.style.display = 'block';
+
+    const section_a   = _auraBtn ? _auraBtn.closest('.char-section') : null;
+    const infoTable_a = section_a ? section_a.querySelector('.char-info-table') : null;
+    const refEl_a     = infoTable_a || (_auraBtn ? _auraBtn.closest('table') : null) || btn;
+    const rect_a      = refEl_a.getBoundingClientRect();
+    const popupW_a    = popup.offsetWidth  || 1100;
+    const vw_a = window.innerWidth;
+    let left_a = rect_a.left;
+    let top_a  = rect_a.top + 30 + window.scrollY;
+    if (left_a < 8) left_a = 8;
+    if (left_a + popupW_a > vw_a - 8) left_a = vw_a - popupW_a - 8;
+    if (top_a  < 8) top_a  = 8;
+    popup.style.position = 'absolute';
+    popup.style.zIndex   = '3001';
+    popup.style.left = left_a + 'px';
+    popup.style.top  = top_a  + 'px';
+    popup.style.display = 'block';
+}
+
+/** 오라 팝업 저장 */
+function auraPopupSave() {
+    if (!_auraBtn) { auraPopupClose(); return; }
+
+    const nameInput = document.getElementById('aura-popup-name');
+    const name = nameInput ? nameInput.value.trim() : '';
+
+    // 스탯 수집: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
+    const baseMap = {}, effMap = {};
+    const overlay = document.getElementById('aura-popup-overlay');
+    const popupEl = document.getElementById('aura-popup');
+    if (popupEl) {
+        popupEl.querySelectorAll('[data-aura-stat]').forEach(input => {
+            const val = input.value.trim();
+            if (!val) return;
+            const raw     = input.getAttribute('data-aura-stat');
+            const isPct   = raw.endsWith('_pct');
+            const key     = isPct ? raw.slice(0, -4) : raw;
+            const parts   = key.split('_');
+            const type    = parts[parts.length - 1];
+            const statKey = parts.slice(0, -1).join('_');
+            const amount  = parseFloat(val) || 0;
+            const unit    = isPct ? '%' : '';
+            const mapKey  = `${amount}__${unit}`;
+            const target  = type === 'base' ? baseMap : effMap;
+            if (!target[mapKey]) target[mapKey] = { stats: [], amount, unit };
+            target[mapKey].stats.push(statKey);
+        });
+    }
+    const descTA = document.getElementById('aura-popup-desc');
+    const stats = {
+        base: Object.values(baseMap),
+        eff:  Object.values(effMap),
+        desc: descTA ? descTA.value.trim() : ''
+    };
+
+    // 변경 기록
+    const oldName = _auraBtn.getAttribute('data-aura-name') || '';
+    if (_auraCharId) {
+        const section  = document.getElementById(_auraCharId);
+        const charName = section?.querySelector('[data-key="info_name"]')?.value || '이름없음';
+        const timeStr  = (typeof getCurrentDateTime === 'function') ? getCurrentDateTime() : new Date().toLocaleString();
+
+        // 이전 스탯
+        const oldStats = JSON.parse(_auraBtn.getAttribute('data-aura-stats') || '{}');
+        const oldAll = [...(oldStats.base || []), ...(oldStats.eff || [])];
+        const newAll = [...(stats.base || []), ...(stats.eff || [])];
+
+        // details: 스탯별 변경 내역
+        const details = [];
+        const statLabels2 = {
+            '힘':'힘','지능':'지능','체력':'체력','정신력':'정신력',
+            '적중':'적중','회피':'회피',
+            '공격속도':'공격속도','캐스팅속도':'캐스팅속도','이동속도':'이동속도',
+            '물리크리티컬':'물리크리','마법크리티컬':'마법크리',
+            '물리크리티컬확률':'물리크리확률','마법크리티컬확률':'마법크리확률',
+            'HPMAX':'HP MAX','MPMAX':'MP MAX',
+            '모든속성강화':'속성강화','모든속성저항':'속성저항',
+            '화속강':'화속강','수속강':'수속강','명속강':'명속강','암속강':'암속강',
+            '데미지증가':'데미지증가','마을이동속도':'마을이동속도',
+        };
+        function _toStatMap(arr) {
+            const m = {};
+            arr.forEach(e => e.stats.forEach(s => { m[s] = `${e.amount}${e.unit}`; }));
+            return m;
+        }
+        const oldStatMap = _toStatMap(oldAll);
+        const newStatMap = _toStatMap(newAll);
+        const allKeys = new Set([...Object.keys(oldStatMap), ...Object.keys(newStatMap)]);
+        allKeys.forEach(k => {
+            const ov = oldStatMap[k] || '없음';
+            const nv = newStatMap[k] || '없음';
+            if (ov !== nv) details.push(`${statLabels2[k] || k}: ${ov} → ${nv}`);
+        });
+        if (oldName !== name) details.unshift(`이름: ${oldName || '(빈칸)'} → ${name || '(빈칸)'}`);
+
+        const newVal = name === '' ? '(빈칸)' : name;
+        const oldVal = oldName === '' ? '(빈칸)' : oldName;
+
+        if (details.length > 0) {
+            AppState.changeHistory.unshift({
+                time: timeStr, charName, slot: '오라',
+                old: oldVal,
+                new: newVal,
+                details
+            });
+            if (AppState.changeHistory.length > 10) AppState.changeHistory.pop();
+            AppState.saveHistory();
+        }
+    }
+
+    // 버튼 업데이트
+    _auraBtn.setAttribute('data-aura-name', name);
+    _auraBtn.setAttribute('data-aura-stats', JSON.stringify(stats));
+    _auraBtn.textContent = name;
+
+    // desc 자동 입력
+    if (_auraCharId) {
+        const section = document.getElementById(_auraCharId);
+        const descEl = section?.querySelector('[data-key="오라_desc"]');
+        if (descEl) {
+            const infoEntry = GameData.AURA_ITEM_INFO?.[name];
+            if (infoEntry?.info) {
+                descEl.value = infoEntry.info;
+            } else {
+                const statLabels = {
+                    '힘':'힘', '지능':'지능', '체력':'체력', '정신력':'정신력',
+                    '적중':'적중', '회피':'회피',
+                    '공격속도':'공격속도', '캐스팅속도':'캐스팅속도', '이동속도':'이동속도',
+                    '물리크리티컬':'물리 크리티컬', '마법크리티컬':'마법 크리티컬',
+                    '물리크리티컬확률':'물리 크리티컬 확률', '마법크리티컬확률':'마법 크리티컬 확률',
+                    'HPMAX':'HP MAX', 'MPMAX':'MP MAX',
+                    '모든속성강화':'모든 속성 강화', '모든속성저항':'모든 속성 저항',
+                    '화속강':'화속강', '수속강':'수속강', '명속강':'명속강', '암속강':'암속강',
+                    '화속성저항':'화속성 저항', '수속성저항':'수속성 저항',
+                    '명속성저항':'명속성 저항', '암속성저항':'암속성 저항',
+                    '기절내성':'기절 내성', '점프력':'점프력',
+                    '데미지증가':'데미지 증가', '마을이동속도':'마을 이동속도 증가',
+                };
+                function _entriesToLines(arr) {
+                    return (arr || []).map(e => {
+                        const labels = e.stats.map(s => statLabels[s] || s).join(', ');
+                        return `${labels} +${e.amount}${e.unit}`;
+                    });
+                }
+                const baseLines = _entriesToLines(stats.base);
+                const effLines  = _entriesToLines(stats.eff);
+                const lines = [];
+                if (baseLines.length) { lines.push('기본정보'); lines.push(...baseLines); }
+                if (effLines.length)  { if (baseLines.length) lines.push('---'); lines.push('효과'); lines.push(...effLines); }
+                descEl.value = lines.join('\n');
+            }
+        }
+    }
+
+    auraPopupClose();
+    if (typeof autoSave === 'function') autoSave();
+}
+
+/** 오라 팝업 닫기 */
+function auraPopupClose() {
+    const overlay = document.getElementById('aura-popup-overlay');
+    const popup   = document.getElementById('aura-popup');
+    if (overlay) overlay.style.display = 'none';
+    if (popup && popup.parentElement !== overlay) {
+        overlay.appendChild(popup);
+        popup.style.display = '';
+    }
+    _auraCharId = null;
+    _auraBtn    = null;
 }
 
 
