@@ -4063,3 +4063,25 @@ project/
 - `saveJsonWithLocation()`: `new Date()` + `padStart` 3줄 → `getCurrentDateForFile()` 호출 1줄로 교체
 
 ---
+
+네, 적어두는 게 좋을 것 같습니다.
+
+---
+
+## 2026-03-07 (95차)
+
+### 아바타 행 기본 너비 고정
+
+**수정된 파일:** `index.html`
+
+---
+
+### 변경 내용
+
+**`index.html`**
+
+- `avatar-row-template`의 `colspan="9"` `td`에 `min-width:800px` 추가
+  - 기존: 아바타를 전부 언커먼으로 설정 시 텍스트 길이만큼 표 가로 너비가 늘어나는 문제
+  - 수정: 언커먼 9개 텍스트를 수용할 수 있는 너비를 기본값으로 고정하여 설정 변경 시 표 너비 변동 없음
+
+---
