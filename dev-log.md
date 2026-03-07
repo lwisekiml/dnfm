@@ -3912,3 +3912,45 @@ project/
   - 흑룡 세트 1개 포함 (어둠을 부리는 지팡이 / 복수를 가리는 가면 / 마법이 깃든 망토)
 
 ---
+
+## 2026-03-07 (90차)
+
+### 칭호/오라/크리쳐 팝업 자동입력 badge 추가 + 크리쳐 아티팩트 카드 레이아웃 조정
+
+**수정된 파일:** `index.html`, `js/ui-character.js`, `styles/merged.css`
+
+---
+
+### 변경 내용
+
+**`index.html`**
+
+- 칭호 팝업: `기본정보`, `효과` section-label 옆, `설명` label 옆에 "자동입력" badge 추가
+  - id: `title-badge-base`, `title-badge-eff`, `title-badge-desc`
+- 오라 팝업: `기본정보`, `효과` section-label 옆, `설명` label 옆에 "자동입력" badge 추가
+  - id: `aura-badge-base`, `aura-badge-eff`, `aura-badge-desc`
+- 크리쳐 팝업 아티팩트 카드(RED/BLUE/GREEN)
+  - 카드 내 순서 변경: `선택지 두 개(opt-row)` → `자동입력 badge` → `스탯 수치 입력칸(stat-rows)` 순으로 재배치
+  - "자동입력" badge를 `span` 태그로 스탯 수치 바로 위에 배치
+    - id: `creature-art-badge-red`, `creature-art-badge-blue`, `creature-art-badge-green`
+    - `display:none` → JS에서 `inline`으로 전환
+    - `line-height:1` 추가로 badge 아래 여백 최소화
+  - 두 번째 opt-row에 `creature-art-opt-row-last` 클래스 추가 (구분선 표시용)
+
+**`styles/merged.css`**
+
+- `.creature-art-opt-row-last` 추가: 두 번째 선택지 행 아래 구분선 (`border-bottom: 1px dashed`)
+- `.creature-art-stat-rows`: `border-bottom` 제거, `padding` 조정 (`0px 0`)
+
+**`js/ui-character.js`**
+
+- `titleNameApplyStats()`: 자동입력 시 `title-badge-*` 3개 표시, 미등록 이름 시 숨김
+- `auraNameApplyStats()`: 자동입력 시 `aura-badge-*` 3개 표시, 미등록 이름 시 숨김
+- `creatureArtNameInput()`: 이름 일치 시 해당 color badge `inline` 표시, 불일치 시 숨김
+- `creatureArtDropdownSelect()`: 선택 시 해당 color badge `inline` 표시
+- 팝업 열릴 때 badge 초기 상태 복원
+  - 칭호: `setTimeout(() => titleNameApplyStats(savedName), 0)`
+  - 오라: `setTimeout(() => auraNameApplyStats(savedName), 0)`
+  - 크리쳐: 각 color별 ARTIFACT_SET_DATA 매칭 여부로 badge 복원
+
+---

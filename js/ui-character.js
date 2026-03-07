@@ -1412,6 +1412,18 @@ function openCreaturePopup(charId, btn) {
 
     // 공통 자동완성 드롭다운 외부클릭 닫기 초기화
     _acDropdownInit();
+    // 아티팩트 스탯 badge 초기 상태 복원
+    setTimeout(() => {
+        if (typeof ARTIFACT_SET_DATA === 'undefined') return;
+        const p = document.getElementById('creature-popup');
+        if (!p) return;
+        ['red','blue','green'].forEach(color => {
+            const name = p.querySelector(`[data-creature-art="크리쳐_art_${color}_top_text"]`)?.value.trim() || '';
+            const badge = document.getElementById(`creature-art-badge-${color}`);
+            const matched = ARTIFACT_SET_DATA.find(s => s[color]?.name === name);
+            if (badge) badge.style.display = matched ? 'block' : 'none';
+        });
+    }, 0);
 
     // 팝업 표시 (fixed 기준 — 스크롤 따라 재계산)
     overlay.style.display = 'block';
@@ -1574,11 +1586,15 @@ function creatureArtNameInput(input, color) {
 
     // 정확히 일치하면 스탯 자동입력
     const matched = ARTIFACT_SET_DATA.find(s => s[color]?.name === val);
+    const badge = document.getElementById(`creature-art-badge-${color}`);
     if (matched) {
         Object.entries(matched[color].stats).forEach(([key, statVal]) => {
             const el = popup.querySelector(`[data-creature-art="${key}"]`);
             if (el) el.value = statVal;
         });
+        if (badge) badge.style.display = 'inline';
+    } else {
+        if (badge) badge.style.display = 'none';
     }
 
     _creatureCheckArtSet(popup);
@@ -1592,11 +1608,15 @@ function creatureArtDropdownSelect(name, color) {
     if (input) input.value = name;
 
     const matched = ARTIFACT_SET_DATA.find(s => s[color]?.name === name);
+    const badge = document.getElementById(`creature-art-badge-${color}`);
     if (matched) {
         Object.entries(matched[color].stats).forEach(([key, statVal]) => {
             const el = popup.querySelector(`[data-creature-art="${key}"]`);
             if (el) el.value = statVal;
         });
+        if (badge) badge.style.display = 'inline';
+    } else {
+        if (badge) badge.style.display = 'none';
     }
     _creatureCheckArtSet(popup);
 }
@@ -1707,6 +1727,94 @@ let _titleBtn    = null;
 /**
  * 칭호 팝업 열기
  */
+// ============================================
+// 칭호 이름 자동완성
+// ============================================
+
+function titleNameDropdownShow() {
+    const input = document.getElementById('title-popup-name');
+    if (!input) return;
+    const val = input.value.trim();
+    const keys = Object.keys(GameData.TITLE_ITEM_INFO || {});
+    const candidates = keys.filter(k => !val || k.includes(val));
+    acDropdownShow('title-name-dropdown', candidates, titleNameDropdownSelect);
+    // 타이핑 시 스탯 갱신
+    titleNameApplyStats(val);
+}
+
+function titleNameDropdownSelect(name) {
+    const input = document.getElementById('title-popup-name');
+    if (input) input.value = name;
+    titleNameApplyStats(name);
+    document.getElementById('title-name-dropdown').style.display = 'none';
+}
+
+function titleNameApplyStats(name) {
+    const popup = document.getElementById('title-popup');
+    if (!popup) return;
+    const info = (GameData.TITLE_ITEM_INFO || {})[name];
+    const badgeBase = document.getElementById('title-badge-base');
+    const badgeEff  = document.getElementById('title-badge-eff');
+    const badgeDesc = document.getElementById('title-badge-desc');
+    const show = v => v && (v.style.display = 'inline');
+    const hide = v => v && (v.style.display = 'none');
+    if (info?.stats) {
+        _applyTitleStats(popup, info.stats);
+        const descTA = document.getElementById('title-popup-desc');
+        if (descTA) descTA.value = info?.desc || '';
+        show(badgeBase); show(badgeEff); show(badgeDesc);
+    } else {
+        popup.querySelectorAll('[data-title-stat]').forEach(el => el.value = '');
+        const descTA = document.getElementById('title-popup-desc');
+        if (descTA) descTA.value = '';
+        hide(badgeBase); hide(badgeEff); hide(badgeDesc);
+    }
+}
+
+// ============================================
+// 오라 이름 자동완성
+// ============================================
+
+function auraNameDropdownShow() {
+    const input = document.getElementById('aura-popup-name');
+    if (!input) return;
+    const val = input.value.trim();
+    const keys = Object.keys(GameData.AURA_ITEM_INFO || {});
+    const candidates = keys.filter(k => !val || k.includes(val));
+    acDropdownShow('aura-name-dropdown', candidates, auraNameDropdownSelect);
+    // 타이핑 시 스탯 갱신
+    auraNameApplyStats(val);
+}
+
+function auraNameDropdownSelect(name) {
+    const input = document.getElementById('aura-popup-name');
+    if (input) input.value = name;
+    auraNameApplyStats(name);
+    document.getElementById('aura-name-dropdown').style.display = 'none';
+}
+
+function auraNameApplyStats(name) {
+    const popup = document.getElementById('aura-popup');
+    if (!popup) return;
+    const info = (GameData.AURA_ITEM_INFO || {})[name];
+    const badgeBase = document.getElementById('aura-badge-base');
+    const badgeEff  = document.getElementById('aura-badge-eff');
+    const badgeDesc = document.getElementById('aura-badge-desc');
+    const show = v => v && (v.style.display = 'inline');
+    const hide = v => v && (v.style.display = 'none');
+    if (info?.stats) {
+        _applyAuraStats(popup, info.stats);
+        const descTA = document.getElementById('aura-popup-desc');
+        if (descTA) descTA.value = info?.desc || '';
+        show(badgeBase); show(badgeEff); show(badgeDesc);
+    } else {
+        popup.querySelectorAll('[data-aura-stat]').forEach(el => el.value = '');
+        const descTA = document.getElementById('aura-popup-desc');
+        if (descTA) descTA.value = '';
+        hide(badgeBase); hide(badgeEff); hide(badgeDesc);
+    }
+}
+
 function openTitlePopup(charId, btn) {
     _titleCharId = charId;
     _titleBtn    = btn;
@@ -1715,55 +1823,18 @@ function openTitlePopup(charId, btn) {
     const popup   = document.getElementById('title-popup');
     if (!overlay || !popup) return;
 
-    // 이름 복원
+    // 이름 복원 + 드롭다운 초기화
     const nameInput = document.getElementById('title-popup-name');
-    if (nameInput) nameInput.value = btn.getAttribute('data-title-name') || '';
-
-    // 선택지 초기화 (TITLE_ITEM_INFO 키 목록)
-    const titleSel = document.getElementById('title-popup-select');
-    if (titleSel) {
-        const currentName = btn.getAttribute('data-title-name') || '';
-        titleSel.innerHTML = '<option value="">-- 선택지에서 선택 --</option>' +
-            Object.keys(GameData.TITLE_ITEM_INFO || {})
-                .map(k => `<option value="${k}"${k === currentName ? ' selected' : ''}>${k}</option>`)
-                .join('');
-        // 이름 입력 중이면 select 비활성화
-        if (nameInput) {
-            nameInput.oninput = () => {
-                titleSel.disabled = nameInput.value.trim() !== '';
-                if (nameInput.value.trim() !== '') titleSel.value = '';
-            };
-        }
-        // select 선택 시 이름 input 비활성화 + 스탯 자동 입력
-        titleSel.onchange = () => {
-            const selName = titleSel.value;
-            if (!selName) {
-                if (nameInput) nameInput.disabled = false;
-                return;
-            }
-            if (nameInput) {
-                nameInput.disabled = true;
-                nameInput.value = '';
-            }
-            // 스탯 자동 입력
-            const info = (GameData.TITLE_ITEM_INFO || {})[selName];
-            if (info?.stats) _applyTitleStats(popup, info.stats);
-            // desc 자동 입력
-            const descTA = document.getElementById('title-popup-desc');
-            if (descTA) descTA.value = info?.desc || '';
-        };
-        // 초기 상태: 선택지에 값이 있으면 이름 input 비활성화
-        if (titleSel.value && nameInput) {
-            nameInput.disabled = true;
-            nameInput.value = '';
-        } else if (nameInput) {
-            nameInput.disabled = false;
-            titleSel.disabled = nameInput.value.trim() !== '';
-        }
+    if (nameInput) {
+        nameInput.value    = btn.getAttribute('data-title-name') || '';
+        nameInput.disabled = false;
     }
+    _acDropdownInit();
 
     // 스탯 복원: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
     const savedData = JSON.parse(btn.getAttribute('data-title-stats') || '{}');
+    // badge 초기 상태: 저장된 이름이 TITLE_ITEM_INFO에 있으면 자동입력 표시
+    setTimeout(() => titleNameApplyStats(btn.getAttribute('data-title-name') || ''), 0);
     function _buildStatMap(data) {
         const map = {};
         if (!data) return map;
@@ -1818,10 +1889,8 @@ function openTitlePopup(charId, btn) {
 function titlePopupSave() {
     if (!_titleBtn) { titlePopupClose(); return; }
 
-    const nameInput  = document.getElementById('title-popup-name');
-    const titleSel_s = document.getElementById('title-popup-select');
-    // select 선택 시 select 값 사용, 직접 입력 시 input 값 사용
-    const name = (titleSel_s?.value) || (nameInput ? nameInput.value.trim() : '');
+    const nameInput = document.getElementById('title-popup-name');
+    const name = nameInput ? nameInput.value.trim() : '';
 
     // 스탯 수집: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
     const baseMap = {}, effMap = {};
@@ -1996,51 +2065,18 @@ function openAuraPopup(charId, btn) {
     const popup   = document.getElementById('aura-popup');
     if (!overlay || !popup) return;
 
-    // 이름 복원
+    // 이름 복원 + 드롭다운 초기화
     const nameInput = document.getElementById('aura-popup-name');
-    if (nameInput) nameInput.value = btn.getAttribute('data-aura-name') || '';
-
-    // 선택지 초기화 (AURA_ITEM_INFO 키 목록)
-    const auraSel = document.getElementById('aura-popup-select');
-    if (auraSel) {
-        const currentName_a = btn.getAttribute('data-aura-name') || '';
-        auraSel.innerHTML = '<option value="">-- 선택지에서 선택 --</option>' +
-            Object.keys(GameData.AURA_ITEM_INFO || {})
-                .map(k => `<option value="${k}"${k === currentName_a ? ' selected' : ''}>${k}</option>`)
-                .join('');
-        if (nameInput) {
-            nameInput.oninput = () => {
-                auraSel.disabled = nameInput.value.trim() !== '';
-                if (nameInput.value.trim() !== '') auraSel.value = '';
-            };
-        }
-        auraSel.onchange = () => {
-            const selName = auraSel.value;
-            if (!selName) {
-                if (nameInput) nameInput.disabled = false;
-                return;
-            }
-            if (nameInput) {
-                nameInput.disabled = true;
-                nameInput.value = '';
-            }
-            const info = (GameData.AURA_ITEM_INFO || {})[selName];
-            if (info?.stats) _applyAuraStats(popup, info.stats);
-            // desc 자동 입력
-            const descTA_a = document.getElementById('aura-popup-desc');
-            if (descTA_a) descTA_a.value = info?.desc || '';
-        };
-        if (auraSel.value && nameInput) {
-            nameInput.disabled = true;
-            nameInput.value = '';
-        } else if (nameInput) {
-            nameInput.disabled = false;
-            auraSel.disabled = nameInput.value.trim() !== '';
-        }
+    if (nameInput) {
+        nameInput.value    = btn.getAttribute('data-aura-name') || '';
+        nameInput.disabled = false;
     }
+    _acDropdownInit();
 
     // 스탯 복원: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
     const savedData = JSON.parse(btn.getAttribute('data-aura-stats') || '{}');
+    // badge 초기 상태: 저장된 이름이 AURA_ITEM_INFO에 있으면 자동입력 표시
+    setTimeout(() => auraNameApplyStats(btn.getAttribute('data-aura-name') || ''), 0);
     function _buildStatMap(data) {
         const map = {};
         if (!data) return map;
@@ -2095,9 +2131,8 @@ function openAuraPopup(charId, btn) {
 function auraPopupSave() {
     if (!_auraBtn) { auraPopupClose(); return; }
 
-    const nameInput  = document.getElementById('aura-popup-name');
-    const auraSel_s  = document.getElementById('aura-popup-select');
-    const name = (auraSel_s?.value) || (nameInput ? nameInput.value.trim() : '');
+    const nameInput = document.getElementById('aura-popup-name');
+    const name = nameInput ? nameInput.value.trim() : '';
 
     // 스탯 수집: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
     const baseMap = {}, effMap = {};

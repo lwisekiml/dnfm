@@ -2912,6 +2912,11 @@ body.theme-mixed2 .avatar-popup-btn:hover {
     gap: 5px;
     align-items: center;
 }
+.creature-art-opt-row-last {
+    padding-bottom: 7px;
+    border-bottom: 1px dashed rgba(255,255,255,0.15);
+    margin-bottom: 2px;
+}
 
 /* 공통 select/input */
 .creature-art-rarity {
@@ -2994,8 +2999,7 @@ body.theme-mixed2 .avatar-popup-btn:hover {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    padding: 6px 0;
-    border-bottom: 1px dashed rgba(255,255,255,0.15);
+    padding: 0px 0;
     margin-bottom: 4px;
 }
 .creature-art-stat-row {

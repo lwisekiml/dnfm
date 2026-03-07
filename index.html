@@ -801,12 +801,6 @@
                         <ul id="artifact-dropdown-red" class="ac-dropdown" style="display:none;"></ul>
                     </div>
                 </div>
-                <div class="creature-art-stat-rows">
-                    <div class="creature-art-stat-row"><span>물리 공격력</span><input type="text" data-creature-art="크리쳐_art_red_stat_물리공격력" class="creature-art-stat-input"></div>
-                    <div class="creature-art-stat-row"><span>마법 공격력</span><input type="text" data-creature-art="크리쳐_art_red_stat_마법공격력" class="creature-art-stat-input"></div>
-                    <div class="creature-art-stat-row"><span>힘</span><input type="text" data-creature-art="크리쳐_art_red_stat_힘" class="creature-art-stat-input"></div>
-                    <div class="creature-art-stat-row"><span>지능</span><input type="text" data-creature-art="크리쳐_art_red_stat_지능" class="creature-art-stat-input"></div>
-                </div>
                 <div class="creature-art-opt-row">
                     <select data-creature-art="크리쳐_art_red_bg_1" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
                         <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
@@ -815,13 +809,20 @@
                         <option value="">옵션 선택</option><option>힘</option><option>지능</option><option>체력</option><option>정신력</option><option>적중</option><option>회피</option>
                     </select>
                 </div>
-                <div class="creature-art-opt-row">
+                <div class="creature-art-opt-row creature-art-opt-row-last">
                     <select data-creature-art="크리쳐_art_red_bg_2" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
                         <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
                     </select>
                     <select data-creature-art="크리쳐_art_red_opt_2" class="creature-art-opt">
                         <option value="">옵션 선택</option><option>힘</option><option>지능</option><option>체력</option><option>정신력</option><option>적중</option><option>회피</option>
                     </select>
+                </div>
+                <span id="creature-art-badge-red" style="display:none; font-size:0.75em; padding:1px 6px 0 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; line-height:1; margin-bottom:0px; width:fit-content;">자동입력</span>
+                <div class="creature-art-stat-rows">
+                    <div class="creature-art-stat-row"><span>물리 공격력</span><input type="text" data-creature-art="크리쳐_art_red_stat_물리공격력" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>마법 공격력</span><input type="text" data-creature-art="크리쳐_art_red_stat_마법공격력" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>힘</span><input type="text" data-creature-art="크리쳐_art_red_stat_힘" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>지능</span><input type="text" data-creature-art="크리쳐_art_red_stat_지능" class="creature-art-stat-input"></div>
                 </div>
             </div>
 
@@ -839,12 +840,6 @@
                         <ul id="artifact-dropdown-blue" class="ac-dropdown" style="display:none;"></ul>
                     </div>
                 </div>
-                <div class="creature-art-stat-rows">
-                    <div class="creature-art-stat-row"><span>공격속도</span><input type="text" data-creature-art="크리쳐_art_blue_stat_공격속도" class="creature-art-stat-input"></div>
-                    <div class="creature-art-stat-row"><span>캐스팅속도</span><input type="text" data-creature-art="크리쳐_art_blue_stat_캐스팅속도" class="creature-art-stat-input"></div>
-                    <div class="creature-art-stat-row"><span>이동속도</span><input type="text" data-creature-art="크리쳐_art_blue_stat_이동속도" class="creature-art-stat-input"></div>
-                    <div class="creature-art-stat-row"><span>적중</span><input type="text" data-creature-art="크리쳐_art_blue_stat_적중" class="creature-art-stat-input"></div>
-                </div>
                 <div class="creature-art-opt-row">
                     <select data-creature-art="크리쳐_art_blue_bg_1" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
                         <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
@@ -853,13 +848,20 @@
                         <option value="">옵션 선택</option><option>HP MAX</option><option>MP MAX</option><option>물리 공격력</option><option>마법 공격력</option><option>물리 방어력</option><option>마법 방어력</option>
                     </select>
                 </div>
-                <div class="creature-art-opt-row">
+                <div class="creature-art-opt-row creature-art-opt-row-last">
                     <select data-creature-art="크리쳐_art_blue_bg_2" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
                         <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
                     </select>
                     <select data-creature-art="크리쳐_art_blue_opt_2" class="creature-art-opt">
                         <option value="">옵션 선택</option><option>HP MAX</option><option>MP MAX</option><option>물리 공격력</option><option>마법 공격력</option><option>물리 방어력</option><option>마법 방어력</option>
                     </select>
+                </div>
+                <span id="creature-art-badge-blue" style="display:none; font-size:0.75em; padding:1px 6px 0 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; line-height:1; margin-bottom:0px; width:fit-content;">자동입력</span>
+                <div class="creature-art-stat-rows">
+                    <div class="creature-art-stat-row"><span>공격속도</span><input type="text" data-creature-art="크리쳐_art_blue_stat_공격속도" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>캐스팅속도</span><input type="text" data-creature-art="크리쳐_art_blue_stat_캐스팅속도" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>이동속도</span><input type="text" data-creature-art="크리쳐_art_blue_stat_이동속도" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>적중</span><input type="text" data-creature-art="크리쳐_art_blue_stat_적중" class="creature-art-stat-input"></div>
                 </div>
             </div>
 
@@ -877,11 +879,6 @@
                         <ul id="artifact-dropdown-green" class="ac-dropdown" style="display:none;"></ul>
                     </div>
                 </div>
-                <div class="creature-art-stat-rows">
-                    <div class="creature-art-stat-row"><span>HP MAX</span><input type="text" data-creature-art="크리쳐_art_green_stat_HPMAX" class="creature-art-stat-input"></div>
-                    <div class="creature-art-stat-row"><span>MP MAX</span><input type="text" data-creature-art="크리쳐_art_green_stat_MPMAX" class="creature-art-stat-input"></div>
-                    <div class="creature-art-stat-row"><span>모속강</span><input type="text" data-creature-art="크리쳐_art_green_stat_모속강" class="creature-art-stat-input"></div>
-                </div>
                 <div class="creature-art-opt-row">
                     <select data-creature-art="크리쳐_art_green_bg_1" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
                         <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
@@ -890,13 +887,19 @@
                         <option value="">옵션 선택</option><option>물리 크리티컬</option><option>마법 크리티컬</option><option>공격속도</option><option>캐스팅속도</option><option>이동속도</option><option>화속강</option><option>수속강</option><option>명속강</option><option>암속강</option><option>모속강</option>
                     </select>
                 </div>
-                <div class="creature-art-opt-row">
+                <div class="creature-art-opt-row creature-art-opt-row-last">
                     <select data-creature-art="크리쳐_art_green_bg_2" class="creature-art-rarity" onchange="creaturePopupArtBg(this)">
                         <option>에픽</option><option>유니크</option><option>레어</option><option>언커먼</option><option>커먼</option>
                     </select>
                     <select data-creature-art="크리쳐_art_green_opt_2" class="creature-art-opt">
                         <option value="">옵션 선택</option><option>물리 크리티컬</option><option>마법 크리티컬</option><option>공격속도</option><option>캐스팅속도</option><option>이동속도</option><option>화속강</option><option>수속강</option><option>명속강</option><option>암속강</option><option>모속강</option>
                     </select>
+                </div>
+                <span id="creature-art-badge-green" style="display:none; font-size:0.75em; padding:1px 6px 0 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; line-height:1; margin-bottom:0px; width:fit-content;">자동입력</span>
+                <div class="creature-art-stat-rows">
+                    <div class="creature-art-stat-row"><span>HP MAX</span><input type="text" data-creature-art="크리쳐_art_green_stat_HPMAX" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>MP MAX</span><input type="text" data-creature-art="크리쳐_art_green_stat_MPMAX" class="creature-art-stat-input"></div>
+                    <div class="creature-art-stat-row"><span>모속강</span><input type="text" data-creature-art="크리쳐_art_green_stat_모속강" class="creature-art-stat-input"></div>
                 </div>
             </div>
         </div>
@@ -949,22 +952,22 @@
         <div class="avatar-popup-title">오라 설정</div>
         <div style="margin-bottom:14px; display:flex; align-items:center; gap:8px;">
             <span style="white-space:nowrap; font-size:0.95em;">오라 이름</span>
-            <input id="aura-popup-name" type="text" placeholder="선택지에 없으면 직접 입력"
-                   style="width:22%; height:28px; background:var(--input-bg); color:var(--color-white);
-                          border:var(--border-width) var(--border-style) var(--border);
-                          font:inherit; font-size:var(--fs-table); padding:0 6px; box-sizing:border-box;">
-            <select id="aura-popup-select"
-                    style="width:22%; height:28px; background:var(--input-bg); color:var(--color-white);
-                           border:var(--border-width) var(--border-style) var(--border);
-                           font:inherit; font-size:var(--fs-table); box-sizing:border-box; cursor:pointer;">
-                <option value="">-- 선택지에서 선택 --</option>
-            </select>
-            <span style="white-space:nowrap; font-size:0.82em; color:#888; margin-left:6px;">텍스트 입력과 선택은 동시에 할 수 없습니다.</span>
+            <div style="position:relative; width:46%;">
+                <input id="aura-popup-name" type="text" placeholder="이름 입력 또는 선택"
+                       autocomplete="off"
+                       style="width:100%; height:28px; background:var(--input-bg); color:var(--color-white);
+                              border:var(--border-width) var(--border-style) var(--border);
+                              font:inherit; font-size:var(--fs-table); padding:0 6px; box-sizing:border-box;"
+                       oninput="auraNameDropdownShow()"
+                       onfocus="auraNameDropdownShow()"
+                       onkeydown="acDropdownKeydown(event,'aura-name-dropdown',auraNameDropdownSelect)">
+                <ul id="aura-name-dropdown" class="ac-dropdown" style="display:none;"></ul>
+            </div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0 24px; align-items:start;">
             <!-- 기본정보 열1 -->
             <div>
-                <div class="title-popup-section-label">기본정보</div>
+                <div class="title-popup-section-label">기본정보<span id="aura-badge-base" class="auto-fill-badge" style="display:none; font-size:0.75em; padding:1px 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; margin-left:6px;">자동입력</span></div>
                 <div class="title-popup-row"><span>힘</span><input type="number" data-aura-stat="힘_base" inputmode="numeric" step="any"></div>
                 <div class="title-popup-row"><span>지능</span><input type="number" data-aura-stat="지능_base" inputmode="numeric" step="any"></div>
                 <div class="title-popup-row"><span>체력</span><input type="number" data-aura-stat="체력_base" inputmode="numeric" step="any"></div>
@@ -1009,7 +1012,7 @@
             </div>
             <!-- 효과 열3 -->
             <div>
-                <div class="title-popup-section-label">효과</div>
+                <div class="title-popup-section-label">효과<span id="aura-badge-eff" class="auto-fill-badge" style="display:none; font-size:0.75em; padding:1px 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; margin-left:6px;">자동입력</span></div>
                 <div class="title-popup-row"><span>힘</span><input type="number" data-aura-stat="힘_eff" inputmode="numeric" step="any"></div>
                 <div class="title-popup-row"><span>지능</span><input type="number" data-aura-stat="지능_eff" inputmode="numeric" step="any"></div>
                 <div class="title-popup-row"><span>체력</span><input type="number" data-aura-stat="체력_eff" inputmode="numeric" step="any"></div>
@@ -1054,7 +1057,7 @@
             </div>
         </div>
         <div style="margin-top:14px;">
-            <div style="font-size:0.88em; opacity:0.7; margin-bottom:4px;">설명</div>
+            <div style="font-size:0.88em; opacity:0.7; margin-bottom:4px; display:flex; align-items:center;">설명<span id="aura-badge-desc" class="auto-fill-badge" style="display:none; font-size:0.75em; padding:1px 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; margin-left:6px;">자동입력</span></div>
             <textarea id="aura-popup-desc"
                       style="width:100%; height:72px; background:var(--input-bg); color:var(--color-white);
                              border:var(--border-width) var(--border-style) var(--border);
@@ -1077,22 +1080,22 @@
         <div class="avatar-popup-title">칭호 설정</div>
         <div style="margin-bottom:14px; display:flex; align-items:center; gap:8px;">
             <span style="white-space:nowrap; font-size:0.95em;">칭호 이름</span>
-            <input id="title-popup-name" type="text" placeholder="선택지에 없으면 직접 입력"
-                   style="width:22%; height:28px; background:var(--input-bg); color:var(--color-white);
-                          border:var(--border-width) var(--border-style) var(--border);
-                          font:inherit; font-size:var(--fs-table); padding:0 6px; box-sizing:border-box;">
-            <select id="title-popup-select"
-                    style="width:22%; height:28px; background:var(--input-bg); color:var(--color-white);
-                           border:var(--border-width) var(--border-style) var(--border);
-                           font:inherit; font-size:var(--fs-table); box-sizing:border-box; cursor:pointer;">
-                <option value="">-- 선택지에서 선택 --</option>
-            </select>
-            <span style="white-space:nowrap; font-size:0.82em; color:#888; margin-left:6px;">텍스트 입력과 선택은 동시에 할 수 없습니다.</span>
+            <div style="position:relative; width:46%;">
+                <input id="title-popup-name" type="text" placeholder="이름 입력 또는 선택"
+                       autocomplete="off"
+                       style="width:100%; height:28px; background:var(--input-bg); color:var(--color-white);
+                              border:var(--border-width) var(--border-style) var(--border);
+                              font:inherit; font-size:var(--fs-table); padding:0 6px; box-sizing:border-box;"
+                       oninput="titleNameDropdownShow()"
+                       onfocus="titleNameDropdownShow()"
+                       onkeydown="acDropdownKeydown(event,'title-name-dropdown',titleNameDropdownSelect)">
+                <ul id="title-name-dropdown" class="ac-dropdown" style="display:none;"></ul>
+            </div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0 24px; align-items:start;">
             <!-- 기본정보 열1 -->
             <div>
-                <div class="title-popup-section-label">기본정보</div>
+                <div class="title-popup-section-label">기본정보<span id="title-badge-base" class="auto-fill-badge" style="display:none; font-size:0.75em; padding:1px 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; margin-left:6px;">자동입력</span></div>
                 <div class="title-popup-row"><span>힘</span><input type="number" data-title-stat="힘_base" inputmode="numeric" step="any"></div>
                 <div class="title-popup-row"><span>지능</span><input type="number" data-title-stat="지능_base" inputmode="numeric" step="any"></div>
                 <div class="title-popup-row"><span>체력</span><input type="number" data-title-stat="체력_base" inputmode="numeric" step="any"></div>
@@ -1137,7 +1140,7 @@
             </div>
             <!-- 효과 열3 -->
             <div>
-                <div class="title-popup-section-label">효과</div>
+                <div class="title-popup-section-label">효과<span id="title-badge-eff" class="auto-fill-badge" style="display:none; font-size:0.75em; padding:1px 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; margin-left:6px;">자동입력</span></div>
                 <div class="title-popup-row"><span>힘</span><input type="number" data-title-stat="힘_eff" inputmode="numeric" step="any"></div>
                 <div class="title-popup-row"><span>지능</span><input type="number" data-title-stat="지능_eff" inputmode="numeric" step="any"></div>
                 <div class="title-popup-row"><span>체력</span><input type="number" data-title-stat="체력_eff" inputmode="numeric" step="any"></div>
@@ -1182,7 +1185,7 @@
             </div>
         </div>
         <div style="margin-top:14px;">
-            <div style="font-size:0.88em; opacity:0.7; margin-bottom:4px;">설명</div>
+            <div style="font-size:0.88em; opacity:0.7; margin-bottom:4px; display:flex; align-items:center;">설명<span id="title-badge-desc" class="auto-fill-badge" style="display:none; font-size:0.75em; padding:1px 6px; border-radius:10px; background:#2a4a2a; color:#6fdf6f; border:1px solid #3a6a3a; margin-left:6px;">자동입력</span></div>
             <textarea id="title-popup-desc"
                       style="width:100%; height:72px; background:var(--input-bg); color:var(--color-white);
                              border:var(--border-width) var(--border-style) var(--border);
