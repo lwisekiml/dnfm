@@ -1580,8 +1580,6 @@ function titlePopupSave() {
 
         // 이전 스탯
         const oldStats = JSON.parse(_titleBtn.getAttribute('data-title-stats') || '{}');
-        const oldAll = [...(oldStats.base || []), ...(oldStats.eff || [])];
-        const newAll = [...(stats.base || []), ...(stats.eff || [])];
 
         // details: 스탯별 변경 내역
         const details = [];
@@ -1596,19 +1594,33 @@ function titlePopupSave() {
             '화속강':'화속강','수속강':'수속강','명속강':'명속강','암속강':'암속강',
             '데미지증가':'데미지증가','마을이동속도':'마을이동속도',
         };
-        // 이전/이후 스탯을 statKey 기준 맵으로 변환
-        function _toStatMap(arr) {
+        // 이전/이후 스탯을 type 구분 맵으로 변환 (base/eff 분리)
+        function _toStatMap(arr, type) {
             const m = {};
-            arr.forEach(e => e.stats.forEach(s => { m[s] = `${e.amount}${e.unit}`; }));
+            arr.forEach(e => e.stats.forEach(s => { m[`${s}_${type}`] = `${e.amount}${e.unit}`; }));
             return m;
         }
-        const oldStatMap = _toStatMap(oldAll);
-        const newStatMap = _toStatMap(newAll);
-        const allKeys = new Set([...Object.keys(oldStatMap), ...Object.keys(newStatMap)]);
+        const oldBaseMap = _toStatMap(oldStats.base || [], 'base');
+        const oldEffMap  = _toStatMap(oldStats.eff  || [], 'eff');
+        const newBaseMap = _toStatMap(stats.base || [], 'base');
+        const newEffMap  = _toStatMap(stats.eff  || [], 'eff');
+        const oldStatMap = { ...oldBaseMap, ...oldEffMap };
+        const newStatMap = { ...newBaseMap, ...newEffMap };
+        const allKeys = [...new Set([...Object.keys(oldStatMap), ...Object.keys(newStatMap)])];
+        // [기본](_base) 먼저, [효과](_eff) 나중에 정렬
+        allKeys.sort((a, b) => {
+            const ta = a.endsWith('_eff') ? 1 : 0;
+            const tb = b.endsWith('_eff') ? 1 : 0;
+            return ta - tb;
+        });
         allKeys.forEach(k => {
             const ov = oldStatMap[k] || '없음';
             const nv = newStatMap[k] || '없음';
-            if (ov !== nv) details.push(`${statLabels2[k] || k}: ${ov} → ${nv}`);
+            if (ov !== nv) {
+                const [statKey, type] = k.split(/_(?=base$|eff$)/);
+                const typeLabel = type === 'eff' ? '[효과] ' : '[기본] ';
+                details.push(`${typeLabel}${statLabels2[statKey] || statKey}: ${ov} → ${nv}`);
+            }
         });
         if (oldName !== name) details.unshift(`이름: ${oldName || '(빈칸)'} → ${name || '(빈칸)'}`);
 
@@ -1804,8 +1816,6 @@ function auraPopupSave() {
 
         // 이전 스탯
         const oldStats = JSON.parse(_auraBtn.getAttribute('data-aura-stats') || '{}');
-        const oldAll = [...(oldStats.base || []), ...(oldStats.eff || [])];
-        const newAll = [...(stats.base || []), ...(stats.eff || [])];
 
         // details: 스탯별 변경 내역
         const details = [];
@@ -1820,18 +1830,33 @@ function auraPopupSave() {
             '화속강':'화속강','수속강':'수속강','명속강':'명속강','암속강':'암속강',
             '데미지증가':'데미지증가','마을이동속도':'마을이동속도',
         };
-        function _toStatMap(arr) {
+        // 이전/이후 스탯을 type 구분 맵으로 변환 (base/eff 분리)
+        function _toStatMap(arr, type) {
             const m = {};
-            arr.forEach(e => e.stats.forEach(s => { m[s] = `${e.amount}${e.unit}`; }));
+            arr.forEach(e => e.stats.forEach(s => { m[`${s}_${type}`] = `${e.amount}${e.unit}`; }));
             return m;
         }
-        const oldStatMap = _toStatMap(oldAll);
-        const newStatMap = _toStatMap(newAll);
-        const allKeys = new Set([...Object.keys(oldStatMap), ...Object.keys(newStatMap)]);
+        const oldBaseMap = _toStatMap(oldStats.base || [], 'base');
+        const oldEffMap  = _toStatMap(oldStats.eff  || [], 'eff');
+        const newBaseMap = _toStatMap(stats.base || [], 'base');
+        const newEffMap  = _toStatMap(stats.eff  || [], 'eff');
+        const oldStatMap = { ...oldBaseMap, ...oldEffMap };
+        const newStatMap = { ...newBaseMap, ...newEffMap };
+        const allKeys = [...new Set([...Object.keys(oldStatMap), ...Object.keys(newStatMap)])];
+        // [기본](_base) 먼저, [효과](_eff) 나중에 정렬
+        allKeys.sort((a, b) => {
+            const ta = a.endsWith('_eff') ? 1 : 0;
+            const tb = b.endsWith('_eff') ? 1 : 0;
+            return ta - tb;
+        });
         allKeys.forEach(k => {
             const ov = oldStatMap[k] || '없음';
             const nv = newStatMap[k] || '없음';
-            if (ov !== nv) details.push(`${statLabels2[k] || k}: ${ov} → ${nv}`);
+            if (ov !== nv) {
+                const [statKey, type] = k.split(/_(?=base$|eff$)/);
+                const typeLabel = type === 'eff' ? '[효과] ' : '[기본] ';
+                details.push(`${typeLabel}${statLabels2[statKey] || statKey}: ${ov} → ${nv}`);
+            }
         });
         if (oldName !== name) details.unshift(`이름: ${oldName || '(빈칸)'} → ${name || '(빈칸)'}`);
 
