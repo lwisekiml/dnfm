@@ -481,8 +481,8 @@ HP MAX +220
 모든 속성 강화 +10
 데미지 10% 증가
 공격 시 1% 확률로 무색 큐블 조각 1개를 소모하여 30초간 힘 30, 지능 30, 체력 20, 정신력 20, 공격속도 5%, 캐스팅속도 5%, 이동속도 5% 증가합니다.`,
-    desc: `공격 시 1% 확률로 무색 큐블 조각 1개를 소모하여 30초간 힘 30, 지능 30, 체력 20, 정신력 20, 공격속도 5%, 캐스팅속도 5%, 이동속도 5% 증가합니다.`,
-        stats: [
+        desc: `공격 시 1% 확률로 무색 큐블 조각 1개를 소모하여 30초간 힘 30, 지능 30, 체력 20, 정신력 20, 공격속도 5%, 캐스팅속도 5%, 이동속도 5% 증가합니다.`,
+        base: [
             {stats: ['힘', '지능'], amount: 33, unit: ''},
             {stats: ['체력', '정신력'], amount: 22, unit: ''},
             {stats: ['공격속도'], amount: 2, unit: '%'},
@@ -490,6 +490,8 @@ HP MAX +220
             {stats: ['이동속도'], amount: 2, unit: '%'},
             {stats: ['물리 크리티컬'], amount: 30, unit: ''},
             {stats: ['마법 크리티컬'], amount: 30, unit: ''},
+        ],
+        eff: [
             {stats: ['HP MAX'], amount: 220, unit: ''},
             {stats: ['모든 속성 강화'], amount: 10, unit: ''},
             {stats: ['데미지'], amount: 10, unit: '%'},
@@ -511,17 +513,19 @@ HP MAX +220
 데미지 15% 증가
 공격 시 1% 확률로 무색 큐블 조각 1개를 소모하여 30초간 힘 30, 지능 30, 체력 20, 정신력 20, 공격속도 5%, 캐스팅속도 5%, 이동속도 5% 증가합니다.`,
         desc: `공격 시 1% 확률로 무색 큐블 조각 1개를 소모하여 30초간 힘 30, 지능 30, 체력 20, 정신력 20, 공격속도 5%, 캐스팅속도 5%, 이동속도 5% 증가합니다.`,
-        stats: [
+        base: [
             { stats: ['힘', '지능'],           amount: 33  , unit: ''},
             { stats: ['체력', '정신력'],        amount: 22  , unit: ''},
-            { stats: ['공격속도'],              amount: 2   , unit: '%'},
-            { stats: ['캐스팅속도'],            amount: 3  , unit: '%'},
-            { stats: ['이동속도'],              amount: 2   , unit: '%'},
-            { stats: ['물리 크리티컬'],         amount: 30  , unit: ''},
-            { stats: ['마법 크리티컬'],         amount: 30  , unit: ''},
-            { stats: ['HP MAX'],               amount: 220 , unit: ''},
-            { stats: ['모든 속성 강화'],        amount: 3  , unit: ''},
-            { stats: ['데미지'],               amount: 15  , unit: '%'},
+            { stats: ['공격속도'],             amount: 2   , unit: '%'},
+            { stats: ['캐스팅속도'],           amount: 3   , unit: '%'},
+            { stats: ['이동속도'],             amount: 2   , unit: '%'},
+            { stats: ['물리 크리티컬'],        amount: 30  , unit: ''},
+            { stats: ['마법 크리티컬'],        amount: 30  , unit: ''},
+        ],
+        eff: [
+            { stats: ['HP MAX'],              amount: 220 , unit: ''},
+            { stats: ['모든 속성 강화'],       amount: 3   , unit: ''},
+            { stats: ['데미지'],              amount: 15  , unit: '%'},
         ]
     },
     V3: {
@@ -538,15 +542,17 @@ HP MAX +55
 MP MAX +110
 수속성 저항 +7
 수속강 +3`,
-        stats: [
-            { stats: ['힘', '지능', '정신력'],           amount: 32  , unit: ''},
-            { stats: ['공격속도'],              amount: 2   , unit: '%'},
-            { stats: ['캐스팅속도'],            amount: 3  , unit: '%'},
-            { stats: ['이동속도'],              amount: 2   , unit: '%'},
-            { stats: ['HP MAX'],               amount: 55 , unit: ''},
-            { stats: ['MP MAX'],               amount: 110 , unit: ''},
-            { stats: ['수속성 저항'],        amount: 7  , unit: ''},
-            { stats: ['수속강'],               amount: 3  , unit: ''},
+        base: [
+            { stats: ['힘', '지능', '정신력'], amount: 32  , unit: ''},
+            { stats: ['공격속도'],             amount: 2   , unit: '%'},
+            { stats: ['캐스팅속도'],           amount: 3   , unit: '%'},
+            { stats: ['이동속도'],             amount: 2   , unit: '%'},
+        ],
+        eff: [
+            { stats: ['HP MAX'],              amount: 55  , unit: ''},
+            { stats: ['MP MAX'],              amount: 110 , unit: ''},
+            { stats: ['수속성 저항'],         amount: 7   , unit: ''},
+            { stats: ['수속강'],              amount: 3   , unit: ''},
         ]
     },
     V4: {
@@ -555,12 +561,13 @@ MP MAX +110
 공격속도 +1.5%
 캐스팅속도 +2.2%
 이동속도 +1.5%`,
-        stats: [
-            { stats: ['힘', '지능', '체력', '정신력'],           amount: 18  , unit: ''},
-            { stats: ['공격속도'],              amount: 1.5   , unit: '%'},
-            { stats: ['캐스팅속도'],            amount: 2.2  , unit: '%'},
-            { stats: ['이동속도'],              amount: 1.5   , unit: '%'},
-        ]
+        base: [
+            { stats: ['힘', '지능', '체력', '정신력'], amount: 18  , unit: ''},
+            { stats: ['공격속도'],                     amount: 1.5 , unit: '%'},
+            { stats: ['캐스팅속도'],                   amount: 2.2 , unit: '%'},
+            { stats: ['이동속도'],                     amount: 1.5 , unit: '%'},
+        ],
+        eff: []
     }
 };
 
@@ -585,9 +592,11 @@ const _AURA_TEMPLATES = {
 수속강 +8
 암속강 +8
 명속강 +8`,
-        stats: [
+        base: [
             {stats: ['힘', '지능', '체력', '정신력'], amount: 45, unit: ''},
             {stats: ['물리 크리티컬', '마법 크리티컬'], amount: 110, unit: ''},
+        ],
+        eff: [
             {stats: ['화속강', '수속강', '암속강', '명속강'], amount: 8, unit: ''},
         ]
     },
@@ -603,10 +612,12 @@ const _AURA_TEMPLATES = {
 모든 속성 강화 +10
 마을 이동속도 증가 +5%
 데미지 5% 증가`,
-        stats: [
+        base: [
             { stats: ['힘', '지능', '체력', '정신력'], amount: 50, unit: ''},
             { stats: ['물리 크리티컬 확률', '마법 크리티컬 확률'], amount: 2, unit: '%'},
             { stats: ['물리 크리티컬', '마법 크리티컬'], amount: 130, unit: ''},
+        ],
+        eff: [
             { stats: ['모든 속성 강화'], amount: 10, unit: ''},
             { stats: ['마을 이동속도 증가'], amount: 5, unit: '%'},
             { stats: ['데미지'], amount: 5, unit: "%" },
@@ -620,9 +631,11 @@ const _AURA_TEMPLATES = {
 ---
 효과
 모든 속성 강화 +8`,
-        stats: [
+        base: [
             { stats: ['힘', '지능', '체력', '정신력'], amount: 45, unit: ''},
             { stats: ['물리 크리티컬', '마법 크리티컬'], amount: 110, unit: ''},
+        ],
+        eff: [
             { stats: ['모든 속성 강화'], amount: 8, unit: ''},
         ]
     },
@@ -630,7 +643,7 @@ const _AURA_TEMPLATES = {
         info: `기본정보
 힘, 지능, 체력, 정신력 +9
 `,
-        stats: [
+        base: [
             { stats: ['힘', '지능', '체력', '정신력'], amount: 9, unit: ''},
         ]
     },
@@ -639,7 +652,7 @@ const _AURA_TEMPLATES = {
 힘, 지능, 체력, 정신력 +24
 적중 +80
 `,
-        stats: [
+        base: [
             { stats: ['힘', '지능', '체력', '정신력'], amount: 24, unit: ''},
             { stats: ['적중'], amount: 80, unit: ''},
         ]
@@ -881,8 +894,8 @@ const AVATAR_SET_EFFECTS = {
                 { stats: ['공격속도'],         amount: 1.5 },
                 { stats: ['캐스팅속도'],       amount: 1.5 },
                 { stats: ['이동속도'],         amount: 1.5 },
-                { stats: ['모든속성저항'],     amount: 10  },
-                { stats: ['마을이동속도'],     amount: 60  },
+                { stats: ['모든 속성 저항'],     amount: 10  },
+                { stats: ['마을 이동속도 증가'],     amount: 60  },
             ]
         },
     },
@@ -943,48 +956,48 @@ const CREATURE_ART_STATS = {
         "커먼":   [
             { stat: 'HP MAX',    amount: 30, label: 'HP MAX +30'    },
             { stat: 'MP MAX',    amount: 30, label: 'MP MAX +30'    },
-            { stat: '물리공격력', amount: 10, label: '물리 공격력 +10' },
-            { stat: '마법공격력', amount: 10, label: '마법 공격력 +10' },
-            { stat: '물리방어력', amount: 20, label: '물리 방어력 +20' },
-            { stat: '마법방어력', amount: 20, label: '마법 방어력 +20' },
+            { stat: '물리 공격력', amount: 10, label: '물리 공격력 +10' },
+            { stat: '마법 공격력', amount: 10, label: '마법 공격력 +10' },
+            { stat: '물리 방어력', amount: 20, label: '물리 방어력 +20' },
+            { stat: '마법 방어력', amount: 20, label: '마법 방어력 +20' },
         ],
         "언커먼": [
             { stat: 'HP MAX',    amount: 45, label: 'HP MAX +45'    },
             { stat: 'MP MAX',    amount: 45, label: 'MP MAX +45'    },
-            { stat: '물리공격력', amount: 15, label: '물리 공격력 +15' },
-            { stat: '마법공격력', amount: 15, label: '마법 공격력 +15' },
-            { stat: '물리방어력', amount: 30, label: '물리 방어력 +30' },
-            { stat: '마법방어력', amount: 30, label: '마법 방어력 +30' },
+            { stat: '물리 공격력', amount: 15, label: '물리 공격력 +15' },
+            { stat: '마법 공격력', amount: 15, label: '마법 공격력 +15' },
+            { stat: '물리 방어력', amount: 30, label: '물리 방어력 +30' },
+            { stat: '마법 방어력', amount: 30, label: '마법 방어력 +30' },
         ],
         "레어":   [
             { stat: 'HP MAX',    amount: 60, label: 'HP MAX +60'    },
             { stat: 'MP MAX',    amount: 60, label: 'MP MAX +60'    },
-            { stat: '물리공격력', amount: 20, label: '물리 공격력 +20' },
-            { stat: '마법공격력', amount: 20, label: '마법 공격력 +20' },
-            { stat: '물리방어력', amount: 40, label: '물리 방어력 +40' },
-            { stat: '마법방어력', amount: 40, label: '마법 방어력 +40' },
+            { stat: '물리 공격력', amount: 20, label: '물리 공격력 +20' },
+            { stat: '마법 공격력', amount: 20, label: '마법 공격력 +20' },
+            { stat: '물리 방어력', amount: 40, label: '물리 방어력 +40' },
+            { stat: '마법 방어력', amount: 40, label: '마법 방어력 +40' },
         ],
         "유니크": [
             { stat: 'HP MAX',    amount: 75, label: 'HP MAX +75'    },
             { stat: 'MP MAX',    amount: 75, label: 'MP MAX +75'    },
-            { stat: '물리공격력', amount: 25, label: '물리 공격력 +25' },
-            { stat: '마법공격력', amount: 25, label: '마법 공격력 +25' },
-            { stat: '물리방어력', amount: 50, label: '물리 방어력 +50' },
-            { stat: '마법방어력', amount: 50, label: '마법 방어력 +50' },
+            { stat: '물리 공격력', amount: 25, label: '물리 공격력 +25' },
+            { stat: '마법 공격력', amount: 25, label: '마법 공격력 +25' },
+            { stat: '물리 방어력', amount: 50, label: '물리 방어력 +50' },
+            { stat: '마법 방어력', amount: 50, label: '마법 방어력 +50' },
         ],
         "에픽":   [
             { stat: 'HP MAX',    amount: 90, label: 'HP MAX +90'    },
             { stat: 'MP MAX',    amount: 90, label: 'MP MAX +90'    },
-            { stat: '물리공격력', amount: 30, label: '물리 공격력 +30' },
-            { stat: '마법공격력', amount: 30, label: '마법 공격력 +30' },
-            { stat: '물리방어력', amount: 60, label: '물리 방어력 +60' },
-            { stat: '마법방어력', amount: 60, label: '마법 방어력 +60' },
+            { stat: '물리 공격력', amount: 30, label: '물리 공격력 +30' },
+            { stat: '마법 공격력', amount: 30, label: '마법 공격력 +30' },
+            { stat: '물리 방어력', amount: 60, label: '물리 방어력 +60' },
+            { stat: '마법 방어력', amount: 60, label: '마법 방어력 +60' },
         ],
     },
     green: {
         "커먼":   [
-            { stat: '물리크리티컬', amount: 2,   label: '물리 크리티컬 +2'  },
-            { stat: '마법크리티컬', amount: 2,   label: '마법 크리티컬 +2'  },
+            { stat: '물리 크리티컬', amount: 2,   label: '물리 크리티컬 +2'  },
+            { stat: '마법 크리티컬', amount: 2,   label: '마법 크리티컬 +2'  },
             { stat: '공격속도',     amount: 0.2, label: '공격속도 +0.2%'    },
             { stat: '캐스팅속도',   amount: 0.2, label: '캐스팅속도 +0.2%'  },
             { stat: '이동속도',     amount: 0.2, label: '이동속도 +0.2%'    },
@@ -994,8 +1007,8 @@ const CREATURE_ART_STATS = {
             { stat: '모속강',       amount: 2,   label: '모속강 +2'         },
         ],
         "언커먼": [
-            { stat: '물리크리티컬', amount: 4,   label: '물리 크리티컬 +4'  },
-            { stat: '마법크리티컬', amount: 4,   label: '마법 크리티컬 +4'  },
+            { stat: '물리 크리티컬', amount: 4,   label: '물리 크리티컬 +4'  },
+            { stat: '마법 크리티컬', amount: 4,   label: '마법 크리티컬 +4'  },
             { stat: '공격속도',     amount: 0.3, label: '공격속도 +0.3%'    },
             { stat: '캐스팅속도',   amount: 0.3, label: '캐스팅속도 +0.3%'  },
             { stat: '이동속도',     amount: 0.3, label: '이동속도 +0.3%'    },
@@ -1005,8 +1018,8 @@ const CREATURE_ART_STATS = {
             { stat: '모속강',       amount: 3,   label: '모속강 +3'         },
         ],
         "레어":   [
-            { stat: '물리크리티컬', amount: 7,   label: '물리 크리티컬 +7'  },
-            { stat: '마법크리티컬', amount: 7,   label: '마법 크리티컬 +7'  },
+            { stat: '물리 크리티컬', amount: 7,   label: '물리 크리티컬 +7'  },
+            { stat: '마법 크리티컬', amount: 7,   label: '마법 크리티컬 +7'  },
             { stat: '공격속도',     amount: 0.4, label: '공격속도 +0.4%'    },
             { stat: '캐스팅속도',   amount: 0.4, label: '캐스팅속도 +0.4%'  },
             { stat: '이동속도',     amount: 0.4, label: '이동속도 +0.4%'    },
@@ -1016,8 +1029,8 @@ const CREATURE_ART_STATS = {
             { stat: '모속강',       amount: 4,   label: '모속강 +4'         },
         ],
         "유니크": [
-            { stat: '물리크리티컬', amount: 10,  label: '물리 크리티컬 +10' },
-            { stat: '마법크리티컬', amount: 10,  label: '마법 크리티컬 +10' },
+            { stat: '물리 크리티컬', amount: 10,  label: '물리 크리티컬 +10' },
+            { stat: '마법 크리티컬', amount: 10,  label: '마법 크리티컬 +10' },
             { stat: '공격속도',     amount: 0.5, label: '공격속도 +0.5%'    },
             { stat: '캐스팅속도',   amount: 0.5, label: '캐스팅속도 +0.5%'  },
             { stat: '이동속도',     amount: 0.5, label: '이동속도 +0.5%'    },
@@ -1027,8 +1040,8 @@ const CREATURE_ART_STATS = {
             { stat: '모속강',       amount: 5,   label: '모속강 +5'         },
         ],
         "에픽":   [
-            { stat: '물리크리티컬', amount: 14,  label: '물리 크리티컬 +14' },
-            { stat: '마법크리티컬', amount: 14,  label: '마법 크리티컬 +14' },
+            { stat: '물리 크리티컬', amount: 14,  label: '물리 크리티컬 +14' },
+            { stat: '마법 크리티컬', amount: 14,  label: '마법 크리티컬 +14' },
             { stat: '공격속도',     amount: 0.6, label: '공격속도 +0.6%'    },
             { stat: '캐스팅속도',   amount: 0.6, label: '캐스팅속도 +0.6%'  },
             { stat: '이동속도',     amount: 0.6, label: '이동속도 +0.6%'    },
@@ -1053,7 +1066,7 @@ const CREATURE_DATA = [
     {
         name: "진 : 옥령왕",
         stats: [
-            { stat: '모든속성강화', amount: 5,  label: '모든 속성 강화 +5'        },
+            { stat: '모든 속성 강화', amount: 5,  label: '모든 속성 강화 +5'        },
             { stat: '추가데미지',   amount: 18, label: '공격 시 18% 추가 데미지'  },
         ]
     },
@@ -1075,8 +1088,8 @@ const ARTIFACT_SET_DATA = [
         red: {
             name: '어둠을 부리는 지팡이',
             stats: {
-                '크리쳐_art_red_stat_물리공격력': '22',
-                '크리쳐_art_red_stat_마법공격력': '22',
+                '크리쳐_art_red_stat_물리 공격력': '22',
+                '크리쳐_art_red_stat_마법 공격력': '22',
                 '크리쳐_art_red_stat_힘':         '36',
                 '크리쳐_art_red_stat_지능':        '36',
             }

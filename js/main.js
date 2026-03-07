@@ -120,35 +120,6 @@ document.addEventListener('keydown', function (e) {
     }
 });
 
-// 변경된 필드명 표시용 레이블 (change 이벤트마다 재생성 방지 → 모듈 상단 상수로 분리)
-const FIELD_LABELS = {
-    'rarity': '희귀도', 'exceed': '익시드', 'prefix': '접두어',
-    'itemname': '아이템이름', 'reinforce': '강화',
-    'seal1': '봉인(고유)', 'seal1_val': '봉인(고유)수치',
-    'seal2': '봉인(일반)', 'seal2_val': '봉인(일반)수치',
-    'emb1': '엠블렘1', 'emb2': '엠블렘2',
-    'enchant': '마법부여', 'enchant_val': '마법부여수치',
-    'desc': '설명',
-    'info_job': '직업', 'info_name': '이름',
-    'info_stat_type': '스탯', 'info_ele_type': '속강',
-    'info_power': '항마력',
-    'weapon_stat': '무기아바타수치',
-    'name': '크리쳐이름',
-    'art_red_bg': '아티팩트(빨강)희귀도', 'art_red_opt': '아티팩트(빨강)옵션',
-    'art_blue_bg': '아티팩트(파랑)희귀도', 'art_blue_opt': '아티팩트(파랑)옵션',
-    'art_green_bg': '아티팩트(초록)희귀도', 'art_green_opt': '아티팩트(초록)옵션',
-    'title_stats': '칭호스탯',
-};
-function getFieldLabel(dataKey) {
-    if (dataKey.startsWith('info_')) return FIELD_LABELS[dataKey] || dataKey;
-    const underIdx = dataKey.indexOf('_');
-    if (underIdx === -1) return dataKey;
-    const slotPart = dataKey.slice(0, underIdx);
-    const fieldPart = dataKey.slice(underIdx + 1);
-    const fieldLabel = FIELD_LABELS[fieldPart] || fieldPart;
-    return slotPart + ' ' + fieldLabel;
-}
-
 /**
  * 입력 변경 감지 및 히스토리 기록
  */
@@ -163,6 +134,34 @@ document.addEventListener('change', function (e) {
     const charName = section.querySelector('[data-key="info_name"]').value || "이름없음";
     const slot = key.split('_')[0];
 
+    // 변경된 필드명 표시용 레이블 생성
+    const FIELD_LABELS = {
+        'rarity': '희귀도', 'exceed': '익시드', 'prefix': '접두어',
+        'itemname': '아이템이름', 'reinforce': '강화',
+        'seal1': '봉인(고유)', 'seal1_val': '봉인(고유)수치',
+        'seal2': '봉인(일반)', 'seal2_val': '봉인(일반)수치',
+        'emb1': '엠블렘1', 'emb2': '엠블렘2',
+        'enchant': '마법부여', 'enchant_val': '마법부여수치',
+        'desc': '설명',
+        'info_job': '직업', 'info_name': '이름',
+        'info_stat_type': '스탯', 'info_ele_type': '속강',
+        'info_power': '항마력',
+        'weapon_stat': '무기아바타수치',
+        'name': '크리쳐이름',
+        'art_red_bg': '아티팩트(빨강)희귀도', 'art_red_opt': '아티팩트(빨강)옵션',
+        'art_blue_bg': '아티팩트(파랑)희귀도', 'art_blue_opt': '아티팩트(파랑)옵션',
+        'art_green_bg': '아티팩트(초록)희귀도', 'art_green_opt': '아티팩트(초록)옵션',
+        'title_stats': '칭호스탯',
+    };
+    function getFieldLabel(dataKey) {
+        if (dataKey.startsWith('info_')) return FIELD_LABELS[dataKey] || dataKey;
+        const underIdx = dataKey.indexOf('_');
+        if (underIdx === -1) return dataKey;
+        const slotPart = dataKey.slice(0, underIdx);
+        const fieldPart = dataKey.slice(underIdx + 1);
+        const fieldLabel = FIELD_LABELS[fieldPart] || fieldPart;
+        return slotPart + ' ' + fieldLabel;
+    }
     const slotLabel = getFieldLabel(key);
 
     const prevChar = AppState.lastSnapshot.find(c => c.id === section.id);
@@ -231,12 +230,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 칭호/오라 팝업 숫자 input에서 e, E, +, - 입력 차단
+    // 칭호/오라 팝업 숫자 input에서 e, E, +, -, ArrowUp, ArrowDown 입력 차단
     ['title-popup', 'aura-popup'].forEach(id => {
         const popup = document.getElementById(id);
         if (!popup) return;
         popup.addEventListener('keydown', e => {
-            if (e.target.type === 'number' && ['e', 'E', '+', '-'].includes(e.key)) {
+            if (e.target.type === 'number' && ['e', 'E', '+', '-', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
                 e.preventDefault();
             }
         });

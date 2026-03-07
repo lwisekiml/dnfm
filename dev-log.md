@@ -4085,3 +4085,60 @@ project/
   - 수정: 언커먼 9개 텍스트를 수용할 수 있는 너비를 기본값으로 고정하여 설정 변경 시 표 너비 변동 없음
 
 ---
+---
+
+## 2026-03-07 (96차)
+
+### 칭호/오라 팝업 숫자 input 개선, 자동입력 수정 잠금, 팝업 글자색 흰색 적용, 스탯 키 표기 통일
+
+**수정된 파일:** `styles/merged.css`, `js/main.js`, `js/ui-character.js`, `index.html`, `shared/shared_data.js`
+
+---
+
+### 변경 내용
+
+**`styles/merged.css`**
+- `.title-popup-row input[type="number"]` 스피너(증감 버튼) 제거
+  - `::-webkit-inner-spin-button`, `::-webkit-outer-spin-button` → `-webkit-appearance: none`
+  - `-moz-appearance: textfield` (Firefox 대응)
+- `.title-popup-section-label` 에 `color: #fff` 추가
+- `.title-popup-row span` 에 `color: #fff` 추가
+
+**`index.html`**
+- 칭호/오라 팝업 "칭호 이름", "오라 이름" 라벨 inline style에 `color:#fff` 추가
+- 칭호/오라 팝업 "설명" 라벨 inline style에 `color:#fff` 추가
+- `avatar-row-template` 아바타 행 `colspan="9"` td에 `min-width:800px` 추가 (아바타 언커먼 설정 시 표 너비 늘어나는 문제 해결)
+
+**`js/main.js`**
+- 칭호/오라 팝업 숫자 input keydown 차단 목록에 `ArrowUp`, `ArrowDown` 추가
+  - 기존: `e, E, +, -` 차단
+  - 수정: `e, E, +, -, ArrowUp, ArrowDown` 차단 (방향키 숫자 변경 및 마이너스 입력 방지)
+
+**`js/ui-character.js`**
+- `_titlePopupLock(lock)` / `_auraPopupLock(lock)` 헬퍼 추가
+  - `lock=true`: stat input 전체 + desc textarea `readOnly`, opacity `0.65`, cursor `not-allowed`
+  - `lock=false`: 잠금 해제
+- `titleNameDropdownSelect`: 드롭다운 선택 시 데이터 매칭되면 `_titlePopupLock(true)` 호출
+- `titleNameApplyStats`: 직접 타이핑으로 매칭 없을 때 `_titlePopupLock(false)` 호출
+- `auraNameDropdownSelect` / `auraNameApplyStats`: 오라 팝업 동일하게 적용
+- `openTitlePopup` / `openAuraPopup`: 팝업 열 때 저장된 이름이 데이터와 매칭되면 lock 상태로 복원
+
+**`shared/shared_data.js`**
+- `_TITLE_TEMPLATES` V1~V4 구조 변경: `stats: [...]` 단일 배열 → `base: [...]`, `eff: [...]` 분리
+  - V4는 `eff: []`
+
+
+전체 코드에서 같은 의미의 스탯 키가 다르게 표기된 항목을 통일
+
+| 변경 전 | 변경 후 | 위치 |
+|---|---|---|
+| `'마을이동속도'` | `'마을 이동속도 증가'` | `shared_data.js` AVATAR_SET_EFFECTS |
+| `'마을 이동속도'` (키) | `'마을 이동속도 증가'` | `ui-character.js` _STAT_LABELS_SHORT/LONG, `index.html` data-title-stat/data-aura-stat |
+| `'모든속성저항'` | `'모든 속성 저항'` | `shared_data.js` AVATAR_SET_EFFECTS |
+| `'물리크리티컬'`, `'마법크리티컬'` | `'물리 크리티컬'`, `'마법 크리티컬'` | `shared_data.js` CREATURE_ART_STATS green |
+| `'물리공격력'`, `'마법공격력'` | `'물리 공격력'`, `'마법 공격력'` | `shared_data.js` CREATURE_ART_STATS blue, ARTIFACT_SET_DATA key, `ui-character.js`, `index.html` |
+| `'물리방어력'`, `'마법방어력'` | `'물리 방어력'`, `'마법 방어력'` | `shared_data.js` CREATURE_ART_STATS blue |
+| `'모든속성강화'` | `'모든 속성 강화'` | `shared_data.js` CREATURE_DATA |
+
+---
+---
