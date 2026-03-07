@@ -8,8 +8,8 @@
  * - DOM의 .char-section 에서 project1 입력값을 읽어 characters 배열에 병합 후 저장
  */
 function autoSave() {
-    clearTimeout(UIState.saveTimer);
-    UIState.saveTimer = setTimeout(() => {
+    clearTimeout(window.sTime);
+    window.sTime = setTimeout(() => {
         // DOM에서 현재 상세입력 탭의 입력값 수집
         const domSections = Array.from(document.querySelectorAll('.char-section'));
 
@@ -185,14 +185,7 @@ function exportToJSON() {
         return c;
     });
 
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-
-    const fileName = `dnfm_backup_${year}-${month}-${day}_${hours}-${minutes}.json`;
+    const fileName = `dnfm_backup_${getCurrentDateTimeForFile()}.json`;
 
     const blob = new Blob([JSON.stringify(unified, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
@@ -220,11 +213,7 @@ async function saveJsonWithLocation() {
         return c;
     });
 
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const defaultFileName = `dnfm_backup_${year}-${month}-${day}.json`;
+    const defaultFileName = `dnfm_backup_${getCurrentDateForFile()}.json`;
 
     if ('showSaveFilePicker' in window) {
         try {

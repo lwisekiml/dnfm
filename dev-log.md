@@ -4038,3 +4038,28 @@ project/
 - `UIState`에 `saveTimer: null` 필드 추가 (`// autoSave 디바운스 타이머 (storage.js)`)
 
 ---
+
+이전 검토에서 지적했던 항목들이 모두 완료됐습니다. 추가로 코드 전체를 다시 한번 확인하겠습니다.발견했습니다. `storage.js`에 날짜 포맷 코드가 중복이고, `utils.js`에 이미 `getCurrentDateTime()`이 있는데 활용하지 않고 있습니다. 이걸 정리하겠습니다.깔끔합니다. 파일 출력합니다.---
+
+## 2026-03-07 (94차)
+
+### 날짜 포맷 중복 코드 헬퍼 함수로 통합
+
+**수정된 파일:** `js/utils.js`, `js/storage.js`
+
+---
+
+### 변경 내용
+
+**`js/utils.js`**
+
+- `getCurrentDateTimeForFile()` 추가: `"YYYY-MM-DD_HH-MM"` 형식 반환 — `exportToJSON` 파일명용
+- `getCurrentDateForFile()` 추가: `"YYYY-MM-DD"` 형식 반환 — `saveJsonWithLocation` 파일명용
+- 기존 `getCurrentDateTime()`은 히스토리 기록용(`"YYYY-MM-DD HH:MM:SS"`)으로 유지
+
+**`js/storage.js`**
+
+- `exportToJSON()`: `new Date()` + `padStart` 5줄 → `getCurrentDateTimeForFile()` 호출 1줄로 교체
+- `saveJsonWithLocation()`: `new Date()` + `padStart` 3줄 → `getCurrentDateForFile()` 호출 1줄로 교체
+
+---

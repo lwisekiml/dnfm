@@ -161,17 +161,41 @@ const DataTables = {
 // ===================================
 
 /**
- * 현재 날짜/시간 반환
+ * 현재 날짜/시간 반환 ("YYYY-MM-DD HH:MM:SS")
  */
 function getCurrentDateTime() {
     const now = new Date();
-    const year = now.getFullYear();
+    const year  = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
+    const day   = String(now.getDate()).padStart(2, '0');
     const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    const mins  = String(now.getMinutes()).padStart(2, '0');
+    const secs  = String(now.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${mins}:${secs}`;
+}
+
+/**
+ * 현재 날짜/시간 반환 ("YYYY-MM-DD_HH-MM") — 파일명용
+ */
+function getCurrentDateTimeForFile() {
+    const now = new Date();
+    const year  = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day   = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const mins  = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}_${hours}-${mins}`;
+}
+
+/**
+ * 현재 날짜 반환 ("YYYY-MM-DD") — 파일명용
+ */
+function getCurrentDateForFile() {
+    const now = new Date();
+    const year  = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day   = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
 /**
