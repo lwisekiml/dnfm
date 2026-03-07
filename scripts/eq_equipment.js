@@ -90,28 +90,9 @@ function openActionModal(charId, name, job) {
   `;
     modal.style.display = "flex";
 
-    // 직업 select 옵션 초기화
+    // 직업 select 옵션 초기화 (ui-character.js의 initJobSelect 공용 함수 사용)
     const jobSel = document.getElementById('edit-charJob');
-    if (jobSel && typeof JOB_SELECT_OPTIONS !== 'undefined') {
-        jobSel.innerHTML = '<option value="" disabled>직업 선택</option>';
-        JOB_SELECT_OPTIONS.forEach(opt => {
-            const o = document.createElement('option');
-            if (opt.type === 'separator') {
-                o.disabled = true;
-                o.textContent = '───────────────';
-                o.value = '';
-            } else if (opt.type === 'disabled') {
-                o.disabled = true;
-                o.value = '';
-                o.textContent = '';
-            } else {
-                o.value = opt.value;
-                o.textContent = opt.value;
-            }
-            jobSel.appendChild(o);
-        });
-        if (job) jobSel.value = job;
-    }
+    if (typeof initJobSelect === 'function') initJobSelect(jobSel, job);
 }
 
 // 모달 닫기 함수가 없다면 아래를 추가하세요.

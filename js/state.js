@@ -102,4 +102,5 @@ const UIState = {
 
     // main.js
     p1Initialized: false,    // project1 초기화 완료 여부
+    saveTimer:      null,    // autoSave 디바운스 타이머 (storage.js)
 };

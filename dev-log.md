@@ -3995,3 +3995,46 @@ project/
 - 각 함수 내 `statLabels2[...]` 참조 → `_STAT_LABELS_SHORT[...]` 로 교체
 
 ---
+
+맞습니다, 빠졌네요. 전체 이번 작업 내용으로 다시 올립니다.
+
+---
+
+## 2026-03-07 (93차)
+
+### 코드 중복 및 전역 오염 정리
+
+**수정된 파일:** `js/main.js`, `js/ui-memo-tag.js`, `scripts/eq_equipment.js`, `js/storage.js`, `js/state.js`
+
+---
+
+### 변경 내용
+
+**`js/main.js`**
+
+- `FIELD_LABELS` 객체와 `getFieldLabel()` 함수를 `change` 이벤트 핸들러 안에서 모듈 상단으로 이동
+  - 기존: `document.addEventListener('change', ...)` 핸들러 내부에 정의 → 입력값 변경 시마다 객체/함수 재생성
+  - 수정: 핸들러 바깥 상수/함수로 분리 → 최초 1회만 생성, 이후 재사용
+
+**`js/ui-memo-tag.js`**
+
+- `filterByTag()` 함수 제거
+  - 기존: `ui-memo-tag.js`와 `ui-tag-filter.js` 두 곳에 동일 이름 함수 존재
+  - `ui-tag-filter.js` 버전에 `UIState.filterTag = tag` 상태 관리 코드가 추가로 있어 해당 버전이 정식
+  - 제거 위치에 주석 추가: `// filterByTag → ui-tag-filter.js 에 정의`
+
+**`scripts/eq_equipment.js`**
+
+- `openActionModal()` 내 직업 select 옵션 생성 블록(18줄) → `initJobSelect()` 호출 1줄로 교체
+  - 기존: `JOB_SELECT_OPTIONS.forEach(...)` 직접 작성 → `ui-character.js`의 `initJobSelect()`와 동일 로직 중복
+  - 수정: `if (typeof initJobSelect === 'function') initJobSelect(jobSel, job);`
+
+**`js/storage.js`**
+
+- `window.sTime` → `UIState.saveTimer` 로 교체 (전역 네임스페이스 오염 제거)
+
+**`js/state.js`**
+
+- `UIState`에 `saveTimer: null` 필드 추가 (`// autoSave 디바운스 타이머 (storage.js)`)
+
+---

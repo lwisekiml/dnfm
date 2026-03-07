@@ -8,8 +8,8 @@
  * - DOM의 .char-section 에서 project1 입력값을 읽어 characters 배열에 병합 후 저장
  */
 function autoSave() {
-    clearTimeout(window.sTime);
-    window.sTime = setTimeout(() => {
+    clearTimeout(UIState.saveTimer);
+    UIState.saveTimer = setTimeout(() => {
         // DOM에서 현재 상세입력 탭의 입력값 수집
         const domSections = Array.from(document.querySelectorAll('.char-section'));
 

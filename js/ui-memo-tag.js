@@ -222,23 +222,7 @@ function loadTags(charId) {
     });
 }
 
-/**
- * 태그별 필터링 (추후 확장 기능)
- */
-function filterByTag(tag) {
-    const sections = document.querySelectorAll('.char-section');
-
-    sections.forEach(section => {
-        const charId = section.id;
-        const tags = AppState.charTags?.[charId] || [];
-
-        if (tag === '' || tags.includes(tag)) {
-            section.style.display = '';
-        } else {
-            section.style.display = 'none';
-        }
-    });
-}
+// filterByTag → ui-tag-filter.js 에 정의 (UIState.filterTag 관리 포함)
 
 /**
  * 모든 태그 목록 가져오기 (추후 확장 기능)
