@@ -162,9 +162,9 @@
     --width-rarity: 42px;
     --width-exceed: 45px;
     --width-prefix: 38px;
-    --width-val-short: 35px;
+    --width-val-short: 45px; /* 마법부여 가로 길이 */
     --width-emblem: 40px;
-    --width-enchant: 55px;
+    --width-enchant: 65px; /* 마법부여 수치 가로 길이 */
     --width-itemname-min: 120px;
     --width-desc-min: 230px;
     --width-modal: 310px;
