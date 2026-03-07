@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────
 // 7.1 캐릭터 CRUD
 // ─────────────────────────────────────────
-let _syncInProgress = false;
+// _syncInProgress → UIState.syncInProgress (state.js) 로 통합
 
 // Create
 function addCharacter() {
@@ -33,10 +33,10 @@ function addCharacter() {
     renderCharacterList();
 
     // project1 상세입력(캐릭터 관리) 탭 DOM에도 동기화
-    if (!_syncInProgress && typeof createCharacterTable === 'function') {
-        _syncInProgress = true;
+    if (!UIState.syncInProgress && typeof createCharacterTable === 'function') {
+        UIState.syncInProgress = true;
         createCharacterTable(newChar);
-        _syncInProgress = false;
+        UIState.syncInProgress = false;
     }
 
     alert("캐릭터가 추가되었습니다!");

@@ -3954,3 +3954,21 @@ project/
   - 크리쳐: 각 color별 ARTIFACT_SET_DATA 매칭 여부로 badge 복원
 
 ---
+## 2026-03-07 (91차)
+
+### `_syncInProgress` 이중 관리 통합
+
+**수정된 파일:** `scripts/eq_character.js`
+
+---
+
+### 변경 내용
+
+**`scripts/eq_character.js`**
+
+- `let _syncInProgress = false;` 선언 제거
+  - 기존: `eq_character.js`에 별도 `let _syncInProgress` 선언 → `ui-character.js`의 `UIState.syncInProgress`와 서로 다른 변수를 참조하는 이중 관리 상태
+  - 수정: `_syncInProgress` → `UIState.syncInProgress` 로 교체하여 `state.js`에서 일괄 관리
+  - 주석 추가: `// _syncInProgress → UIState.syncInProgress (state.js) 로 통합`
+
+---
