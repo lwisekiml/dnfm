@@ -691,9 +691,9 @@ function replaceItemNameField(parentTd, slot, rarity, value, charId) {
     const section = document.getElementById(charId);
     const isLocked = section?.querySelector('.lock-btn')?.classList.contains('btn-active');
 
-    // 외형칭호/오라는 희귀도 무관하게 항상 select (칭호는 버튼 방식으로 제외)
-    const _forceSelectSlots = ['외형칭호'];  // 오라는 버튼 팝업 방식으로 변경
-    const useSelect = rarity === "에픽" || _forceSelectSlots.includes(slot);
+    // 에픽 희귀도일 때만 select (칭호/오라는 버튼 팝업 방식, 외형칭호는 텍스트 입력)
+    const _forceSelectSlots = [];
+    const useSelect = rarity === "에픽" && slot !== '외형칭호' || _forceSelectSlots.includes(slot);
 
     let newEl;
     if (useSelect) {
