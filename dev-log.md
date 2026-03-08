@@ -4271,3 +4271,16 @@ project/
 - `closeHistoryModal()` 호출 조건을 `getComputedStyle(historyModal).display !== 'none'`으로 변경 (히스토리 모달 열려있을 때만 닫도록)
 
 ---
+---
+
+## 2026-03-08 (101차)
+
+### 아바타 팝업 바깥 클릭 닫힘 방지
+
+**수정된 파일:** `index.html`
+
+**변경 내용**
+
+**`index.html`**
+- `avatar-popup-overlay` `onclick="if(event.target===this) avatarPopupClose();"` 제거
+  - 이제 취소 버튼을 눌러야만 팝업이 닫힘
