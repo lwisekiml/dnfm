@@ -700,6 +700,10 @@ function initJobSelect(sel, savedVal) {
         } else {
             o.value = opt.value;
             o.textContent = opt.value;
+            if (opt.type === 'base') {
+                o.style.color = '#f5c842';
+                o.style.fontWeight = 'bold';
+            }
         }
         sel.appendChild(o);
     });
