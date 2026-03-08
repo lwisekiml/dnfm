@@ -177,30 +177,32 @@ function getSlotDataForSearch(section, slot) {
     }
 
     if (slot === "크리쳐") {
+        const btn = section.querySelector('button[data-key="크리쳐_name"]');
+        const getDisp = key => section.querySelector(`[data-creature-disp="${key}"]`)?.textContent.trim() || '';
         return {
             isSpecial: true,
             specialType: 'creature',
             rarity: section.querySelector(`select[data-key="${slot}_rarity"]`)?.value || '',
-            name: section.querySelector(`input[data-key="${slot}_name"]`)?.value || '',
+            name: btn?.getAttribute('data-creature-name') || btn?.textContent.trim() || '',
             // 아티팩트 정보 수집 (Red, Blue, Green만)
-            art_red_top_rarity: section.querySelector(`select[data-key="${slot}_art_red_top_rarity"]`)?.value || '',
-            art_red_top_text: section.querySelector(`input[data-key="${slot}_art_red_top_text"]`)?.value || '',
-            art_red_bg_1: section.querySelector(`select[data-key="${slot}_art_red_bg_1"]`)?.value || '',
-            art_red_opt_1: section.querySelector(`select[data-key="${slot}_art_red_opt_1"]`)?.value || '',
-            art_red_bg_2: section.querySelector(`select[data-key="${slot}_art_red_bg_2"]`)?.value || '',
-            art_red_opt_2: section.querySelector(`select[data-key="${slot}_art_red_opt_2"]`)?.value || '',
-            art_blue_top_rarity: section.querySelector(`select[data-key="${slot}_art_blue_top_rarity"]`)?.value || '',
-            art_blue_top_text: section.querySelector(`input[data-key="${slot}_art_blue_top_text"]`)?.value || '',
-            art_blue_bg_1: section.querySelector(`select[data-key="${slot}_art_blue_bg_1"]`)?.value || '',
-            art_blue_opt_1: section.querySelector(`select[data-key="${slot}_art_blue_opt_1"]`)?.value || '',
-            art_blue_bg_2: section.querySelector(`select[data-key="${slot}_art_blue_bg_2"]`)?.value || '',
-            art_blue_opt_2: section.querySelector(`select[data-key="${slot}_art_blue_opt_2"]`)?.value || '',
-            art_green_top_rarity: section.querySelector(`select[data-key="${slot}_art_green_top_rarity"]`)?.value || '',
-            art_green_top_text: section.querySelector(`input[data-key="${slot}_art_green_top_text"]`)?.value || '',
-            art_green_bg_1: section.querySelector(`select[data-key="${slot}_art_green_bg_1"]`)?.value || '',
-            art_green_opt_1: section.querySelector(`select[data-key="${slot}_art_green_opt_1"]`)?.value || '',
-            art_green_bg_2: section.querySelector(`select[data-key="${slot}_art_green_bg_2"]`)?.value || '',
-            art_green_opt_2: section.querySelector(`select[data-key="${slot}_art_green_opt_2"]`)?.value || '',
+            art_red_top_rarity: getDisp('크리쳐_art_red_top_rarity'),
+            art_red_top_text:   getDisp('크리쳐_art_red_top_text'),
+            art_red_bg_1:       getDisp('크리쳐_art_red_bg_1'),
+            art_red_opt_1:      getDisp('크리쳐_art_red_opt_1'),
+            art_red_bg_2:       getDisp('크리쳐_art_red_bg_2'),
+            art_red_opt_2:      getDisp('크리쳐_art_red_opt_2'),
+            art_blue_top_rarity: getDisp('크리쳐_art_blue_top_rarity'),
+            art_blue_top_text:   getDisp('크리쳐_art_blue_top_text'),
+            art_blue_bg_1:       getDisp('크리쳐_art_blue_bg_1'),
+            art_blue_opt_1:      getDisp('크리쳐_art_blue_opt_1'),
+            art_blue_bg_2:       getDisp('크리쳐_art_blue_bg_2'),
+            art_blue_opt_2:      getDisp('크리쳐_art_blue_opt_2'),
+            art_green_top_rarity: getDisp('크리쳐_art_green_top_rarity'),
+            art_green_top_text:   getDisp('크리쳐_art_green_top_text'),
+            art_green_bg_1:       getDisp('크리쳐_art_green_bg_1'),
+            art_green_opt_1:      getDisp('크리쳐_art_green_opt_1'),
+            art_green_bg_2:       getDisp('크리쳐_art_green_bg_2'),
+            art_green_opt_2:      getDisp('크리쳐_art_green_opt_2'),
             desc: section.querySelector(`[data-key="${slot}_desc"]`)?.value || ''
         };
     }
@@ -851,15 +853,15 @@ function createCreatureSearchTable(results) {
             div.innerHTML = `
                 <div class="creature-art-item creature-art-top">
                     <span class="creature-art-rarity ${topRarity ? 'bg-'+topRarity : ''}">${topRarity || '-'}</span>
-                    <span class="creature-art-text">${topText || '-'}</span>
+                    <span class="creature-art-text ${topRarity ? 'bg-'+topRarity : ''}">${topText || '-'}</span>
                 </div>
                 <div class="creature-art-item">
                     <span class="creature-art-rarity ${bg1 ? 'bg-'+bg1 : ''}">${bg1 || '-'}</span>
-                    <span class="creature-art-text">${opt1 || '-'}</span>
+                    <span class="creature-art-text ${bg1 ? 'bg-'+bg1 : ''}">${opt1 || '-'}</span>
                 </div>
                 <div class="creature-art-item">
                     <span class="creature-art-rarity ${bg2 ? 'bg-'+bg2 : ''}">${bg2 || '-'}</span>
-                    <span class="creature-art-text">${opt2 || '-'}</span>
+                    <span class="creature-art-text ${bg2 ? 'bg-'+bg2 : ''}">${opt2 || '-'}</span>
                 </div>
             `;
             return div;
@@ -876,7 +878,7 @@ function createCreatureSearchTable(results) {
         tdRarity.textContent = result.rarity || '-';
 
         const tdCreatureName = document.createElement('td');
-        tdCreatureName.textContent = result.itemname || '-';
+        tdCreatureName.textContent = result.name || '-';
 
         const tdArt = document.createElement('td');
         tdArt.className = 'creature-artifacts-cell';

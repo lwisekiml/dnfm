@@ -4213,3 +4213,29 @@ project/
 ---
 ---
 
+## 2026-03-08 (99차)
+
+### 크리쳐 검색 데이터 수집 오류 수정 / 아티팩트 색상 동기화 / 버튼 onclick 구조 복원
+
+**수정된 파일:** `js/ui-character.js`, `js/ui-search.js`
+
+---
+
+### 변경 내용
+
+**`js/ui-character.js`**
+
+- 크리쳐/칭호/오라/아바타 버튼 `onclick` 구조 — `if (section) { lockBtn 체크; openXxxPopup(); }` 원래 구조로 복원 (이전에 구조 변경되었던 것 되돌림)
+- 크리쳐 팝업 저장 시 (`creaturePopupSave`) — 희귀도 span(`_top_rarity`, `_bg_1`, `_bg_2`) 변경 시 페어 텍스트 span(`_top_text`, `_opt_1`, `_opt_2`)에도 `bg-X` 클래스 동기화
+- 데이터 복원 시 (`restoreSavedData`) — 동일하게 페어 텍스트 span `bg-X` 클래스 동기화 추가
+
+**`js/ui-search.js`**
+
+- 크리쳐 데이터 수집 (`getSlotDataForSearch`) 수정
+  - 크리쳐 이름: `input[data-key="크리쳐_name"]` → `button[data-key="크리쳐_name"]`의 `data-creature-name` 속성으로 수정
+  - 아티팩트 값: `select/input[data-key]` → `[data-creature-disp]` span의 `textContent`로 수정
+- 크리쳐 검색 결과 출력 — `result.itemname` → `result.name` 으로 수정
+- 검색 결과 `createArtBox` — `creature-art-text` span에 `bg-X` 클래스 추가 (희귀도 글자색 표시)
+
+---
+---

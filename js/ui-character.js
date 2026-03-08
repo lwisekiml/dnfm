@@ -847,6 +847,15 @@ function restoreSavedData(section, savedData, charId) {
             if (key.includes('_bg_') || key.includes('_top_rarity')) {
                 disp.className = disp.className.replace(/bg-\S+/g, '').trim();
                 if (val) disp.classList.add('bg-' + val);
+                // 페어 텍스트 span도 동기화
+                const pairKey = key.includes('_top_rarity')
+                    ? key.replace('_top_rarity', '_top_text')
+                    : key.replace('_bg_1', '_opt_1').replace('_bg_2', '_opt_2');
+                const pairDisp = section.querySelector(`[data-creature-disp="${pairKey}"]`);
+                if (pairDisp) {
+                    pairDisp.className = pairDisp.className.replace(/bg-\S+/g, '').trim();
+                    if (val) pairDisp.classList.add('bg-' + val);
+                }
             }
         });
 
@@ -1652,6 +1661,15 @@ function creaturePopupSave() {
             if (key.includes('_bg_') || key.includes('_top_rarity')) {
                 disp.className = disp.className.replace(/bg-\S+/g, '').trim();
                 if (val) disp.classList.add('bg-' + val);
+                // 페어 텍스트 span도 동기화
+                const pairKey = key.includes('_top_rarity')
+                    ? key.replace('_top_rarity', '_top_text')
+                    : key.replace('_bg_1', '_opt_1').replace('_bg_2', '_opt_2');
+                const pairDisp = section?.querySelector(`[data-creature-disp="${pairKey}"]`);
+                if (pairDisp) {
+                    pairDisp.className = pairDisp.className.replace(/bg-\S+/g, '').trim();
+                    if (val) pairDisp.classList.add('bg-' + val);
+                }
             }
         }
     });
