@@ -73,14 +73,15 @@ const WEAPON_DATA_THIEF = {
    ============================================================ */
 
 const WEAPON_DATA_MAP = {
-    "귀검사": WEAPON_DATA_SLAYER,
-    "격투가": WEAPON_DATA_FIGHTER,
-    "거너":   WEAPON_DATA_GUNNER,
-    "마법사": WEAPON_DATA_MAGE,
-    "프리스트":WEAPON_DATA_PRIEST,
-    "워리어": WEAPON_DATA_WARRIOR,
-    "마창사": WEAPON_DATA_LANCER,
-    "도적":   WEAPON_DATA_THIEF
+    "귀검사":    WEAPON_DATA_SLAYER,
+    "격투가":    WEAPON_DATA_FIGHTER,
+    "거너":      WEAPON_DATA_GUNNER,
+    "마법사":    WEAPON_DATA_MAGE,
+    "마법사(남)":WEAPON_DATA_MAGE,
+    "프리스트":  WEAPON_DATA_PRIEST,
+    "워리어":    WEAPON_DATA_WARRIOR,
+    "마창사":    WEAPON_DATA_LANCER,
+    "도적":      WEAPON_DATA_THIEF
 };
 
 const JOB_LIST = Object.keys(WEAPON_DATA_MAP);
@@ -202,6 +203,16 @@ const JOB_SELECT_OPTIONS = [
     { value: "블랙 메이든",     type: "sub" },
     { value: "헤카테",          type: "sub" },
     { value: "---",             type: "separator" },
+    { value: "마법사(남)",          type: "base" },
+    { value: "",                type: "disabled" },
+    { value: "빙결사", type: "sub" },
+    { value: "프로즌하트",      type: "sub" },
+    { value: "이터널",      type: "sub" },
+    { value: "",                type: "disabled" },
+    { value: "스위프트 마스터",      type: "sub" },
+    { value: "스톰브링어",      type: "sub" },
+    { value: "아이올로스",      type: "sub" },
+    { value: "---",             type: "separator" },
     { value: "프리스트(남)",    type: "base" },
     { value: "",                type: "disabled" },
     { value: "크루세이더(남)",  type: "sub" },
@@ -273,6 +284,7 @@ const JOB_TO_WEAPON_KEY = {
     "거너(남)":     "거너",
     "거너(여)":     "거너",
     "마법사":       "마법사",
+    "마법사(남)":   "마법사",
     "프리스트(남)": "프리스트",
     "프리스트(여)": "프리스트",
     "워리어":       "워리어",
@@ -313,6 +325,9 @@ const SUBJOB_TO_BASE = {
     "배틀메이지":"마법사", "벨라트릭스":"마법사", "아슈타르테":"마법사",
     "마도학자":"마법사", "트릭스터":"마법사", "지니위즈":"마법사",
     "인챈트리스":"마법사", "블랙 메이든":"마법사", "헤카테":"마법사",
+    // 마법사(남)
+    "빙결사":"마법사(남)", "프로즌하트":"마법사(남)", "이터널":"마법사(남)",
+    "스위프트 마스터":"마법사(남)", "스톰브링어":"마법사(남)", "아이올로스":"마법사(남)",
     // 프리스트(남)
     "크루세이더(남)":"프리스트(남)", "홀리오더":"프리스트(남)", "세인트":"프리스트(남)",
     "인파이터(남)":"프리스트(남)", "갓헤드":"프리스트(남)", "저스티스":"프리스트(남)",
