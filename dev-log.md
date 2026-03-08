@@ -4180,3 +4180,36 @@ project/
 
 ---
 ---
+
+## 2026-03-08 (98차)
+
+### 잠금 상태 버튼 클릭 차단 및 자동입력 커서 아이콘 제거
+
+**수정된 파일:** `js/ui-character.js`, `scripts/ui-core.js`, `styles/styles.css`
+
+---
+
+### 변경 내용
+
+**`js/ui-character.js`**
+
+- 칭호, 오라, 아바타, 크리쳐 버튼 — 잠금 상태(`lock-btn`에 `btn-active` 클래스)일 때 팝업 열리지 않도록 `onclick` 핸들러에 잠금 체크 추가
+- `_titlePopupLock`, `_auraPopupLock` 함수 — 자동입력 시 `cursor: not-allowed` 아이콘이 표시되던 문제 제거 (`el.style.cursor = ''`로 변경)
+- `toggleEdit` 함수 — 잠금 시 `.col-prefix select`, `.col-exceed select`에 `style.opacity = '1'` 인라인 설정, 잠금 해제 시 `''`로 초기화하여 CSS 기본값 복원
+
+**`scripts/ui-core.js`**
+
+- `_refreshSlotState` 함수 — 섹션의 잠금 상태를 체크하여, 잠금 중일 때 익시드/접두어 `select`에 `disabled = false`가 덮어씌워지지 않도록 수정
+  - 익시드 아이템 케이스: `prefixSel.disabled`, `exceedSel.disabled` → `isLocked ? true : false`
+  - 일반 아이템 케이스: `prefixSel.disabled` → `isLocked ? true : false`
+- `updateStyle` 함수
+  - 무기 에픽 희귀도 선택 시 `prefixSel.disabled = false` → 잠금 상태 체크 후 설정
+  - 접두어 변경 시 `exceedSel.disabled = false` → 잠금 상태 체크 후 설정
+
+**`styles/styles.css`**
+
+- `.col-exceed select:disabled`, `.col-prefix select:disabled` — `color: var(--color-white) !important`, `font-weight: normal !important` 추가
+
+---
+---
+

@@ -263,7 +263,11 @@ function createSlotContent(slot, index, charId, savedData) {
             btn.onclick = (e) => {
                 e.preventDefault();
                 const section = btn.closest('.char-section');
-                if (section) openCreaturePopup(section.id, btn);
+                if (section) {
+                    const lockBtn = section.querySelector('.lock-btn');
+                    if (lockBtn?.classList.contains('btn-active')) return;
+                    openCreaturePopup(section.id, btn);
+                }
             };
         }
         return rowFrag;
@@ -277,7 +281,11 @@ function createSlotContent(slot, index, charId, savedData) {
             btn.onclick = (e) => {
                 e.preventDefault();
                 const section = btn.closest('.char-section');
-                if (section) openTitlePopup(section.id, btn);
+                if (section) {
+                    const lockBtn = section.querySelector('.lock-btn');
+                    if (lockBtn?.classList.contains('btn-active')) return;
+                    openTitlePopup(section.id, btn);
+                }
             };
         }
         return titleFrag;
@@ -298,7 +306,11 @@ function createSlotContent(slot, index, charId, savedData) {
                 btn.onclick = (e) => {
                     e.preventDefault();
                     const section = btn.closest('.char-section');
-                    if (section) openAvatarPopup(section.id, btn);
+                    if (section) {
+                        const lockBtn = section.querySelector('.lock-btn');
+                        if (lockBtn?.classList.contains('btn-active')) return;
+                        openAvatarPopup(section.id, btn);
+                    }
                 };
             }
             // weapon_stat select에 AVATAR_WEAPON_STATS 옵션 채우기
@@ -314,7 +326,11 @@ function createSlotContent(slot, index, charId, savedData) {
                 btn.onclick = (e) => {
                     e.preventDefault();
                     const section = btn.closest('.char-section');
-                    if (section) openAuraPopup(section.id, btn);
+                    if (section) {
+                        const lockBtn = section.querySelector('.lock-btn');
+                        if (lockBtn?.classList.contains('btn-active')) return;
+                        openAuraPopup(section.id, btn);
+                    }
                 };
             }
             return frag;
@@ -1070,6 +1086,11 @@ function toggleEdit(charId, isLock) {
             btn.style.opacity = isLock ? "0.5" : "1";
             btn.style.pointerEvents = isLock ? "none" : "auto";
         }
+    });
+
+    // 접두어/익시드 select: 잠금 시 opacity를 1로 고정 (어두워지지 않게)
+    section.querySelectorAll('.col-prefix select, .col-exceed select').forEach(sel => {
+        sel.style.opacity = isLock ? '1' : '';
     });
 
     // 🎯 일괄 적용 버튼(접두어/아이템이름/강화) 잠금 처리
@@ -1832,12 +1853,12 @@ function _titlePopupLock(lock) {
     popup.querySelectorAll('[data-title-stat]').forEach(el => {
         el.readOnly = lock;
         el.style.opacity = lock ? '0.65' : '';
-        el.style.cursor  = lock ? 'not-allowed' : '';
+        el.style.cursor  = '';
     });
     if (descTA) {
         descTA.readOnly = lock;
         descTA.style.opacity = lock ? '0.65' : '';
-        descTA.style.cursor  = lock ? 'not-allowed' : '';
+        descTA.style.cursor  = '';
     }
 }
 
@@ -1851,12 +1872,12 @@ function _auraPopupLock(lock) {
     popup.querySelectorAll('[data-aura-stat]').forEach(el => {
         el.readOnly = lock;
         el.style.opacity = lock ? '0.65' : '';
-        el.style.cursor  = lock ? 'not-allowed' : '';
+        el.style.cursor  = '';
     });
     if (descTA) {
         descTA.readOnly = lock;
         descTA.style.opacity = lock ? '0.65' : '';
-        descTA.style.cursor  = lock ? 'not-allowed' : '';
+        descTA.style.cursor  = '';
     }
 }
 

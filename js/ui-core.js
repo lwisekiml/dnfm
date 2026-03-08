@@ -222,6 +222,9 @@ function _refreshSlotState(slot, charId, isRestore, itemInfoMap) {
     const section = document.getElementById(charId);
     if (!section) return;
 
+    const lockBtn = section.querySelector('.lock-btn');
+    const isLocked = lockBtn?.classList.contains('btn-active');
+
     const row = section.querySelector(`tr[data-slot="${slot}"]`)
         || section.querySelector(`[data-key="${slot}_itemname"]`)?.closest('tr');
     if (!row) return;
@@ -255,7 +258,7 @@ function _refreshSlotState(slot, charId, isRestore, itemInfoMap) {
         // ※ innerHTML 교체 전에 현재 값 저장 (교체 후엔 value 초기화됨)
         const savedPrefix = prefixSel.value;
 
-        prefixSel.disabled = false;
+        prefixSel.disabled = isLocked ? true : false;
         prefixSel.innerHTML = setPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
 
         if (isRestore) {
@@ -270,7 +273,7 @@ function _refreshSlotState(slot, charId, isRestore, itemInfoMap) {
         if (exceedSel) {
             const savedExceed = exceedSel.value;
             exceedSel.innerHTML = '<option>이상</option><option>선봉</option><option>의지</option>';
-            exceedSel.disabled = false;
+            exceedSel.disabled = isLocked ? true : false;
             if (isRestore) {
                 exceedSel.value = ["이상", "선봉", "의지"].includes(savedExceed) ? savedExceed : "이상";
             } else {
@@ -286,7 +289,7 @@ function _refreshSlotState(slot, charId, isRestore, itemInfoMap) {
     const setPrefixes = isForcedPrefix ? [...info.prefixes] : ["", ...info.prefixes];
     const savedPrefix = prefixSel.value;
 
-    prefixSel.disabled = false;
+    prefixSel.disabled = isLocked ? true : false;
     prefixSel.innerHTML = setPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
 
     if (isRestore) {
@@ -488,7 +491,8 @@ function updateStyle(el, type, isInitial = false) {
                 if (slot === "무기" && el.value === "에픽") {
                     const weaponEpicPrefixes = ["광채", "분쇄", "선명", "강타"];
                     optionsHTML = weaponEpicPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
-                    prefixSel.disabled = false;
+                    const _lockBtn = section?.querySelector('.lock-btn');
+                    prefixSel.disabled = _lockBtn?.classList.contains('btn-active') ? true : false;
                 } else if (slot === "무기" && ["커먼","언커먼","레어","유니크"].includes(el.value)) {
                     // 무기 커먼/언커먼/레어/유니크: 접두어 선택 불가
                     prefixSel.innerHTML = '<option value=""></option>';
@@ -647,8 +651,10 @@ function updateStyle(el, type, isInitial = false) {
                         ? (typeof ACC_ITEM_INFO     !== 'undefined' ? ACC_ITEM_INFO     : null)
                         : (typeof SPECIAL_ITEM_INFO !== 'undefined' ? SPECIAL_ITEM_INFO : null);
                 const info = infoMap ? infoMap[itemName] : null;
+                const lockBtn = section?.querySelector('.lock-btn');
+                const isLocked = lockBtn?.classList.contains('btn-active');
                 if (info?.isExceed && el.value !== "") {
-                    exceedSel.disabled = false;
+                    exceedSel.disabled = isLocked ? true : false;
                 } else if (!info?.isExceed) {
                     exceedSel.disabled = true;
                     exceedSel.value = "";

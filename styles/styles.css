@@ -1325,6 +1325,8 @@ input:disabled, select:disabled {
 .col-exceed select:disabled,
 .col-prefix select:disabled {
     opacity: var(--opacity-disabled);
+    color: var(--color-white) !important;
+    font-weight: normal !important;
 }
 
 textarea {
