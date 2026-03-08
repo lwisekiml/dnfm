@@ -7,8 +7,10 @@
  */
 function openRuneModal(charId) {
     AppState.currentEditingCharId = charId;
-    const body = document.getElementById('runeModalBody');
-    body.innerHTML = '';
+    const body  = document.getElementById('runeModalBody');
+    const body2 = document.getElementById('runeModalBody2');
+    body.innerHTML  = '';
+    body2.innerHTML = '';
     const data = AppState.charRuneData[charId];
 
     const batchNameSelect = document.getElementById('m-batch-rune-name');
@@ -31,16 +33,47 @@ function openRuneModal(charId) {
     for (let i = 0; i < 20; i++) {
         const r = data.runes[i] || {name: '', lv: '', skillLv: ''};
         const tr = document.createElement('tr');
+        if (i === 4 || i === 14) tr.classList.add('rune-row-divider');
         tr.innerHTML = `<td class="col-m-num">${i + 1}</td>
             <td><select class="m-rune-name">${runeNames.map(n => `<option ${r.name === n ? 'selected' : ''}>${n}</option>`).join('')}</select></td>
             <td><select class="m-rune-lv">${runeLevels.map(n => `<option ${r.lv === n ? 'selected' : ''}>${n}</option>`).join('')}</select></td>
             <td><select class="m-rune-skillLv">${runeSkillLevels.map(n => `<option ${r.skillLv === n ? 'selected' : ''}>${n}</option>`).join('')}</select></td>`;
-        body.appendChild(tr);
+        (i < 10 ? body : body2).appendChild(tr);
     }
     document.getElementById('m-gakin1').value = data.gakin[0];
     document.getElementById('m-gakin2').value = data.gakin[1];
     document.getElementById('modalOverlay').style.display = 'block';
-    document.getElementById('skillRunemodal').style.display = 'block';
+
+    // 스킬룬 행 기준으로 팝업 위치 계산
+    const _modal   = document.getElementById('skillRunemodal');
+    const _runeRow = document.getElementById(`${charId}_runeSummary`)?.closest('tr');
+    const _section = document.getElementById(charId);
+    const _refEl   = _runeRow || _section;
+    const _rect    = _refEl.getBoundingClientRect();
+    const _vw      = window.innerWidth;
+    const _vh      = window.innerHeight;
+
+    // 높이 측정을 위해 먼저 invisible 상태로 렌더링
+    _modal.style.visibility = 'hidden';
+    _modal.style.display    = 'block';
+
+    const _modalW  = _modal.offsetWidth;
+    const _modalH  = _modal.offsetHeight;
+
+    let _left = _rect.left + _rect.width / 2 - _modalW / 2;
+    if (_left < 8) _left = 8;
+    if (_left + _modalW > _vw - 8) _left = _vw - _modalW - 8;
+
+    let _top = _rect.top + _rect.height / 2 - _modalH / 2 - 230;
+    if (_top < 8) _top = 8;
+    if (_top + _modalH > _vh - 8) _top = _vh - _modalH - 8;
+
+    _modal.style.position   = 'absolute';
+    _modal.style.zIndex     = '3001';
+    _modal.style.left       = _left + 'px';
+    _modal.style.top        = (_top + window.scrollY) + 'px';
+    _modal.style.transform  = 'none';
+    _modal.style.visibility = '';
 }
 
 /**
@@ -48,14 +81,11 @@ function openRuneModal(charId) {
  */
 function setAllRunesBatch() {
     const selectedName = document.getElementById('m-batch-rune-name').value;
-    const body = document.getElementById('runeModalBody');
-    const rows = body.querySelectorAll('tr');
-
+    const rows = [...document.getElementById('runeModalBody').querySelectorAll('tr'),
+        ...document.getElementById('runeModalBody2').querySelectorAll('tr')];
     rows.forEach(row => {
         const nameSelect = row.querySelector('.m-rune-name');
-        if (nameSelect) {
-            nameSelect.value = selectedName;
-        }
+        if (nameSelect) nameSelect.value = selectedName;
     });
 }
 
@@ -64,9 +94,8 @@ function setAllRunesBatch() {
  */
 function setAllRuneLevels() {
     const selectedRuneLv = document.getElementById('m-batch-rune-lv').value;
-    const body = document.getElementById('runeModalBody');
-    const rows = body.querySelectorAll('tr');
-
+    const rows = [...document.getElementById('runeModalBody').querySelectorAll('tr'),
+        ...document.getElementById('runeModalBody2').querySelectorAll('tr')];
     rows.forEach(row => {
         const lvSelect = row.querySelector('.m-rune-lv');
         if (lvSelect) lvSelect.value = selectedRuneLv;
@@ -78,14 +107,11 @@ function setAllRuneLevels() {
  */
 function setAllSkillLevels() {
     const selectedSkillLv = document.getElementById('m-batch-skill-lv').value;
-    const body = document.getElementById('runeModalBody');
-    const rows = body.querySelectorAll('tr');
-
+    const rows = [...document.getElementById('runeModalBody').querySelectorAll('tr'),
+        ...document.getElementById('runeModalBody2').querySelectorAll('tr')];
     rows.forEach(row => {
         const skillLvSelect = row.querySelector('.m-rune-skillLv');
-        if (skillLvSelect) {
-            skillLvSelect.value = selectedSkillLv;
-        }
+        if (skillLvSelect) skillLvSelect.value = selectedSkillLv;
     });
 }
 
@@ -101,8 +127,8 @@ function closeRuneModal() {
  * 룬 데이터 저장
  */
 function saveRuneData() {
-    const body = document.getElementById('runeModalBody');
-    const rows = body.querySelectorAll('tr');
+    const rows = [...document.getElementById('runeModalBody').querySelectorAll('tr'),
+        ...document.getElementById('runeModalBody2').querySelectorAll('tr')];
     const newRunes = [];
     rows.forEach(row => {
         newRunes.push({

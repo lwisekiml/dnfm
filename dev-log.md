@@ -4239,3 +4239,35 @@ project/
 
 ---
 ---
+
+## 2026-03-08 (100차)
+
+### 스킬룬 팝업 UI 개선 및 위치 수정
+
+**수정된 파일:** `index.html`, `js/ui-rune.js`, `js/main.js`, `styles/styles.css`, `styles/merged.css`
+
+**변경 내용**
+
+**`index.html`**
+- 스킬룬 모달 테이블을 좌우 2개로 분리 (`runeModalBody` / `runeModalBody2`)
+  - 1~10번 왼쪽, 11~20번 오른쪽
+- `modalOverlay` `onclick="closeRuneModal()"` 제거 (바깥 클릭으로 닫히지 않도록)
+
+**`styles/styles.css`, `styles/merged.css`**
+- `--width-modal` `310px` → `640px` (좌우 2열 수용)
+- `.rune-row-divider td` 추가 — 5번/15번 행 아래 금색 구분선 (`border-bottom: 2px solid var(--gold)`)
+- `#section-detail-view` `position: relative` 추가
+- `#skillRunemodal` `position: fixed` → `absolute`, `top`/`left`/`transform` CSS 제거 (JS로 직접 제어)
+- `.modal-overlay` `position: absolute` → `fixed` 복원 (화면 전체 커버)
+
+**`js/ui-rune.js`**
+- `openRuneModal`: 1~10번 → `runeModalBody`, 11~20번 → `runeModalBody2` 분기
+- 5번(i===4), 15번(i===14) 행에 `rune-row-divider` 클래스 추가
+- 팝업 위치: `visibility:hidden`으로 먼저 렌더링해 실제 높이 측정 후, 스킬룬 행(`${charId}_runeSummary`) 기준으로 화면 중앙에 `absolute` 배치
+- `setAllRunesBatch`, `setAllRuneLevels`, `setAllSkillLevels`, `saveRuneData` — `runeModalBody2` 포함하도록 수정
+
+**`js/main.js`**
+- `modalOverlay` 클릭 이벤트에서 `closeRuneModal()` 호출 제거
+- `closeHistoryModal()` 호출 조건을 `getComputedStyle(historyModal).display !== 'none'`으로 변경 (히스토리 모달 열려있을 때만 닫도록)
+
+---

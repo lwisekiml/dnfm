@@ -167,7 +167,7 @@
     --width-enchant: 65px; /* 마법부여 수치 가로 길이 */
     --width-itemname-min: 120px;
     --width-desc-min: 230px;
-    --width-modal: 310px;
+    --width-modal: 640px;
     --width-modal-history: 450px;
     --width-rune-name: 68px;
     --width-rune-lv: 48px;
@@ -1260,9 +1260,9 @@ body.theme-mixed #section-detail-view .char-info-table {
 
 #section-detail-view #skillRunemodal {
     display: none;
-    position: fixed;
-    top: var(--position-center-y);
-    left: var(--position-center-x);
+    position: absolute;
+    top: 50%;
+    left: 50%;
     transform: var(--transform-center);
     background: var(--bg-row);
     border: var(--border-width) var(--border-style) var(--border);
@@ -1338,6 +1338,10 @@ body.theme-mixed #section-detail-view .char-info-table {
     border-collapse: collapse;
     font-size: var(--fs-sm);
     border: var(--border-width) var(--border-style) var(--border);
+}
+
+#section-detail-view .rune-row-divider td {
+    border-bottom: 2px solid var(--gold) !important;
 }
 
 /* ========================================

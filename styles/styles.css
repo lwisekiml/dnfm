@@ -164,7 +164,7 @@
     --width-enchant: 55px;
     --width-itemname-min: 120px;
     --width-desc-min: 230px;
-    --width-modal: 310px;
+    --width-modal: 640px;
     --width-modal-history: 450px;
     --width-rune-name: 68px;
     --width-rune-lv: 48px;
@@ -1220,6 +1220,14 @@ h3 {
     margin-bottom: var(--spacing-4xl);
 }
 
+#section-detail-view {
+    position: relative;
+}
+
+#section-detail-view {
+    position: relative;
+}
+
 .table-container {
     overflow-x: auto;
 }
@@ -1705,10 +1713,7 @@ tr:has(.td-weapon-epic) td {
 
 #skillRunemodal {
     display: none;
-    position: fixed;
-    top: var(--position-center-y);
-    left: var(--position-center-x);
-    transform: var(--transform-center);
+    position: absolute;
     background: var(--bg-row);
     border: var(--border-width-heavy) var(--border-style) var(--gold);
     padding: var(--padding-modal);
@@ -1783,6 +1788,10 @@ tr:has(.td-weapon-epic) td {
     border-collapse: collapse;
     font-size: var(--fs-sm);
     border: var(--border-width) var(--border-style) var(--border);
+}
+
+.rune-row-divider td {
+    border-bottom: 2px solid var(--gold) !important;
 }
 
 /* ========================================

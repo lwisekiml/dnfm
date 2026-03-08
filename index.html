@@ -333,7 +333,7 @@
     <div id="characterContainer"></div>
 
     <!-- 스킬룬 모달 배경 -->
-    <div class="modal-overlay" id="modalOverlay" onclick="closeRuneModal()"></div>
+    <div class="modal-overlay" id="modalOverlay"></div>
 
     <!-- 스킬룬 모달 -->
     <div id="skillRunemodal">
@@ -350,17 +350,30 @@
             <select id="m-batch-skill-lv" class="bg-row text-white border-gold modal-flex-col"></select>
             <button class="btn-action modal-flex-col-wide" style="background:var(--btn-lock);" onclick="setAllSkillLevels()">레벨로 설정</button>
         </div>
-        <table class="rune-modal-table">
-            <thead>
-            <tr class="text-gold">
-                <th class="col-m-num">번호</th>
-                <th style="width:68px;">스킬룬 이름</th>
-                <th style="width:48px;">룬 레벨</th>
-                <th style="width:50px;">스킬 레벨</th>
-            </tr>
-            </thead>
-            <tbody id="runeModalBody"></tbody>
-        </table>
+        <div style="display:flex; gap:12px;">
+            <table class="rune-modal-table" style="flex:1;">
+                <thead>
+                <tr class="text-gold">
+                    <th class="col-m-num">번호</th>
+                    <th style="width:68px;">스킬룬 이름</th>
+                    <th style="width:48px;">룬 레벨</th>
+                    <th style="width:50px;">스킬 레벨</th>
+                </tr>
+                </thead>
+                <tbody id="runeModalBody"></tbody>
+            </table>
+            <table class="rune-modal-table" style="flex:1;">
+                <thead>
+                <tr class="text-gold">
+                    <th class="col-m-num">번호</th>
+                    <th style="width:68px;">스킬룬 이름</th>
+                    <th style="width:48px;">룬 레벨</th>
+                    <th style="width:50px;">스킬 레벨</th>
+                </tr>
+                </thead>
+                <tbody id="runeModalBody2"></tbody>
+            </table>
+        </div>
         <div class="gakin-section">
             <div class="gakin-title">각인 설정</div>
             <div class="gakin-container">

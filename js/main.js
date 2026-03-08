@@ -225,8 +225,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (overlay) {
         overlay.addEventListener('click', () => {
-            if (typeof closeHistoryModal === "function") closeHistoryModal();
-            if (typeof closeRuneModal === "function") closeRuneModal();
+            const historyModal = document.getElementById('historyModal');
+            if (historyModal && getComputedStyle(historyModal).display !== 'none') {
+                if (typeof closeHistoryModal === "function") closeHistoryModal();
+            }
         });
     }
 
