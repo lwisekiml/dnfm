@@ -9,6 +9,7 @@ let activeCharacterId = null;
 let activeWeaponJob = null;
 let currentUpdatePage = 1;
 let allUpdatesData = [];
+let filteredUpdatesData = [];
 const ITEMS_PER_PAGE = 10;
 const TOTAL_PAGES = 5;
 

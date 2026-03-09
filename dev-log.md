@@ -4320,3 +4320,47 @@ project/
     - 레거시(oldCount 없음): 기존 방식으로 숫자만 표시
 
 ---
+---
+
+## 2026-03-09 (103차)
+
+### 최근 업데이트 팝업 검색 기능 추가
+
+**수정된 파일:** `scripts/eq_data.js`, `scripts/eq_weapon.js`
+
+---
+
+### 변경 내용
+
+**`scripts/eq_data.js`**
+
+- `filteredUpdatesData = []` 전역변수 추가
+
+**`scripts/eq_weapon.js`**
+
+- `showRecentUpdates()` — p2 탭 상단에 검색창 렌더링 추가
+  - 검색 입력창, 🔍 검색 버튼, ✕ 초기화 버튼
+  - Enter 키로도 검색 가능 (`onkeydown`)
+  - 팝업 열 때 `filteredUpdatesData` 초기화
+- `filterUpdateData()` 추가 — 검색 버튼 클릭 / Enter 시 실행
+  - 직업, 이름, 아이템명 동시 매칭 (OR 조건)
+  - 검색 결과 건수 표시 (`검색 결과: N건 / 전체 N건`)
+- `clearUpdateSearch()` 추가 — 검색창 초기화 및 전체 목록 복원
+- `renderUpdatePage()` — `filteredUpdatesData` 기준으로 렌더링, 검색창 유지하며 테이블만 교체
+- `renderPaginationButtons()` — `filteredUpdatesData` 기준으로 페이지 수 계산
+
+---
+
+## 2026-03-09 (104차)
+
+### 최근 업데이트 검색창 초기화 버튼 아이콘 변경
+
+**수정된 파일:** `scripts/eq_weapon.js`
+
+---
+
+### 변경 내용
+
+**`scripts/eq_weapon.js`**
+
+- 초기화 버튼 텍스트 `✕ 초기화` → `↻ 초기화` 로 변경

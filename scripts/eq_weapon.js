@@ -387,7 +387,33 @@ function showRecentUpdates() {
         <div id="update-tab-p1" style="display:none;"></div>
     `;
 
+    filteredUpdatesData = allUpdatesData.slice();
     currentUpdatePage = 1;
+
+    // 검색창 렌더링 (p2 탭 안에 삽입)
+    const p2El = document.getElementById('update-tab-p2');
+    if (p2El) {
+        p2El.innerHTML = `
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
+                <input id="update-search-input" type="text" placeholder="직업, 이름, 아이템명으로 검색..."
+                    style="flex:1; padding:8px 12px; background:#181c33; color:#e6e9ff;
+                           border:1px solid #2a3158; border-radius:6px; font-size:14px;"
+                    onkeydown="if(event.key==='Enter') filterUpdateData()" />
+                <button onclick="filterUpdateData()"
+                    style="padding:8px 14px; background:#4a33cc; color:#fff;
+                           border:1px solid #6a53ec; border-radius:6px; cursor:pointer; font-size:13px; font-weight:bold;">
+                    🔍 검색
+                </button>
+                <button onclick="clearUpdateSearch()"
+                    style="padding:8px 14px; background:#2a3158; color:#aaa;
+                           border:1px solid #3a4168; border-radius:6px; cursor:pointer; font-size:13px;">
+                    ↺ 초기화
+                </button>
+            </div>
+            <div id="update-search-result-info" style="font-size:12px; color:#aaa; margin-bottom:8px; min-height:16px;"></div>
+        `;
+    }
+
     renderUpdatePage(1);
 
     const p1El = document.getElementById('update-tab-p1');
@@ -484,9 +510,12 @@ function renderUpdatePage(pageNum) {
     const modalContent = p2Container || document.getElementById("updateModalContent");
     const paginationContainer = document.getElementById("updatePagination");
 
+    const dataSource = (typeof filteredUpdatesData !== 'undefined' && filteredUpdatesData !== null)
+        ? filteredUpdatesData : allUpdatesData;
+
     const startIdx = (pageNum - 1) * ITEMS_PER_PAGE;
     const endIdx = startIdx + ITEMS_PER_PAGE;
-    const pageItems = allUpdatesData.slice(startIdx, endIdx);
+    const pageItems = dataSource.slice(startIdx, endIdx);
 
     const table = document.createElement("table");
     table.style.width = '100%';
@@ -572,8 +601,15 @@ function renderUpdatePage(pageNum) {
         tbody.appendChild(tr);
     });
 
-    modalContent.innerHTML = "";
-    modalContent.appendChild(table);
+    // p2Container(탭)에 렌더링 시 검색창/결과정보는 유지하고 기존 테이블만 교체
+    if (p2Container) {
+        const oldTable = p2Container.querySelector('table');
+        if (oldTable) oldTable.remove();
+        p2Container.appendChild(table);
+    } else {
+        modalContent.innerHTML = "";
+        modalContent.appendChild(table);
+    }
 
     renderPaginationButtons(pageNum);
 }
@@ -582,7 +618,9 @@ function renderPaginationButtons(currentPage) {
     const paginationContainer = document.getElementById("updatePagination");
     paginationContainer.innerHTML = "";
 
-    const totalPages = Math.ceil(allUpdatesData.length / ITEMS_PER_PAGE);
+    const dataSource = (typeof filteredUpdatesData !== 'undefined' && filteredUpdatesData !== null)
+        ? filteredUpdatesData : allUpdatesData;
+    const totalPages = Math.ceil(dataSource.length / ITEMS_PER_PAGE);
 
     // 데이터가 없으면 버튼 생성 안 함
     if (totalPages === 0) return;
@@ -688,6 +726,39 @@ function renderPaginationButtons(currentPage) {
     searchDiv.appendChild(searchInput);
     searchDiv.appendChild(searchBtn);
     paginationContainer.appendChild(searchDiv);
+}
+
+// 검색 필터링
+function filterUpdateData() {
+    const input = document.getElementById('update-search-input');
+    const term = input ? input.value.trim().toLowerCase() : '';
+    const infoEl = document.getElementById('update-search-result-info');
+
+    if (!term) {
+        filteredUpdatesData = allUpdatesData.slice();
+    } else {
+        filteredUpdatesData = allUpdatesData.filter(item => {
+            const jobName = (item.job + ' / ' + item.name).toLowerCase();
+            const itemName = (item.itemName + (item.realItemName || '')).toLowerCase();
+            return jobName.includes(term) || itemName.includes(term);
+        });
+    }
+
+    if (infoEl) {
+        infoEl.textContent = term
+            ? `검색 결과: ${filteredUpdatesData.length}건 / 전체 ${allUpdatesData.length}건`
+            : '';
+    }
+
+    currentUpdatePage = 1;
+    renderUpdatePage(1);
+}
+
+// 검색 초기화
+function clearUpdateSearch() {
+    const input = document.getElementById('update-search-input');
+    if (input) input.value = '';
+    filterUpdateData();
 }
 
 // 새로 추가: 업데이트 모달 닫기 함수
