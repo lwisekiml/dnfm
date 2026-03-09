@@ -393,8 +393,7 @@ function openSet(setName, char) {
                 const key = `${name} ${exceedSlot}`;
                 const val = char.armorCounts[key] || 0;
                 const color = EXCEED_COLOR_MAP[ex] || "#fff";
-                const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> ${pref}`;
-                const tr = document.createElement("tr");
+                const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> <span style="color:#e6b800; font-weight:bold;">${pref}</span>`;                const tr = document.createElement("tr");
                 tr.innerHTML = `<td style="text-align:center;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
                 tbody2.appendChild(tr);
             });
