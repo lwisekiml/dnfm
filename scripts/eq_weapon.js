@@ -284,7 +284,16 @@ function showRecentUpdates() {
     allUpdatesData = [];
 
     characters.forEach(char => {
-        Object.entries(char.updateTimes).forEach(([fullKey, timestamp]) => {
+        // updateHistory(누적 이력)가 있으면 우선 사용, 없으면 updateTimes 기반 레거시 처리
+        const historyEntries = char.updateHistory && char.updateHistory.length > 0
+            ? char.updateHistory
+            : Object.entries(char.updateTimes || {}).map(([key, timestamp]) => ({
+                key, timestamp, oldCount: null, newCount: char.armorCounts?.[key] ?? char.weaponCounts?.[key] ?? 0
+            }));
+
+        historyEntries.forEach(entry => {
+            const fullKey = entry.key;
+            const timestamp = entry.timestamp;
             if (!timestamp || timestamp <= 0) return;
 
             if (char.armorCounts && char.armorCounts[fullKey] !== undefined) {
@@ -317,7 +326,10 @@ function showRecentUpdates() {
                 allUpdatesData.push({
                     name: char.name, job: char.job, itemName: itemName,
                     realItemName: realItemName,
-                    category: category, slot: slot, count: char.armorCounts[fullKey], timestamp: timestamp
+                    category: category, slot: slot,
+                    count: entry.newCount,
+                    oldCount: entry.oldCount,
+                    timestamp: timestamp
                 });
             } else if (char.weaponCounts && char.weaponCounts[fullKey] !== undefined) {
                 let weaponSubCategory = "-";
@@ -332,7 +344,10 @@ function showRecentUpdates() {
                     }
                 allUpdatesData.push({
                     name: char.name, job: char.job, itemName: fullKey,
-                    category: "무기", slot: weaponSubCategory, count: char.weaponCounts[fullKey], timestamp: timestamp
+                    category: "무기", slot: weaponSubCategory,
+                    count: entry.newCount,
+                    oldCount: entry.oldCount,
+                    timestamp: timestamp
                 });
             }
         });
@@ -479,7 +494,7 @@ function renderUpdatePage(pageNum) {
     <th style="width:20%;">직업 / 이름</th>
     <th style="width:15%;">종류 (부위)</th>
     <th style="width:35%;">아이템</th>
-    <th style="width:10%;">보유 개수</th>
+    <th style="width:10%;">변경</th>
     <th style="width:20%;">업데이트 시간</th>
 </tr></thead><tbody></tbody>`;
 
@@ -544,11 +559,14 @@ function renderUpdatePage(pageNum) {
         }
 
         const tr = document.createElement("tr");
+        const changeDisplay = item.oldCount !== null
+            ? `<span style="color:#888;">${item.oldCount}</span> → <span style="font-weight:bold; color:${item.count > item.oldCount ? '#ffcc00' : item.count < item.oldCount ? '#ff6b6b' : '#888'};">${item.count}</span>`
+            : `<span style="font-weight:bold; color:${item.count > 0 ? '#ffcc00' : '#888'};">${item.count}</span>`;
         tr.innerHTML = `
         <td style="white-space:nowrap;">${item.job} / ${item.name}</td>
         <td>[${item.category}] ${item.slot}</td>
         <td style="text-align:left;">${displayItemCell}</td>
-        <td style="font-weight:bold; color:${item.count > 0 ? '#ffcc00' : '#888'};">${item.count}</td>
+        <td style="text-align:center;">${changeDisplay}</td>
         <td style="font-size:0.9em;">${formatTime}</td>
     `;
         tbody.appendChild(tr);

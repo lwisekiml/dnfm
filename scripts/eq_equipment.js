@@ -1019,6 +1019,8 @@ function increment(charId, key) {
 
     char.armorCounts[key] = newValue;
     char.updateTimes[key] = Date.now();
+    if (!char.updateHistory) char.updateHistory = [];
+    char.updateHistory.push({ key, timestamp: char.updateTimes[key], oldCount: oldValue, newCount: newValue });
     saveLocalData();
 
     // 캐시 무효화 (데이터 변경되었으므로)
@@ -1042,6 +1044,8 @@ function decrement(charId, key) {
 
     char.armorCounts[key] = newValue;
     char.updateTimes[key] = Date.now();
+    if (!char.updateHistory) char.updateHistory = [];
+    char.updateHistory.push({ key, timestamp: char.updateTimes[key], oldCount: cur, newCount: newValue });
     saveLocalData();
 
     // 캐시 무효화

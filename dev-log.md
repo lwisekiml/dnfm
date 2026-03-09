@@ -4284,3 +4284,39 @@ project/
 **`index.html`**
 - `avatar-popup-overlay` `onclick="if(event.target===this) avatarPopupClose();"` 제거
   - 이제 취소 버튼을 눌러야만 팝업이 닫힘
+  
+---
+---
+
+## 2026-03-09 (102차)
+
+### 최근 업데이트 팝업 변경 이력 누적 기록
+
+**수정된 파일:** `scripts/eq_equipment.js`, `scripts/eq_weapon.js`
+
+---
+
+### 변경 내용
+
+**`scripts/eq_equipment.js`**
+
+- `increment()` / `decrement()` 함수에 `char.updateHistory` 배열 누적 저장 추가
+  - 기존: `char.updateTimes[key] = Date.now()` — 키당 하나의 타임스탬프만 유지 (덮어씌워짐)
+  - 수정: `char.updateHistory.push({ key, timestamp, oldCount, newCount })` — 클릭할 때마다 누적
+  - `updateHistory`가 없는 캐릭터는 자동으로 초기화 (`if (!char.updateHistory) char.updateHistory = []`)
+
+**`scripts/eq_weapon.js`**
+
+- `showRecentUpdates()` — 데이터 수집 로직 변경
+  - 기존: `char.updateTimes` (키→타임스탬프 맵) 기반, 현재 `armorCounts` 값을 읽어옴
+  - 수정: `char.updateHistory`(누적 배열) 우선 사용, 없으면 `updateTimes` 기반으로 레거시 처리 (하위 호환 유지)
+  - `allUpdatesData` 항목에 `oldCount`, `newCount` 필드 추가
+
+- `renderUpdatePage()` — 테이블 표시 변경
+  - 헤더 "보유 개수" → "변경"으로 변경
+  - 변경 셀: `oldCount → newCount` 형식으로 표시
+    - 증가: newCount 노란색(`#ffcc00`)
+    - 감소: newCount 빨간색(`#ff6b6b`)
+    - 레거시(oldCount 없음): 기존 방식으로 숫자만 표시
+
+---
