@@ -793,6 +793,12 @@ function restoreSavedData(section, savedData, charId) {
         if (key.endsWith('_prefix')) {
             updateStyle(el, 'prefix', true);
         }
+
+        // info_job 복구 후 무기 select 재초기화 (직업 기반 옵션 목록 채우기)
+        if (key === 'info_job' && typeof initWeaponItemSelect === 'function') {
+            const savedWeaponVal = getInputData(savedData.inputs, '무기_itemname')?.val || '';
+            initWeaponItemSelect(charId, savedWeaponVal);
+        }
     });
 
     // 2-b) 칭호 버튼 복원

@@ -4364,3 +4364,22 @@ project/
 **`scripts/eq_weapon.js`**
 
 - 초기화 버튼 텍스트 `✕ 초기화` → `↻ 초기화` 로 변경
+
+---
+---
+
+## 2026-03-09 (105차)
+
+### JSON 불러오기 시 무기 아이템이름 복원 안 되는 문제 수정
+
+**수정된 파일:** `js/ui-character.js`
+
+---
+
+### 변경 내용
+
+**`js/ui-character.js`**
+
+- `restoreSavedData()` — `info_job` 값 복구 직후 `initWeaponItemSelect(charId, savedWeaponVal)` 재호출 추가
+  - 기존: `createCharacterTable()` 내에서 `initWeaponItemSelect(charId)`를 `restoreSavedData()` 보다 먼저 호출 → 직업값이 없는 상태에서 옵션 목록이 비어있어 무기 아이템이름 복원 불가
+  - 수정: `restoreSavedData()` 내부 입력값 복구 루프에서 `key === 'info_job'` 감지 시, 저장된 `무기_itemname` 값을 함께 전달하여 `initWeaponItemSelect` 재실행
