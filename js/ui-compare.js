@@ -302,7 +302,7 @@ function buildEmblemCompare(section1, section2, name1, name2) {
         let diff = '-';
         if (selectSlots.includes(slot)) {
             if (d1.emb1 === d2.emb1 && d1.emb1 !== '') diff = calculateNumDiff(extractNumber(d1.emb2), extractNumber(d2.emb2));
-            else if (d1.emb1 !== d2.emb1 && (d1.emb1 !== '' || d2.emb1 !== '')) diff = '값이 다름';
+            else if (d1.emb1 !== d2.emb1 && (d1.emb1 !== '' || d2.emb1 !== '')) diff = '엠블렘 값이 다름';
         } else {
             const e1 = calculateNumDiff(extractNumber(d1.emb1), extractNumber(d2.emb1));
             const e2 = calculateNumDiff(extractNumber(d1.emb2), extractNumber(d2.emb2));
@@ -339,7 +339,7 @@ function buildEnchantCompare(section1, section2, name1, name2) {
 
         let diff = '-';
         if (d1.enchant === d2.enchant && d1.enchant !== '') diff = calculateNumDiff(d1.enchant_val, d2.enchant_val);
-        else if (d1.enchant !== d2.enchant && (d1.enchant !== '' || d2.enchant !== '')) diff = '값이 다름';
+        else if (d1.enchant !== d2.enchant && (d1.enchant !== '' || d2.enchant !== '')) diff = '마법부여 값이 다름';
 
         leftRows.push({ cells: [{ text: slot, cls: 'compare-slot-name' }, { text: d1.enchant }, { text: d1.enchant_val }] });
         centerRows.push({ text: diff });
