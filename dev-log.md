@@ -4383,3 +4383,28 @@ project/
 - `restoreSavedData()` — `info_job` 값 복구 직후 `initWeaponItemSelect(charId, savedWeaponVal)` 재호출 추가
   - 기존: `createCharacterTable()` 내에서 `initWeaponItemSelect(charId)`를 `restoreSavedData()` 보다 먼저 호출 → 직업값이 없는 상태에서 옵션 목록이 비어있어 무기 아이템이름 복원 불가
   - 수정: `restoreSavedData()` 내부 입력값 복구 루프에서 `key === 'info_job'` 감지 시, 저장된 `무기_itemname` 값을 함께 전달하여 `initWeaponItemSelect` 재실행
+  
+---
+---
+
+## 2026-03-10 (106차)
+
+### `_STAT_LABELS_SHORT` / `_STAT_LABELS_LONG` → `_STAT_LABELS` 통합
+
+**수정된 파일:** `js/ui-character.js`, `shared/shared_data.js`
+
+---
+
+### 변경 내용
+
+**`js/ui-character.js`**
+
+- `_STAT_LABELS_SHORT`, `_STAT_LABELS_LONG` 두 개의 상수를 `_STAT_LABELS` 하나로 통합
+  - 기존: `_STAT_LABELS_SHORT`는 히스토리 기록용, `_STAT_LABELS_LONG`은 desc 자동생성용으로 분리되어 있었으나 실질적으로 값 차이가 없어 통합
+  - `'데미지 증가':'데미지 증가'` 로 키/값 통일 (기존 키 `'데미지'` → `'데미지 증가'`로 변경)
+- `_STAT_LABELS_LONG` 사용처 (`_entriesToLines`) → `_STAT_LABELS` 로 변경
+- `_STAT_LABELS_SHORT` 사용처 2곳 (칭호/오라 히스토리 기록) → `_STAT_LABELS` 로 변경
+
+**`shared/shared_data.js`**
+
+- `_TITLE_TEMPLATES` V1, V2 및 `_AURA_TEMPLATES` V1 내 `stats: ['데미지']` 3곳 → `stats: ['데미지 증가']` 로 변경 (`_STAT_LABELS` 키 통일에 맞춰 수정)

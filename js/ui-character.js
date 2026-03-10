@@ -8,23 +8,8 @@
 // ============================================
 
 /** 스탯 키 → 변경 히스토리 표시용 짧은 레이블 */
-const _STAT_LABELS_SHORT = {
-    '힘':'힘','지능':'지능','체력':'체력','정신력':'정신력',
-    '적중':'적중','회피':'회피',
-    '공격속도':'공격속도','캐스팅속도':'캐스팅속도','이동속도':'이동속도',
-    '물리 크리티컬':'물리크리','마법 크리티컬':'마법크리',
-    '물리 크리티컬 확률':'물리크리확률','마법 크리티컬 확률':'마법크리확률',
-    'HP MAX':'HP MAX','MP MAX':'MP MAX',
-    '모든 속성 강화':'속성강화','모든 속성 저항':'속성저항',
-    '화속강':'화속강','수속강':'수속강','명속강':'명속강','암속강':'암속강',
-    '화속성 저항':'화속성저항','수속성 저항':'수속성저항',
-    '명속성 저항':'명속성저항','암속성 저항':'암속성저항',
-    '기절 내성':'기절내성','점프력':'점프력',
-    '데미지':'데미지증가','마을 이동속도 증가':'마을이동속도 증가',
-};
-
-/** 스탯 키 → desc 자동생성용 긴 레이블 */
-const _STAT_LABELS_LONG = {
+/** 스탯 키 → 표시용 레이블 (히스토리 기록 및 desc 자동생성 공통 사용) */
+const _STAT_LABELS = {
     '힘':'힘', '지능':'지능', '체력':'체력', '정신력':'정신력',
     '적중':'적중', '회피':'회피',
     '공격속도':'공격속도', '캐스팅속도':'캐스팅속도', '이동속도':'이동속도',
@@ -36,7 +21,7 @@ const _STAT_LABELS_LONG = {
     '화속성 저항':'화속성 저항', '수속성 저항':'수속성 저항',
     '명속성 저항':'명속성 저항', '암속성 저항':'암속성 저항',
     '기절 내성':'기절 내성', '점프력':'점프력',
-    '데미지':'데미지 증가', '마을 이동속도 증가':'마을 이동속도 증가',
+    '데미지 증가':'데미지 증가', '마을 이동속도 증가':'마을 이동속도 증가',
 };
 
 /**
@@ -71,7 +56,7 @@ function _buildStatMap(data) {
  */
 function _entriesToLines(arr) {
     return (arr || []).map(e => {
-        const labels = e.stats.map(s => _STAT_LABELS_LONG[s] || s).join(', ');
+        const labels = e.stats.map(s => _STAT_LABELS[s] || s).join(', ');
         return `${labels} +${e.amount}${e.unit}`;
     });
 }
@@ -2135,7 +2120,7 @@ function titlePopupSave() {
             if (ov !== nv) {
                 const [statKey, type] = k.split(/_(?=base$|eff$)/);
                 const typeLabel = type === 'eff' ? '[효과] ' : '[기본] ';
-                details.push(`${typeLabel}${_STAT_LABELS_SHORT[statKey] || statKey}: ${ov} → ${nv}`);
+                details.push(`${typeLabel}${_STAT_LABELS[statKey] || statKey}: ${ov} → ${nv}`);
             }
         });
         if (oldName !== name) details.unshift(`이름: ${oldName || '(빈칸)'} → ${name || '(빈칸)'}`);
@@ -2334,7 +2319,7 @@ function auraPopupSave() {
             if (ov !== nv) {
                 const [statKey, type] = k.split(/_(?=base$|eff$)/);
                 const typeLabel = type === 'eff' ? '[효과] ' : '[기본] ';
-                details.push(`${typeLabel}${_STAT_LABELS_SHORT[statKey] || statKey}: ${ov} → ${nv}`);
+                details.push(`${typeLabel}${_STAT_LABELS[statKey] || statKey}: ${ov} → ${nv}`);
             }
         });
         if (oldName !== name) details.unshift(`이름: ${oldName || '(빈칸)'} → ${name || '(빈칸)'}`);

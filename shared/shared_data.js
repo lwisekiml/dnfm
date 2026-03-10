@@ -494,7 +494,7 @@ HP MAX +220
         eff: [
             {stats: ['HP MAX'], amount: 220, unit: ''},
             {stats: ['모든 속성 강화'], amount: 10, unit: ''},
-            {stats: ['데미지'], amount: 10, unit: '%'},
+            {stats: ['데미지 증가'], amount: 10, unit: '%'},
         ],
     },
     V2: {
@@ -525,7 +525,7 @@ HP MAX +220
         eff: [
             { stats: ['HP MAX'],              amount: 220 , unit: ''},
             { stats: ['모든 속성 강화'],       amount: 3   , unit: ''},
-            { stats: ['데미지'],              amount: 15  , unit: '%'},
+            { stats: ['데미지 증가'],              amount: 15  , unit: '%'},
         ]
     },
     V3: {
@@ -620,7 +620,7 @@ const _AURA_TEMPLATES = {
         eff: [
             { stats: ['모든 속성 강화'], amount: 10, unit: ''},
             { stats: ['마을 이동속도 증가'], amount: 5, unit: '%'},
-            { stats: ['데미지'], amount: 5, unit: "%" },
+            { stats: ['데미지 증가'], amount: 5, unit: "%" },
         ]
     },
     V3: {
@@ -1067,7 +1067,7 @@ const CREATURE_DATA = [
         name: "진 : 옥령왕",
         stats: [
             { stat: '모든 속성 강화', amount: 5,  label: '모든 속성 강화 +5'        },
-            { stat: '추가데미지',   amount: 18, label: '공격 시 18% 추가 데미지'  },
+            { stat: '추가 데미지',   amount: 18, label: '공격 시 18% 추가 데미지'  },
         ]
     },
 ];
