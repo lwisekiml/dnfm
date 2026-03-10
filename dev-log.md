@@ -4440,3 +4440,31 @@ project/
 - `buildEmblemCompare()` — 두 번째 캐릭터(rightRows) 엠블렘 순서 수정
   - 기존: 데이터 셀 `emb2 → emb1 → 슬롯`, 헤더 `엠블렘2 → 엠블렘1 → 슬롯`
   - 수정: 데이터 셀 `emb1 → emb2 → 슬롯`, 헤더 `엠블렘1 → 엠블렘2 → 슬롯`
+  
+---
+---
+
+## 2026-03-10 (109차)
+
+### 아이템 상세 스탯 데이터 파일 분리 및 방어구 데이터 추가
+
+**수정된 파일:** `shared/shared_item_stats.js` (신규), `shared/shared_data.js`
+
+---
+
+### 변경 내용
+
+**`shared/shared_item_stats.js`** (신규 생성)
+
+- 아이템 상세 스탯 데이터를 `shared_data.js`에서 분리하여 별도 파일로 관리
+  - 방어구 / 악세서리 / 특수장비 섹션 구조로 분리 (`ARMOR_ITEM_STATS`, `ACCESSORY_ITEM_STATS`, `SPECIAL_ITEM_STATS`)
+- `_말괄량이_SET_EFFECTS` 공통 세트효과 상수 추가
+  - 어느 말괄량이의 탐사복 세트 5개 아이템이 동일한 세트효과를 공유하므로 별도 상수로 분리
+  - 세트명: `기본` / `전격` / `허상`, 각각 3세트 / 5세트 효과 포함
+- `ARMOR_ITEM_STATS` 방어구 아이템 데이터 추가
+  - `어느 말괄량이의 가죽 자켓` — base, eff, mastery, setEffects
+  - `어느 말괄량이의 버블 반바지` — base, eff, mastery, setEffects
+
+**`shared/shared_data.js`**
+
+- 이전에 임시로 추가했던 `ARMOR_ITEM_STATS` 관련 코드 제거
