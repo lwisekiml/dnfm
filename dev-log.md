@@ -4408,3 +4408,19 @@ project/
 **`shared/shared_data.js`**
 
 - `_TITLE_TEMPLATES` V1, V2 및 `_AURA_TEMPLATES` V1 내 `stats: ['데미지']` 3곳 → `stats: ['데미지 증가']` 로 변경 (`_STAT_LABELS` 키 통일에 맞춰 수정)
+
+---
+---
+
+## 2026-03-10 (107차)
+
+### 최근 업데이트 팝업 바깥 클릭 시 닫기
+
+**수정된 파일:** `index.html`
+
+**변경 내용**
+
+- `updateModal` — `onclick="if(event.target===this) closeUpdateModal();"` 추가
+
+---
+---
