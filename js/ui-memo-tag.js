@@ -41,13 +41,13 @@ const MEMO_POPUP = {
     zIndex:       '1000',
 
     // 입력창 (편집 모드)
-    textareaHeight:     '120px',
+    textareaHeight:     '200px',
     textareaBg:         '#0a0a0a',
     textareaBorder:     '2px solid #444',
     textareaFontSize:   '13px',
 
     // 읽기전용 div (잠금 모드)
-    readonlyMinHeight:  '120px',
+    readonlyMinHeight:  '200px',
     readonlyMaxHeight:  '200px',  // 이 높이 초과 시 스크롤
     readonlyBg:         '#0a0a0a',
     readonlyBorder:     '2px solid #333',
@@ -65,13 +65,13 @@ const DESC_POPUP = {
     zIndex:       '1000',
 
     // 입력창 (편집 모드)
-    textareaHeight:     '100px',
+    textareaHeight:     '200px',
     textareaBg:         '#0a0a0a',
     textareaBorder:     '2px solid #444',
     textareaFontSize:   '13px',
 
     // 읽기전용 div (잠금 모드)
-    readonlyMinHeight:  '60px',
+    readonlyMinHeight:  '200px',
     readonlyMaxHeight:  '200px',  // 이 높이 초과 시 스크롤
     readonlyBg:         '#0a0a0a',
     readonlyBorder:     '2px solid #333',
