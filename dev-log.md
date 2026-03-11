@@ -4468,3 +4468,47 @@ project/
 **`shared/shared_data.js`**
 
 - 이전에 임시로 추가했던 `ARMOR_ITEM_STATS` 관련 코드 제거
+---
+---
+
+## 2026-03-11 (110차)
+
+### 아이템 데이터 JSON 분리 및 익시드 장비 구조 설계
+
+**수정된 파일:** `data/armor.json` (신규), `data/accessory.json` (신규), `data/special.json` (신규), `data/exceed_effects.json` (신규), `shared/shared_item_stats.js`, `index.html`, `js/main.js`
+
+---
+
+### 변경 내용
+
+**데이터 구조 변경**
+
+- `shared/shared_item_stats.js`에 하드코딩되어 있던 아이템 데이터를 `data/` 폴더 JSON 파일로 분리
+  - 나중에 백엔드 + DB 전환 시 JSON을 그대로 import할 수 있도록 방법1(완전 JSON화) 채택
+  - JS 참조(`_말괄량이_SET_EFFECTS` 등) 없이 모든 데이터를 JSON에 직접 펼쳐서 작성
+
+**`data/armor.json`** (신규)
+
+- 방어구 5개 아이템 데이터 포함
+  - `어느 말괄량이의 가죽 자켓` / `버블 반바지` / `특수 고글` / `벨트` / `신발`
+- 익시드 장비(`가죽 자켓`) 구조 설계 및 적용
+  - `exceed: true` 플래그 추가
+  - `info`, `base` → `{ [익시드타입]: { [접두어]: ... } }` 2단계 구조 (일반은 1단계)
+  - `eff` → 접두어별 (익시드타입 무관)
+  - `mastery` → 접두어/익시드타입별 키로 직접 참조 (`"기본"` / `"전격"` / `"허상"` / `"이상"` / `"선봉"` / `"의지"`)
+  - `setEffects` → 세트명별 3세트/5세트 효과 포함
+- `data/accessory.json`, `data/special.json`, `data/exceed_effects.json` 빈 파일로 생성 (추후 추가)
+
+**`shared/shared_item_stats.js`**
+
+- 데이터 제거, JSON 로더(`loadItemStats()`)만 남김
+- `loadItemStats()` — `data/` 폴더 JSON 4개를 `Promise.all`로 동시 fetch
+- 로드 후 `ARMOR_ITEM_STATS`, `ACCESSORY_ITEM_STATS`, `SPECIAL_ITEM_STATS`, `EXCEED_UNIQUE_EFFECTS` 전역 변수에 할당
+
+**`index.html`**
+
+- `shared/shared_item_stats.js` 스크립트 태그 추가 (`shared_constants.js` 다음)
+
+**`js/main.js`**
+
+- `DOMContentLoaded` 시 `loadItemStats()` 자동 호출 추가

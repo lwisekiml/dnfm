@@ -221,6 +221,11 @@ document.addEventListener('change', function (e) {
  * 모달 오버레이 클릭 시 모달 닫기
  */
 document.addEventListener('DOMContentLoaded', () => {
+    // 아이템 데이터 JSON 로드(data 에 있는 장비 정보 로드)
+    // if (typeof loadItemStats === 'function') {
+    //     loadItemStats().catch(err => console.warn('아이템 데이터 로드 실패:', err));
+    // }
+
     const overlay = document.getElementById('modalOverlay');
 
     if (overlay) {
