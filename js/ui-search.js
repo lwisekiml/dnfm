@@ -1026,6 +1026,46 @@ function _makeDescEditable(td, charId, slot) {
         if (!td.dataset.descEditMode || td.dataset.descEditMode !== 'on') return; // 편집 모드 OFF
         if (td.querySelector('textarea')) return; // 이미 편집 중
 
+        // 자동입력 상태 확인 (칭호/외형칭호, 오라, 크리쳐)
+        if ((slot === '칭호' || slot === '외형칭호' || slot === '오라' || slot === '크리쳐') && charId) {
+            const section = document.getElementById(charId);
+            if (section) {
+                let isAutoDesc = false;
+
+                if (slot === '칭호' || slot === '외형칭호') {
+                    const titleBtn = section.querySelector('button[data-key="칭호_itemname"]');
+                    if (titleBtn) {
+                        const titleName = titleBtn.getAttribute('data-title-name') || '';
+                        const titleInfo = (typeof GameData !== 'undefined' && GameData.TITLE_ITEM_INFO)
+                            ? GameData.TITLE_ITEM_INFO[titleName]
+                            : null;
+                        isAutoDesc = !!(titleInfo?.info || titleInfo?.desc);
+                    }
+                } else if (slot === '오라') {
+                    const auraBtn = section.querySelector('button[data-key="오라_itemname"]');
+                    if (auraBtn) {
+                        const auraName = auraBtn.getAttribute('data-aura-name') || '';
+                        const auraInfo = (typeof GameData !== 'undefined' && GameData.AURA_ITEM_INFO)
+                            ? GameData.AURA_ITEM_INFO[auraName]
+                            : null;
+                        isAutoDesc = !!(auraInfo?.info || auraInfo?.desc);
+                    }
+                } else if (slot === '크리쳐') {
+                    const creatureBtn = section.querySelector('button[data-creature-btn]');
+                    if (creatureBtn) {
+                        const setAuto = creatureBtn.getAttribute('data-creature-setauto') || 'false';
+                        isAutoDesc = (setAuto === 'true');
+                    }
+                }
+
+                if (isAutoDesc) {
+                    // 자동입력 상태일 때 수정 불가 알림
+                    alert('자동입력된 설명은 수정할 수 없습니다.\n\n팝업에서 아이템 이름을 직접 입력하면 수정 가능합니다.');
+                    return;
+                }
+            }
+        }
+
         // 클릭 시점에 td 실제 크기 측정 (클릭한 td 자신이므로 정확함)
         const rect = td.getBoundingClientRect();
         const tdW = rect.width;
