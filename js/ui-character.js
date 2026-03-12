@@ -1373,10 +1373,26 @@ function acDropdownShow(ddId, items, onSelect, ...extraArgs) {
     if (!dd) return;
     if (items.length === 0) { dd.style.display = 'none'; return; }
 
-    dd.innerHTML = items.map((name, i) =>
-        `<li data-idx="${i}" data-name="${name}">${name}</li>`
-    ).join('');
-    dd.querySelectorAll('li').forEach(li => {
+    // items가 [{group, names}] 형태면 그룹 렌더링, 아니면 기존 방식
+    const isGrouped = items.length > 0 && typeof items[0] === 'object' && items[0].group !== undefined;
+
+    if (isGrouped) {
+        let idx = 0;
+        dd.innerHTML = items.map(({ group, names }) => {
+            if (!names.length) return '';
+            const labelHtml = `<li class="ac-dropdown-group-label">${group}</li>`;
+            const itemsHtml = names.map(name =>
+                `<li data-idx="${idx++}" data-name="${name}">${name}</li>`
+            ).join('');
+            return labelHtml + itemsHtml;
+        }).join('');
+    } else {
+        dd.innerHTML = items.map((name, i) =>
+            `<li data-idx="${i}" data-name="${name}">${name}</li>`
+        ).join('');
+    }
+
+    dd.querySelectorAll('li:not(.ac-dropdown-group-label)').forEach(li => {
         li.addEventListener('mousedown', e => {
             e.preventDefault();
             onSelect(li.getAttribute('data-name'), ...extraArgs);
@@ -1392,7 +1408,7 @@ function acDropdownShow(ddId, items, onSelect, ...extraArgs) {
 function acDropdownKeydown(e, ddId, onSelect, ...extraArgs) {
     const dd = document.getElementById(ddId);
     if (!dd || dd.style.display === 'none') return;
-    const items = Array.from(dd.querySelectorAll('li'));
+    const items = Array.from(dd.querySelectorAll('li:not(.ac-dropdown-group-label)'));
     if (!items.length) return;
 
     const active = dd.querySelector('li.ac-active');
@@ -1446,13 +1462,35 @@ function _acDropdownInit() {
 /** 크리쳐 이름 드롭다운 표시 + 스킬 효과 갱신 */
 function creatureNameDropdownShow() {
     const input = document.getElementById('creature-popup-name-text');
-    if (!input || typeof CREATURE_DATA === 'undefined') return;
+    if (!input || typeof CREATURE_ITEM_INFO === 'undefined') return;
     const val = input.value.trim();
-    const candidates = CREATURE_DATA
-        .map(c => c.name)
-        .filter(name => !val || name.includes(val));
-    acDropdownShow('creature-name-dropdown', candidates, creatureNameDropdownSelect);
-    // 타이핑할 때마다 스킬 효과 갱신 (이름 수정 시 자동입력 해제)
+
+    const gradeOrder = ['에픽', '유니크', '레어', '언커먼', '커먼'];
+    const grouped = {};
+    gradeOrder.forEach(g => { grouped[g] = []; });
+
+    Object.entries(CREATURE_ITEM_INFO).forEach(([name, data]) => {
+        if (val && !name.includes(val)) return;
+        const g = data.grade || '기타';
+        if (!grouped[g]) grouped[g] = [];
+        grouped[g].push(name);
+    });
+
+    gradeOrder.forEach(g => {
+        grouped[g].sort((a, b) => a.localeCompare(b, 'ko'));
+    });
+
+    const candidates = gradeOrder
+        .filter(g => grouped[g].length > 0)
+        .map(g => ({ group: g, names: grouped[g] }));
+
+    const totalCount = candidates.reduce((s, c) => s + c.names.length, 0);
+    if (totalCount === 0) {
+        document.getElementById('creature-name-dropdown').style.display = 'none';
+    } else {
+        acDropdownShow('creature-name-dropdown', candidates, creatureNameDropdownSelect);
+    }
+
     _creatureUpdateSetEffect();
 }
 
@@ -1471,8 +1509,8 @@ function _creatureUpdateSetEffect(forceName) {
     if (!setTA) return;
 
     const selName = forceName !== undefined ? forceName : (textEl ? textEl.value.trim() : '');
-    if (selName && typeof CREATURE_DATA !== 'undefined') {
-        const creature = CREATURE_DATA.find(c => c.name === selName);
+    if (selName && typeof CREATURE_ITEM_INFO !== 'undefined') {
+        const creature = CREATURE_ITEM_INFO[selName];
         if (creature) {
             setTA.value    = creature.info || creature.stats.map(s => s.label).join('\n');
             setTA.readOnly = true;
@@ -1514,9 +1552,9 @@ function openCreaturePopup(charId, btn) {
     const selEl  = document.getElementById('creature-popup-name-sel');
 
     // select 목록 채우기
-    if (selEl && typeof CREATURE_DATA !== 'undefined') {
+    if (selEl && typeof CREATURE_ITEM_INFO !== 'undefined') {
         selEl.innerHTML = '<option value="">크리쳐 선택</option>' +
-            CREATURE_DATA.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            Object.keys(CREATURE_ITEM_INFO).map(name => `<option value="${name}">${name}</option>`).join('');
     }
 
     // 모드에 따라 복원
