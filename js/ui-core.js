@@ -271,7 +271,14 @@ function _refreshSlotState(slot, charId, isRestore, itemInfoMap) {
 
         // 익시드: innerHTML 교체로 공백 옵션 제거 + 값 설정
         if (exceedSel) {
-            const savedExceed = exceedSel.value;
+            // isRestore 시 DOM value 대신 저장 데이터에서 직접 읽기
+            // (replaceItemNameField → _refreshSlotState 호출 시점에 DOM이 아직 복원 전일 수 있음)
+            let savedExceed = exceedSel.value;
+            if (isRestore && typeof characters !== 'undefined') {
+                const char = characters.find(c => c.id === charId);
+                const stored = char?.inputs?.[slot]?.['exceed']?.val;
+                if (stored) savedExceed = stored;
+            }
             exceedSel.innerHTML = '<option>이상</option><option>선봉</option><option>의지</option>';
             exceedSel.disabled = isLocked ? true : false;
             if (isRestore) {

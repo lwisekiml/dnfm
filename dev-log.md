@@ -4855,3 +4855,36 @@ if (!isWeaponKey && char.armorCounts && char.armorCounts[fullKey] !== undefined)
 ```
 
 ---
+---
+
+## 2026-03-12 (117차)
+
+### JSON 불러오기 시 익시드 값이 무조건 "이상"으로 초기화되는 버그 수정
+
+**수정된 파일:** `js/ui-core.js`
+
+---
+
+### 변경 내용
+
+**문제:**
+- JSON 불러오기로 캐릭터를 복원하면 익시드 select가 저장된 값("선봉", "의지")과 무관하게 항상 "이상"으로 설정됨
+
+**원인:**
+- 복원 순서 문제: `restoreSavedData()` 내부에서 rarity 복원 → `updateStyle()` → `replaceItemNameField()` → `_refreshSlotState(isRestore=true)` 순서로 호출됨
+- `_refreshSlotState()`에서 익시드 값을 `exceedSel.value`(DOM)에서 읽는데, 이 시점은 아직 exceed DOM 복원이 이루어지기 전(2단계 복원 전)
+- `exceedSel.value === ""`(빈 값) → `["이상","선봉","의지"].includes("") === false` → 기본값 `"이상"` 강제 설정
+
+**해결:**
+- `_refreshSlotState()`에서 `isRestore=true`일 때 DOM value 대신 `characters` 배열의 저장 데이터에서 직접 exceed 값을 읽도록 수정
+
+```js
+let savedExceed = exceedSel.value;
+if (isRestore && typeof characters !== 'undefined') {
+    const char = characters.find(c => c.id === charId);
+    const stored = char?.inputs?.[slot]?.['exceed']?.val;
+    if (stored) savedExceed = stored;
+}
+```
+
+---
