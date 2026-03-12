@@ -4657,3 +4657,40 @@ project/
 4. 스탯과 설명 수정 가능
 
 ---
+---
+
+## 2026-03-12 (113차)
+
+### 크리쳐 아티팩트 레이아웃 개선
+
+**수정된 파일:** `styles/merged.css`
+
+---
+
+### 변경 내용
+
+**문제:**
+- 크리쳐 슬롯의 아티팩트 표시 영역에서 RED/BLUE/GREEN 3개 칸이 td 전체 너비를 사용하지 않고 왼쪽에 작게 몰려있음
+
+**해결:**
+- CSS Grid 레이아웃으로 변경하여 3개 칸이 균등하게 공간 분배
+
+**`styles/merged.css`**
+
+- `#section-detail-view .artifact-main-wrapper`
+  - `display: flex` → `display: grid`
+  - `grid-template-columns: 1fr 1fr 1fr` 추가 (3개 칸을 1:1:1 비율로 균등 분배)
+  - `justify-content`, `align-items` 제거 (Grid가 자동 처리)
+  - `gap: 8px`, `padding: 4px 8px` (여백 최적화)
+  - `box-sizing: border-box` 추가
+
+- `#section-detail-view .art-group`
+  - `flex: 1`, `min-width: 0` 제거 (Grid 레이아웃에서 불필요)
+  - `padding: 4px` (여백 최적화)
+
+**효과:**
+- 3개 아티팩트 칸이 td 전체 너비를 균등하게 사용
+- CSS Grid의 `fr` 단위로 간격 계산 불필요
+- 반응형 레이아웃 자동 처리
+
+---

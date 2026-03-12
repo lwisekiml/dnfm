@@ -1209,10 +1209,12 @@ body.theme-mixed #section-detail-view .char-info-table {
 ======================================== */
 #section-detail-view .artifact-main-wrapper {
     display: flex;
-    gap: var(--spacing-lg);
-    justify-content: start;
-    align-items: center;
-    padding: var(--spacing-xs) var(--spacing-md);
+    gap: 8px;
+    justify-content: space-between;
+    align-items: stretch;
+    padding: 4px 8px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 #section-detail-view .art-group {
@@ -1220,8 +1222,10 @@ body.theme-mixed #section-detail-view .char-info-table {
     flex-direction: column;
     gap: var(--spacing-xs);
     border: var(--border-width) var(--border-style) var(--border);
-    padding: var(--spacing-sm);
+    padding: 4px;
     background: var(--bg-dark);
+    flex: 1;
+    min-width: 0;
 }
 
 #section-detail-view .art-item {
@@ -1237,11 +1241,16 @@ body.theme-mixed #section-detail-view .char-info-table {
 }
 
 #section-detail-view .art-color-select {
-    width: var(--width-art-color);
+    min-width: 50px;
+    flex-shrink: 0;
 }
 
 #section-detail-view .art-opt-select {
-    width: var(--width-art-opt);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* ========================================
