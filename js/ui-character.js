@@ -51,14 +51,71 @@ function _buildStatMap(data) {
 }
 
 /**
- * 스탯 배열 → desc textarea 용 문자열 배열 변환
- * @param {Array} arr base 또는 eff 배열
+ * 스탯 그룹 정의 (순서대로 출력)
+ */
+const _STAT_GROUPS = [
+    ['힘', '지능', '체력', '정신력'],
+    ['적중', '회피'],
+    ['공격속도', '캐스팅속도', '이동속도'],
+    ['물리 크리티컬', '마법 크리티컬'],
+    ['물리 크리티컬 확률', '마법 크리티컬 확률'],
+    ['HP MAX', 'MP MAX'],
+    ['모든 속성 강화', '모든 속성 저항'],
+    ['화속강', '수속강', '명속강', '암속강'],
+    ['화속성 저항', '수속성 저항', '명속성 저항', '암속성 저항'],
+    ['기절 내성'],
+    ['점프력'],
+    ['데미지 증가'],
+    ['마을 이동속도 증가']
+];
+
+/**
+ * 스탯 배열 → desc textarea 용 문자열 배열 변환 (그룹별 정렬)
+ * @param {Array} arr base 또는 eff 배열: [{stats:['힘','지능'], amount:50, unit:''}, ...]
+ * @returns {Array} 정렬된 라인 배열
  */
 function _entriesToLines(arr) {
-    return (arr || []).map(e => {
-        const labels = e.stats.map(s => _STAT_LABELS[s] || s).join(', ');
-        return `${labels} +${e.amount}${e.unit}`;
+    if (!arr || arr.length === 0) return [];
+
+    // 스탯별로 {stat: amount+unit} 맵 생성
+    const statMap = {};
+    arr.forEach(entry => {
+        const valStr = `${entry.amount}${entry.unit}`;
+        entry.stats.forEach(stat => {
+            statMap[stat] = valStr;
+        });
     });
+
+    const lines = [];
+
+    // 그룹별로 순회
+    _STAT_GROUPS.forEach(group => {
+        // 이 그룹에 속한 스탯들 중 실제 값이 있는 것만 추출
+        const groupStats = group.filter(stat => statMap[stat] !== undefined);
+        if (groupStats.length === 0) return;
+
+        // 같은 수치끼리 묶기: {수치: [스탯들]}
+        const valueMap = {};
+        groupStats.forEach(stat => {
+            const val = statMap[stat];
+            if (!valueMap[val]) valueMap[val] = [];
+            valueMap[val].push(stat);
+        });
+
+        // 그룹 내에서 원래 순서 유지하면서 출력
+        const usedValues = new Set();
+        groupStats.forEach(stat => {
+            const val = statMap[stat];
+            if (usedValues.has(val)) return; // 이미 출력한 수치는 스킵
+            usedValues.add(val);
+
+            const statsWithSameValue = valueMap[val];
+            const labels = statsWithSameValue.map(s => _STAT_LABELS[s] || s).join(', ');
+            lines.push(`${labels} +${val}`);
+        });
+    });
+
+    return lines;
 }
 
 // 캐릭터 추가 동기화 무한루프 방지 플래그
@@ -1901,8 +1958,60 @@ function titleNameDropdownShow() {
     const keys = Object.keys(GameData.TITLE_ITEM_INFO || {});
     const candidates = keys.filter(k => !val || k.includes(val));
     acDropdownShow('title-name-dropdown', candidates, titleNameDropdownSelect);
-    // 타이핑 시 스탯 갱신
-    titleNameApplyStats(val);
+
+    // 실시간 자동입력 상태 체크 및 UI 업데이트
+    const info = (GameData.TITLE_ITEM_INFO || {})[val];
+    const isAutoInput = !!(info?.base || info?.eff || info?.stats);
+
+    const badgeBase = document.getElementById('title-badge-base');
+    const badgeEff  = document.getElementById('title-badge-eff');
+    const badgeDesc = document.getElementById('title-badge-desc');
+
+    if (!isAutoInput) {
+        // 자동입력 데이터가 없으면 badge 숨기고 잠금 해제
+        if (badgeBase) badgeBase.style.display = 'none';
+        if (badgeEff) badgeEff.style.display = 'none';
+        if (badgeDesc) badgeDesc.style.display = 'none';
+        _titlePopupLock(false);
+    }
+    // 자동입력 데이터가 있는 경우는 드롭다운 선택 시에만 처리
+}
+
+/**
+ * 칭호 팝업 수치/설명 초기화
+ */
+function resetTitlePopupStats() {
+    const popup = document.getElementById('title-popup');
+    if (!popup) return;
+
+    // 자동입력 상태 확인
+    const nameInput = document.getElementById('title-popup-name');
+    const name = nameInput ? nameInput.value.trim() : '';
+    const info = (GameData.TITLE_ITEM_INFO || {})[name];
+    const isAutoInput = !!(info?.base || info?.eff || info?.stats);
+
+    if (isAutoInput) {
+        alert('자동입력된 칭호는 초기화할 수 없습니다.\n\n직접 입력한 이름으로 변경 후 사용해주세요.');
+        return;
+    }
+
+    // 모든 스탯 input 초기화
+    popup.querySelectorAll('[data-title-stat]').forEach(el => el.value = '');
+
+    // 설명 초기화
+    const descTA = document.getElementById('title-popup-desc');
+    if (descTA) descTA.value = '';
+
+    // badge 숨기기
+    const badgeBase = document.getElementById('title-badge-base');
+    const badgeEff  = document.getElementById('title-badge-eff');
+    const badgeDesc = document.getElementById('title-badge-desc');
+    if (badgeBase) badgeBase.style.display = 'none';
+    if (badgeEff) badgeEff.style.display = 'none';
+    if (badgeDesc) badgeDesc.style.display = 'none';
+
+    // 잠금 해제
+    _titlePopupLock(false);
 }
 
 function titleNameDropdownSelect(name) {
@@ -1950,8 +2059,60 @@ function auraNameDropdownShow() {
     const keys = Object.keys(GameData.AURA_ITEM_INFO || {});
     const candidates = keys.filter(k => !val || k.includes(val));
     acDropdownShow('aura-name-dropdown', candidates, auraNameDropdownSelect);
-    // 타이핑 시 스탯 갱신
-    auraNameApplyStats(val);
+
+    // 실시간 자동입력 상태 체크 및 UI 업데이트
+    const info = (GameData.AURA_ITEM_INFO || {})[val];
+    const isAutoInput = !!(info?.base || info?.eff || info?.stats);
+
+    const badgeBase = document.getElementById('aura-badge-base');
+    const badgeEff  = document.getElementById('aura-badge-eff');
+    const badgeDesc = document.getElementById('aura-badge-desc');
+
+    if (!isAutoInput) {
+        // 자동입력 데이터가 없으면 badge 숨기고 잠금 해제
+        if (badgeBase) badgeBase.style.display = 'none';
+        if (badgeEff) badgeEff.style.display = 'none';
+        if (badgeDesc) badgeDesc.style.display = 'none';
+        _auraPopupLock(false);
+    }
+    // 자동입력 데이터가 있는 경우는 드롭다운 선택 시에만 처리
+}
+
+/**
+ * 오라 팝업 수치/설명 초기화
+ */
+function resetAuraPopupStats() {
+    const popup = document.getElementById('aura-popup');
+    if (!popup) return;
+
+    // 자동입력 상태 확인
+    const nameInput = document.getElementById('aura-popup-name');
+    const name = nameInput ? nameInput.value.trim() : '';
+    const info = (GameData.AURA_ITEM_INFO || {})[name];
+    const isAutoInput = !!(info?.base || info?.eff || info?.stats);
+
+    if (isAutoInput) {
+        alert('자동입력된 오라는 초기화할 수 없습니다.\n\n직접 입력한 이름으로 변경 후 사용해주세요.');
+        return;
+    }
+
+    // 모든 스탯 input 초기화
+    popup.querySelectorAll('[data-aura-stat]').forEach(el => el.value = '');
+
+    // 설명 초기화
+    const descTA = document.getElementById('aura-popup-desc');
+    if (descTA) descTA.value = '';
+
+    // badge 숨기기
+    const badgeBase = document.getElementById('aura-badge-base');
+    const badgeEff  = document.getElementById('aura-badge-eff');
+    const badgeDesc = document.getElementById('aura-badge-desc');
+    if (badgeBase) badgeBase.style.display = 'none';
+    if (badgeEff) badgeEff.style.display = 'none';
+    if (badgeDesc) badgeDesc.style.display = 'none';
+
+    // 잠금 해제
+    _auraPopupLock(false);
 }
 
 function auraNameDropdownSelect(name) {
@@ -2006,28 +2167,44 @@ function openTitlePopup(charId, btn) {
 
     // 스탯 복원: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
     const savedData = JSON.parse(btn.getAttribute('data-title-stats') || '{}');
-    // badge 초기 상태: 저장된 이름이 TITLE_ITEM_INFO에 있으면 자동입력 표시
-    setTimeout(() => {
-        const savedName = btn.getAttribute('data-title-name') || '';
-        titleNameApplyStats(savedName);
-        // 저장된 이름이 데이터와 매칭되면 잠금 복원
-        const info = (GameData.TITLE_ITEM_INFO || {})[savedName];
-        _titlePopupLock(!!(info?.base || info?.eff || info?.stats));
-    }, 0);
-    const baseMap = _buildStatMap(savedData.base);
-    const effMap  = _buildStatMap(savedData.eff);
-    popup.querySelectorAll('[data-title-stat]').forEach(input => {
-        const raw     = input.getAttribute('data-title-stat');
-        const isPct   = raw.endsWith('_pct');
-        const key     = isPct ? raw.slice(0, -4) : raw;
-        const parts   = key.split('_');
-        const type    = parts[parts.length - 1];
-        const statKey = parts.slice(0, -1).join('_');
-        const val     = (type === 'base' ? baseMap[statKey] : effMap[statKey]);
-        input.value   = val !== undefined ? String(val) : '';
-    });
-    const descTA = document.getElementById('title-popup-desc');
-    if (descTA) descTA.value = savedData.desc || '';
+    const savedName = btn.getAttribute('data-title-name') || '';
+
+    // 자동입력 데이터 확인
+    const info = (GameData.TITLE_ITEM_INFO || {})[savedName];
+    const isAutoInput = !!(info?.base || info?.eff || info?.stats);
+
+    if (isAutoInput) {
+        // 자동입력 데이터가 있으면 그것을 적용
+        setTimeout(() => {
+            titleNameApplyStats(savedName);
+            _titlePopupLock(true);
+        }, 0);
+    } else {
+        // 직접 입력한 경우 저장된 값 복원
+        const baseMap = _buildStatMap(savedData.base);
+        const effMap  = _buildStatMap(savedData.eff);
+        popup.querySelectorAll('[data-title-stat]').forEach(input => {
+            const raw     = input.getAttribute('data-title-stat');
+            const isPct   = raw.endsWith('_pct');
+            const key     = isPct ? raw.slice(0, -4) : raw;
+            const parts   = key.split('_');
+            const type    = parts[parts.length - 1];
+            const statKey = parts.slice(0, -1).join('_');
+            const val     = (type === 'base' ? baseMap[statKey] : effMap[statKey]);
+            input.value   = val !== undefined ? String(val) : '';
+        });
+        const descTA = document.getElementById('title-popup-desc');
+        if (descTA) descTA.value = savedData.desc || '';
+
+        // badge 숨기기 및 잠금 해제
+        const badgeBase = document.getElementById('title-badge-base');
+        const badgeEff  = document.getElementById('title-badge-eff');
+        const badgeDesc = document.getElementById('title-badge-desc');
+        if (badgeBase) badgeBase.style.display = 'none';
+        if (badgeEff) badgeEff.style.display = 'none';
+        if (badgeDesc) badgeDesc.style.display = 'none';
+        _titlePopupLock(false);
+    }
 
     // 팝업 표시: body 직계 자식으로 이동 후 absolute 배치 (스크롤 시 표와 함께 이동)
     if (popup.parentElement !== document.body) {
@@ -2151,14 +2328,32 @@ function titlePopupSave() {
         const descEl = section?.querySelector('[data-key="칭호_desc"]');
         if (descEl) {
             const infoEntry = GameData.TITLE_ITEM_INFO?.[name];
+            // 자동입력 데이터가 있으면 그것을 사용
             if (infoEntry?.info) {
                 descEl.value = infoEntry.info;
             } else {
+                // 직접 입력: 스탯 기반 자동생성 + 사용자 입력 설명 결합
                 const baseLines = _entriesToLines(stats.base);
                 const effLines  = _entriesToLines(stats.eff);
                 const lines = [];
-                if (baseLines.length) { lines.push('기본정보'); lines.push(...baseLines); }
-                if (effLines.length)  { if (baseLines.length) lines.push('---'); lines.push('효과'); lines.push(...effLines); }
+
+                // 스탯이 있으면 기본정보/효과 섹션 추가
+                if (baseLines.length) {
+                    lines.push('기본정보');
+                    lines.push(...baseLines);
+                }
+                if (effLines.length) {
+                    if (baseLines.length) lines.push('---');
+                    lines.push('효과');
+                    lines.push(...effLines);
+                }
+
+                // 사용자가 입력한 설명이 있으면 추가
+                if (stats.desc) {
+                    if (lines.length > 0) lines.push('---');
+                    lines.push(stats.desc);
+                }
+
                 descEl.value = lines.join('\n');
             }
         }
@@ -2206,27 +2401,44 @@ function openAuraPopup(charId, btn) {
 
     // 스탯 복원: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
     const savedData = JSON.parse(btn.getAttribute('data-aura-stats') || '{}');
-    // badge 초기 상태: 저장된 이름이 AURA_ITEM_INFO에 있으면 자동입력 표시
-    setTimeout(() => {
-        const savedName = btn.getAttribute('data-aura-name') || '';
-        auraNameApplyStats(savedName);
-        const info = (GameData.AURA_ITEM_INFO || {})[savedName];
-        _auraPopupLock(!!(info?.base || info?.eff || info?.stats));
-    }, 0);
-    const baseMap = _buildStatMap(savedData.base);
-    const effMap  = _buildStatMap(savedData.eff);
-    popup.querySelectorAll('[data-aura-stat]').forEach(input => {
-        const raw     = input.getAttribute('data-aura-stat');
-        const isPct   = raw.endsWith('_pct');
-        const key     = isPct ? raw.slice(0, -4) : raw;
-        const parts   = key.split('_');
-        const type    = parts[parts.length - 1];
-        const statKey = parts.slice(0, -1).join('_');
-        const val     = (type === 'base' ? baseMap[statKey] : effMap[statKey]);
-        input.value   = val !== undefined ? String(val) : '';
-    });
-    const descTA = document.getElementById('aura-popup-desc');
-    if (descTA) descTA.value = savedData.desc || '';
+    const savedName = btn.getAttribute('data-aura-name') || '';
+
+    // 자동입력 데이터 확인
+    const info = (GameData.AURA_ITEM_INFO || {})[savedName];
+    const isAutoInput = !!(info?.base || info?.eff || info?.stats);
+
+    if (isAutoInput) {
+        // 자동입력 데이터가 있으면 그것을 적용
+        setTimeout(() => {
+            auraNameApplyStats(savedName);
+            _auraPopupLock(true);
+        }, 0);
+    } else {
+        // 직접 입력한 경우 저장된 값 복원
+        const baseMap = _buildStatMap(savedData.base);
+        const effMap  = _buildStatMap(savedData.eff);
+        popup.querySelectorAll('[data-aura-stat]').forEach(input => {
+            const raw     = input.getAttribute('data-aura-stat');
+            const isPct   = raw.endsWith('_pct');
+            const key     = isPct ? raw.slice(0, -4) : raw;
+            const parts   = key.split('_');
+            const type    = parts[parts.length - 1];
+            const statKey = parts.slice(0, -1).join('_');
+            const val     = (type === 'base' ? baseMap[statKey] : effMap[statKey]);
+            input.value   = val !== undefined ? String(val) : '';
+        });
+        const descTA = document.getElementById('aura-popup-desc');
+        if (descTA) descTA.value = savedData.desc || '';
+
+        // badge 숨기기 및 잠금 해제
+        const badgeBase = document.getElementById('aura-badge-base');
+        const badgeEff  = document.getElementById('aura-badge-eff');
+        const badgeDesc = document.getElementById('aura-badge-desc');
+        if (badgeBase) badgeBase.style.display = 'none';
+        if (badgeEff) badgeEff.style.display = 'none';
+        if (badgeDesc) badgeDesc.style.display = 'none';
+        _auraPopupLock(false);
+    }
 
     // 팝업 표시: body 직계 자식으로 이동 후 absolute 배치 (스크롤 시 표와 함께 이동)
     if (popup.parentElement !== document.body) {
@@ -2350,14 +2562,32 @@ function auraPopupSave() {
         const descEl = section?.querySelector('[data-key="오라_desc"]');
         if (descEl) {
             const infoEntry = GameData.AURA_ITEM_INFO?.[name];
+            // 자동입력 데이터가 있으면 그것을 사용
             if (infoEntry?.info) {
                 descEl.value = infoEntry.info;
             } else {
+                // 직접 입력: 스탯 기반 자동생성 + 사용자 입력 설명 결합
                 const baseLines = _entriesToLines(stats.base);
                 const effLines  = _entriesToLines(stats.eff);
                 const lines = [];
-                if (baseLines.length) { lines.push('기본정보'); lines.push(...baseLines); }
-                if (effLines.length)  { if (baseLines.length) lines.push('---'); lines.push('효과'); lines.push(...effLines); }
+
+                // 스탯이 있으면 기본정보/효과 섹션 추가
+                if (baseLines.length) {
+                    lines.push('기본정보');
+                    lines.push(...baseLines);
+                }
+                if (effLines.length) {
+                    if (baseLines.length) lines.push('---');
+                    lines.push('효과');
+                    lines.push(...effLines);
+                }
+
+                // 사용자가 입력한 설명이 있으면 추가
+                if (stats.desc) {
+                    if (lines.length > 0) lines.push('---');
+                    lines.push(stats.desc);
+                }
+
                 descEl.value = lines.join('\n');
             }
         }

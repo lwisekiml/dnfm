@@ -985,6 +985,9 @@
                        onkeydown="acDropdownKeydown(event,'aura-name-dropdown',auraNameDropdownSelect)">
                 <ul id="aura-name-dropdown" class="ac-dropdown" style="display:none;"></ul>
             </div>
+            <button onclick="resetAuraPopupStats()"
+                    style="background:#e67e22; color:#fff; border:none; border-radius:4px; padding:4px 10px; cursor:pointer; font-size:0.85em; white-space:nowrap;"
+                    title="모든 스탯과 설명을 초기화합니다">🔄 수치/설명 초기화</button>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0 24px; align-items:start;">
             <!-- 기본정보 열1 -->
@@ -1113,6 +1116,9 @@
                        onkeydown="acDropdownKeydown(event,'title-name-dropdown',titleNameDropdownSelect)">
                 <ul id="title-name-dropdown" class="ac-dropdown" style="display:none;"></ul>
             </div>
+            <button onclick="resetTitlePopupStats()"
+                    style="background:#e67e22; color:#fff; border:none; border-radius:4px; padding:4px 10px; cursor:pointer; font-size:0.85em; white-space:nowrap;"
+                    title="모든 스탯과 설명을 초기화합니다">🔄 수치/설명 초기화</button>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0 24px; align-items:start;">
             <!-- 기본정보 열1 -->
