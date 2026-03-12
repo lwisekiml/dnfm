@@ -4773,3 +4773,85 @@ const CREATURE_ITEM_INFO = {
   - 회색 소문자 텍스트, 구분선, `pointer-events: none` (클릭 불가)
 
 ---
+---
+
+## 2026-03-13 (115차)
+
+### 칭호/오라 팝업 직접 입력 시 스탯 그룹별 정렬 수정
+
+**수정된 파일:** `js/ui-character.js`
+
+---
+
+### 변경 내용
+
+**문제:**
+- 칭호/오라 팝업에서 스탯 그룹별 정렬 출력 시 일부 케이스에서 표시가 올바르지 않음
+
+**해결:**
+- `_entriesToLines()` 함수 로직 수정
+
+---
+---
+
+잠깐, 트랜스크립트에서 실제 칭호/오라 수정 내용이 뭔지 확인하겠습니다.114차가 크리쳐 관련이었고, 이번 세션의 3개 수정은 115, 116, 117차가 됩니다. 내용을 작성합니다.
+
+---
+
+## 2026-03-12 (116차)
+
+### 최근 업데이트 - 무기 변경 이력 미기록 및 잘못된 분류 버그 수정
+
+**수정된 파일:** `scripts/eq_weapon.js`
+
+---
+
+### 변경 내용
+
+#### 1. 무기 변경 이력 미기록 버그 수정
+
+**문제:**
+- 무기 탭에서 숫자를 올리거나 내려도 최근 업데이트(장비 업데이트) 목록에 표시되지 않음
+
+**원인:**
+- `incrementWeapon()` / `decrementWeapon()` 함수에 `updateHistory` 기록 코드가 없었음
+- 방어구/악세 전용 `increment()` / `decrement()`에는 있었으나 무기 전용 함수에는 누락됨
+
+**해결:**
+- `incrementWeapon()` / `decrementWeapon()` 함수에 `updateHistory` push 추가
+- 방어구와 동일한 패턴으로 `{ key, timestamp, oldCount, newCount }` 기록
+
+```js
+if (!char.updateHistory) char.updateHistory = [];
+char.updateHistory.push({ key, timestamp: char.updateTimes[key], oldCount: oldValue, newCount: newValue });
+```
+
+---
+
+#### 2. 무기 키가 방어구로 잘못 분류되는 버그 수정
+
+**문제:**
+- 최근 업데이트 목록에서 무기 아이템이 `[방어구]`로 표시되고, 이름이 `"[광채] 대서사의 탄생 -"` 처럼 잘린 채 표시됨
+
+**원인:**
+- `showRecentUpdates()`에서 `updateHistory`의 key를 분류할 때 `armorCounts[fullKey] !== undefined`를 먼저 체크
+- 과거 특정 시점에 무기 key가 `armorCounts`에 잘못 저장된 데이터가 존재하는 경우 방어구 분기로 진입
+- 방어구 파싱 로직: `fullKey.split(' ').pop()`으로 마지막 단어를 슬롯으로 추출 → `"소검"`이 잘려 이름이 `"[광채] 대서사의 탄생 -"`으로 표시됨
+
+**해결:**
+- key 분류 전 `WEAPON_DATA_MAP` 기반으로 무기 key 여부를 먼저 판별하는 `isWeaponKey` 체크 추가
+- 무기 key이면 `armorCounts` 체크를 건너뛰고 바로 무기 분기로 처리
+
+```js
+const isWeaponKey = Object.values(WEAPON_DATA_MAP).some(jobData =>
+    Object.values(jobData).some(list => list.some(name => fullKey.includes(name)))
+);
+
+if (!isWeaponKey && char.armorCounts && char.armorCounts[fullKey] !== undefined) {
+    // 방어구/악세/특장 처리
+} else if (isWeaponKey || (char.weaponCounts && char.weaponCounts[fullKey] !== undefined)) {
+    // 무기 처리
+}
+```
+
+---
