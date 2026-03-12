@@ -128,8 +128,12 @@ function incrementWeapon(charId, key, jobName) {
     if (!char) return;
     if (!char.weaponCounts) char.weaponCounts = {};
 
-    char.weaponCounts[key] = (char.weaponCounts[key] || 0) + 1;
+    const oldValue = char.weaponCounts[key] || 0;
+    const newValue = oldValue + 1;
+    char.weaponCounts[key] = newValue;
     char.updateTimes[key] = Date.now();
+    if (!char.updateHistory) char.updateHistory = [];
+    char.updateHistory.push({ key, timestamp: char.updateTimes[key], oldCount: oldValue, newCount: newValue });
 
     saveLocalData();
 
@@ -144,8 +148,11 @@ function decrementWeapon(charId, key, jobName) {
     if (!char.weaponCounts) char.weaponCounts = {};
 
     const cur = char.weaponCounts[key] || 0;
-    char.weaponCounts[key] = Math.max(0, cur - 1);
+    const newValue = Math.max(0, cur - 1);
+    char.weaponCounts[key] = newValue;
     char.updateTimes[key] = Date.now();
+    if (!char.updateHistory) char.updateHistory = [];
+    char.updateHistory.push({ key, timestamp: char.updateTimes[key], oldCount: cur, newCount: newValue });
 
     saveLocalData();
 
@@ -296,7 +303,11 @@ function showRecentUpdates() {
             const timestamp = entry.timestamp;
             if (!timestamp || timestamp <= 0) return;
 
-            if (char.armorCounts && char.armorCounts[fullKey] !== undefined) {
+            const isWeaponKey = Object.values(WEAPON_DATA_MAP).some(jobData =>
+                Object.values(jobData).some(list => list.some(name => fullKey.includes(name)))
+            );
+
+            if (!isWeaponKey && char.armorCounts && char.armorCounts[fullKey] !== undefined) {
                 const parts = fullKey.split(' ');
                 const slot = parts.pop();
                 const itemName = parts.join(' ');
@@ -331,7 +342,7 @@ function showRecentUpdates() {
                     oldCount: entry.oldCount,
                     timestamp: timestamp
                 });
-            } else if (char.weaponCounts && char.weaponCounts[fullKey] !== undefined) {
+            } else if (isWeaponKey || (char.weaponCounts && char.weaponCounts[fullKey] !== undefined)) {
                 let weaponSubCategory = "-";
                 outerLoop:
                     for (const jobData of Object.values(WEAPON_DATA_MAP)) {
