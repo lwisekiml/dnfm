@@ -1506,14 +1506,14 @@ console.log("✅ ui-core.js 로드 완료");
 
 /**
  * 크리쳐 이름 select 옵션 초기화
- * section 내 크리쳐_name select에 CREATURE_DATA 옵션을 채운다
+ * section 내 크리쳐_name select에 CREATURE_ITEM_INFO 옵션을 채운다
  */
 function initCreatureNameSelect(section) {
     const sel = section.querySelector('select[data-key="크리쳐_name"]');
-    if (!sel || typeof CREATURE_DATA === 'undefined') return;
+    if (!sel || typeof CREATURE_ITEM_INFO === 'undefined') return;
     const currentVal = sel.value;
     sel.innerHTML = '<option value="">크리쳐 선택</option>' +
-        CREATURE_DATA.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+        Object.keys(CREATURE_ITEM_INFO).map(name => `<option value="${name}">${name}</option>`).join('');
     sel.value = currentVal;
 }
 
@@ -1523,7 +1523,7 @@ function initCreatureNameSelect(section) {
 function onCreatureNameChange(sel) {
     const section = sel.closest('.char-section') || sel.closest('tr')?.closest('table')?.closest('.char-section');
     const name = sel.value;
-    const creature = typeof CREATURE_DATA !== 'undefined' ? CREATURE_DATA.find(c => c.name === name) : null;
+    const creature = typeof CREATURE_ITEM_INFO !== 'undefined' ? CREATURE_ITEM_INFO[name] : null;
 
     if (section) {
         const descEl = section.querySelector('textarea[data-key="크리쳐_desc"]');

@@ -4694,3 +4694,82 @@ project/
 - 반응형 레이아웃 자동 처리
 
 ---
+---
+
+이번 대화에서 작업한 내용들을 정리하겠습니다.기존 로그 형식을 확인했습니다.
+
+---
+
+## 2026-03-12 (114차)
+
+### 크리쳐 데이터 구조 개선 및 드롭다운 그룹화
+
+**수정된 파일:** `shared/shared_data.js`, `js/ui-character.js`, `js/ui-core.js`, `styles/merged.css`
+
+---
+
+### 변경 내용
+
+#### 1. 크리쳐 데이터 구조 개편
+
+**`shared/shared_data.js`**
+
+- `CREATURE_DATA` (배열 구조) 제거
+- `_CREATURE_TEMPLATES` (객체 구조) 신규 추가
+  - `_TITLE_TEMPLATES` / `_AURA_TEMPLATES` 와 동일한 패턴 적용
+  - 동일 스탯을 가진 크리쳐들을 템플릿 키로 묶어 공유
+  - 각 템플릿에 `info`, `stats` 필드 포함
+  - 템플릿 키 네이밍: `EPIC_V1`, `UNIQUE_V1`, `RARE_V1`, `UNCOMMON_V1`, `COMMON_V1` 등 등급별 구분
+- `CREATURE_ITEM_INFO` 신규 추가
+  - `TITLE_ITEM_INFO` / `AURA_ITEM_INFO` 와 동일한 패턴 적용
+  - 크리쳐 이름 → 템플릿 참조 + `grade` 필드 포함
+  - 총 33개 크리쳐 등록 (에픽 4, 유니크 5, 레어 20, 언커먼 2, 커먼 2)
+
+```js
+// 변경 전
+const CREATURE_DATA = [
+    { name: "진 : 옥령왕", stats: [...] },
+    { name: "뇌해:마고스",  stats: [...] },
+    ...
+];
+
+// 변경 후
+const _CREATURE_TEMPLATES = {
+    EPIC_V1: { info: `...`, stats: [...] },
+    ...
+};
+const CREATURE_ITEM_INFO = {
+    "진 : 옥령왕": { grade: '에픽', ..._CREATURE_TEMPLATES.EPIC_V1 },
+    "뇌해:마고스":  { grade: '에픽', ..._CREATURE_TEMPLATES.EPIC_V1 },
+    ...
+};
+```
+
+#### 2. 크리쳐 드롭다운 그룹화
+
+**`js/ui-character.js`**
+
+- `acDropdownShow()` 함수 개선
+  - 기존: 문자열 배열(`string[]`)만 처리
+  - 변경: 그룹 배열(`{group, names}[]`) 형식도 처리 가능
+  - 그룹 라벨은 `ac-dropdown-group-label` 클래스로 렌더링, 클릭/키보드 선택 불가
+- `acDropdownKeydown()` 함수 개선
+  - 방향키 이동 시 그룹 라벨 건너뛰도록 수정 (선택 가능한 `li`만 탐색)
+- `creatureNameDropdownShow()` 함수 개선
+  - `CREATURE_ITEM_INFO`의 `grade` 필드 기준으로 그룹화
+  - 에픽 → 유니크 → 레어 → 언커먼 → 커먼 순서로 표시
+  - 각 그룹 내에서 가나다순 정렬
+
+**`js/ui-core.js`**
+
+- `initCreatureNameSelect()`, `onCreatureNameChange()` 함수
+  - 배열 메서드(`.find`, `.map`) → `CREATURE_ITEM_INFO` 키 직접 접근 방식으로 변경
+
+#### 3. 그룹 라벨 스타일 추가
+
+**`styles/merged.css`**
+
+- `.ac-dropdown-group-label` 스타일 추가
+  - 회색 소문자 텍스트, 구분선, `pointer-events: none` (클릭 불가)
+
+---

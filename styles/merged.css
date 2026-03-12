@@ -3091,6 +3091,19 @@ body.theme-mixed2 .avatar-popup-btn:hover {
     background: #2e3a5a;
     color: #fff;
 }
+.ac-dropdown li.ac-dropdown-group-label {
+    padding: 5px 10px 3px;
+    font-size: 0.8em;
+    color: #8899bb;
+    cursor: default;
+    border-top: 1px solid #2e3a5a;
+    margin-top: 2px;
+    pointer-events: none;
+}
+.ac-dropdown li.ac-dropdown-group-label:first-child {
+    border-top: none;
+    margin-top: 0;
+}
 
 /* ========================================
    테스트 테마
