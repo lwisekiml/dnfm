@@ -255,8 +255,14 @@ function _refreshSlotState(slot, charId, isRestore, itemInfoMap) {
     if (info.isExceed) {
         const setPrefixes = [...info.prefixes]; // 공백 없음
 
-        // ※ innerHTML 교체 전에 현재 값 저장 (교체 후엔 value 초기화됨)
-        const savedPrefix = prefixSel.value;
+        // ※ isRestore 시 DOM value 대신 characters 배열 저장 데이터에서 직접 읽기
+        // (replaceItemNameField → _refreshSlotState 호출 시점에 DOM이 아직 복원 전일 수 있음)
+        let savedPrefix = prefixSel.value;
+        if (isRestore && typeof characters !== 'undefined') {
+            const char = characters.find(c => c.id === charId);
+            const stored = char?.inputs?.[slot]?.['prefix']?.val;
+            if (stored) savedPrefix = stored;
+        }
 
         prefixSel.disabled = isLocked ? true : false;
         prefixSel.innerHTML = setPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');
@@ -294,7 +300,15 @@ function _refreshSlotState(slot, charId, isRestore, itemInfoMap) {
     // 강제 접두어 아이템(레거시 일반 장비 등): 공백 없이 첫 번째 값 자동 선택
     const isForcedPrefix = (typeof FORCED_PREFIX_ITEMS !== 'undefined') && FORCED_PREFIX_ITEMS.has(itemName);
     const setPrefixes = isForcedPrefix ? [...info.prefixes] : ["", ...info.prefixes];
-    const savedPrefix = prefixSel.value;
+
+    // ※ isRestore 시 DOM value 대신 characters 배열 저장 데이터에서 직접 읽기
+    // (replaceItemNameField → _refreshSlotState 호출 시점에 DOM이 아직 복원 전일 수 있음)
+    let savedPrefix = prefixSel.value;
+    if (isRestore && typeof characters !== 'undefined') {
+        const char = characters.find(c => c.id === charId);
+        const stored = char?.inputs?.[slot]?.['prefix']?.val;
+        if (stored !== undefined && stored !== null) savedPrefix = stored;
+    }
 
     prefixSel.disabled = isLocked ? true : false;
     prefixSel.innerHTML = setPrefixes.map(p => `<option value="${p}">${p}</option>`).join('');

@@ -4925,3 +4925,41 @@ if (isRestore && typeof characters !== 'undefined') {
 - 수정: 3개 input(`update-search-jobname`, `update-search-slot`, `update-search-item`) 모두 초기화
 
 ---
+
+---
+
+## 2026-03-13 (119차)
+
+### JSON 불러오기 시 접두어가 항상 첫 번째 선택지로 초기화되는 버그 수정
+
+**수정된 파일:** `js/ui-core.js`
+
+---
+
+### 변경 내용
+
+**문제:**
+- JSON 불러오기로 캐릭터를 복원하면 접두어 select가 저장된 값과 무관하게 항상 첫 번째 선택지로 설정됨
+
+**원인:**
+- `_refreshSlotState(isRestore=true)` 내에서 `savedPrefix = prefixSel.value`(DOM)로 값을 저장한 뒤 `innerHTML` 교체 후 복원하는 구조였음
+- 그러나 이 함수가 호출되는 시점(`replaceItemNameField → _refreshSlotState`)은 `restoreSavedData()`의 2단계 DOM 복원이 실행되기 **전**이므로 `prefixSel.value`가 항상 `""`(빈 값)
+- `setPrefixes.includes("")` → false → fallback으로 `setPrefixes[0]`(첫 번째 선택지) 강제 설정
+- 117차에서 익시드(`exceed`)에 동일한 버그를 수정했으나 접두어(`prefix`)는 누락됨
+
+**해결:**
+- `isRestore=true`일 때 DOM value 대신 `characters` 배열의 저장 데이터에서 직접 prefix 값을 읽도록 수정 (exceed와 동일한 패턴 적용)
+- 케이스 2(익시드 아이템), 케이스 3(일반 아이템) 모두 적용
+- 일반 아이템은 접두어 없음(`""`)도 유효한 값이므로 `stored !== undefined && stored !== null` 조건으로 체크 (익시드/exceed의 `if (stored)` 대신)
+
+```js
+// 케이스 2, 3 공통 패턴
+let savedPrefix = prefixSel.value;
+if (isRestore && typeof characters !== 'undefined') {
+    const char = characters.find(c => c.id === charId);
+    const stored = char?.inputs?.[slot]?.['prefix']?.val;
+    if (stored !== undefined && stored !== null) savedPrefix = stored;
+}
+```
+
+---
