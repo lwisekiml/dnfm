@@ -1253,4 +1253,27 @@ const ARTIFACT_SET_DATA = [
         },
         setEffect: '모속강 +10\n공격 시 5% 추가 데미지\n30초 마다 공격속도 3%, 이동속도 3%, 캐스팅속도 3% 증가',
     },
+    {
+        setName: '새끼용, 실프, 에메랄드',
+        red: {
+            name: '새끼용의 손톱',
+            stats: {
+                '크리쳐_art_red_stat_힘':         '18',
+                '크리쳐_art_red_stat_지능':        '18',
+            }
+        },
+        blue: {
+            name: '실프의 오브',
+            stats: {
+                '크리쳐_art_blue_stat_공격속도':   '5',
+                '크리쳐_art_blue_stat_캐스팅속도':  '7.5',
+            }
+        },
+        green: {
+            name: '에메랄드 오브',
+            stats: {
+                '크리쳐_art_green_stat_HPMAX':  '165',
+            }
+        },
+    },
 ];
