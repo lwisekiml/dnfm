@@ -405,19 +405,27 @@ function showRecentUpdates() {
     const p2El = document.getElementById('update-tab-p2');
     if (p2El) {
         p2El.innerHTML = `
-            <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
-                <input id="update-search-input" type="text" placeholder="직업, 이름, 아이템명으로 검색..."
-                    style="flex:1; padding:8px 12px; background:#181c33; color:#e6e9ff;
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+                <input id="update-search-jobname" type="text" placeholder="직업 / 이름"
+                    style="flex:1; min-width:120px; padding:8px 12px; background:#181c33; color:#e6e9ff;
+                           border:1px solid #2a3158; border-radius:6px; font-size:14px;"
+                    onkeydown="if(event.key==='Enter') filterUpdateData()" />
+                <input id="update-search-slot" type="text" placeholder="종류 (부위)"
+                    style="flex:1; min-width:120px; padding:8px 12px; background:#181c33; color:#e6e9ff;
+                           border:1px solid #2a3158; border-radius:6px; font-size:14px;"
+                    onkeydown="if(event.key==='Enter') filterUpdateData()" />
+                <input id="update-search-item" type="text" placeholder="아이템 이름"
+                    style="flex:1; min-width:120px; padding:8px 12px; background:#181c33; color:#e6e9ff;
                            border:1px solid #2a3158; border-radius:6px; font-size:14px;"
                     onkeydown="if(event.key==='Enter') filterUpdateData()" />
                 <button onclick="filterUpdateData()"
                     style="padding:8px 14px; background:#4a33cc; color:#fff;
-                           border:1px solid #6a53ec; border-radius:6px; cursor:pointer; font-size:13px; font-weight:bold;">
+                           border:1px solid #6a53ec; border-radius:6px; cursor:pointer; font-size:13px; font-weight:bold; white-space:nowrap;">
                     🔍 검색
                 </button>
                 <button onclick="clearUpdateSearch()"
                     style="padding:8px 14px; background:#2a3158; color:#aaa;
-                           border:1px solid #3a4168; border-radius:6px; cursor:pointer; font-size:13px;">
+                           border:1px solid #3a4168; border-radius:6px; cursor:pointer; font-size:13px; white-space:nowrap;">
                     ↺ 초기화
                 </button>
             </div>
@@ -741,22 +749,35 @@ function renderPaginationButtons(currentPage) {
 
 // 검색 필터링
 function filterUpdateData() {
-    const input = document.getElementById('update-search-input');
-    const term = input ? input.value.trim().toLowerCase() : '';
-    const infoEl = document.getElementById('update-search-result-info');
+    const jobnameInput = document.getElementById('update-search-jobname');
+    const slotInput    = document.getElementById('update-search-slot');
+    const itemInput    = document.getElementById('update-search-item');
+    const infoEl       = document.getElementById('update-search-result-info');
 
-    if (!term) {
+    const termJobName = jobnameInput ? jobnameInput.value.trim().toLowerCase() : '';
+    const termSlot    = slotInput    ? slotInput.value.trim().toLowerCase()    : '';
+    const termItem    = itemInput    ? itemInput.value.trim().toLowerCase()    : '';
+
+    const hasFilter = termJobName || termSlot || termItem;
+
+    if (!hasFilter) {
         filteredUpdatesData = allUpdatesData.slice();
     } else {
         filteredUpdatesData = allUpdatesData.filter(item => {
-            const jobName = (item.job + ' / ' + item.name).toLowerCase();
-            const itemName = (item.itemName + (item.realItemName || '')).toLowerCase();
-            return jobName.includes(term) || itemName.includes(term);
+            const jobName  = (item.job + ' ' + item.name).toLowerCase();
+            const slotFull = (item.category + ' ' + item.slot).toLowerCase();
+            const itemName = (item.itemName + ' ' + (item.realItemName || '')).toLowerCase();
+
+            const matchJobName = !termJobName || jobName.includes(termJobName);
+            const matchSlot    = !termSlot    || slotFull.includes(termSlot);
+            const matchItem    = !termItem    || itemName.includes(termItem);
+
+            return matchJobName && matchSlot && matchItem;
         });
     }
 
     if (infoEl) {
-        infoEl.textContent = term
+        infoEl.textContent = hasFilter
             ? `검색 결과: ${filteredUpdatesData.length}건 / 전체 ${allUpdatesData.length}건`
             : '';
     }
@@ -767,8 +788,12 @@ function filterUpdateData() {
 
 // 검색 초기화
 function clearUpdateSearch() {
-    const input = document.getElementById('update-search-input');
-    if (input) input.value = '';
+    const jobnameInput = document.getElementById('update-search-jobname');
+    const slotInput    = document.getElementById('update-search-slot');
+    const itemInput    = document.getElementById('update-search-item');
+    if (jobnameInput) jobnameInput.value = '';
+    if (slotInput)    slotInput.value    = '';
+    if (itemInput)    itemInput.value    = '';
     filterUpdateData();
 }
 

@@ -4888,3 +4888,40 @@ if (isRestore && typeof characters !== 'undefined') {
 ```
 
 ---
+---
+
+## 2026-03-13 (118차)
+
+### 최근 업데이트 팝업 — 검색 필터 3분할 개선
+
+**수정된 파일:** `scripts/eq_weapon.js`
+
+---
+
+### 변경 내용
+
+**문제 / 요청:**
+- 기존 검색창은 직업·이름·아이템명을 단일 input에 OR 조건으로 검색
+- 직업/이름, 종류(부위), 아이템명을 각각 독립적으로 필터링할 수 없었음
+
+**해결:**
+- 검색 UI를 3개의 input으로 분리
+  - `update-search-jobname` : 직업 / 이름
+  - `update-search-slot` : 종류 (부위)
+  - `update-search-item` : 아이템 이름
+- 검색 버튼 및 초기화 버튼은 기존과 동일하게 유지
+- 각 input에서 Enter 키 검색 지원
+
+**`filterUpdateData()` 수정:**
+- 기존: 단일 `term`으로 `jobName` OR `itemName` 검색
+- 수정: 3개 칸을 각각 읽어 AND 조건으로 필터링
+  - `termJobName` → `item.job + item.name` 에서 검색
+  - `termSlot` → `item.category + item.slot` 에서 검색
+  - `termItem` → `item.itemName + item.realItemName` 에서 검색
+  - 비어있는 칸은 조건 없음 (부분 필터 가능)
+
+**`clearUpdateSearch()` 수정:**
+- 기존: 단일 `update-search-input` 초기화
+- 수정: 3개 input(`update-search-jobname`, `update-search-slot`, `update-search-item`) 모두 초기화
+
+---
