@@ -19,16 +19,7 @@ function _loadUnified() {
 // 데이터 로드
 function loadLocalData() {
     const unified = _loadUnified();
-    let needsSave = false;
-    characters = (unified.characters || []).map(c => {
-        if (typeof migrateSlotKeyFix === 'function') {
-            const migrated = migrateSlotKeyFix(c);
-            if (migrated !== c) { needsSave = true; }
-            return migrated;
-        }
-        return c;
-    });
-    if (needsSave) saveLocalData();
+    characters = unified.characters || [];
 }
 
 /* ========================================
