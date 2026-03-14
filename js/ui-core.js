@@ -292,6 +292,7 @@ function _refreshSlotState(slot, charId, isRestore, itemInfoMap) {
             } else {
                 exceedSel.value = "이상";
             }
+            updateStyle(exceedSel, 'exceed');
         }
         return;
     }
