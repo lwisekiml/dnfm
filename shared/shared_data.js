@@ -813,6 +813,7 @@ const AVATAR_WEAPON_STATS = [
     { label: '',                             stats: [],                                       amount: null                      },
     { label: '무기 아바타 수치',               stats: ['무기 아바타 수치'],                        amount: null, optgroup: true     },
     { label: '힘, 지능, 체력, 정신력 +18',     stats: ['힘', '지능', '체력', '정신력'],             amount: 18                        },
+    { label: '힘, 지능, 체력, 정신력 +11',     stats: ['힘', '지능', '체력', '정신력'],             amount: 11                        },
 ];
 
 // ============================================
@@ -1311,6 +1312,29 @@ const ARTIFACT_SET_DATA = [
         },
         green: {
             name: '에메랄드 오브',
+            stats: {
+                '크리쳐_art_green_stat_HPMAX':  '165',
+            }
+        },
+    },
+    {
+        setName: '찐빵 세트',
+        red: {
+            name: '피자 찐빵',
+            stats: {
+                '크리쳐_art_red_stat_힘':         '18',
+                '크리쳐_art_red_stat_지능':        '18',
+            }
+        },
+        blue: {
+            name: '고구마 찐빵',
+            stats: {
+                '크리쳐_art_blue_stat_공격속도':   '5',
+                '크리쳐_art_blue_stat_캐스팅속도':  '7.5',
+            }
+        },
+        green: {
+            name: '야채 찐빵',
             stats: {
                 '크리쳐_art_green_stat_HPMAX':  '165',
             }
