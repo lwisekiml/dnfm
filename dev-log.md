@@ -4963,3 +4963,47 @@ if (isRestore && typeof characters !== 'undefined') {
 ```
 
 ---
+
+---
+
+## 2026-03-14 (120차)
+
+### shared_data.js - 철갑을 두른 탑의 수호꾼 세트 접두어 오류 수정 + 마이그레이션 추가
+
+**수정된 파일:** `shared/shared_data.js`, `js/storage.js`, `scripts/eq_core.js`
+
+---
+
+### 변경 내용
+
+**`shared/shared_data.js`**
+
+- `SPECIAL_PREFIX["철갑을 두른 탑의 수호꾼"]` 값 수정
+  - 변경 전: `["격변", "촉진"]`
+  - 변경 후: `["결의", "촉진"]`
+
+**`js/storage.js`**
+
+- `migratePrefixFix(character)` 함수 추가 (`migrateInputs` 앞에 삽입)
+  - 기존 저장 데이터의 `inputs`에서 접두어 `"격변"` → `"결의"` 교정 (슬롯: 귀걸이/마법석/보조장비)
+  - `armorCounts` 키에서 `"격변: 철갑을 두른 탑의 수호꾼 {슬롯}"` → `"결의: ..."` 교정
+  - `updateTimes` 키도 동일하게 교정
+  - 변경사항 없으면 원본 객체 그대로 반환 (멱등성 보장)
+- `exportToJSON()`, `saveJsonWithLocation()`, `importFromJSON()`에 `migratePrefixFix` 호출 추가
+
+**`scripts/eq_core.js`**
+
+- `loadLocalData()` 수정
+  - 앱 시작 시 localStorage에서 읽은 데이터에도 `migratePrefixFix` 적용
+  - 마이그레이션이 실행된 경우(`changed`) `saveLocalData()`로 즉시 반영
+
+---
+
+### 추가 수정
+
+**`js/storage.js` — importFromJSON 불필요 코드 제거**
+
+- 이전 작업에서 잘못 추가된 `characters = charactersToRestore` 재할당 코드 제거
+  - 원본 코드: 마이그레이션 후 localStorage에 `charactersToRestore`로 저장하므로 전역 변수 재할당 불필요
+  - 제거 이유: 원본 코드 구조상 마이그레이션 결과가 localStorage에 정상 저장되므로 해당 줄은 불필요한 코드였음
+

@@ -19,7 +19,17 @@ function _loadUnified() {
 // 데이터 로드
 function loadLocalData() {
     const unified = _loadUnified();
-    characters = unified.characters || [];
+    let needsSave = false;
+    characters = (unified.characters || []).map(c => {
+        if (typeof migratePrefixFix === 'function') {
+            const migrated = migratePrefixFix(c);
+            if (migrated !== c) { needsSave = true; }
+            return migrated;
+        }
+        return c;
+    });
+    // 마이그레이션이 실행됐으면 교정된 데이터를 localStorage에 즉시 반영
+    if (needsSave) saveLocalData();
 }
 
 /* ========================================
