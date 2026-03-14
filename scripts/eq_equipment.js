@@ -358,15 +358,6 @@ function openSet(setName, char) {
 </tr></thead><tbody></tbody>`;
         const tbody1 = table1.querySelector("tbody");
 
-        tbody1.appendChild(createEquipmentRow({
-            char: char,
-            setName: setName,
-            nameKey: setName,
-            labelText: "일반",
-            slots: allSlots1,
-            fullSize: 3
-        }));
-
         prefixes.forEach(pref => {
             const styledPref = `<span style="color:#e6b800; font-weight:bold;">${pref}</span>`;
             tbody1.appendChild(createEquipmentRow({
@@ -378,6 +369,15 @@ function openSet(setName, char) {
                 fullSize: 3
             }));
         });
+
+        tbody1.appendChild(createEquipmentRow({
+            char: char,
+            setName: setName,
+            nameKey: setName,
+            labelText: "일반",
+            slots: allSlots1,
+            fullSize: 3
+        }));
 
         // ── 표 2 (아래): exceed 전용 (귀걸이 첫 번째 이름만) ──
         const table2 = document.createElement("table");
@@ -452,16 +452,6 @@ function openSet(setName, char) {
         const tbody1 = accTable1.querySelector("tbody");
 
         // ★ 레거시 악세: 일반 행 없음, 접두어("레거시") 행만
-        if (!LEGACY_PREFIX_SETS.includes(setName)) {
-            tbody1.appendChild(createEquipmentRow({
-                char: char,
-                setName: setName,
-                nameKey: setName,
-                labelText: "일반",
-                slots: allSlots1,
-                fullSize: 3
-            }));
-        }
         prefixes.forEach(pref => {
             const styledPref = `<span style="color:#e6b800; font-weight:bold;">${pref}</span>`;
             const prefKey = makePrefixKey(pref, setName);
@@ -474,6 +464,16 @@ function openSet(setName, char) {
                 fullSize: 3
             }));
         });
+        if (!LEGACY_PREFIX_SETS.includes(setName)) {
+            tbody1.appendChild(createEquipmentRow({
+                char: char,
+                setName: setName,
+                nameKey: setName,
+                labelText: "일반",
+                slots: allSlots1,
+                fullSize: 3
+            }));
+        }
 
         const accTable2 = document.createElement("table");
         accTable2.innerHTML = `<thead><tr>
@@ -573,16 +573,6 @@ function openSet(setName, char) {
         const tbody2 = armTable2.querySelector("tbody");
 
         // ★ 레거시 방어구: 일반 행 없음, 접두어("레거시") 행만
-        if (!LEGACY_PREFIX_SETS.includes(setName)) {
-            tbody2.appendChild(createEquipmentRow({
-                char: char,
-                setName: setName,
-                nameKey: setName,
-                labelText: "일반",
-                slots: allSlots2,
-                fullSize: slots.length
-            }));
-        }
         prefixes.forEach(pref => {
             const styledPref = `<span style="color:#e6b800; font-weight:bold;">${pref}</span>`;
             const prefKey = makePrefixKey(pref, setName);
@@ -595,6 +585,16 @@ function openSet(setName, char) {
                 fullSize: slots.length
             }));
         });
+        if (!LEGACY_PREFIX_SETS.includes(setName)) {
+            tbody2.appendChild(createEquipmentRow({
+                char: char,
+                setName: setName,
+                nameKey: setName,
+                labelText: "일반",
+                slots: allSlots2,
+                fullSize: slots.length
+            }));
+        }
 
         panel.appendChild(armTable2);
         panel.appendChild(document.createElement("br"));
@@ -922,77 +922,24 @@ function updateCategoryTotals(char) {
     const setList = document.getElementById("setList");
     if (!setList) return;
 
+    // renderEquipmentTab과 동일한 방식: armorCounts 전체 순회 후 getSetType으로 분류
     let totalArmor = 0;
-    Object.keys(ARMOR_SETS).forEach(setName => {
-        const slots = ARMOR_SETS[setName];
-        const prefixes = ARMOR_PREFIX[setName] || [];
-
-        if (!LEGACY_PREFIX_SETS.includes(setName)) {
-            slots.forEach(slot => {
-                totalArmor += char.armorCounts[`${setName} ${slot}`] || 0;
-            });
-        }
-
-        prefixes.forEach(pref => {
-            const prefKey = makePrefixKey(pref, setName);
-            slots.forEach(slot => {
-                totalArmor += char.armorCounts[`${prefKey} ${slot}`] || 0;
-            });
-
-            EXCEED_TAGS.forEach(tag => {
-                slots.forEach(slot => {
-                    totalArmor += char.armorCounts[`[${tag}] ${prefKey} ${slot}`] || 0;
-                });
-            });
-        });
-    });
-
     let totalAccessory = 0;
-    Object.keys(ACCESSORY_SETS).forEach(setName => {
-        const slots = ACCESSORY_SETS[setName];
-        const prefixes = ACCESSORY_PREFIX[setName] || [];
-
-        if (!LEGACY_PREFIX_SETS.includes(setName)) {
-            slots.forEach(slot => {
-                totalAccessory += char.armorCounts[`${setName} ${slot}`] || 0;
-            });
-        }
-
-        prefixes.forEach(pref => {
-            const prefKey = makePrefixKey(pref, setName);
-            slots.forEach(slot => {
-                totalAccessory += char.armorCounts[`${prefKey} ${slot}`] || 0;
-            });
-
-            EXCEED_TAGS.forEach(tag => {
-                slots.forEach(slot => {
-                    totalAccessory += char.armorCounts[`[${tag}] ${prefKey} ${slot}`] || 0;
-                });
-            });
-        });
-    });
-
     let totalSpecial = 0;
-    Object.keys(SPECIAL_SETS).forEach(setName => {
-        const slots = SPECIAL_SETS[setName];
-        const prefixes = SPECIAL_PREFIX[setName] || [];
 
-        slots.forEach(slot => {
-            totalSpecial += char.armorCounts[`${setName} ${slot}`] || 0;
-        });
+    Object.entries(char.armorCounts).forEach(([fullKey, count]) => {
+        if (count <= 0) return;
 
-        prefixes.forEach(pref => {
-            const prefKey = makePrefixKey(pref, setName);
-            slots.forEach(slot => {
-                totalSpecial += char.armorCounts[`${prefKey} ${slot}`] || 0;
-            });
+        const parts = fullKey.split(' ');
+        const slot = parts.pop();
+        const name = parts.join(' ');
 
-            EXCEED_TAGS.forEach(tag => {
-                slots.forEach(slot => {
-                    totalSpecial += char.armorCounts[`[${tag}] ${prefKey} ${slot}`] || 0;
-                });
-            });
-        });
+        const groupKey = getGroupKey(name);
+        const setType = getSetType(groupKey);
+
+        if (setType === "ARMOR") totalArmor += count;
+        else if (setType === "ACCESSORY") totalAccessory += count;
+        else if (setType === "SPECIAL") totalSpecial += count;
     });
 
     const headers = setList.querySelectorAll('h2');

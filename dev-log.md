@@ -5007,3 +5007,48 @@ if (isRestore && typeof characters !== 'undefined') {
   - 원본 코드: 마이그레이션 후 localStorage에 `charactersToRestore`로 저장하므로 전역 변수 재할당 불필요
   - 제거 이유: 원본 코드 구조상 마이그레이션 결과가 localStorage에 정상 저장되므로 해당 줄은 불필요한 코드였음
 
+---
+---
+
+죄송합니다.
+
+## 2026-03-14 (121차)
+
+### 획득 장비 등록 탭 버그 수정 + 마이그레이션 2건 + 행 순서 변경
+
+**수정된 파일:** `shared/shared_constants.js`, `shared/shared_data.js`, `scripts/eq_equipment.js`, `js/storage.js`, `scripts/eq_core.js`
+
+---
+
+### 변경 내용
+
+**1. 철갑을 두른 탑의 수호꾼 접두어 오타 교정 (`shared/shared_data.js`, `js/storage.js`, `scripts/eq_core.js`)**
+
+- `SPECIAL_PREFIX["철갑을 두른 탑의 수호꾼"]` 수정: `["격변", "촉진"]` → `["결의", "촉진"]`
+- `migratePrefixFix(character)` 함수 추가 (`storage.js`)
+  - 기존 저장 데이터의 `inputs`에서 접두어 `"격변"` → `"결의"` 교정
+  - `armorCounts`/`updateTimes` 키도 동일하게 교정
+  - `exportToJSON`, `saveJsonWithLocation`, `importFromJSON` 3곳에 호출 추가
+- `loadLocalData()` 수정 (`eq_core.js`): 앱 시작 시 마이그레이션 자동 실행, 교정된 경우 즉시 저장
+- 이후 마이그레이션 완료 확인 후 함수 및 호출부 전체 제거
+
+**2. 슬롯명 오타 "보장" → "보조장비" 교정 마이그레이션 (`js/storage.js`, `scripts/eq_core.js`)**
+
+- 구버전 데이터에서 `"보조장비"` 슬롯이 `"보장"`으로 잘못 저장된 데이터 교정
+  - 예: `"부정한 빛의 우상 보장"` → `"부정한 빛의 우상 보조장비"`
+  - `armorCounts`, `updateTimes` 키 모두 교정
+- `migrateSlotKeyFix(character)` 함수 추가 (`storage.js`), `loadLocalData()`에서 앱 시작 시 자동 실행 후 즉시 저장
+
+**3. 익시드/일반 행 순서 변경 (`shared/shared_constants.js`, `scripts/eq_equipment.js`)**
+
+- `EXCEED_TAGS` 순서 변경: `["선봉", "의지", "이상"]` → `["이상", "선봉", "의지"]`
+- 방어구/악세서리/특수장비 일반/접두어 표 행 순서 변경
+  - 변경 전: 일반 → 접두어1 → 접두어2 ...
+  - 변경 후: 접두어1 → 접두어2 ... → 일반
+  - 레거시 세트(일반 행 없음)는 기존과 동일
+
+**4. 카테고리 총합 헤더 숫자 오류 수정 (`scripts/eq_equipment.js`)**
+
+- `updateCategoryTotals()` 로직 전면 교체
+  - 기존: 세트/슬롯 조합으로 키를 직접 생성 → 익시드 슬롯 처리 오류로 합계 누락
+  - 수정: `armorCounts` 전체 순회 후 `getSetType()`으로 분류 (`renderEquipmentTab`과 동일한 방식)

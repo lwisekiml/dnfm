@@ -182,6 +182,7 @@ function exportToJSON() {
     unified.characters = unified.characters.map(c => {
         c = { ...c, inputs: migrateInputs(c.inputs) };
         c = migrateRuneData(c);
+        c = migrateSlotKeyFix(c);
         return c;
     });
 
@@ -210,6 +211,7 @@ async function saveJsonWithLocation() {
     unified.characters = unified.characters.map(c => {
         c = { ...c, inputs: migrateInputs(c.inputs) };
         c = migrateRuneData(c);
+        c = migrateSlotKeyFix(c);
         return c;
     });
 
@@ -297,6 +299,7 @@ function importFromJSON(input) {
             charactersToRestore = charactersToRestore.map(c => {
                 c = { ...c, inputs: migrateInputs(c.inputs) };
                 c = migrateRuneData(c);
+                c = migrateSlotKeyFix(c);
                 return c;
             });
 
@@ -444,6 +447,35 @@ function migrateToUnified() {
 // ============================================
 // 구버전 inputs/runeData 마이그레이션 (하위 호환용)
 // ============================================
+
+/**
+ * 슬롯명 오타 교정 마이그레이션
+ * - armorCounts/updateTimes 키에서 "보장" → "보조장비" 교정
+ */
+function migrateSlotKeyFix(character) {
+    if (!character?.armorCounts) return character;
+    const entries = Object.entries(character.armorCounts);
+    const hasOld = entries.some(([k]) => k.endsWith(' 보장'));
+    if (!hasOld) return character;
+
+    const newArmorCounts = {};
+    const newUpdateTimes = character.updateTimes ? { ...character.updateTimes } : {};
+
+    entries.forEach(([key, val]) => {
+        if (key.endsWith(' 보장')) {
+            const newKey = key.slice(0, -2) + '보조장비';
+            newArmorCounts[newKey] = (newArmorCounts[newKey] || 0) + val;
+            if (newUpdateTimes[key] !== undefined) {
+                newUpdateTimes[newKey] = newUpdateTimes[key];
+                delete newUpdateTimes[key];
+            }
+        } else {
+            newArmorCounts[key] = val;
+        }
+    });
+
+    return { ...character, armorCounts: newArmorCounts, updateTimes: newUpdateTimes };
+}
 
 /**
  * 구버전 character.runeData → inputs["스킬룬"].runeData 마이그레이션
