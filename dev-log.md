@@ -5052,3 +5052,26 @@ if (isRestore && typeof characters !== 'undefined') {
 - `updateCategoryTotals()` 로직 전면 교체
   - 기존: 세트/슬롯 조합으로 키를 직접 생성 → 익시드 슬롯 처리 오류로 합계 누락
   - 수정: `armorCounts` 전체 순회 후 `getSetType()`으로 분류 (`renderEquipmentTab`과 동일한 방식)
+  
+---
+---
+
+## 2026-03-14 (122차)
+
+### 캐릭터 관리 탭 - 무기 마법봉인 수치 자동 입력 버그 수정
+
+**수정된 파일:** `js/utils.js`
+
+---
+
+### 변경 내용
+
+**문제:**
+- 무기 슬롯에서 고유 옵션/일반 옵션 선택 시 수치가 자동 입력되지 않음
+
+**원인:**
+- `SlotUtils.getSlotType(slot)`에 무기 슬롯 처리가 없어 `'other'` 반환
+- `DataTables.getSealValue()`는 `'weapon'` 케이스만 처리하므로 `'other'`로는 `WEAPON_SEAL1` 데이터를 찾지 못함
+
+**해결:**
+- `getSlotType()`에 `if (slot === '무기') return 'weapon'` 추가

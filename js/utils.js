@@ -55,6 +55,7 @@ const SlotUtils = {
     },
 
     getSlotType(slot) {
+        if (slot === '무기') return 'weapon';
         if (this.isArmorSlot(slot)) return 'armor';
         if (this.isAccessorySlot(slot)) return 'accessory';
         if (this.isSpecialSlot(slot)) return 'special';
