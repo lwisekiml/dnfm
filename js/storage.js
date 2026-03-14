@@ -182,7 +182,6 @@ function exportToJSON() {
     unified.characters = unified.characters.map(c => {
         c = { ...c, inputs: migrateInputs(c.inputs) };
         c = migrateRuneData(c);
-        c = migratePrefixFix(c);
         return c;
     });
 
@@ -211,7 +210,6 @@ async function saveJsonWithLocation() {
     unified.characters = unified.characters.map(c => {
         c = { ...c, inputs: migrateInputs(c.inputs) };
         c = migrateRuneData(c);
-        c = migratePrefixFix(c);
         return c;
     });
 
@@ -299,7 +297,6 @@ function importFromJSON(input) {
             charactersToRestore = charactersToRestore.map(c => {
                 c = { ...c, inputs: migrateInputs(c.inputs) };
                 c = migrateRuneData(c);
-                c = migratePrefixFix(c);
                 return c;
             });
 
@@ -470,64 +467,6 @@ function migrateRuneData(character) {
  *   - 플랫 구조: { "스킬룬_desc": { val, cls }, "상의_rarity": { val, cls } }
  *   - 중첩 구조: { "스킬룬": { "desc": { val, cls } }, "상의": { "rarity": { val, cls } } }
  */
-/**
- * 접두어 오류 데이터 교정 마이그레이션
- * - 철갑을 두른 탑의 수호꾼 세트의 prefix "격변" → "결의" 로 교정
- * ※ 호출 순서: migrateInputs() 실행 후 이 함수 실행
- */
-function migratePrefixFix(character) {
-    if (!character?.inputs) return character;
-    const SET_NAME = "철갑을 두른 탑의 수호꾼";
-    const CHULGAP_SLOTS = ["귀걸이", "마법석", "보조장비"];
-    let changed = false;
-
-    // 1. inputs 교정: prefix "격변" → "결의"
-    const newInputs = { ...character.inputs };
-    for (const slot of CHULGAP_SLOTS) {
-        const slotData = newInputs[slot];
-        if (!slotData) continue;
-        // 아이템명이 철갑 세트인지 확인 (저장 키: itemname)
-        const itemName = slotData?.itemname?.val ?? "";
-        if (!itemName.includes(SET_NAME)) continue;
-        if (slotData?.prefix?.val === "격변") {
-            newInputs[slot] = {
-                ...slotData,
-                prefix: { ...slotData.prefix, val: "결의" }
-            };
-            changed = true;
-        }
-    }
-
-    // 2. armorCounts 키 교정: "격변: 철갑을 두른 탑의 수호꾼 ..." → "결의: 철갑을 두른 탑의 수호꾼 ..."
-    //    키 형식: "격변: {SET_NAME} {slot}"  또는  "[{tag}] 격변: {SET_NAME} {slot}"
-    let newArmorCounts = character.armorCounts;
-    let newUpdateTimes = character.updateTimes;
-    if (character.armorCounts) {
-        newArmorCounts = { ...character.armorCounts };
-        newUpdateTimes = character.updateTimes ? { ...character.updateTimes } : {};
-        const OLD_PREFIX_KEY = `격변: ${SET_NAME}`;
-        const NEW_PREFIX_KEY = `결의: ${SET_NAME}`;
-        for (const oldKey of Object.keys(newArmorCounts)) {
-            if (!oldKey.includes(OLD_PREFIX_KEY)) continue;
-            const newKey = oldKey.replace(OLD_PREFIX_KEY, NEW_PREFIX_KEY);
-            newArmorCounts[newKey] = (newArmorCounts[newKey] || 0) + (newArmorCounts[oldKey] || 0);
-            delete newArmorCounts[oldKey];
-            if (newUpdateTimes[oldKey] !== undefined) {
-                newUpdateTimes[newKey] = newUpdateTimes[oldKey];
-                delete newUpdateTimes[oldKey];
-            }
-            changed = true;
-        }
-    }
-
-    if (!changed) return character;
-    return {
-        ...character,
-        inputs: newInputs,
-        armorCounts: newArmorCounts,
-        updateTimes: newUpdateTimes
-    };
-}
 
 function migrateInputs(inputs) {
     if (!inputs) return inputs;
