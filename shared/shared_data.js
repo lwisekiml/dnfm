@@ -568,7 +568,43 @@ MP MAX +110
             { stats: ['이동속도'],                     amount: 1.5 , unit: '%'},
         ],
         eff: []
-    }
+    },
+    V5: {
+        info: `기본정보
+힘, 지능, 체력, 정신력 +8`,
+        base: [
+            { stats: ['힘', '지능', '체력', '정신력'], amount: 8  , unit: ''},
+        ],
+        eff: []
+    },
+    V6: {
+        info: `기본정보
+힘 +32
+지능 +32
+체력 +32
+정신력 +32
+공격속도 +2%
+캐스팅속도 +3%
+이동속도 +2%
+---
+효과
+HP MAX +55
+MP MAX +110
+화속성 저항 +7
+화속강 +3`,
+        base: [
+            { stats: ['힘', '지능', '체력','정신력'], amount: 32  , unit: ''},
+            { stats: ['공격속도'],             amount: 2   , unit: '%'},
+            { stats: ['캐스팅속도'],           amount: 3   , unit: '%'},
+            { stats: ['이동속도'],             amount: 2   , unit: '%'},
+        ],
+        eff: [
+            { stats: ['HP MAX'],              amount: 55  , unit: ''},
+            { stats: ['MP MAX'],              amount: 110 , unit: ''},
+            { stats: ['화속성 저항'],         amount: 7   , unit: ''},
+            { stats: ['화속강'],              amount: 3   , unit: ''},
+        ]
+    },
 };
 
 const TITLE_ITEM_INFO = {
@@ -577,7 +613,9 @@ const TITLE_ITEM_INFO = {
     "우리함께 Arcade": _TITLE_TEMPLATES.V2,
     "3rd Anniversary": _TITLE_TEMPLATES.V2,
     "천해의 수호자": _TITLE_TEMPLATES.V3,
-    "Specialist": _TITLE_TEMPLATES.V4
+    "Specialist": _TITLE_TEMPLATES.V4,
+    "안톤:공대 참전자": _TITLE_TEMPLATES.V5,
+    "안톤 정복자": _TITLE_TEMPLATES.V6,
 };
 
 const _AURA_TEMPLATES = {
@@ -667,6 +705,8 @@ const AURA_ITEM_INFO = {
     "성안의 봉인 오라": _AURA_TEMPLATES.V4,
     "검의 기억 오라": _AURA_TEMPLATES.V4,
     "즐거운 새로움이 가득한 오라": _AURA_TEMPLATES.V4,
+    "혼돈의 조각": _AURA_TEMPLATES.V4,
+    "천해의 지배": _AURA_TEMPLATES.V4,
     "눈꽃 오라": _AURA_TEMPLATES.V5
 };
 
