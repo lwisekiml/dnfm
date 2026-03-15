@@ -4963,7 +4963,6 @@ if (isRestore && typeof characters !== 'undefined') {
 ```
 
 ---
-
 ---
 
 ## 2026-03-14 (120차)
@@ -5009,8 +5008,6 @@ if (isRestore && typeof characters !== 'undefined') {
 
 ---
 ---
-
-죄송합니다.
 
 ## 2026-03-14 (121차)
 
@@ -5075,3 +5072,57 @@ if (isRestore && typeof characters !== 'undefined') {
 
 **해결:**
 - `getSlotType()`에 `if (slot === '무기') return 'weapon'` 추가
+---
+
+## 2026-03-15 (123차)
+
+### 캐릭터 관리 탭 비교 - 칭호/오라/아바타 비교 기능 추가 + 버그 수정 3건
+
+**수정된 파일:** `js/ui-compare.js`, `js/ui-core.js`, `shared/shared_constants.js`, `scripts/eq_equipment.js`, `js/storage.js`, `scripts/eq_core.js`
+
+---
+
+### 변경 내용
+
+**1. 칭호/오라/아바타 비교 기능 추가 (`js/ui-compare.js`)**
+
+- `buildEquipmentCompare()` 수정
+  - 칭호/오라/아바타 슬롯 전용 분기 처리
+  - 좌/우 셀: 슬롯명 + 착용 아이템 이름 표시 (아바타는 착용 시 "아바타", 미착용 시 빈칸)
+  - 중앙 셀: **비교** 버튼 (클릭 시 팝업)
+  - 이름 셀 `white-space:nowrap` + `overflow:hidden`으로 가로 스크롤 방지
+- `buildSideTable()` / `buildCenterTable()` 수정
+  - `cell.html`, `cell.colspan`, `cell.style`, `row.html` 속성 지원 추가
+- `getSpecialSlotName(section, slot)` 함수 추가
+  - 칭호: `data-title-name`, 오라: `data-aura-name`, 아바타: `data-avatar-value` 속성으로 이름 읽기
+- `openCompareSpecialPopup(slot, s1Id, s2Id, triggerBtn)` 함수 추가
+  - **칭호/오라 팝업**: `스탯 | 캐릭터1 수치 | 차이(↑/↓) | 캐릭터2 수치 | 스탯` 5열 구조, 다른 값 행 배경 강조
+  - **아바타 팝업**: `파츠 | 캐릭터1 | 수치 | 차이 | 수치 | 캐릭터2 | 파츠` 7열 구조, `AVATAR_PART_STATS` 기반 수치 표시, 무기 아바타 수치 하단 표시
+  - 팝업 위치: 트리거 버튼이 속한 표의 부모 컨테이너에 `position:absolute`로 붙여 표와 함께 스크롤
+  - 테마 감지 후 스타일 자동 적용
+    - `theme-navy` / `theme-navy2` → 남색 계열
+    - `theme-dark` / `theme-dark2` / `theme-mixed` / `theme-mixed2` → 다크 계열
+    - 기타 → 남색 계열 (기본값)
+  - 캐릭터 이름: 노란색(`#ffd700`), 모든 셀 가운데 정렬
+
+**2. 익시드 select 초기 글자색 흰색으로 나오는 버그 수정 (`js/ui-core.js`)**
+
+- `_refreshSlotState()`에서 익시드 값 설정 후 `updateStyle(exceedSel, 'exceed')` 호출 누락
+  - 수정: 값 설정 후 `updateStyle` 호출 추가 → 초기 로드 시에도 `ex-이상` 등 클래스가 붙어 올바른 색상 표시
+
+**3. 카테고리 총합 헤더 숫자 오류 수정 (`scripts/eq_equipment.js`)**
+
+- `updateCategoryTotals()` 로직 전면 교체
+  - 기존: 세트/슬롯 조합으로 키를 직접 생성 → 익시드 슬롯 처리 오류로 합계 누락
+  - 수정: `armorCounts` 전체 순회 후 `getSetType()`으로 분류 (`renderEquipmentTab`과 동일한 방식)
+
+**4. 슬롯명 오타 "보장" → "보조장비" 교정 마이그레이션 (`js/storage.js`, `scripts/eq_core.js`)**
+
+- 구버전 데이터에서 `"보조장비"` 슬롯이 `"보장"`으로 잘못 저장된 데이터 교정
+- `migrateSlotKeyFix(character)` 함수 추가 후 마이그레이션 완료 확인 후 제거
+
+**5. 비교 팝업 차이 값 부동소수점 오차 수정 (`js/ui-compare.js`)**
+
+- 칭호/오라/아바타 비교 팝업에서 차이 계산 시 부동소수점 오차 발생
+  - 예: `3 - 2.2 = 0.7999999999999998`
+- `roundDiff = (d) => Math.round(d * 10000) / 10000` 함수 추가하여 소수점 4자리 반올림 처리
