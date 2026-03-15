@@ -605,13 +605,115 @@ MP MAX +110
             { stats: ['화속강'],              amount: 3   , unit: ''},
         ]
     },
+    // 우리모두 Arcade, 4th Anniversary
+    V7: {
+        info: `기본정보
+힘, 지능 +66
+체력, 정신력 +33
+공격속도 +5%
+캐스팅속도 +7%
+이동속도 +5%
+물리 크리티컬 +30
+마법 크리티컬 +30
+---
+효과
+HP MAX +220
+모든 속성 강화 +3
+데미지 20% 증가`,
+        base: [
+            { stats: ['힘', '지능'], amount: 66  , unit: ''},
+            { stats: ['체력','정신력'], amount: 33  , unit: ''},
+            { stats: ['공격속도'],             amount: 5   , unit: '%'},
+            { stats: ['캐스팅속도'],           amount: 7   , unit: '%'},
+            { stats: ['이동속도'],             amount: 5   , unit: '%'},
+            { stats: ['물리 크리티컬'],             amount: 30   , unit: ''},
+            { stats: ['마법 크리티컬'],             amount: 30   , unit: ''},
+        ],
+        eff: [
+            { stats: ['HP MAX'],              amount: 220  , unit: ''},
+            { stats: ['모든 속성 강화'],         amount: 3   , unit: ''},
+            { stats: ['데미지 증가'],              amount: 20   , unit: '%'},
+        ]
+    },
+    // 아라드 오션브리즈[플래티넘], 던전밥
+    V8: {
+        info: `기본정보
+힘, 지능 +66
+체력, 정신력 +33
+공격속도 +5%
+캐스팅속도 +7%
+이동속도 +5%
+물리 크리티컬 +30
+마법 크리티컬 +30
+---
+효과
+HP MAX +220
+모든 속성 강화 +3
+마을 이동속도 증가 +10%
+모든 직업 15~70레벨 스킬Lv+1(TP스킬 제외)
+데미지 20% 증가`,
+        desc: `모든 직업 15~70레벨 스킬Lv+1(TP스킬 제외)`,
+        base: [
+            { stats: ['힘', '지능'], amount: 66  , unit: ''},
+            { stats: ['체력','정신력'], amount: 33  , unit: ''},
+            { stats: ['공격속도'],             amount: 5   , unit: '%'},
+            { stats: ['캐스팅속도'],           amount: 7   , unit: '%'},
+            { stats: ['이동속도'],             amount: 5   , unit: '%'},
+            { stats: ['물리 크리티컬'],             amount: 30   , unit: ''},
+            { stats: ['마법 크리티컬'],             amount: 30   , unit: ''},
+        ],
+        eff: [
+            { stats: ['HP MAX'],              amount: 220  , unit: ''},
+            { stats: ['모든 속성 강화'],         amount: 3   , unit: ''},
+            { stats: ['마을 이동속도 증가'],         amount: 10   , unit: '%'},
+            { stats: ['데미지 증가'],              amount: 20   , unit: '%'},
+        ]
+    },
+    // 아라드 선라이즈, 아라드 선셋
+    V9: {
+        info: `기본정보
+힘, 지능 +66
+체력, 정신력 +33
+공격속도 +5%
+캐스팅속도 +7%
+이동속도 +5%
+물리 크리티컬 +30
+마법 크리티컬 +30
+---
+효과
+HP MAX +220
+모든 속성 강화 +3
+데미지 15% 증가`,
+        desc: `모든 직업 15~70레벨 스킬Lv+1(TP스킬 제외)`,
+        base: [
+            { stats: ['힘', '지능'], amount: 66  , unit: ''},
+            { stats: ['체력','정신력'], amount: 33  , unit: ''},
+            { stats: ['공격속도'],             amount: 5   , unit: '%'},
+            { stats: ['캐스팅속도'],           amount: 7   , unit: '%'},
+            { stats: ['이동속도'],             amount: 5   , unit: '%'},
+            { stats: ['물리 크리티컬'],             amount: 30   , unit: ''},
+            { stats: ['마법 크리티컬'],             amount: 30   , unit: ''},
+        ],
+        eff: [
+            { stats: ['HP MAX'],              amount: 220  , unit: ''},
+            { stats: ['모든 속성 강화'],         amount: 3   , unit: ''},
+            { stats: ['데미지 증가'],              amount: 15   , unit: '%'},
+        ]
+    },
 };
 
 const TITLE_ITEM_INFO = {
     "우리들의 Arcade": _TITLE_TEMPLATES.V1,
-    "2nd Anniversary 칭호": _TITLE_TEMPLATES.V1,
     "우리함께 Arcade": _TITLE_TEMPLATES.V2,
+    "우리모두 Arcade": _TITLE_TEMPLATES.V7,
+    "2nd Anniversary 칭호": _TITLE_TEMPLATES.V1,
     "3rd Anniversary": _TITLE_TEMPLATES.V2,
+    "4th Anniversary": _TITLE_TEMPLATES.V7,
+    "아라드 오션브리즈[플래티넘]": _TITLE_TEMPLATES.V8,
+    "던전밥": _TITLE_TEMPLATES.V8,
+    "원탁의 기사 [白]": _TITLE_TEMPLATES.V8,
+    "아라드 선라이즈": _TITLE_TEMPLATES.V9,
+    "아라드 선셋": _TITLE_TEMPLATES.V9,
     "천해의 수호자": _TITLE_TEMPLATES.V3,
     "Specialist": _TITLE_TEMPLATES.V4,
     "안톤:공대 참전자": _TITLE_TEMPLATES.V5,
@@ -638,6 +740,7 @@ const _AURA_TEMPLATES = {
             {stats: ['화속강', '수속강', '암속강', '명속강'], amount: 8, unit: ''},
         ]
     },
+    // 우리모두 Arcade 오라, 3rd Anniversary 오라, 4th Anniversary 오라
     V2: {
         info: `기본정보
 힘, 지능, 체력, 정신력 +50
@@ -694,20 +797,70 @@ const _AURA_TEMPLATES = {
             { stats: ['힘', '지능', '체력', '정신력'], amount: 24, unit: ''},
             { stats: ['적중'], amount: 80, unit: ''},
         ]
-    }
+    },
+    // 극한을 정복한 자, 코스믹 스피어, 마르실의 소생 마법 오라
+    V6: {
+        info: `기본정보
+힘, 지능, 체력, 정신력 +50
+물리 크리티컬 확률 +5%
+마법 크리티컬 확률 +5%
+물리 크리티컬 +130
+마법 크리티컬 +130
+---
+효과
+모든 속성 강화 +10
+마을 이동속도 증가 +5%
+데미지 7% 증가`,
+        base: [
+            { stats: ['힘', '지능', '체력', '정신력'], amount: 50, unit: ''},
+            { stats: ['물리 크리티컬 확률', '마법 크리티컬 확률'], amount: 5, unit: '%'},
+            { stats: ['물리 크리티컬', '마법 크리티컬'], amount: 130, unit: ''},
+        ],
+        eff: [
+            { stats: ['모든 속성 강화'], amount: 10, unit: ''},
+            { stats: ['마을 이동속도 증가'], amount: 5, unit: '%'},
+            { stats: ['데미지 증가'], amount: 7, unit: "%" },
+        ]
+    },
+    // 극한을 이겨낸 자, 체인질링 오라, 광기의 물결 오라
+    V7: {
+        info: `기본정보
+힘, 지능, 체력, 정신력 +50
+물리 크리티컬 +130
+마법 크리티컬 +130
+---
+효과
+모든 속성 강화 +10`,
+        base: [
+            {stats: ['힘', '지능', '체력', '정신력'], amount: 50, unit: ''},
+            {stats: ['물리 크리티컬', '마법 크리티컬'], amount: 130, unit: ''},
+        ],
+        eff: [
+            {stats: ['모든 속성 강화'], amount: 10, unit: ''},
+        ]
+    },
 };
 
 const AURA_ITEM_INFO = {
     "우리들의 Arcade 오라":  _AURA_TEMPLATES.V1,
+    "우리모두 Arcade 오라":  _AURA_TEMPLATES.V2,
     "2nd Anniversary 오라": _AURA_TEMPLATES.V1,
     "3rd Anniversary 오라": _AURA_TEMPLATES.V2,
+    "4rd Anniversary 오라": _AURA_TEMPLATES.V2,
     "해방전력 오라": _AURA_TEMPLATES.V3,
     "성안의 봉인 오라": _AURA_TEMPLATES.V4,
     "검의 기억 오라": _AURA_TEMPLATES.V4,
     "즐거운 새로움이 가득한 오라": _AURA_TEMPLATES.V4,
     "혼돈의 조각": _AURA_TEMPLATES.V4,
     "천해의 지배": _AURA_TEMPLATES.V4,
-    "눈꽃 오라": _AURA_TEMPLATES.V5
+    "신목의 정복자 오라": _AURA_TEMPLATES.V4,
+    "눈꽃 오라": _AURA_TEMPLATES.V5,
+    "극한을 정복한 자": _AURA_TEMPLATES.V6,
+    "코스믹 스피어": _AURA_TEMPLATES.V6,
+    "마르실의 소생 마법 오라": _AURA_TEMPLATES.V6,
+    "극한을 이겨낸 자": _AURA_TEMPLATES.V7,
+    "체인질링 오라": _AURA_TEMPLATES.V7,
+    "광기의 물결 오라": _AURA_TEMPLATES.V7,
 };
 
 const itemOptions = (() => {
@@ -859,7 +1012,7 @@ const AVATAR_PART_STATS = {
     },
     "피부": {
         "언커먼": { stats: ['히트리커버리'], amount: 80,   label: '히트 리커버리 +80'                           },
-        "레어":   { stats: ['히트리커버리'], amount: 100,  label: '히트 리커버리(확인필요) +100'                },
+        "레어":   { stats: ['히트리커버리'], amount: 100,  label: '히트 리커버리 +100'                },
     },
 };
 // ============================================
@@ -1112,7 +1265,7 @@ const _CREATURE_TEMPLATES = {
             { stat: '공격 시 추가 데미지', amount: 18, label: '공격 시 18% 추가 데미지' },
         ]
     },
-    // 곰인형 민D
+    // 곰인형 민D, ARCADE 세리아
     EPIC_V2: {
         info: `물리, 마법 크리티컬 확률 +2%\n모든 속성 강화 +8\n공격 시 21% 추가 데미지`,
         stats: [
@@ -1122,6 +1275,29 @@ const _CREATURE_TEMPLATES = {
             { stat: '공격 시 추가 데미지',amount: 21,            label: '공격 시 21% 추가 데미지' },
         ]
     },
+    // 4th Anniversary 세리아
+    EPIC_V3: {
+        info: `물리, 마법 크리티컬 확률 +2%\n모든 속성 강화 +10\n공격 시 25% 추가 데미지`,
+        stats: [
+            { stat: '물리 크리티컬 확률', amount: 2,  unit: '%', label: '물리 크리티컬 확률 +2%'  },
+            { stat: '마법 크리티컬 확률', amount: 2,  unit: '%', label: '마법 크리티컬 확률 +2%'  },
+            { stat: '모든 속성 강화',     amount: 10,             label: '모든 속성 강화 +10'       },
+            { stat: '공격 시 추가 데미지',amount: 25,            label: '공격 시 25% 추가 데미지' },
+        ]
+    },
+    // 드래곤테이머 소피아
+    EPIC_V4: {
+        info: `물리, 마법 크리티컬 확률 +2%\n모든 속성 강화 +10\n공격 시 25% 추가 데미지\n최종 데미지 5% 증가`,
+        stats: [
+            { stat: '물리 크리티컬 확률',   amount: 2,  unit: '%', label: '물리 크리티컬 확률 +2%'  },
+            { stat: '마법 크리티컬 확률',   amount: 2,  unit: '%', label: '마법 크리티컬 확률 +2%'  },
+            { stat: '모든 속성 강화',      amount: 10,             label: '모든 속성 강화 +10'       },
+            { stat: '공격 시 추가 데미지',  amount: 25,            label: '공격 시 25% 추가 데미지' },
+            { stat: '최종 데미지 증가',    amount: 5,  unit: '%',  label: '최종 데미지 5% 증가' },
+        ]
+    },
+
+
     // SD 켈라이노
     UNIQUE_V1: {
         info: `던전 입장 시 힘 +30\n물리 공격력 +5% 증가`,
@@ -1201,6 +1377,8 @@ const _CREATURE_TEMPLATES = {
         info: `던전 입장 시 자신을 포함한 파티원의 모든 속성 강화 2 증가`,
         stats: []
     },
+
+
     // 비네, 쁘띠 스켈레톤 골드
     UNCOMMON_V1: {
         info: `공격 시 104의 추가 데미지`,
@@ -1208,6 +1386,8 @@ const _CREATURE_TEMPLATES = {
             { stat: '공격 시 추가 데미지', amount: 104, unit: '', label: '공격 시 104의 추가 데미지' },
         ]
     },
+
+
     // 2주년 케이크 모자를 쓴 플랑, 3rd 뿌우단진
     COMMON_V1: {
         info: `공격 시 52의 추가 데미지`,
@@ -1251,6 +1431,9 @@ const CREATURE_ITEM_INFO = {
     "SD 켈라이노":                       { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V1  },
     "2주년 케이크 모자를 쓴 플랑":       { grade: '커먼',   ..._CREATURE_TEMPLATES.COMMON_V1  },
     "3rd 뿌우단진":                      { grade: '커먼',   ..._CREATURE_TEMPLATES.COMMON_V1  },
+    "4th Anniversary 세리아":            { grade: '에픽',   ..._CREATURE_TEMPLATES.EPIC_V3  },
+    "드래곤테이머 소피아":            { grade: '에픽',   ..._CREATURE_TEMPLATES.EPIC_V4  },
+    "ARCADE 세리아":            { grade: '에픽',   ..._CREATURE_TEMPLATES.EPIC_V2  },
 };
 // ============================================
 // 아티팩트 세트 데이터
@@ -1286,6 +1469,36 @@ const ARTIFACT_SET_DATA = [
         },
         green: {
             name: '마법이 깃든 망토',
+            stats: {
+                '크리쳐_art_green_stat_HPMAX':  '165',
+                '크리쳐_art_green_stat_MPMAX':  '165',
+                '크리쳐_art_green_stat_모속강': '4',
+            }
+        },
+        setEffect: '모속강 +10\n공격 시 5% 추가 데미지\n30초 마다 공격속도 3%, 이동속도 3%, 캐스팅속도 3% 증가',
+    },
+    {
+        setName: '아스마르 아티펙트 3세트 효과',
+        red: {
+            name: '광기 서린 손톱',
+            stats: {
+                '크리쳐_art_red_stat_물리 공격력': '22',
+                '크리쳐_art_red_stat_마법 공격력': '22',
+                '크리쳐_art_red_stat_힘':         '36',
+                '크리쳐_art_red_stat_지능':        '36',
+            }
+        },
+        blue: {
+            name: '갈망을 머금은 꼬리',
+            stats: {
+                '크리쳐_art_blue_stat_공격속도':   '5',
+                '크리쳐_art_blue_stat_캐스팅속도':  '7.5',
+                '크리쳐_art_blue_stat_이동속도':   '2.5',
+                '크리쳐_art_blue_stat_적중':       '100',
+            }
+        },
+        green: {
+            name: '증오의 갑각 외피',
             stats: {
                 '크리쳐_art_green_stat_HPMAX':  '165',
                 '크리쳐_art_green_stat_MPMAX':  '165',
