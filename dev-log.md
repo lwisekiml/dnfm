@@ -5126,3 +5126,50 @@ if (isRestore && typeof characters !== 'undefined') {
 - 칭호/오라/아바타 비교 팝업에서 차이 계산 시 부동소수점 오차 발생
   - 예: `3 - 2.2 = 0.7999999999999998`
 - `roundDiff = (d) => Math.round(d * 10000) / 10000` 함수 추가하여 소수점 4자리 반올림 처리
+
+---
+---
+
+## 2026-03-16 (124차)
+
+### 캐릭터 관리 탭 - 아바타 무기 아바타 수치 팝업 방식으로 변경 + 팝업 스크롤 버그 수정
+
+**수정된 파일:** `index.html`, `js/ui-character.js`, `js/storage.js`, `shared/shared_data.js`
+
+---
+
+### 변경 내용
+
+**1. 무기 아바타 수치 — select → 팝업 버튼 방식으로 변경**
+
+- 아바타 행의 `<select data-key="아바타_weapon_stat">` 제거 → `<button data-weapon-avatar-btn>` 으로 교체
+- 클릭 시 칭호/오라와 동일한 구조의 팝업 표시
+  - 이름 입력 + 자동완성 드롭다운
+  - 기본정보: 힘 / 지능 / 체력 / 정신력
+  - 효과: 물리 공격력 증가 / 마법 공격력 증가 / 공격 시 추가 데미지 (%)
+  - 설명칸
+  - 저장/취소 버튼
+- 저장 시 `아바타_desc` 설명란 자동 입력 (칭호/오라와 동일 방식)
+- 변경 기록(`AppState.changeHistory`) 지원
+
+**2. 무기 아바타 수치 데이터 (`shared/shared_data.js`)**
+
+- `_WEAPON_AVATAR_TEMPLATES` 객체 추가 — 오라의 `_AURA_TEMPLATES`와 동일한 방식
+- `WEAPON_AVATAR_ITEM_INFO` 객체 추가 — 이름: 템플릿 매핑
+- `GameData`에 `WEAPON_AVATAR_ITEM_INFO` 등록
+- `_STAT_LABELS`, `_STAT_GROUPS`에 `물리 공격력 증가`, `마법 공격력 증가`, `공격 시 추가 데미지` 키 추가
+
+**3. 저장 구조 변경 (`js/storage.js`)**
+
+- 기존: `아바타.weapon_stat` — `{ stats, amount }` 구조 (select 값 기반)
+- 변경: `아바타.weapon_stat_v2` — `{ name, base, eff, desc }` 구조 (팝업 방식)
+- 구버전 `weapon_stat` 데이터 복원 시 이름 텍스트로 표시하는 fallback 처리
+
+**4. 팝업 스크롤 버그 수정 (`index.html`, `js/ui-character.js`)**
+
+- **원인**: 팝업 overlay가 `position:fixed; inset:0`으로 화면 전체를 덮은 채 `pointer-events` 미설정 → 스크롤 이벤트 가로채 팝업 열린 상태에서 표와 함께 스크롤 불가
+- **해결**: 크리쳐 / 칭호 / 오라 / 아바타 / 무기 아바타 수치 팝업 overlay 전체에 `pointer-events:none` 추가, 팝업 본체에 `pointer-events:all` 추가
+- 아바타 / 크리쳐 팝업: 기존 `fixed` 위치 계산 방식 → 칭호/오라와 동일하게 popup을 `body`로 꺼낸 뒤 `position:absolute + scrollY` 방식으로 변경
+- 크리쳐 팝업: 기존 `window.scroll` 이벤트 리스너 방식 제거
+
+---

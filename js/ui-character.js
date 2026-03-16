@@ -22,6 +22,8 @@ const _STAT_LABELS = {
     '명속성 저항':'명속성 저항', '암속성 저항':'암속성 저항',
     '기절 내성':'기절 내성', '점프력':'점프력',
     '데미지 증가':'데미지 증가', '마을 이동속도 증가':'마을 이동속도 증가',
+    '물리 공격력 증가':'물리 공격력 증가', '마법 공격력 증가':'마법 공격력 증가',
+    '공격 시 추가 데미지':'공격 시 추가 데미지',
 };
 
 /**
@@ -66,7 +68,9 @@ const _STAT_GROUPS = [
     ['기절 내성'],
     ['점프력'],
     ['데미지 증가'],
-    ['마을 이동속도 증가']
+    ['마을 이동속도 증가'],
+    ['물리 공격력 증가', '마법 공격력 증가'],
+    ['공격 시 추가 데미지']
 ];
 
 /**
@@ -355,9 +359,19 @@ function createSlotContent(slot, index, charId, savedData) {
                     }
                 };
             }
-            // weapon_stat select에 AVATAR_WEAPON_STATS 옵션 채우기
-            // (Fragment 상태에서 querySelector 가능 - appendChild 후 firstElementChild 방식 사용 불필요)
-            initAvatarWeaponStatSelect(rowFrag);
+            // 무기 아바타 수치 버튼 onclick 연결
+            const waBtn = rowFrag.querySelector('button[data-weapon-avatar-btn]');
+            if (waBtn) {
+                waBtn.onclick = (e) => {
+                    e.preventDefault();
+                    const section = waBtn.closest('.char-section');
+                    if (section) {
+                        const lockBtn = section.querySelector('.lock-btn');
+                        if (lockBtn?.classList.contains('btn-active')) return;
+                        openWeaponAvatarPopup(section.id, waBtn);
+                    }
+                };
+            }
             return rowFrag;
         }
         // 오라: 전용 템플릿 (itemname이 버튼)
@@ -865,13 +879,11 @@ function restoreSavedData(section, savedData, charId) {
         auraBtn.textContent = aName;
     }
 
-    // 2-c) 아바타 버튼 & weapon_stat select 복원
+    // 2-c) 아바타 버튼 & 무기 아바타 수치 버튼 복원
     const avatarBtn = section.querySelector('button[data-key="아바타_itemname"]');
     if (avatarBtn) {
         const avatarInputs = savedData?.inputs?.['아바타'] || {};
 
-        // weapon_stat select 옵션 먼저 채우기
-        initAvatarWeaponStatSelect(section);
         // 크리쳐 버튼 + 아티팩트 표시 복원
         const creatureBtn = section.querySelector('button[data-creature-btn]');
         if (creatureBtn) {
@@ -925,30 +937,30 @@ function restoreSavedData(section, savedData, charId) {
             ? renderAvatarBtnHTML(rawVal)
             : rawVal;
 
-        // weapon_stat select 복원: { stats(배열), amount } 구조
-        const weaponStatSel = section.querySelector('[data-key="아바타_weapon_stat"]');
-        if (weaponStatSel && avatarInputs.weapon_stat) {
+        // 무기 아바타 수치 버튼 복원 (새 팝업 방식)
+        const waBtn = section.querySelector('button[data-weapon-avatar-btn]');
+        if (waBtn && avatarInputs.weapon_stat_v2) {
+            const ws = avatarInputs.weapon_stat_v2;
+            const wName  = ws.name  || '';
+            const wStats = JSON.stringify({ base: ws.base || [], eff: ws.eff || [], desc: ws.desc || '' });
+            waBtn.setAttribute('data-weapon-avatar-name',  wName);
+            waBtn.setAttribute('data-weapon-avatar-stats', wStats);
+            waBtn.textContent = wName;
+        } else if (waBtn && avatarInputs.weapon_stat) {
+            // 구버전 weapon_stat(select 방식) fallback: 라벨 텍스트로 이름만 복원
             const ws = avatarInputs.weapon_stat;
-            // 신규 구조: stats 배열 → "힘,지능,체력,정신력|18" 형태로 재조합
-            let storedValue = '';
+            let legacyLabel = '';
             if (Array.isArray(ws.stats) && ws.stats.length > 0) {
-                const statStr = ws.stats.join(',');
-                storedValue = (ws.amount !== null && ws.amount !== undefined)
-                    ? `${statStr}|${ws.amount}`
+                const statStr = ws.stats.join(', ');
+                legacyLabel = (ws.amount !== null && ws.amount !== undefined)
+                    ? `${statStr} +${ws.amount}`
                     : statStr;
-            } else if (ws.stat) {
-                // 구버전 stat 단일 문자열 fallback
-                storedValue = (ws.amount !== null && ws.amount !== undefined)
-                    ? `${ws.stat}|${ws.amount}`
-                    : ws.stat;
+            } else if (ws.val) {
+                legacyLabel = ws.val;
             }
-            weaponStatSel.value = storedValue;
-            // 구버전 val 형식 fallback (이전에 "힘, 지능, 체력, 정신력 +18" 형태로 저장된 경우)
-            if (!weaponStatSel.value && ws.val) {
-                const matched = Array.from(weaponStatSel.options)
-                    .find(o => o.text === ws.val || o.value === ws.val);
-                if (matched) weaponStatSel.value = matched.value;
-            }
+            waBtn.setAttribute('data-weapon-avatar-name',  legacyLabel);
+            waBtn.setAttribute('data-weapon-avatar-stats', '{}');
+            waBtn.textContent = legacyLabel;
         }
     }
 
@@ -1624,28 +1636,27 @@ function openCreaturePopup(charId, btn) {
         });
     }, 0);
 
-    // 팝업 표시 (fixed 기준 — 스크롤 따라 재계산)
+    // 팝업 표시: body로 이동 후 absolute 배치 (스크롤 시 표와 함께 이동)
     overlay.style.display = 'block';
-
-    function _posCreature() {
-        const table  = _creatureBtn ? _creatureBtn.closest('table') : null;
-        const rect   = table ? table.getBoundingClientRect() : _creatureBtn.getBoundingClientRect();
-        const popupW = popup.offsetWidth;
-        const popupH = popup.offsetHeight;
-        const vw = window.innerWidth, vh = window.innerHeight;
-        let left = rect.left + rect.width  / 2 - popupW / 2;
-        let top  = rect.top  + rect.height / 2 - popupH / 2;
-        if (left < 8) left = 8;
-        if (left + popupW > vw - 8) left = vw - popupW - 8;
-        if (top  < 8) top  = 8;
-        if (top  + popupH > vh - 8) top  = vh - popupH - 8;
-        popup.style.left = left + 'px';
-        popup.style.top  = top  + 'px';
+    if (popup.parentElement !== document.body) {
+        document.body.appendChild(popup);
     }
-    _posCreature();
-
-    window._creatureScrollHandler = () => { if (_creatureBtn) _posCreature(); };
-    window.addEventListener('scroll', window._creatureScrollHandler);
+    const section_cr   = _creatureBtn ? _creatureBtn.closest('.char-section') : null;
+    const infoTable_cr = section_cr ? section_cr.querySelector('.char-info-table') : null;
+    const refEl_cr     = infoTable_cr || (_creatureBtn ? _creatureBtn.closest('table') : null) || _creatureBtn;
+    const rect_cr      = refEl_cr ? refEl_cr.getBoundingClientRect() : { left: 100, top: 100 };
+    const popupW_cr    = popup.offsetWidth || 560;
+    const vw_cr        = window.innerWidth;
+    let left_cr = rect_cr.left + 180;
+    let top_cr  = rect_cr.top + 150 + window.scrollY;
+    if (left_cr < 8) left_cr = 8;
+    if (left_cr + popupW_cr > vw_cr - 8) left_cr = vw_cr - popupW_cr - 8;
+    if (top_cr  < 8) top_cr  = 8;
+    popup.style.position = 'absolute';
+    popup.style.zIndex   = '3001';
+    popup.style.left     = left_cr + 'px';
+    popup.style.top      = top_cr  + 'px';
+    popup.style.display  = 'block';
 }
 
 /** 크리쳐 팝업 저장 */
@@ -1866,10 +1877,11 @@ function _creatureCheckArtSet(popup) {
 /** 크리쳐 팝업 닫기 */
 function creaturePopupClose() {
     const overlay = document.getElementById('creature-popup-overlay');
+    const popup   = document.getElementById('creature-popup');
     if (overlay) overlay.style.display = 'none';
-    if (window._creatureScrollHandler) {
-        window.removeEventListener('scroll', window._creatureScrollHandler);
-        window._creatureScrollHandler = null;
+    if (popup && popup.parentElement !== overlay) {
+        overlay.appendChild(popup);
+        popup.style.display = '';
     }
     document.querySelectorAll('.ac-dropdown').forEach(d => d.style.display = 'none');
     _creatureCharId = null;
@@ -2860,10 +2872,29 @@ function openAvatarPopup(charId, btn) {
     grid.appendChild(colLeft);
     grid.appendChild(colRight);
 
-    // 팝업 표시
+    // 팝업 표시: body로 이동 후 absolute 배치 (스크롤 시 표와 함께 이동)
     const overlay = document.getElementById('avatar-popup-overlay');
-    if (overlay) {
-        overlay.style.display = 'flex';
+    const popup   = document.getElementById('avatar-popup');
+    if (overlay) overlay.style.display = 'block';
+    if (popup) {
+        if (popup.parentElement !== document.body) {
+            document.body.appendChild(popup);
+        }
+        const section_av   = UIState.avatarBtn ? UIState.avatarBtn.closest('.char-section') : null;
+        const infoTable_av = section_av ? section_av.querySelector('.char-info-table') : null;
+        const refEl_av     = infoTable_av || (UIState.avatarBtn ? UIState.avatarBtn.closest('table') : null) || UIState.avatarBtn;
+        const rect_av      = refEl_av ? refEl_av.getBoundingClientRect() : { left: 100, top: 100 };
+        const popupW_av    = popup.offsetWidth || 400;
+        const vw_av        = window.innerWidth;
+        let left_av = rect_av.left + 200;
+        let top_av  = rect_av.top + 280 + window.scrollY;
+        if (left_av < 8) left_av = 8;
+        if (top_av  < 8) top_av  = 8;
+        popup.style.position = 'absolute';
+        popup.style.zIndex   = '3001';
+        popup.style.left     = left_av + 'px';
+        popup.style.top      = top_av  + 'px';
+        popup.style.display  = 'block';
     }
 }
 
@@ -2914,7 +2945,347 @@ function avatarPopupSave() {
 /** 아바타 팝업 닫기 */
 function avatarPopupClose() {
     const overlay = document.getElementById('avatar-popup-overlay');
+    const popup   = document.getElementById('avatar-popup');
     if (overlay) overlay.style.display = 'none';
+    if (popup && popup.parentElement !== overlay) {
+        overlay.appendChild(popup);
+        popup.style.display = '';
+    }
     UIState.avatarCharId = null;
     UIState.avatarBtn = null;
+}
+
+// ============================================
+// 무기 아바타 수치 팝업
+// ============================================
+
+let _weaponAvatarCharId = null;
+let _weaponAvatarBtn    = null;
+
+/**
+ * 무기 아바타 팝업 stat input + desc → readOnly 설정
+ */
+function _weaponAvatarPopupLock(lock) {
+    const popup  = document.getElementById('weapon-avatar-popup');
+    const descTA = document.getElementById('weapon-avatar-popup-desc');
+    if (!popup) return;
+    popup.querySelectorAll('[data-weapon-avatar-stat]').forEach(el => {
+        el.readOnly = lock;
+        el.style.opacity = lock ? '0.65' : '';
+    });
+    if (descTA) {
+        descTA.readOnly = lock;
+        descTA.style.opacity = lock ? '0.65' : '';
+    }
+}
+
+/**
+ * 무기 아바타 팝업 수치/설명 초기화
+ */
+function resetWeaponAvatarPopupStats() {
+    const popup = document.getElementById('weapon-avatar-popup');
+    if (!popup) return;
+    // 자동입력 데이터가 있으면 초기화 차단 (칭호/오라와 동일)
+    const nameInput = document.getElementById('weapon-avatar-popup-name');
+    const name = nameInput ? nameInput.value.trim() : '';
+    const info = (GameData.WEAPON_AVATAR_ITEM_INFO || {})[name];
+    const isAutoInput = !!(info?.eff || info?.base || info?.stats);
+    if (isAutoInput) {
+        alert('자동입력된 무기 아바타 수치는 초기화할 수 없습니다.\n\n직접 입력한 이름으로 변경 후 사용해주세요.');
+        return;
+    }
+    popup.querySelectorAll('[data-weapon-avatar-stat]').forEach(el => el.value = '');
+    const descTA = document.getElementById('weapon-avatar-popup-desc');
+    if (descTA) descTA.value = '';
+    const badgeBase = document.getElementById('weapon-avatar-badge-base');
+    const badgeEff  = document.getElementById('weapon-avatar-badge-eff');
+    const badgeDesc = document.getElementById('weapon-avatar-badge-desc');
+    if (badgeBase) badgeBase.style.display = 'none';
+    if (badgeEff)  badgeEff.style.display  = 'none';
+    if (badgeDesc) badgeDesc.style.display = 'none';
+    _weaponAvatarPopupLock(false);
+}
+
+/**
+ * 무기 아바타 이름 드롭다운 (현재는 빈 목록, 향후 데이터 추가 가능)
+ */
+function weaponAvatarNameDropdownShow() {
+    const input = document.getElementById('weapon-avatar-popup-name');
+    if (!input) return;
+    const val  = input.value.trim();
+    const keys = Object.keys(GameData.WEAPON_AVATAR_ITEM_INFO || {});
+    const candidates = keys.filter(k => !val || k.includes(val));
+    acDropdownShow('weapon-avatar-name-dropdown', candidates, weaponAvatarNameDropdownSelect);
+
+    // 실시간 자동입력 상태 체크 → badge 토글
+    const info       = (GameData.WEAPON_AVATAR_ITEM_INFO || {})[val];
+    const isAutoInput = !!(info?.eff || info?.base || info?.stats);
+    const badgeBase  = document.getElementById('weapon-avatar-badge-base');
+    const badgeEff   = document.getElementById('weapon-avatar-badge-eff');
+    const badgeDesc  = document.getElementById('weapon-avatar-badge-desc');
+    if (!isAutoInput) {
+        if (badgeBase) badgeBase.style.display = 'none';
+        if (badgeEff)  badgeEff.style.display  = 'none';
+        if (badgeDesc) badgeDesc.style.display = 'none';
+        _weaponAvatarPopupLock(false);
+    }
+}
+
+function weaponAvatarNameDropdownSelect(name) {
+    const input = document.getElementById('weapon-avatar-popup-name');
+    if (input) input.value = name;
+    weaponAvatarNameApplyStats(name);
+    const dd = document.getElementById('weapon-avatar-name-dropdown');
+    if (dd) dd.style.display = 'none';
+    // 드롭다운 선택 → 자동입력 → 수정 잠금
+    const info = (GameData.WEAPON_AVATAR_ITEM_INFO || {})[name];
+    _weaponAvatarPopupLock(!!(info?.eff || info?.base || info?.stats));
+}
+
+/**
+ * 이름에 해당하는 스탯을 팝업에 자동입력
+ */
+function weaponAvatarNameApplyStats(name) {
+    const popup = document.getElementById('weapon-avatar-popup');
+    if (!popup) return;
+    const info     = (GameData.WEAPON_AVATAR_ITEM_INFO || {})[name];
+    const badgeBase = document.getElementById('weapon-avatar-badge-base');
+    const badgeEff  = document.getElementById('weapon-avatar-badge-eff');
+    const badgeDesc = document.getElementById('weapon-avatar-badge-desc');
+    const show = v => v && (v.style.display = 'inline');
+    const hide = v => v && (v.style.display = 'none');
+
+    if (info?.eff || info?.base || info?.stats) {
+        // 스탯 자동입력 (_applyTitleStats 와 동일 방식, data-weapon-avatar-stat 속성 사용)
+        popup.querySelectorAll('[data-weapon-avatar-stat]').forEach(el => { el.value = ''; });
+        const baseArr = Array.isArray(info) ? info : (info.base || []);
+        const effArr  = Array.isArray(info) ? []   : (info.eff  || []);
+        const map = {};
+        baseArr.forEach(entry => { (entry.stats || []).forEach(s => { map[s] = { amount: entry.amount, type: 'base' }; }); });
+        effArr.forEach( entry => { (entry.stats || []).forEach(s => { map[s] = { amount: entry.amount, type: 'eff'  }; }); });
+        popup.querySelectorAll('[data-weapon-avatar-stat]').forEach(input => {
+            const raw     = input.getAttribute('data-weapon-avatar-stat');
+            const isPct   = raw.endsWith('_pct');
+            const key     = isPct ? raw.slice(0, -4) : raw;
+            const parts   = key.split('_');
+            const type    = parts[parts.length - 1];
+            const statKey = parts.slice(0, -1).join('_');
+            const entry   = map[statKey];
+            if (entry && entry.type === type) input.value = String(entry.amount);
+        });
+        const descTA = document.getElementById('weapon-avatar-popup-desc');
+        if (descTA) descTA.value = info?.desc || '';
+        show(badgeBase); show(badgeEff); show(badgeDesc);
+    } else {
+        popup.querySelectorAll('[data-weapon-avatar-stat]').forEach(el => { el.value = ''; });
+        const descTA = document.getElementById('weapon-avatar-popup-desc');
+        if (descTA) descTA.value = '';
+        hide(badgeBase); hide(badgeEff); hide(badgeDesc);
+        _weaponAvatarPopupLock(false);
+    }
+}
+
+
+/**
+ * 무기 아바타 팝업 열기
+ */
+function openWeaponAvatarPopup(charId, btn) {
+    _weaponAvatarCharId = charId;
+    _weaponAvatarBtn    = btn;
+
+    const overlay = document.getElementById('weapon-avatar-popup-overlay');
+    const popup   = document.getElementById('weapon-avatar-popup');
+    if (!overlay || !popup) return;
+
+    // 이름 복원
+    const nameInput = document.getElementById('weapon-avatar-popup-name');
+    if (nameInput) {
+        nameInput.value    = btn.getAttribute('data-weapon-avatar-name') || '';
+        nameInput.disabled = false;
+    }
+
+    // 스탯 복원: 자동입력 데이터 있으면 적용, 없으면 저장값 복원
+    const savedData  = JSON.parse(btn.getAttribute('data-weapon-avatar-stats') || '{}');
+    const savedName2 = btn.getAttribute('data-weapon-avatar-name') || '';
+    const info2      = (GameData.WEAPON_AVATAR_ITEM_INFO || {})[savedName2];
+    const isAutoInput = !!(info2?.eff || info2?.base || info2?.stats);
+
+    _acDropdownInit();
+
+    if (isAutoInput) {
+        // 자동입력 데이터 적용 후 잠금
+        setTimeout(() => {
+            weaponAvatarNameApplyStats(savedName2);
+            _weaponAvatarPopupLock(true);
+        }, 0);
+    } else {
+        // 직접 입력한 경우 저장된 값 복원
+        const baseMap = _buildStatMap(savedData.base);
+        const effMap  = _buildStatMap(savedData.eff);
+        popup.querySelectorAll('[data-weapon-avatar-stat]').forEach(input => {
+            const raw     = input.getAttribute('data-weapon-avatar-stat');
+            const isPct   = raw.endsWith('_pct');
+            const key     = isPct ? raw.slice(0, -4) : raw;
+            const parts   = key.split('_');
+            const type    = parts[parts.length - 1];
+            const statKey = parts.slice(0, -1).join('_');
+            const val     = (type === 'base' ? baseMap[statKey] : effMap[statKey]);
+            input.value   = val !== undefined ? String(val) : '';
+        });
+        const descTA = document.getElementById('weapon-avatar-popup-desc');
+        if (descTA) descTA.value = savedData.desc || '';
+        // badge 숨기기 및 잠금 해제
+        const badgeBase = document.getElementById('weapon-avatar-badge-base');
+        const badgeEff  = document.getElementById('weapon-avatar-badge-eff');
+        const badgeDesc = document.getElementById('weapon-avatar-badge-desc');
+        if (badgeBase) badgeBase.style.display = 'none';
+        if (badgeEff)  badgeEff.style.display  = 'none';
+        if (badgeDesc) badgeDesc.style.display = 'none';
+        _weaponAvatarPopupLock(false);
+    }
+
+    // 팝업 표시: body 직계 자식으로 이동 후 absolute 배치
+    if (popup.parentElement !== document.body) {
+        document.body.appendChild(popup);
+    }
+    overlay.style.display = 'block';
+
+    const section_wa   = _weaponAvatarBtn ? _weaponAvatarBtn.closest('.char-section') : null;
+    const infoTable_wa = section_wa ? section_wa.querySelector('.char-info-table') : null;
+    const refEl_wa     = infoTable_wa || (_weaponAvatarBtn ? _weaponAvatarBtn.closest('table') : null) || btn;
+    const rect_wa      = refEl_wa.getBoundingClientRect();
+    const popupW_wa    = popup.offsetWidth || 1100;
+    const vw_wa        = window.innerWidth;
+    let left_wa = rect_wa.left + 90;
+    let top_wa  = rect_wa.top + 200 + window.scrollY;
+    if (left_wa < 8) left_wa = 8;
+    if (left_wa + popupW_wa > vw_wa - 8) left_wa = vw_wa - popupW_wa - 8;
+    if (top_wa  < 8) top_wa  = 8;
+    popup.style.position = 'absolute';
+    popup.style.zIndex   = '3001';
+    popup.style.left     = left_wa + 'px';
+    popup.style.top      = top_wa  + 'px';
+    popup.style.display  = 'block';
+}
+
+/** 무기 아바타 팝업 저장 */
+function weaponAvatarPopupSave() {
+    if (!_weaponAvatarBtn) { weaponAvatarPopupClose(); return; }
+
+    const nameInput = document.getElementById('weapon-avatar-popup-name');
+    const name = nameInput ? nameInput.value.trim() : '';
+
+    // 스탯 수집: V4 { base:[{stats:[...], amount:N, unit:''}], eff:[...], desc:'' }
+    const baseMap = {}, effMap = {};
+    const popupEl = document.getElementById('weapon-avatar-popup');
+    if (popupEl) {
+        popupEl.querySelectorAll('[data-weapon-avatar-stat]').forEach(input => {
+            const val = input.value.trim();
+            if (!val) return;
+            const raw     = input.getAttribute('data-weapon-avatar-stat');
+            const isPct   = raw.endsWith('_pct');
+            const key     = isPct ? raw.slice(0, -4) : raw;
+            const parts   = key.split('_');
+            const type    = parts[parts.length - 1];
+            const statKey = parts.slice(0, -1).join('_');
+            const amount  = parseFloat(val) || 0;
+            const unit    = isPct ? '%' : '';
+            const mapKey  = `${amount}__${unit}`;
+            const target  = type === 'base' ? baseMap : effMap;
+            if (!target[mapKey]) target[mapKey] = { stats: [], amount, unit };
+            target[mapKey].stats.push(statKey);
+        });
+    }
+    const descTA = document.getElementById('weapon-avatar-popup-desc');
+    const stats = {
+        base: Object.values(baseMap),
+        eff:  Object.values(effMap),
+        desc: descTA ? descTA.value.trim() : ''
+    };
+
+    // 변경 기록
+    const oldName = _weaponAvatarBtn.getAttribute('data-weapon-avatar-name') || '';
+    if (_weaponAvatarCharId) {
+        const section  = document.getElementById(_weaponAvatarCharId);
+        const charName = section?.querySelector('[data-key="info_name"]')?.value || '이름없음';
+        const timeStr  = (typeof getCurrentDateTime === 'function') ? getCurrentDateTime() : new Date().toLocaleString();
+
+        const oldStats = JSON.parse(_weaponAvatarBtn.getAttribute('data-weapon-avatar-stats') || '{}');
+        const details  = [];
+        const oldBaseMap = _toStatMap(oldStats.base || [], 'base');
+        const oldEffMap  = _toStatMap(oldStats.eff  || [], 'eff');
+        const newBaseMap = _toStatMap(stats.base || [], 'base');
+        const newEffMap  = _toStatMap(stats.eff  || [], 'eff');
+        const oldStatMap = { ...oldBaseMap, ...oldEffMap };
+        const newStatMap = { ...newBaseMap, ...newEffMap };
+        const allKeys = [...new Set([...Object.keys(oldStatMap), ...Object.keys(newStatMap)])];
+        allKeys.sort((a, b) => (a.endsWith('_eff') ? 1 : 0) - (b.endsWith('_eff') ? 1 : 0));
+        allKeys.forEach(k => {
+            const ov = oldStatMap[k] || '없음';
+            const nv = newStatMap[k] || '없음';
+            if (ov !== nv) {
+                const [statKey, type] = k.split(/_(?=base$|eff$)/);
+                const typeLabel = type === 'eff' ? '[효과] ' : '[기본] ';
+                details.push(`${typeLabel}${_STAT_LABELS[statKey] || statKey}: ${ov} → ${nv}`);
+            }
+        });
+        if (oldName !== name) details.unshift(`이름: ${oldName || '(빈칸)'} → ${name || '(빈칸)'}`);
+
+        if (details.length > 0) {
+            AppState.changeHistory.unshift({
+                time: timeStr, charName, slot: '무기 아바타 수치',
+                old: oldName === '' ? '(빈칸)' : oldName,
+                new: name    === '' ? '(빈칸)' : name,
+                details
+            });
+            if (AppState.changeHistory.length > 10) AppState.changeHistory.pop();
+            AppState.saveHistory();
+        }
+    }
+
+    // 버튼 업데이트
+    _weaponAvatarBtn.setAttribute('data-weapon-avatar-name',  name);
+    _weaponAvatarBtn.setAttribute('data-weapon-avatar-stats', JSON.stringify(stats));
+    _weaponAvatarBtn.textContent = name;
+
+    // desc 자동 입력 (칭호/오라와 동일 방식)
+    if (_weaponAvatarCharId) {
+        const section = document.getElementById(_weaponAvatarCharId);
+        const descEl  = section?.querySelector('[data-key="아바타_desc"]');
+        if (descEl) {
+            const baseLines = _entriesToLines(stats.base);
+            const effLines  = _entriesToLines(stats.eff);
+            const lines = [];
+            if (baseLines.length) {
+                lines.push('기본정보');
+                lines.push(...baseLines);
+            }
+            if (effLines.length) {
+                if (baseLines.length) lines.push('---');
+                lines.push('효과');
+                lines.push(...effLines);
+            }
+            if (stats.desc) {
+                if (lines.length > 0) lines.push('---');
+                lines.push(stats.desc);
+            }
+            descEl.value = lines.join('\n');
+        }
+    }
+
+    weaponAvatarPopupClose();
+    if (typeof autoSave === 'function') autoSave();
+}
+
+/** 무기 아바타 팝업 닫기 */
+function weaponAvatarPopupClose() {
+    const overlay = document.getElementById('weapon-avatar-popup-overlay');
+    const popup   = document.getElementById('weapon-avatar-popup');
+    if (overlay) overlay.style.display = 'none';
+    if (popup && popup.parentElement !== overlay) {
+        overlay.appendChild(popup);
+        popup.style.display = '';
+    }
+    _weaponAvatarCharId = null;
+    _weaponAvatarBtn    = null;
 }

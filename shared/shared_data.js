@@ -933,6 +933,132 @@ const itemOptions = (() => {
 })();
 
 // ※ GameData 호환 객체 (기존 project1 코드가 GameData.* 로 참조하는 경우 대비)
+// ============================================
+// 무기 아바타 수치 아이템 정보
+// ============================================
+
+/**
+ * 무기 아바타 수치 템플릿
+ * 오라의 _AURA_TEMPLATES 와 동일한 방식으로 사용
+ *
+ * 구조:
+ *   info  : 설명란에 표시될 텍스트 (자동입력용, 개행 포함 가능)
+ *   base  : 기본정보 스탯 배열 [{ stats:['스탯키',...], amount:수치, unit:'' }]
+ *   eff   : 효과 스탯 배열    [{ stats:['스탯키',...], amount:수치, unit:'' }]
+ *   desc  : 스탯으로 표현 못하는 특수 효과 텍스트 (선택)
+ *
+ * ─────────────────────────────────────────
+ * 예시)
+ *   WA_V1: {
+ *       info: `기본정보
+ * 힘, 지능, 체력, 정신력 +18
+ * ---
+ * 효과
+ * 모든 속성 강화 +5`,
+ *       base: [
+ *           { stats: ['힘', '지능', '체력', '정신력'], amount: 18, unit: '' },
+ *       ],
+ *       eff: [
+ *           { stats: ['모든 속성 강화'], amount: 5, unit: '' },
+ *       ]
+ *   },
+ * ─────────────────────────────────────────
+ */
+const _WEAPON_AVATAR_TEMPLATES = {
+    // ↓ 템플릿을 여기에 추가 (WA_V1, WA_V2, ...)
+    // 예시:
+    WA_V1: {
+        info: `기본정보
+힘, 지능, 체력, 정신력 +18
+---
+효과
+물리 공격력 5% 증가
+마법 공격력 5% 증가
+`,
+        base: [
+            { stats: ['힘', '지능', '체력', '정신력'], amount: 18, unit: '' },
+        ],
+        eff: [
+            { stats: ['물리 공격력 증가'], amount: 5, unit: '%' },
+            { stats: ['마법 공격력 증가'], amount: 5, unit: '%' },
+        ]
+    },
+    WA_V2: {
+        info: `기본정보
+힘, 지능, 체력, 정신력 +18
+---
+효과
+물리 공격력 3% 증가
+마법 공격력 3% 증가
+`,
+        base: [
+            { stats: ['힘', '지능', '체력', '정신력'], amount: 18, unit: '' },
+        ],
+        eff: [
+            { stats: ['물리 공격력 증가'], amount: 3, unit: '%' },
+            { stats: ['마법 공격력 증가'], amount: 3, unit: '%' },
+        ]
+    },
+    WA_V3: {
+        info: `기본정보
+힘, 지능, 체력, 정신력 +18
+---
+효과
+공격 시 5% 추가 데미지
+`,
+        base: [
+            { stats: ['힘', '지능', '체력', '정신력'], amount: 18, unit: '' },
+        ],
+        eff: [
+            { stats: ['공격 시 추가 데미지'], amount: 5, unit: '%' },
+        ]
+    },
+    WA_V4: {
+        info: `기본정보
+힘, 지능, 체력, 정신력 +18
+`,
+        base: [
+            { stats: ['힘', '지능', '체력', '정신력'], amount: 18, unit: '' },
+        ],
+        eff: []
+    },
+    WA_V5: {
+        info: `기본정보
+힘, 지능, 체력, 정신력 +11
+`,
+        base: [
+            { stats: ['힘', '지능', '체력', '정신력'], amount: 11, unit: '' },
+        ],
+        eff: []
+    },
+};
+
+/**
+ * 무기 아바타 수치 아이템 목록
+ * 드롭다운에 표시될 이름: 템플릿 매핑
+ *
+ *   "아이템 이름": _WEAPON_AVATAR_TEMPLATES.WA_V1,
+ */
+const WEAPON_AVATAR_ITEM_INFO = {
+    // ↓ 여기에 무기 아바타 수치 아이템을 추가하세요
+    "블루 레몬 에이드": _WEAPON_AVATAR_TEMPLATES.WA_V1,
+    "클래식 코튼 글러브": _WEAPON_AVATAR_TEMPLATES.WA_V1,
+    "청룡의 무기": _WEAPON_AVATAR_TEMPLATES.WA_V1,
+    "티라미수 케이크": _WEAPON_AVATAR_TEMPLATES.WA_V1,
+    "황천의 구도자 무기": _WEAPON_AVATAR_TEMPLATES.WA_V2,
+    "명계의 구도자 무기": _WEAPON_AVATAR_TEMPLATES.WA_V2,
+    "무형의 무기": _WEAPON_AVATAR_TEMPLATES.WA_V3,
+    "기사단의 무기": _WEAPON_AVATAR_TEMPLATES.WA_V3,
+    "생명의 나무 무기": _WEAPON_AVATAR_TEMPLATES.WA_V3,
+    "홈쇼핑 공구세트 무기": _WEAPON_AVATAR_TEMPLATES.WA_V3,
+
+    "사랑 가득 마법봉": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+    "명부의 구도자 무기": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+    "특제 고블린 몽둥이": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+    "흑도 : 쿠로이츠키의 형상": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+    "천해의 형상 무기": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+};
+
 const GameData = {
     sealData,
     itemOptions,
@@ -940,7 +1066,8 @@ const GameData = {
     accSets,
     specialSets,
     TITLE_ITEM_INFO,
-    AURA_ITEM_INFO
+    AURA_ITEM_INFO,
+    WEAPON_AVATAR_ITEM_INFO
 };
 
 

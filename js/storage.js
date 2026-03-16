@@ -97,22 +97,18 @@ function autoSave() {
                 inputsObj['아바타']['itemname'] = { val: rawVal, cls: btn.className };
             });
 
-            // 아바타 weapon_stat select: { stats(배열), amount } 구조로 저장
-            // value 형식: "힘,지능,체력,정신력|18" 또는 "무기 아바타 수치" 또는 ""
-            const weaponStatSel = sec.querySelector('[data-key="아바타_weapon_stat"]');
-            if (weaponStatSel) {
+            // 무기 아바타 수치 버튼: weapon_stat_v2 구조로 저장
+            const weaponAvatarBtn = sec.querySelector('button[data-weapon-avatar-btn]');
+            if (weaponAvatarBtn) {
                 if (!inputsObj['아바타']) inputsObj['아바타'] = {};
-                const raw = weaponStatSel.value;
-                if (raw && raw.includes('|')) {
-                    const [statStr, amtStr] = raw.split('|');
-                    // 쉼표로 분리된 스탯 → 배열
-                    const stats = statStr.split(',').map(s => s.trim()).filter(Boolean);
-                    inputsObj['아바타']['weapon_stat'] = { stats, amount: Number(amtStr) };
-                } else if (raw) {
-                    inputsObj['아바타']['weapon_stat'] = { stats: [raw], amount: null };
-                } else {
-                    inputsObj['아바타']['weapon_stat'] = { stats: [], amount: null };
-                }
+                const waName  = weaponAvatarBtn.getAttribute('data-weapon-avatar-name') || '';
+                const waStats = JSON.parse(weaponAvatarBtn.getAttribute('data-weapon-avatar-stats') || '{}');
+                inputsObj['아바타']['weapon_stat_v2'] = {
+                    name: waName,
+                    base: waStats.base || [],
+                    eff:  waStats.eff  || [],
+                    desc: waStats.desc || ''
+                };
             }
 
             // 메모리의 characters 배열에서 해당 캐릭터 찾아 병합
