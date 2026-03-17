@@ -5173,3 +5173,64 @@ if (isRestore && typeof characters !== 'undefined') {
 - 크리쳐 팝업: 기존 `window.scroll` 이벤트 리스너 방식 제거
 
 ---
+---
+
+## 2026-03-17 (125차)
+
+### 캐릭터 관리 탭 비교 - 방어구 부위별 스탯 비교 표 추가 + JSON → JS 파일 변환
+
+**수정된 파일:** `js/ui-compare.js`, `shared/shared_item_stats.js`, `index.html`
+**추가된 파일:** `data/armor.js`, `data/armor_set_effects.js`, `data/exceed_unique_effects.js`
+
+---
+
+### 변경 내용
+
+**1. 방어구 부위별 스탯 비교 표 추가 (`js/ui-compare.js`)**
+
+- `buildArmorStatCompare(section1, section2, name1, name2)` 함수 추가
+- `displayComparison()` 하단에 호출 추가 — 기존 비교 섹션(장비/봉인/엠블렘/마법부여) 아래에 표 렌더링
+- 상의 / 어깨 / 하의 / 신발 / 벨트 5개 슬롯을 슬롯 구분선으로 나눠 표시
+- 각 슬롯마다 아이템명 + 익시드 단계 + 접두어 헤더 행 표시
+- 스탯 구분: **기본효과(파랑)** / **효과(초록)** / **방어구 마스터리(보라)** 태그 색상 구분
+- 섹션 내 스탯 순서는 `armor.js`에 정의된 순서 그대로 유지 (가나다순 정렬 없음)
+- 두 캐릭터 간 수치가 다른 행은 배경 하이라이트 처리
+- 차이 열: `↑ +N` (초록) / `↓ -N` (빨강) / `-` (동일)
+- `armor.js`에 없는 아이템(데이터 없음)은 아이템명만 표시
+
+**데이터 접근 로직:**
+- exceed 아이템: `ARMOR_ITEM_STATS[itemname].base[이상/선봉/의지][전격/허상]`
+- 일반 아이템: `ARMOR_ITEM_STATS[itemname].base[기본/전격/허상]`
+- `eff`, `mastery`도 동일한 접두어 키로 접근
+
+**2. JSON → JS 파일 변환 (file:// CORS 문제 해결)**
+
+- `file://` 프로토콜에서 `fetch()`가 CORS 정책으로 완전 차단됨
+- 기존 `data/*.json` + `shared_item_stats.js`의 fetch 기반 로드 방식을 폐기
+- JSON 파일 3개를 `const 변수명 = { ... };` 형태의 JS 파일로 변환
+
+| 기존 | 변환 후 | 변수명 |
+|---|---|---|
+| `data/armor.json` | `data/armor.js` | `ARMOR_ITEM_STATS` |
+| `data/armor_set_effects.json` | `data/armor_set_effects.js` | `ARMOR_SET_EFFECTS` |
+| `data/exceed_unique_effects.json` | `data/exceed_unique_effects.js` | `EXCEED_UNIQUE_EFFECTS` |
+
+**3. `shared/shared_item_stats.js` 정리**
+
+- 기존: `ARMOR_ITEM_STATS = {}` 선언 후 `loadItemStats()`로 fetch하여 채우는 방식
+- 변경: 변수 선언 제거, `data/*.js` script 로드 시 이미 전역 변수로 선언되므로 별도 선언 불필요
+- `ACCESSORY_ITEM_STATS`, `SPECIAL_ITEM_STATS` 빈 객체 선언만 유지 (미구현 데이터)
+- `loadItemStats()` 함수 제거
+
+**4. `index.html` script 태그 추가**
+
+- 기존 공유 데이터 script 태그 앞에 아이템 데이터 3개 추가
+
+```html
+<!-- 아이템 데이터 (file:// 환경 지원을 위해 JS로 인라인) -->
+<script src="data/armor.js"></script>
+<script src="data/armor_set_effects.js"></script>
+<script src="data/exceed_unique_effects.js"></script>
+```
+
+---

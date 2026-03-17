@@ -222,9 +222,9 @@ document.addEventListener('change', function (e) {
  */
 document.addEventListener('DOMContentLoaded', () => {
     // 아이템 데이터 JSON 로드(data 에 있는 장비 정보 로드)
-    // if (typeof loadItemStats === 'function') {
-    //     loadItemStats().catch(err => console.warn('아이템 데이터 로드 실패:', err));
-    // }
+    if (typeof loadItemStats === 'function') {
+        loadItemStats().catch(err => console.warn('아이템 데이터 로드 실패:', err));
+    }
 
     const overlay = document.getElementById('modalOverlay');
 

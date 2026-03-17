@@ -557,6 +557,10 @@ function displayComparison() {
 
     sections.forEach(s => container.appendChild(s));
 
+    // 방어구 스탯 비교 표 (맨 아래)
+    const armorStatEl = buildArmorStatCompare(section1, section2, displayName1, displayName2);
+    container.appendChild(armorStatEl);
+
     // DOM에 추가된 후 행 높이 동기화
     requestAnimationFrame(() => {
         sections.forEach(s => {
@@ -566,6 +570,174 @@ function displayComparison() {
             }
         });
     });
+}
+
+/**
+ * 방어구 부위별 스탯 비교 표
+ */
+function buildArmorStatCompare(section1, section2, name1, name2) {
+    const ARMOR_SLOTS = ["상의", "어깨", "하의", "신발", "벨트"];
+
+    // shared_item_stats.js에 인라인으로 정의된 데이터 사용 (fetch 불필요)
+    const armorData = (typeof ARMOR_ITEM_STATS !== 'undefined') ? ARMOR_ITEM_STATS : {};
+
+    // 슬롯에서 스탯 배열 추출 헬퍼
+    // exceed 아이템: base[exceedStage][prefix], eff[prefix], mastery[prefix]
+    // 일반 아이템:   base[prefix],              eff[prefix], mastery[prefix]
+    function getArmorStats(section, slot) {
+        const itemname = section.querySelector(`[data-key="${slot}_itemname"]`)?.value || '';
+        const exceed   = section.querySelector(`select[data-key="${slot}_exceed"]`)?.value || '';
+        const prefix   = section.querySelector(`select[data-key="${slot}_prefix"]`)?.value || '';
+        if (!itemname || !armorData[itemname]) return { itemname, exceed, prefix, stats: null };
+
+        const item = armorData[itemname];
+        let baseArr, effArr, masteryArr;
+
+        if (item.exceed) {
+            // exceed 아이템: exceedStage = exceed 값(이상/선봉/의지), prefixKey = prefix(전격/허상)
+            const exceedStage = exceed || '이상';
+            const prefixKey   = prefix || '전격';
+            baseArr    = item.base?.[exceedStage]?.[prefixKey]  || [];
+            effArr     = item.eff?.[prefixKey]                   || [];
+            masteryArr = item.mastery?.[prefixKey]               || [];
+        } else {
+            // 일반 아이템: prefix = 기본/전격/허상
+            const prefixKey = prefix || '기본';
+            baseArr    = item.base?.[prefixKey]    || [];
+            effArr     = item.eff?.[prefixKey]     || [];
+            masteryArr = item.mastery?.[prefixKey] || [];
+        }
+
+        // stats 배열 → { [스탯명]: amount } 맵으로 변환
+        const map = {};
+        const addToMap = (arr, section) => {
+            arr.forEach(entry => {
+                (entry.stats || []).forEach(statName => {
+                    const key = `[${section}] ${statName}`;
+                    map[key] = (map[key] || 0) + (entry.amount || 0);
+                });
+            });
+        };
+        addToMap(baseArr,    '기본효과');
+        addToMap(effArr,     '효과');
+        addToMap(masteryArr, '방어구 마스터리');
+
+        return { itemname, exceed, prefix, stats: map };
+    }
+
+    // 두 캐릭터의 모든 스탯 키 합집합
+    const slotResults1 = {};
+    const slotResults2 = {};
+    ARMOR_SLOTS.forEach(slot => {
+        slotResults1[slot] = getArmorStats(section1, slot);
+        slotResults2[slot] = getArmorStats(section2, slot);
+    });
+
+    // 표 HTML 생성
+    const diffStyle = (d) => d > 0 ? 'color:#2ecc71;font-weight:bold;' : d < 0 ? 'color:#e74c3c;font-weight:bold;' : 'color:#888;';
+    const fmtDiff   = (d) => d > 0 ? `↑ +${d}` : d < 0 ? `↓ ${d}` : '-';
+
+    let tbodyHtml = '';
+
+    ARMOR_SLOTS.forEach((slot, slotIdx) => {
+        const r1 = slotResults1[slot];
+        const r2 = slotResults2[slot];
+
+        // 슬롯 구분선 (첫 슬롯 제외)
+        if (slotIdx > 0) {
+            tbodyHtml += `<tr><td colspan="5" style="padding:0;border-top:1px solid #2a3158;"></td></tr>`;
+        }
+
+        const noData1 = !r1.stats;
+        const noData2 = !r2.stats;
+
+        if (noData1 && noData2) {
+            // 아이템 없음 또는 데이터 없음
+            const label1 = r1.itemname || '(미착용)';
+            const label2 = r2.itemname || '(미착용)';
+            tbodyHtml += `<tr>
+                <td style="text-align:center;padding:3px 8px;color:#aaa;font-size:0.85em;white-space:nowrap;font-weight:bold;">${slot}</td>
+                <td style="text-align:center;padding:3px 8px;color:#555;font-size:0.8em;" colspan="2">${label1}</td>
+                <td style="text-align:center;padding:3px 8px;color:#555;font-size:0.8em;" colspan="2">${label2}</td>
+            </tr>`;
+            return;
+        }
+
+        // 이 슬롯에 등장하는 모든 스탯 키
+        const allKeys = [...new Set([
+            ...Object.keys(r1.stats || {}),
+            ...Object.keys(r2.stats || {})
+        ])];
+
+        // 섹션 순서: 기본효과 → 효과 → 방어구 마스터리, 각 섹션 내 순서는 json 정의 순서 유지
+        const sectionOrder = ['[기본효과]', '[효과]', '[방어구 마스터리]'];
+        allKeys.sort((a, b) => {
+            const sa = sectionOrder.findIndex(s => a.startsWith(s));
+            const sb = sectionOrder.findIndex(s => b.startsWith(s));
+            return sa - sb;
+        });
+
+        // 슬롯 헤더 행 (아이템명 + 익시드/접두어 표시)
+        const itemLabel1 = r1.itemname
+            ? `${r1.itemname}${r1.exceed ? ` [${r1.exceed}]` : ''}${r1.prefix ? ` ${r1.prefix}` : ''}`
+            : '(미착용)';
+        const itemLabel2 = r2.itemname
+            ? `${r2.itemname}${r2.exceed ? ` [${r2.exceed}]` : ''}${r2.prefix ? ` ${r2.prefix}` : ''}`
+            : '(미착용)';
+
+        tbodyHtml += `<tr>
+            <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;">${slot}</td>
+            <td style="text-align:left;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${itemLabel1}</td>
+            <td style="text-align:right;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${itemLabel2}</td>
+        </tr>`;
+
+        allKeys.forEach(key => {
+            const v1 = r1.stats?.[key] ?? 0;
+            const v2 = r2.stats?.[key] ?? 0;
+            const diff = v2 - v1;
+            const highlight = (v1 !== v2) ? 'background:rgba(100,114,168,0.12);' : '';
+            // 키에서 섹션 태그 제거하여 표시
+            const displayKey = key.replace(/^\[기본효과\] |^\[효과\] |^\[방어구 마스터리\] /, '');
+            const sectionTag = key.match(/^\[(.+?)\]/)?.[1] || '';
+            const tagColor = sectionTag === '기본효과' ? '#7a9fcf' : sectionTag === '효과' ? '#a0d4a0' : '#c8a0d4';
+
+            tbodyHtml += `<tr style="${highlight}">
+                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;">${sectionTag}</td>
+                <td style="text-align:left;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${displayKey}</td>
+                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;">${v1 !== 0 ? v1 : ''}</td>
+                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;${diffStyle(diff)}">${fmtDiff(diff)}</td>
+                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;">${v2 !== 0 ? v2 : ''}</td>
+            </tr>`;
+        });
+    });
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'compare-section-wrapper';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'compare-section-title';
+    titleEl.textContent = '*방어구 스탯 비교*';
+    wrapper.appendChild(titleEl);
+
+    const tableWrap = document.createElement('div');
+    tableWrap.style.cssText = 'overflow-x:auto;margin-top:6px;';
+
+    tableWrap.innerHTML = `
+    <table style="border-collapse:collapse;width:100%;min-width:480px;">
+        <thead>
+            <tr>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:90px;">구분</th>
+                <th style="padding:4px 8px;text-align:left;white-space:nowrap;font-size:0.8em;">스탯</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;">${name1}</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;">차이</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;">${name2}</th>
+            </tr>
+        </thead>
+        <tbody>${tbodyHtml}</tbody>
+    </table>`;
+
+    wrapper.appendChild(tableWrap);
+    return wrapper;
 }
 
 /**

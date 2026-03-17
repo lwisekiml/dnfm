@@ -1,4 +1,5 @@
-{
+// armor.js - 방어구 아이템 스탯 데이터
+const ARMOR_ITEM_STATS = {
     "못말리는 말괄량이의 가죽 자켓": {
         "exceed": true,
         "info": {
@@ -382,4 +383,4 @@
             ]
         }
     }
-}
+};
