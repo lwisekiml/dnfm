@@ -1,171 +1,61 @@
-# 🛡️ RPG 통합 장비 관리 시스템
+# 🛡️ 던파 모바일 시즌5 캐릭터 관리
 
 > **던전앤파이터 모바일 (DNFM)** 캐릭터 장비 관리 웹 애플리케이션
-
-[![Tests](https://img.shields.io/badge/tests-106%20passed-brightgreen)]()
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)]()
-[![License](https://img.shields.io/badge/license-MIT-blue)]()
-
----
-
-## ✨ 주요 기능
-
-### 🎮 캐릭터 관리
-- ✅ **다중 캐릭터 지원** - 무제한 캐릭터 생성 및 관리
-- ✅ **실시간 자동 저장** - localStorage 기반 자동 백업
-- ✅ **JSON 내보내기/불러오기** - 데이터 백업 및 복원
-- ✅ **캐릭터 잠금/해제** - 실수로 수정 방지
-
-### ⚔️ 장비 관리
-- ✅ **18개 슬롯** - 무기, 방어구, 악세서리, 특수장비, 칭호 등
-- ✅ **희귀도 시스템** - 에픽/유니크/레어/언커먼/커먼/티어
-- ✅ **익시드 등급** - 이상/선봉/의지
-- ✅ **접두어 12종** - 전격/허상/작열/침식 등
-- ✅ **마법봉인** - 고유/일반 옵션 2가지
-- ✅ **엠블렘** - 2개 슬롯 (색상별 그라디언트)
-- ✅ **마법부여** - 슬롯별 기본값 자동 입력
-- ✅ **강화 수치** - +0 ~ +13
-
-### 💎 스킬룬 시스템
-- ✅ **20개 룬 슬롯** - 각성/가호/수호 등 38종 룬
-- ✅ **룬 레벨** - I/II/III/IV
-- ✅ **스킬 레벨** - 0~65 단계
-- ✅ **각인 시스템** - 메인 미표시/표시 50%
-- ✅ **일괄 설정** - 룬 이름/레벨/스킬레벨 한 번에 설정
-
-### 🐲 크리쳐 아티팩트
-- ✅ **3색 아티팩트** - Red/Blue/Green
-- ✅ **각 색상별 3줄** - 상단 텍스트 + 옵션 2개
-- ✅ **희귀도별 배경색** - 그라디언트 효과
-- ✅ **옵션 선택** - 힘/지능/HP/물리공격력 등
-
-### ⚖️ 비교 모드
-- ✅ **2개 캐릭터 비교** - 좌우 선택 및 비교
-- ✅ **4가지 비교 테이블** - 장비/봉인/엠블렘/마법부여
-- ✅ **차이값 표시** - 강화 수치 차이 계산
-- ✅ **색상 하이라이트** - 증가(녹색)/감소(빨간색)/동일(회색)
-
-### 🎨 스타일 시스템
-- ✅ **희귀도별 색상** - 자동 색상 동기화
-- ✅ **세트 효과 강조** - 3셋 이상 시 청록색 표시
-- ✅ **엠블렘 배경** - 5색 그라디언트
-- ✅ **접두어 색상** - 무기 4색 (파랑/빨강/초록/노랑)
-- ✅ **속강/스탯 하이라이트** - 선택한 속성 노란색 강조
-
-### 📜 히스토리
-- ✅ **변경 기록 10개** - 최근 수정 내역 추적
-- ✅ **시간 기록** - 변경 시각 표시
-- ✅ **Before/After** - 이전값 → 새로운값
-
----
-
-## 🚀 빠른 시작
-
-### 1. 프로젝트 클론
-
-```bash
-git clone https://github.com/your-username/rpg-equipment-manager.git
-cd rpg-equipment-manager
-```
-
-### 2. 로컬 서버 실행
-
-```bash
-# Python 3
-python -m http.server 8000
-
-# 또는 Node.js
-npx http-server -p 8000
-```
-
-### 3. 브라우저에서 열기
-
-```
-http://localhost:8000
-```
-
----
-
-## 📦 설치 (테스트용)
-
-### 기본 사용
-별도 설치 필요 없음! 브라우저에서 바로 실행 가능합니다.
-
-### 테스트 실행 (선택)
-
-```bash
-# 의존성 설치
-npm install
-
-# 또는 Playwright만
-npm run install:playwright
-
-# 또는 Cypress만
-npm run install:cypress
-```
-
----
-
-## 🧪 테스트
-
-### 테스트 현황
-- ✅ **단위 테스트:** 49개
-- ✅ **통합 테스트:** 35개
-- ✅ **E2E 테스트:** 22개
-- ✅ **총 테스트:** **106개 전체 통과**
-
-### 빠른 실행
-
-```bash
-# 로컬 서버 실행
-npm run serve
-
-# Playwright 테스트
-npm run test:playwright
-
-# Cypress GUI
-npm run test:cypress:open
-
-# 모든 E2E 테스트
-npm run test:e2e
-```
-
-### 상세 가이드
-자세한 테스트 가이드는 [README-TEST.md](./README-TEST.md)를 참고하세요.
-
----
 
 ## 📂 프로젝트 구조
 
 ```
-rpg-equipment-manager/
-├── index.html                      # 메인 애플리케이션
-├── css/                            # 스타일시트
-│   └── styles.css                 # 메인 CSS (CSS 변수, 반응형)
-├── js/                             # JavaScript 소스
-│   ├── constants.js               # 상수 정의
-│   ├── data.js                    # 게임 데이터 (아이템, 세트)
-│   ├── state.js                   # 애플리케이션 상태 관리
-│   ├── utils.js                   # 유틸리티 함수
-│   ├── storage.js                 # 저장/불러오기
-│   ├── ui-core.js                 # 핵심 UI 기능
-│   ├── ui-character.js            # 캐릭터 관리 UI
-│   ├── ui-rune.js                 # 스킬룬 모달
-│   ├── ui-modal.js                # 일반 모달
-│   ├── ui-compare.js              # 비교 모드
-│   ├── ui-templates.js            # HTML 템플릿 헬퍼
-│   └── main.js                    # 메인 초기화
-├── test/                           # 테스트 파일
-│   ├── test-unit.html             # 단위 테스트 (49개)
-│   ├── test-integration.html      # 통합 테스트 (35개)
-│   ├── test-e2e-javascript.html   # E2E JavaScript (4개)
-│   ├── test-e2e-playwright.spec.js # E2E Playwright (8개)
-│   └── test-e2e-cypress.cy.js     # E2E Cypress (10개)
-├── cypress/                        # Cypress 설정
-├── package.json                    # npm 설정 및 스크립트
-├── README.md                       # 이 파일
-├── README-TEST.md                  # 테스트 가이드
-└── QUICK-START.md                  # 빠른 시작 가이드
+project/
+├── index.html
+├── dev-log.md
+├── README.md
+├── data/
+│   ├── accessory.json
+│   ├── armor.json
+│   ├── armor_set_effects.json
+│   ├── exceed_effects.json
+│   ├── exceed_unique_effects.json
+│   └── special.json
+├── images/
+│   ├── ACCESSORY/
+│   ├── ARMOR/
+│   ├── SPECIAL/
+│   ├── WEAPON/
+│   ├── appearanceTitle/
+│   ├── aura/
+│   ├── craftMaterials/
+│   ├── title/
+│   └── 제작/
+├── js/
+│   ├── main.js
+│   ├── state.js
+│   ├── storage.js
+│   ├── ui-character.js
+│   ├── ui-compare.js
+│   ├── ui-core.js
+│   ├── ui-memo-tag.js
+│   ├── ui-modal.js
+│   ├── ui-rune.js
+│   ├── ui-search.js
+│   ├── ui-tag-filter.js
+│   ├── ui-templates.js
+│   └── utils.js
+├── scripts/
+│   ├── eq_character.js
+│   ├── eq_core.js
+│   ├── eq_data.js
+│   ├── eq_equipment.js
+│   ├── eq_main.js
+│   └── eq_weapon.js
+├── shared/
+│   ├── shared_constants.js
+│   ├── shared_data.js
+│   ├── shared_item_stats.js
+│   └── shared_weapon.js
+└── styles/
+    ├── eq_main.css
+    ├── merged.css
+    └── styles.css
 ```
 
 ### 파일 설명
