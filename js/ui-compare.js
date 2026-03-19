@@ -557,9 +557,13 @@ function displayComparison() {
 
     sections.forEach(s => container.appendChild(s));
 
-    // 방어구 스탯 비교 표 (맨 아래)
+    // 방어구 스탯 비교 표
     const armorStatEl = buildArmorStatCompare(section1, section2, displayName1, displayName2);
     container.appendChild(armorStatEl);
+
+    // 방어구 세트 효과 비교 표 (맨 아래)
+    const armorSetEffectEl = buildArmorSetEffectCompare(section1, section2, displayName1, displayName2);
+    container.appendChild(armorSetEffectEl);
 
     // DOM에 추가된 후 행 높이 동기화
     requestAnimationFrame(() => {
@@ -608,13 +612,14 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
             masteryArr = item.mastery?.[prefixKey] || [];
         }
 
-        // stats 배열 → { [스탯명]: amount } 맵으로 변환
+        // stats 배열 → { [스탯명]: { amount, unit } } 맵으로 변환
         const map = {};
         const addToMap = (arr, section) => {
             arr.forEach(entry => {
                 (entry.stats || []).forEach(statName => {
                     const key = `[${section}] ${statName}`;
-                    map[key] = (map[key] || 0) + (entry.amount || 0);
+                    if (!map[key]) map[key] = { amount: 0, unit: entry.unit || '' };
+                    map[key].amount += (entry.amount || 0);
                 });
             });
         };
@@ -645,7 +650,7 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
 
         // 슬롯 구분선 (첫 슬롯 제외)
         if (slotIdx > 0) {
-            tbodyHtml += `<tr><td colspan="5" style="padding:0;border-top:1px solid #2a3158;"></td></tr>`;
+            tbodyHtml += `<tr><td colspan="7" style="padding:0;border-top:1px solid #2a3158;"></td></tr>`;
         }
 
         const noData1 = !r1.stats;
@@ -656,9 +661,9 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
             const label1 = r1.itemname || '(미착용)';
             const label2 = r2.itemname || '(미착용)';
             tbodyHtml += `<tr>
-                <td style="text-align:center;padding:3px 8px;color:#aaa;font-size:0.85em;white-space:nowrap;font-weight:bold;">${slot}</td>
-                <td style="text-align:center;padding:3px 8px;color:#555;font-size:0.8em;" colspan="2">${label1}</td>
-                <td style="text-align:center;padding:3px 8px;color:#555;font-size:0.8em;" colspan="2">${label2}</td>
+                <td style="text-align:center;padding:3px 8px;color:#aaa;font-size:0.85em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;">${slot}</td>
+                <td style="text-align:center;padding:3px 8px;color:#555;font-size:0.8em;" colspan="3">${label1}</td>
+                <td style="text-align:center;padding:3px 8px;color:#555;font-size:0.8em;" colspan="3">${label2}</td>
             </tr>`;
             return;
         }
@@ -686,14 +691,19 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
             : '(미착용)';
 
         tbodyHtml += `<tr>
-            <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;">${slot}</td>
+            <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;">${slot}</td>
             <td style="text-align:left;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${itemLabel1}</td>
+            <td style="text-align:center;padding:3px 8px;color:#888;font-size:0.78em;white-space:nowrap;">vs</td>
             <td style="text-align:right;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${itemLabel2}</td>
+            <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;border-left:1px solid #2a3158;">${slot}</td>
         </tr>`;
 
         allKeys.forEach(key => {
-            const v1 = r1.stats?.[key] ?? 0;
-            const v2 = r2.stats?.[key] ?? 0;
+            const e1 = r1.stats?.[key];
+            const e2 = r2.stats?.[key];
+            const v1 = e1?.amount ?? 0;
+            const v2 = e2?.amount ?? 0;
+            const unit = e1?.unit || e2?.unit || '';
             const diff = v2 - v1;
             const highlight = (v1 !== v2) ? 'background:rgba(100,114,168,0.12);' : '';
             // 키에서 섹션 태그 제거하여 표시
@@ -701,12 +711,29 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
             const sectionTag = key.match(/^\[(.+?)\]/)?.[1] || '';
             const tagColor = sectionTag === '기본효과' ? '#7a9fcf' : sectionTag === '효과' ? '#a0d4a0' : '#c8a0d4';
 
+            const display1 = v1 !== 0 ? `${v1}${unit}` : '';
+            const display2 = v2 !== 0 ? `${v2}${unit}` : '';
+
+            let diffText = '';
+            let diffStyle2 = 'color:#888;';
+            if (v1 !== 0 && v2 !== 0) {
+                if (diff > 0) { diffText = `↑ +${diff}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;'; }
+                else if (diff < 0) { diffText = `↓ ${diff}${unit}`; diffStyle2 = 'color:#e74c3c;font-weight:bold;'; }
+                else { diffText = '동일'; diffStyle2 = 'color:#888;'; }
+            } else if (v1 === 0 && v2 !== 0) {
+                diffText = `↑ +${v2}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;';
+            } else if (v1 !== 0 && v2 === 0) {
+                diffText = `↓ -${v1}${unit}`; diffStyle2 = 'color:#e74c3c;font-weight:bold;';
+            }
+
             tbodyHtml += `<tr style="${highlight}">
-                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;">${sectionTag}</td>
-                <td style="text-align:left;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${displayKey}</td>
-                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;">${v1 !== 0 ? v1 : ''}</td>
-                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;${diffStyle(diff)}">${fmtDiff(diff)}</td>
-                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;">${v2 !== 0 ? v2 : ''}</td>
+                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${v1 !== 0 ? sectionTag : ''}</td>
+                <td style="text-align:left;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v1 !== 0 ? displayKey : ''}</td>
+                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle2}">${diffText}</td>
+                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
+                <td style="text-align:left;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v2 !== 0 ? displayKey : ''}</td>
+                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${v2 !== 0 ? sectionTag : ''}</td>
             </tr>`;
         });
     });
@@ -723,14 +750,337 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
     tableWrap.style.cssText = 'overflow-x:auto;margin-top:6px;';
 
     tableWrap.innerHTML = `
-    <table style="border-collapse:collapse;width:100%;min-width:480px;">
+    <table style="border-collapse:collapse;width:max-content;min-width:400px;">
         <thead>
             <tr>
-                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:90px;">구분</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">구분</th>
                 <th style="padding:4px 8px;text-align:left;white-space:nowrap;font-size:0.8em;">스탯</th>
-                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;">${name1}</th>
-                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;">차이</th>
-                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;">${name2}</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;width:100px;border-right:1px solid #2a3158;">${name1}</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">차이</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;width:100px;border-right:1px solid #2a3158;">${name2}</th>
+                <th style="padding:4px 8px;text-align:left;white-space:nowrap;font-size:0.8em;">스탯</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-left:1px solid #2a3158;">구분</th>
+            </tr>
+        </thead>
+        <tbody>${tbodyHtml}</tbody>
+    </table>`;
+
+    wrapper.appendChild(tableWrap);
+    return wrapper;
+}
+
+/**
+ * 방어구 세트 효과 비교 표
+ */
+function buildArmorSetEffectCompare(section1, section2, name1, name2) {
+    const ARMOR_SLOTS = ["상의", "어깨", "하의", "신발", "벨트"];
+
+    // armor_set_effects.js 데이터 사용
+    const setEffectsData = (typeof ARMOR_SET_EFFECTS !== 'undefined') ? ARMOR_SET_EFFECTS : {};
+
+    /**
+     * 캐릭터의 방어구 세트 효과 계산
+     * @returns { setName, prefix, count, effects3, effects5 }
+     */
+    function getArmorSetEffects(section) {
+        const equipped = {};
+
+        // 1. 각 슬롯의 아이템명, 접두어, 익시드 정보 수집
+        ARMOR_SLOTS.forEach(slot => {
+            const itemname = section.querySelector(`[data-key="${slot}_itemname"]`)?.value || '';
+            const prefix   = section.querySelector(`select[data-key="${slot}_prefix"]`)?.value || '';
+            const exceed   = section.querySelector(`select[data-key="${slot}_exceed"]`)?.value || '';
+
+            if (itemname) {
+                equipped[slot] = { itemname, prefix, exceed };
+            }
+        });
+
+        // 2. 세트별로 그룹화 (ARMOR_ITEM_INFO 사용)
+        const armorItemInfo = (typeof ARMOR_ITEM_INFO !== 'undefined') ? ARMOR_ITEM_INFO : {};
+        const setSets = {}; // { setName: { prefix: count } }
+
+        Object.values(equipped).forEach(({ itemname, prefix }) => {
+            const info = armorItemInfo[itemname];
+            if (!info) return;
+
+            const setName = info.setName;
+            if (!setSets[setName]) setSets[setName] = {};
+
+            // 접두어가 있으면 접두어로, 없으면 "기본"으로 카운트
+            const key = prefix || "기본";
+            setSets[setName][key] = (setSets[setName][key] || 0) + 1;
+        });
+
+        // 3. 세트 효과 판정 (접두어 우선, 없으면 기본)
+        let bestSet = null;
+        let bestPrefix = null;
+        let bestCount = 0;
+        let effects3 = null;
+        let effects5 = null;
+
+        // 모든 세트에서 가장 많은 개수를 찾기
+        Object.entries(setSets).forEach(([setName, prefixCounts]) => {
+            Object.entries(prefixCounts).forEach(([prefix, count]) => {
+                // 접두어가 있는 것 우선, 같은 개수면 접두어 우선
+                if (count > bestCount) {
+                    bestSet = setName;
+                    bestPrefix = prefix;
+                    bestCount = count;
+                } else if (count === bestCount && prefix !== "기본" && bestPrefix === "기본") {
+                    // 같은 개수인데 현재가 접두어고 기존이 기본이면 교체
+                    bestSet = setName;
+                    bestPrefix = prefix;
+                    bestCount = count;
+                }
+            });
+        });
+
+        // 4. 세트 효과 데이터 가져오기
+        if (bestSet && bestCount >= 3) {
+            const setData = setEffectsData[bestSet];
+            if (setData && setData[bestPrefix]) {
+                effects3 = setData[bestPrefix]["3"];
+                if (bestCount >= 5) {
+                    effects5 = setData[bestPrefix]["5"];
+                }
+            }
+        }
+
+        return {
+            setName: bestSet,
+            prefix: bestPrefix,
+            count: bestCount,
+            effects3,
+            effects5
+        };
+    }
+
+    const result1 = getArmorSetEffects(section1);
+    const result2 = getArmorSetEffects(section2);
+
+    // 표 HTML 생성
+    const wrapper = document.createElement('div');
+    wrapper.className = 'compare-section-wrapper';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'compare-section-title';
+    titleEl.textContent = '*방어구 세트 효과 비교*';
+    wrapper.appendChild(titleEl);
+
+    const tableWrap = document.createElement('div');
+    tableWrap.style.cssText = 'overflow-x:auto;margin-top:6px;';
+
+    let tbodyHtml = '';
+
+    // 캐릭터1 세트 정보
+    const set1Label = result1.setName
+        ? `${result1.setName} ${result1.prefix ? result1.prefix : ''} (${result1.count}셋)`
+        : '세트 없음';
+    const set2Label = result2.setName
+        ? `${result2.setName} ${result2.prefix ? result2.prefix : ''} (${result2.count}셋)`
+        : '세트 없음';
+
+    tbodyHtml += `<tr>
+        <td style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;" colspan="3">${set1Label}</td>
+        <td style="text-align:center;padding:6px 8px;color:#888;font-size:0.85em;border-right:1px solid #2a3158;" colspan="1">vs</td>
+        <td style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;white-space:nowrap;font-weight:bold;" colspan="3">${set2Label}</td>
+    </tr>`;
+
+    // 3세트 효과 비교 (스탯별로 한 줄씩)
+    const has3Set1 = result1.count >= 3 && result1.effects3;
+    const has3Set2 = result2.count >= 3 && result2.effects3;
+
+    if (has3Set1 || has3Set2) {
+        const stats1 = result1.effects3?.stats || [];
+        const stats2 = result2.effects3?.stats || [];
+
+        // stats 배열을 { "스탯명": { amount, unit } } 맵으로 변환
+        const statMap1 = {};
+        const statMap2 = {};
+
+        stats1.forEach(entry => {
+            entry.stats.forEach(statName => {
+                statMap1[statName] = { amount: entry.amount, unit: entry.unit };
+            });
+        });
+
+        stats2.forEach(entry => {
+            entry.stats.forEach(statName => {
+                statMap2[statName] = { amount: entry.amount, unit: entry.unit };
+            });
+        });
+
+        // 모든 스탯명 합집합
+        const allStatNames = [...new Set([...Object.keys(statMap1), ...Object.keys(statMap2)])];
+
+        // 3세트 헤더
+        tbodyHtml += `<tr style="background:rgba(127,212,255,0.15);">
+            <td colspan="7" style="text-align:center;padding:6px 8px;color:#7fd4ff;font-size:0.9em;font-weight:bold;">━━━ 3세트 효과 ━━━</td>
+        </tr>`;
+
+        if (allStatNames.length === 0) {
+            tbodyHtml += `<tr>
+                <td colspan="7" style="text-align:center;padding:8px;color:#888;font-size:0.85em;">3세트 효과 데이터 없음</td>
+            </tr>`;
+        } else {
+            allStatNames.forEach(statName => {
+                const val1 = statMap1[statName];
+                const val2 = statMap2[statName];
+
+                const display1 = val1 ? `${val1.amount}${val1.unit}` : '';
+                const display2 = val2 ? `${val2.amount}${val2.unit}` : '';
+
+                let diffText = '';
+                let diffClass = 'color:#888;';
+
+                if (val1 && val2) {
+                    if (val1.amount === val2.amount && val1.unit === val2.unit) {
+                        diffText = '동일';
+                        diffClass = 'color:#888;';
+                    } else {
+                        const diff = val2.amount - val1.amount;
+                        if (diff > 0) {
+                            diffText = `↑ +${diff}${val2.unit}`;
+                            diffClass = 'color:#2ecc71;font-weight:bold;';
+                        } else if (diff < 0) {
+                            diffText = `↓ ${diff}${val2.unit}`;
+                            diffClass = 'color:#e74c3c;font-weight:bold;';
+                        } else {
+                            diffText = '동일';
+                            diffClass = 'color:#888;';
+                        }
+                    }
+                } else if (!val1 && val2) {
+                    diffText = `↑ +${val2.amount}${val2.unit}`;
+                    diffClass = 'color:#2ecc71;font-weight:bold;';
+                } else if (val1 && !val2) {
+                    diffText = `↓ -${val1.amount}${val1.unit}`;
+                    diffClass = 'color:#e74c3c;font-weight:bold;';
+                }
+
+                const highlight = (display1 !== display2)
+                    ? 'background:rgba(100,114,168,0.12);' : '';
+
+                tbodyHtml += `<tr style="${highlight}">
+                    <td style="text-align:center;padding:2px 6px;color:#7fd4ff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">3세트</td>
+                    <td style="text-align:left;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val1 ? statName : ''}</td>
+                    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+                    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffClass}">${diffText}</td>
+                    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
+                    <td style="text-align:left;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val2 ? statName : ''}</td>
+                    <td style="text-align:center;padding:2px 6px;color:#7fd4ff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">3세트</td>
+                </tr>`;
+            });
+        }
+    }
+
+    // 5세트 효과 비교 (스탯별로 한 줄씩)
+    const has5Set1 = result1.count >= 5 && result1.effects5;
+    const has5Set2 = result2.count >= 5 && result2.effects5;
+
+    if (has5Set1 || has5Set2) {
+        const stats1 = result1.effects5?.stats || [];
+        const stats2 = result2.effects5?.stats || [];
+
+        // stats 배열을 { "스탯명": { amount, unit } } 맵으로 변환
+        const statMap1 = {};
+        const statMap2 = {};
+
+        stats1.forEach(entry => {
+            entry.stats.forEach(statName => {
+                statMap1[statName] = { amount: entry.amount, unit: entry.unit };
+            });
+        });
+
+        stats2.forEach(entry => {
+            entry.stats.forEach(statName => {
+                statMap2[statName] = { amount: entry.amount, unit: entry.unit };
+            });
+        });
+
+        // 모든 스탯명 합집합
+        const allStatNames = [...new Set([...Object.keys(statMap1), ...Object.keys(statMap2)])];
+
+        // 5세트 헤더
+        tbodyHtml += `<tr style="background:rgba(255,215,0,0.15);">
+            <td colspan="7" style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;font-weight:bold;">━━━ 5세트 효과 ━━━</td>
+        </tr>`;
+
+        if (allStatNames.length === 0) {
+            tbodyHtml += `<tr>
+                <td colspan="7" style="text-align:center;padding:8px;color:#888;font-size:0.85em;">5세트 효과 데이터 없음</td>
+            </tr>`;
+        } else {
+            allStatNames.forEach(statName => {
+                const val1 = statMap1[statName];
+                const val2 = statMap2[statName];
+
+                const display1 = val1 ? `${val1.amount}${val1.unit}` : '';
+                const display2 = val2 ? `${val2.amount}${val2.unit}` : '';
+
+                let diffText = '';
+                let diffClass = 'color:#888;';
+
+                if (val1 && val2) {
+                    if (val1.amount === val2.amount && val1.unit === val2.unit) {
+                        diffText = '동일';
+                        diffClass = 'color:#888;';
+                    } else {
+                        const diff = val2.amount - val1.amount;
+                        if (diff > 0) {
+                            diffText = `↑ +${diff}${val2.unit}`;
+                            diffClass = 'color:#2ecc71;font-weight:bold;';
+                        } else if (diff < 0) {
+                            diffText = `↓ ${diff}${val2.unit}`;
+                            diffClass = 'color:#e74c3c;font-weight:bold;';
+                        } else {
+                            diffText = '동일';
+                            diffClass = 'color:#888;';
+                        }
+                    }
+                } else if (!val1 && val2) {
+                    diffText = `↑ +${val2.amount}${val2.unit}`;
+                    diffClass = 'color:#2ecc71;font-weight:bold;';
+                } else if (val1 && !val2) {
+                    diffText = `↓ -${val1.amount}${val1.unit}`;
+                    diffClass = 'color:#e74c3c;font-weight:bold;';
+                }
+
+                const highlight = (display1 !== display2)
+                    ? 'background:rgba(100,114,168,0.12);' : '';
+
+                tbodyHtml += `<tr style="${highlight}">
+                    <td style="text-align:center;padding:2px 6px;color:#ffd700;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">5세트</td>
+                    <td style="text-align:left;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val1 ? statName : ''}</td>
+                    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+                    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffClass}">${diffText}</td>
+                    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
+                    <td style="text-align:left;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val2 ? statName : ''}</td>
+                    <td style="text-align:center;padding:2px 6px;color:#ffd700;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">5세트</td>
+                </tr>`;
+            });
+        }
+    }
+
+    // 세트 효과가 둘 다 없을 때
+    if (!result1.effects3 && !result2.effects3 && !result1.effects5 && !result2.effects5) {
+        tbodyHtml += `<tr>
+            <td colspan="7" style="text-align:center;padding:12px 8px;color:#888;font-size:0.85em;">세트 효과 없음</td>
+        </tr>`;
+    }
+
+    tableWrap.innerHTML = `
+    <table style="border-collapse:collapse;width:max-content;min-width:400px;">
+        <thead>
+            <tr>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">구분</th>
+                <th style="padding:4px 8px;text-align:left;white-space:nowrap;font-size:0.8em;">스탯</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;width:100px;border-right:1px solid #2a3158;">${name1}</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">차이</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;width:100px;border-right:1px solid #2a3158;">${name2}</th>
+                <th style="padding:4px 8px;text-align:left;white-space:nowrap;font-size:0.8em;">스탯</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-left:1px solid #2a3158;">구분</th>
             </tr>
         </thead>
         <tbody>${tbodyHtml}</tbody>
