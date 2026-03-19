@@ -5390,3 +5390,26 @@ container.appendChild(armorSetEffectEl);
   
 ---
 ---
+
+## 2026-03-19 (129차)
+
+### 1. 비교 - 방어구 스탯 비교 테이블 헤더 2행 구조로 개편
+- **파일:** `js/ui-compare.js`
+- **수정:** `buildArmorStatCompare` 함수
+  - thead 1행 → 2행 구조 변경
+    - 1행: `캐릭터이름(colspan=3) | 차이(rowspan=2) | 캐릭터이름(colspan=3)`
+    - 2행: `구분 | 스탯 | 수치 | | 수치 | 스탯 | 구분`
+  - 슬롯 구분선/noData 행 colspan 7→8
+  - 슬롯 헤더 행·스탯명 칸 `text-align:left/right` → `center`
+
+### 2. 비교 - 방어구 세트 효과 비교 테이블 헤더 2행 구조로 개편 (안내)
+- **파일:** `js/ui-compare.js`
+- **수정 위치 안내 (미적용):** `buildArmorSetEffectCompare` 함수
+  - thead 1행 → 2행 구조 변경 (1077~1084줄)
+  - 3세트 스탯명 칸 `text-align:left` → `center` (967, 971줄)
+  - 5세트 스탯명 칸 `text-align:left` → `center` (1055, 1059줄)
+  - colspan 7→8 변경 (923, 928, 1011, 1016줄)
+  
+---
+---
+

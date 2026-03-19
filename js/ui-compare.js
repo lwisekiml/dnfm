@@ -650,7 +650,7 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
 
         // 슬롯 구분선 (첫 슬롯 제외)
         if (slotIdx > 0) {
-            tbodyHtml += `<tr><td colspan="7" style="padding:0;border-top:1px solid #2a3158;"></td></tr>`;
+            tbodyHtml += `<tr><td colspan="8" style="padding:0;border-top:1px solid #2a3158;"></td></tr>`;
         }
 
         const noData1 = !r1.stats;
@@ -662,7 +662,8 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
             const label2 = r2.itemname || '(미착용)';
             tbodyHtml += `<tr>
                 <td style="text-align:center;padding:3px 8px;color:#aaa;font-size:0.85em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;">${slot}</td>
-                <td style="text-align:center;padding:3px 8px;color:#555;font-size:0.8em;" colspan="3">${label1}</td>
+                <td style="text-align:center;padding:3px 8px;color:#555;font-size:0.8em;" colspan="2">${label1}</td>
+                <td style="text-align:center;padding:3px 8px;color:#888;font-size:0.78em;">vs</td>
                 <td style="text-align:center;padding:3px 8px;color:#555;font-size:0.8em;" colspan="3">${label2}</td>
             </tr>`;
             return;
@@ -692,9 +693,9 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
 
         tbodyHtml += `<tr>
             <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;">${slot}</td>
-            <td style="text-align:left;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${itemLabel1}</td>
+            <td style="text-align:center;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${itemLabel1}</td>
             <td style="text-align:center;padding:3px 8px;color:#888;font-size:0.78em;white-space:nowrap;">vs</td>
-            <td style="text-align:right;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${itemLabel2}</td>
+            <td style="text-align:center;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${itemLabel2}</td>
             <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;border-left:1px solid #2a3158;">${slot}</td>
         </tr>`;
 
@@ -728,11 +729,11 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
 
             tbodyHtml += `<tr style="${highlight}">
                 <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${v1 !== 0 ? sectionTag : ''}</td>
-                <td style="text-align:left;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v1 !== 0 ? displayKey : ''}</td>
+                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v1 !== 0 ? displayKey : ''}</td>
                 <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
                 <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle2}">${diffText}</td>
                 <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
-                <td style="text-align:left;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v2 !== 0 ? displayKey : ''}</td>
+                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v2 !== 0 ? displayKey : ''}</td>
                 <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${v2 !== 0 ? sectionTag : ''}</td>
             </tr>`;
         });
@@ -753,13 +754,17 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
     <table style="border-collapse:collapse;width:max-content;min-width:400px;">
         <thead>
             <tr>
+                <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;border-right:1px solid #2a3158;">${name1}</th>
+                <th rowspan="2" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">차이</th>
+                <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;">${name2}</th>
+            </tr>
+            <tr>
                 <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">구분</th>
-                <th style="padding:4px 8px;text-align:left;white-space:nowrap;font-size:0.8em;">스탯</th>
-                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;width:100px;border-right:1px solid #2a3158;">${name1}</th>
-                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">차이</th>
-                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;width:100px;border-right:1px solid #2a3158;">${name2}</th>
-                <th style="padding:4px 8px;text-align:left;white-space:nowrap;font-size:0.8em;">스탯</th>
-                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-left:1px solid #2a3158;">구분</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:100px;border-right:1px solid #2a3158;">수치</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:100px;border-right:1px solid #2a3158;">수치</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;">구분</th>
             </tr>
         </thead>
         <tbody>${tbodyHtml}</tbody>
@@ -964,11 +969,11 @@ function buildArmorSetEffectCompare(section1, section2, name1, name2) {
 
                 tbodyHtml += `<tr style="${highlight}">
                     <td style="text-align:center;padding:2px 6px;color:#7fd4ff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">3세트</td>
-                    <td style="text-align:left;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val1 ? statName : ''}</td>
+                    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val1 ? statName : ''}</td>
                     <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
                     <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffClass}">${diffText}</td>
                     <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
-                    <td style="text-align:left;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val2 ? statName : ''}</td>
+                    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val2 ? statName : ''}</td>
                     <td style="text-align:center;padding:2px 6px;color:#7fd4ff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">3세트</td>
                 </tr>`;
             });
@@ -1052,11 +1057,11 @@ function buildArmorSetEffectCompare(section1, section2, name1, name2) {
 
                 tbodyHtml += `<tr style="${highlight}">
                     <td style="text-align:center;padding:2px 6px;color:#ffd700;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">5세트</td>
-                    <td style="text-align:left;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val1 ? statName : ''}</td>
+                    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val1 ? statName : ''}</td>
                     <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
                     <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffClass}">${diffText}</td>
                     <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
-                    <td style="text-align:left;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val2 ? statName : ''}</td>
+                    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val2 ? statName : ''}</td>
                     <td style="text-align:center;padding:2px 6px;color:#ffd700;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">5세트</td>
                 </tr>`;
             });
@@ -1072,17 +1077,21 @@ function buildArmorSetEffectCompare(section1, section2, name1, name2) {
 
     tableWrap.innerHTML = `
     <table style="border-collapse:collapse;width:max-content;min-width:400px;">
-        <thead>
-            <tr>
-                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">구분</th>
-                <th style="padding:4px 8px;text-align:left;white-space:nowrap;font-size:0.8em;">스탯</th>
-                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;width:100px;border-right:1px solid #2a3158;">${name1}</th>
-                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">차이</th>
-                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;width:100px;border-right:1px solid #2a3158;">${name2}</th>
-                <th style="padding:4px 8px;text-align:left;white-space:nowrap;font-size:0.8em;">스탯</th>
-                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-left:1px solid #2a3158;">구분</th>
-            </tr>
-        </thead>
+    <thead>
+        <tr>
+            <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;border-right:1px solid #2a3158;">${name1}</th>
+            <th rowspan="2" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">차이</th>
+            <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;">${name2}</th>
+        </tr>
+        <tr>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">구분</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:100px;border-right:1px solid #2a3158;">수치</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:100px;border-right:1px solid #2a3158;">수치</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;">구분</th>
+        </tr>
+    </thead>
         <tbody>${tbodyHtml}</tbody>
     </table>`;
 
