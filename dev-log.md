@@ -5370,3 +5370,23 @@ container.appendChild(armorSetEffectEl);
 
 ---
 ---
+
+## 2026-03-19 (128차)
+
+#### 캐릭터 관리 - 검색: 칭호/외형칭호/오라 아이템명 미표시 수정 및 칭호/외형칭호 설명 칸 통합
+- **파일:** `js/ui-search.js`
+- **원인:** 칭호·오라 슬롯의 아이템명이 `<input>` 대신 `<button>` 요소로 구현되어 있어, `.value` 접근 시 항상 빈 값 반환
+- **수정:** `getSlotDataForSearch` 함수에 슬롯별 전용 분기 추가
+  - 칭호: `button[data-key="칭호_itemname"]`의 `data-title-name` 속성에서 읽기
+  - 외형칭호: `input[data-key="외형칭호_itemname"]`의 `.value`로 명시적 처리
+  - 오라: `button[data-key="오라_itemname"]`의 `data-aura-name` 속성에서 읽기
+
+- **파일:** `js/ui-search.js`
+- **배경:** 검색 결과 테이블에서 칭호/외형칭호 각 행마다 설명 칸이 별도로 있어, 외형칭호 설명을 수정해도 저장되는 곳이 없는 문제 존재
+- **수정:** `createTitleSearchTable` 함수 수정
+  - 칭호 행의 설명 td에 `rowspan=2` 적용 → 칭호/외형칭호 2행이 설명 칸 1개를 공유 (기본 화면과 동일한 구조)
+  - 설명 편집은 칭호 데이터에만 연결, 외형칭호 행에는 설명 td 추가하지 않음
+  - 그룹화 기준을 `job(name)` 문자열 → `charId` 기준으로 변경 (동명이인 구분)
+  
+---
+---

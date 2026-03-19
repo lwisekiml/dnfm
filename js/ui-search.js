@@ -219,6 +219,71 @@ function getSlotDataForSearch(section, slot) {
         };
     }
 
+    // ─── 칭호: 버튼에서 이름 읽기 ───────────────────────────────────
+    if (slot === "칭호") {
+        const btn = section.querySelector('button[data-key="칭호_itemname"]');
+        return {
+            isSpecial: false,
+            rarity:      section.querySelector(`select[data-key="칭호_rarity"]`)?.value || '',
+            exceed:      '',
+            prefix:      '',
+            itemname:    btn ? (btn.getAttribute('data-title-name') || btn.textContent.trim() || '') : '',
+            reinforce:   '',
+            seal1:       '',
+            seal1_val:   '',
+            seal2:       '',
+            seal2_val:   '',
+            emb1:        section.querySelector(`[data-key="칭호_emb1"]`)?.value || '',
+            emb2:        section.querySelector(`[data-key="칭호_emb2"]`)?.value || '',
+            enchant:     section.querySelector(`input[data-key="칭호_enchant"]`)?.value || '',
+            enchant_val: section.querySelector(`input[data-key="칭호_enchant_val"]`)?.value || '',
+            desc:        section.querySelector(`[data-key="칭호_desc"]`)?.value || ''
+        };
+    }
+
+    // ─── 외형칭호: input에서 이름 읽기 (일반 input) ─────────────────
+    if (slot === "외형칭호") {
+        return {
+            isSpecial: false,
+            rarity:      section.querySelector(`select[data-key="외형칭호_rarity"]`)?.value || '',
+            exceed:      '',
+            prefix:      '',
+            itemname:    section.querySelector(`[data-key="외형칭호_itemname"]`)?.value || '',
+            reinforce:   '',
+            seal1:       '',
+            seal1_val:   '',
+            seal2:       '',
+            seal2_val:   '',
+            emb1:        '',
+            emb2:        '',
+            enchant:     '',
+            enchant_val: '',
+            desc:        ''
+        };
+    }
+
+    // ─── 오라: 버튼에서 이름 읽기 ────────────────────────────────────
+    if (slot === "오라") {
+        const btn = section.querySelector('button[data-key="오라_itemname"]');
+        return {
+            isSpecial: false,
+            rarity:      section.querySelector(`select[data-key="오라_rarity"]`)?.value || '',
+            exceed:      '',
+            prefix:      '',
+            itemname:    btn ? (btn.getAttribute('data-aura-name') || btn.textContent.trim() || '') : '',
+            reinforce:   '',
+            seal1:       '',
+            seal1_val:   '',
+            seal2:       '',
+            seal2_val:   '',
+            emb1:        '',
+            emb2:        '',
+            enchant:     '',
+            enchant_val: '',
+            desc:        section.querySelector(`[data-key="오라_desc"]`)?.value || ''
+        };
+    }
+
     // 일반 슬롯
     return {
         isSpecial: false,
@@ -684,6 +749,7 @@ function createRuneSearchTable(results) {
 
 /**
  * 칭호/외형칭호 검색 테이블 생성
+ * - 칭호/외형칭호 2행을 캐릭터 단위로 묶고, 설명 칸은 rowspan=2로 합쳐 1개만 표시 (기본 화면과 동일)
  */
 function createTitleSearchTable(container, results) {
     const table = document.createElement('table');
@@ -699,7 +765,7 @@ function createTitleSearchTable(container, results) {
         .search-table-custom td {
             font-size: var(--fs-search) !important;
         }
-        /* ⭐ 슬롯 열 너비 조정 */
+        /* 슬롯 열 너비 조정 */
         .search-table-custom th:nth-child(2),
         .search-table-custom td:nth-child(2) {
             min-width: 80px;
@@ -707,7 +773,7 @@ function createTitleSearchTable(container, results) {
     `;
     document.head.appendChild(style);
 
-    // thead - rowspan 추가
+    // thead
     const thead = document.createElement('thead');
     thead.innerHTML = `
     <tr>
@@ -729,33 +795,41 @@ function createTitleSearchTable(container, results) {
 `;
     table.appendChild(thead);
 
-    // tbody - 같은 캐릭터는 직업/이름 셀 합치기
     const tbody = document.createElement('tbody');
 
-    // 캐릭터별로 그룹화
+    // 캐릭터별로 그룹화 (charId 기준 — 동명이인 구분)
+    const charOrder = [];
     const groupedResults = {};
     results.forEach(result => {
-        const key = `${result.job}(${result.name})`;
+        const key = result.charId;
         if (!groupedResults[key]) {
             groupedResults[key] = [];
+            charOrder.push(key);
         }
         groupedResults[key].push(result);
     });
 
-    // 그룹별로 행 생성
-    Object.entries(groupedResults).forEach(([charKey, charResults]) => {
-        charResults.forEach((result, index) => {
-            const tr = document.createElement('tr');
+    charOrder.forEach(charId => {
+        const charResults = groupedResults[charId];
+
+        // 칭호 행 / 외형칭호 행 분리
+        const titleResult      = charResults.find(r => r.slotType === '칭호')      || charResults[0];
+        const appTitleResult   = charResults.find(r => r.slotType === '외형칭호')  || null;
+        const charKey = `${titleResult.job}(${titleResult.name})`;
+
+        // ── 칭호 행 ──────────────────────────────────────────────
+        const trTitle = document.createElement('tr');
+
+        // 직업/이름: 칭호+외형칭호 2행 합치기
+        const tdName = document.createElement('td');
+        tdName.rowSpan = appTitleResult ? 2 : 1;
+        tdName.style.cssText = 'white-space:nowrap; vertical-align:middle;';
+        tdName.textContent = charKey;
+        trTitle.appendChild(tdName);
+
+        const buildDataCells = (result, tr) => {
             const rarityClass = result.rarity ? `rare-${result.rarity}` : '';
             const embClass = getEmblemHighlight('칭호', result.emb1, result.eleType);
-
-            if (index === 0) {
-                const tdName = document.createElement('td');
-                tdName.rowSpan = charResults.length;
-                tdName.style.whiteSpace = 'nowrap';
-                tdName.textContent = charKey;
-                tr.appendChild(tdName);
-            }
 
             const tdSlot = document.createElement('td');
             tdSlot.textContent = result.slotType || '';
@@ -774,11 +848,6 @@ function createTitleSearchTable(container, results) {
             tdEnchant.textContent = result.enchant || '';
             const tdEnchantVal = document.createElement('td');
             tdEnchantVal.textContent = result.enchant_val || '';
-            const tdDesc = document.createElement('td');
-            tdDesc.dataset.descCell = 'true';
-            tdDesc.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px;';
-            tdDesc.textContent = result.desc || '';
-            _makeDescEditable(tdDesc, result.charId, result.slotType);
 
             tr.appendChild(tdSlot);
             tr.appendChild(tdRarity);
@@ -787,16 +856,36 @@ function createTitleSearchTable(container, results) {
             tr.appendChild(tdEmb2);
             tr.appendChild(tdEnchant);
             tr.appendChild(tdEnchantVal);
-            tr.appendChild(tdDesc);
-            tbody.appendChild(tr);
-        });
+        };
+
+        buildDataCells(titleResult, trTitle);
+
+        // 설명: 칭호 행에서만 생성, 외형칭호가 있으면 rowspan=2로 합침
+        const tdDesc = document.createElement('td');
+        tdDesc.rowSpan = appTitleResult ? 2 : 1;
+        tdDesc.dataset.descCell = 'true';
+        tdDesc.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px; vertical-align:middle;';
+        tdDesc.textContent = titleResult.desc || '';
+        _makeDescEditable(tdDesc, titleResult.charId, '칭호');
+        trTitle.appendChild(tdDesc);
+
+        tbody.appendChild(trTitle);
+
+        // ── 외형칭호 행 (설명 td 없음 — 위에서 rowspan으로 합침) ──
+        if (appTitleResult) {
+            const trApp = document.createElement('tr');
+            buildDataCells(appTitleResult, trApp);
+            // 설명 td는 추가하지 않음 (칭호 행의 rowspan=2 셀이 커버)
+            tbody.appendChild(trApp);
+        }
     });
+
     table.appendChild(tbody);
 
     container.innerHTML = '';
     container.appendChild(table);
 
-    // 설명 편집 버튼 토글
+    // 설명 편집 버튼 토글 (칭호 행의 설명 td에만 적용)
     _initDescToggleBtn(table, '.title-desc-toggle-btn');
 }
 
@@ -943,9 +1032,6 @@ function createMemoTagSearchTable(container, results) {
     container.innerHTML = '';
     container.appendChild(table);
 }
-
-
-
 
 
 function _getSealOptions(slot, isN1) {
