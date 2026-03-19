@@ -684,11 +684,12 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
         });
 
         // 슬롯 헤더 행 (아이템명 + 익시드/접두어 표시)
+        // 슬롯 헤더 행 (아이템명 + 익시드/접두어 표시)
         const itemLabel1 = r1.itemname
-            ? `${r1.itemname}${r1.exceed ? ` [${r1.exceed}]` : ''}${r1.prefix ? ` ${r1.prefix}` : ''}`
+            ? `${r1.exceed ? `[${r1.exceed}] ` : ''}${r1.prefix ? `${r1.prefix}: ` : ''}${r1.itemname}`
             : '(미착용)';
         const itemLabel2 = r2.itemname
-            ? `${r2.itemname}${r2.exceed ? ` [${r2.exceed}]` : ''}${r2.prefix ? ` ${r2.prefix}` : ''}`
+            ? `${r2.exceed ? `[${r2.exceed}] ` : ''}${r2.prefix ? `${r2.prefix}: ` : ''}${r2.itemname}`
             : '(미착용)';
 
         tbodyHtml += `<tr>
