@@ -5413,3 +5413,57 @@ container.appendChild(armorSetEffectEl);
 ---
 ---
 
+## 2026-03-20 (130차)
+
+### ui-character.js, eq_equipment.js 파일 분리 리팩토링
+
+**수정된 파일:** `js/ui-character.js`, `js/ui-popups.js`(신규), `scripts/eq_equipment.js`, `scripts/eq_render.js`(신규), `scripts/eq_statistics.js`(신규), `index.html`
+
+---
+
+### 변경 내용
+
+**`js/ui-character.js`**
+
+- 팝업 관련 코드(칭호/오라/크리쳐/아바타/무기아바타 팝업 + 공통 자동완성) 전체를 `js/ui-popups.js`로 분리
+- 팝업에서만 사용되던 공통 헬퍼(`_STAT_LABELS`, `_STAT_GROUPS`, `_toStatMap`, `_buildStatMap`, `_entriesToLines`) 제거
+- 3,290줄 → 1,211줄
+
+**`js/ui-popups.js`** (신규)
+
+- `ui-character.js`에서 분리된 팝업 코드 전체 포함
+  - 공통 자동완성 시스템 (`acDropdownShow`, `acDropdownKeydown`, `_acDropdownInit`)
+  - 크리쳐 팝업 (`openCreaturePopup`, `creaturePopupSave`, `creaturePopupClose` 등)
+  - 칭호 팝업 (`openTitlePopup`, `titlePopupSave`, `titlePopupClose` 등)
+  - 오라 팝업 (`openAuraPopup`, `auraPopupSave`, `auraPopupClose` 등)
+  - 아바타 팝업 (`openAvatarPopup`, `avatarPopupSave`, `avatarPopupClose` 등)
+  - 무기 아바타 수치 팝업 (`openWeaponAvatarPopup`, `weaponAvatarPopupSave`, `weaponAvatarPopupClose` 등)
+  - 공통 헬퍼(`_STAT_LABELS`, `_STAT_GROUPS`, `_toStatMap`, `_buildStatMap`, `_entriesToLines`)
+
+**`scripts/eq_equipment.js`**
+
+- 렌더링/통계/검색 코드를 별도 파일로 분리
+- 2,240줄 → 967줄
+- 잔존 내용: 모달, 세트 버튼/openSet, 행 생성, 증감, UI 업데이트
+
+**`scripts/eq_render.js`** (신규)
+
+- `eq_equipment.js`에서 분리된 렌더링 코드 포함
+  - `renderEquipmentTab`, `renderFullEquipmentTab`
+  - `setActiveEquipmentButton`, `scrollToCategory`
+  - `toggleCharacterEquipmentView`, `renderCharacterButtons`, `renderCharacterEquipmentDetail`
+  - 전역 변수 `isCharacterEquipmentViewOpen`, `selectedCharacterForEquipment`, `isStatisticsViewOpen`
+
+**`scripts/eq_statistics.js`** (신규)
+
+- `eq_equipment.js`에서 분리된 통계/검색 코드 포함
+  - `showEquipmentStatistics`
+  - `showWeaponStatistics`
+  - `searchEquipment`
+
+**`index.html`**
+
+- script 태그 추가 및 순서 수정
+  - `scripts/eq_equipment.js` 뒤에 `scripts/eq_render.js`, `scripts/eq_statistics.js` 추가
+  - `js/ui-character.js` 뒤에 `js/ui-popups.js` 추가
+  
