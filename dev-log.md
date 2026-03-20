@@ -5467,3 +5467,49 @@ container.appendChild(armorSetEffectEl);
   - `scripts/eq_equipment.js` 뒤에 `scripts/eq_render.js`, `scripts/eq_statistics.js` 추가
   - `js/ui-character.js` 뒤에 `js/ui-popups.js` 추가
   
+---
+---
+
+## 2026-03-20 (131차)
+
+### 비교 모드 악세서리 스탯/세트 효과 비교 추가 + 악세서리 데이터 파일 신규 생성
+
+**수정된 파일:** `data/accessory.js`(신규), `data/accessory_set_effects.js`(신규), `js/ui-compare.js`, `index.html`
+
+---
+
+### 변경 내용
+
+**`data/accessory.js`** (신규)
+
+- 악세서리 아이템 스탯 데이터 파일 생성
+- 세트: `엘팅 메모리얼의 기억`
+- 익시드 아이템 `선명한 기억의 팔찌` (`exceed: true`, `base[이상/선봉/의지][견고/혈독]`)
+- 일반 아이템: `묻힌 시간의 팔찌`, `흐릿한 과거의 목걸이`, `덮어둔 기억의 반지`
+
+**`data/accessory_set_effects.js`** (신규)
+
+- 악세서리 세트 효과 데이터 파일 생성
+- `엘팅 메모리얼의 기억` 세트 기본/견고/혈독 3셋 효과 포함
+
+**`js/ui-compare.js`**
+
+- `buildAccStatCompare` 함수 신규 추가
+  - 악세서리 슬롯(팔찌/목걸이/반지) 스탯 비교 테이블
+  - `ACCESSORY_ITEM_STATS` 데이터 사용
+  - 익시드 아이템: `base[exceedStage][prefixKey]`, `eff[prefixKey]`
+  - 일반 아이템: `base[prefixKey]`, `eff[prefixKey]`
+  - `displayComparison()`에서 방어구 세트 효과 비교 다음, 악세서리 세트 효과 비교 전에 호출
+
+- `buildAccSetEffectCompare` 내 `getAccSetEffects` 로직 수정
+  - 세트 효과 판정 기준: 익시드 여부 무시, 접두어 기준으로만 판정
+  - 팔찌/목걸이/반지 접두어가 모두 동일하고 기본이 아닐 경우 → 해당 접두어 세트 효과 적용
+  - 그 외 모든 경우 → 기본 세트 효과 적용
+
+- 방어구/악세서리 세트 라벨 표시 형식 수정 (2곳)
+  - 수정 전: `"어느 말괄량이의 탐사복 전격 (5셋)"`
+  - 수정 후: `"전격: 어느 말괄량이의 탐사복 (5셋)"` / 기본일 때: `"어느 말괄량이의 탐사복 (5셋)"`
+
+**`index.html`**
+
+- `data/accessory.js`, `data/accessory_set_effects.js` script 태그 추가
