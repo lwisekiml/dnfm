@@ -1,0 +1,223 @@
+/* ========================================
+   CSS 변수 정의 (전역)
+   ======================================== */
+/* ========================================
+            CSS 변수 정의 (100% 완성)
+        ======================================== */
+:root {
+    /* ===== 기본 색상 팔레트 ===== */
+    --color-white: #ffffff;
+    --color-black: #000000;
+
+    /* 그레이 스케일 */
+    --color-gray-darkest: #121216;
+    --color-gray-darker: #222;
+    --color-gray-dark: #333;
+    --color-gray: #444;
+    --color-gray-medium: #555;
+    --color-gray-light: #666;
+    --color-gray-lighter: #888;
+    --color-gray-lightest: #ccc;
+
+    /* 골드 */
+    --gold: #6472a8;
+    --border-heavy: #6472a8;
+
+    /* ===== 배경 색상 ===== */
+    --bg: #0f1222;
+    --bg-dark: #0a0d1a;
+    --bg-section: #0f1222;
+    --bg-row: #1a1e33;
+    --table-bg: #1a1e33;
+    --bg-header: #181c33;
+    --bg-header-alt: #222644;
+    --bg-compare: #181c33;
+    --bg-highlight: #4a3f12;
+    --bg-compare-diff: #1a1e33;
+    --input-bg: #0f1222;
+
+    /* ===== 테두리 ===== */
+    --border: #2a3158;
+    --border-width: 1px;
+    --border-width-heavy: 2px;
+    --border-width-thick: 3px;
+    --border-radius: 3px;
+    --border-radius-sm: 2px;
+    --border-radius-md: 4px;
+    --border-style: solid;
+    --border-style-dashed: dashed;
+
+    /* ===== 텍스트 색상 ===== */
+    --text: #ddd;
+
+    /* 등급 색상 */
+    --txt-epic: #fcc419;
+    --txt-unique: #ff80ab;
+    --txt-rare: #b197fc;
+    --txt-uncom: #4dabf7;
+    --txt-common: #888;
+
+    /* 익시드 색상 */
+    --ex-sunbong: #ff5252;
+    --ex-uiji: #448aff;
+    --ex-isang: #40c057;
+    --ex-itemname-light: #85EFAD;
+
+    /* 강조 색상 */
+    --highlight-yellow: #fcc419;
+    --highlight-green: #4ade80;
+    --highlight-red: #f87171;
+    --highlight-green-dark: #1a4a2a;
+    --highlight-red-dark: #4a1a1a;
+    --highlight-cyan: #71D2E5;
+
+    /* 접두어 색상 */
+    --prefix-blue: #3b82f6;
+    --prefix-red: #ef4444;
+    --prefix-green: #22c55e;
+    --prefix-yellow: #facc15;
+
+    /* ===== 엠블렘 배경 ===== */
+    --emb-red: #4a1212;
+    --emb-yellow: #4a3f12;
+    --emb-blue: #121d4a;
+    --emb-green: #124a1d;
+    --emb-gray: #2d2d2d;
+
+    /* 각인 */
+    --gakin-2: #fff5f5bb;
+
+    /* ===== 그라디언트 ===== */
+    --gradient-emb-red: linear-gradient(to bottom, #6a1a1a 0%, var(--emb-red) 100%);
+    --gradient-emb-yellow: linear-gradient(to bottom, #6a5a1a 0%, var(--emb-yellow) 100%);
+    --gradient-emb-blue: linear-gradient(to bottom, #1a2a6a 0%, var(--emb-blue) 100%);
+    --gradient-emb-green: linear-gradient(to bottom, #1a6a2a 0%, var(--emb-green) 100%);
+    --gradient-emb-gray: linear-gradient(to bottom, #444 0%, var(--emb-gray) 100%);
+    --gradient-select: linear-gradient(to bottom, #2a2a32 0%, #000000 100%);
+
+    /* ===== 버튼 색상 ===== */
+    --btn-primary: #1d4ed8;
+    --btn-add: #7c3aed;
+    --btn-success: #059669;
+    --btn-info: #0ea5e9;
+    --btn-warning: #f59e0b;
+    --btn-danger: #ff4d4d;
+    --btn-secondary: #4b5563;
+    --btn-lock: #2563eb;
+
+    /* ===== 폰트 크기 ===== */
+    --fs: 14px;
+
+    /* 4가지 독립 관리 */
+    --fs-button: 14px;      /* 버튼 전용 */
+    --fs-table: 14px;       /* 기본 테이블 전용 */
+    --fs-compare: 14px;     /* 비교 모드 전용 */
+    --fs-search: 14px;      /* 검색 결과 전용 (JavaScript에서 사용) */
+
+    /* 기타 */
+    --fs-xs: 11px; /* 하위 호환용 */
+    --fs-sm: 12px; /* 하위 호환용 */
+    --fs-md: 13px;
+    --fs-lg: 1.1rem;
+
+    /* ===== 간격 ===== */
+    --spacing-xs: 2px;
+    --spacing-sm: 4px;
+    --spacing-md: 5px;
+    --spacing-lg: 8px;
+    --spacing-xl: 10px;
+    --spacing-2xl: 15px;
+    --spacing-3xl: 20px;
+    --spacing-4xl: 30px;
+    --spacing-5xl: 50px;
+
+    /* ===== 패딩 ===== */
+    --padding-xs: 1px 2px;
+    --padding-sm: 2px 4px;
+    --padding-md: 4px 8px;
+    --padding-lg: 5px 15px;
+    --padding-xl: 15px;
+    --padding-section: 5px;
+    --padding-cell: 1px 2px;
+    --padding-button: 4px;
+    --padding-button-sm: 2px 8px;
+    --padding-button-md: 6px 12px;
+    --padding-input: 8px;
+    --padding-modal: 15px;
+    --padding-textarea: 4px 6px;
+
+    /* ===== 높이 ===== */
+    --height-input: 22px;
+    --height-select: 22px;
+    --height-button: 30px;
+    --height-row: 26px;
+    --height-button-tall: 38px;
+    --height-divider: 8px;
+    --height-vline: 12px;
+    --height-textarea-min: 44px;
+
+    /* ===== 너비 ===== */
+    --width-char-info: 120px;
+    --width-slot: 60px; /* 슬롯 가로 길이 */
+    --width-rarity: 42px;
+    --width-exceed: 45px;
+    --width-prefix: 38px;
+    --width-val-short: 45px; /* 마법부여 가로 길이 */
+    --width-emblem: 40px;
+    --width-enchant: 65px; /* 마법부여 수치 가로 길이 */
+    --width-itemname-min: 120px;
+    --width-desc-min: 230px;
+    --width-modal: 640px;
+    --width-modal-history: 450px;
+    --width-rune-name: 68px;
+    --width-rune-lv: 48px;
+    --width-rune-skill: 50px;
+    --width-col-num: 30px;
+    --width-art-color: 65px;
+    --width-art-opt: 110px;
+    --width-full: 100%;
+
+    /* 비교 테이블 너비 */
+    --compare-slot-width: 6%;
+    --compare-slot-min: 60px;
+    --compare-option-width: 20%;
+    --compare-option-min: 120px;
+    --compare-value-width: 10%;
+    --compare-value-min: 60px;
+    --compare-attr-width: 7%;
+    --compare-attr-min: 70px;
+    --compare-item-width: 17%;
+    --compare-item-min: 140px;
+    --compare-reinforce-width: 6%;
+    --compare-reinforce-min: 50px;
+    --compare-diff-width: 130px;
+    --compare-diff-min: 130px;
+
+    /* ===== 그림자 ===== */
+    --shadow-text: 0 0 2px rgba(0, 0, 0, 0.8);
+    --shadow-highlight: 0 0 10px var(--gold);
+
+    /* ===== 투명도 ===== */
+    --opacity-disabled: 0.5;
+    --opacity-overlay: 0.7;
+    --opacity-tap: 0.1;
+    --opacity-full: 1;
+
+    /* ===== z-index ===== */
+    --z-sticky: 1000;
+    --z-overlay: 1999;
+    --z-modal: 2000;
+
+    /* ===== 기타 ===== */
+    --max-height-modal: 85vh;
+    --max-height-modal-history: 80vh;
+    --max-height-modal-xl: 80vh;
+    --line-height-normal: 1.5;
+    --line-height-history: 1.6;
+
+    /* ===== Position 값 ===== */
+    --position-center-x: 50%;
+    --position-center-y: 50%;
+    --transform-center: translate(-50%, -50%);
+}
+

@@ -5556,3 +5556,75 @@ container.appendChild(armorSetEffectEl);
 
 ---
 ---
+
+## 2026-03-21 (133차)
+
+### merged.css 파일 분리 리팩토링
+
+**수정된 파일:** `styles/merged.css` → 6개 파일로 분리, `index.html`
+
+---
+
+### 변경 내용
+
+**`styles/merged.css`** (3,443줄 → 분리 후 유지)
+
+- 기존 단일 파일을 역할별로 6개 파일로 분리
+- 내용 변경 없음 (순수 파일 분리만 진행)
+
+**`styles/variables.css`** (신규, 223줄)
+
+- `:root` CSS 변수 전체
+- 색상, 배경, 테두리, 텍스트, 그라디언트, 버튼, 폰트, 간격, 패딩, 높이, 너비, z-index 등 모든 전역 변수 포함
+- 가장 먼저 로드되어야 함
+
+**`styles/responsive.css`** (신규, 574줄)
+
+- 반응형 미디어쿼리 (태블릿/모바일 가로·세로, 대형 화면, 프린트)
+- 화면 방향 최적화 (Orientation)
+- 접근성 개선 (prefers-reduced-motion, prefers-contrast, 포커스, 키보드 네비게이션 등)
+- 주석에 "Project1 스타일" 표기되어 있으나 실제로는 `#section-detail-view` 스코프 전용
+
+**`styles/base.css`** (신규, 1,063줄)
+
+- 캐릭터 관리 탭 핵심 UI 스타일 전체
+- 기본 스타일, 레이아웃, 테이블, 입력요소, 버튼, 등급/익시드/접두어/엠블렘 색상, 아티팩트, 모달, 스킬룬, 비교모드, 유틸리티 클래스, 메모/태그 등
+
+**`styles/components.css`** (신규, 496줄)
+
+- 전역 공통 컴포넌트 스타일
+- body/heading 기본, 공통 버튼(action-btn, ctrl-btn 등), 툴바, 폼, 캐릭터/세트 버튼, 테이블, 번호버튼, 페이지네이션, 제작 시스템
+- 주석에 "project2 전용"으로 표기되어 있으나 실제로는 index.html 전체 탭에서 사용
+
+**`styles/themes.css`** (신규, 751줄)
+
+- 테마 6종 전체 (navy, dark, mixed 및 각 2버전)
+- 팝업 공통 기본 스타일 (avatar-popup-box, avatar-popup-btn)
+- 이미지 미리보기 (.itemname-img-preview)
+- 크리쳐/칭호/오라 팝업 스타일
+- 자동완성 드롭다운 (.ac-dropdown)
+
+**`styles/themes-test.css`** (신규, 335줄)
+
+- 실험용 테마 2종 (theme-test, theme-test2)
+- 프로덕션 배포 시 제외 가능하도록 별도 분리
+
+**`index.html`**
+
+- `<link rel="stylesheet" href="styles/merged.css">` 1줄을 아래 6줄로 교체
+```html
+  <link rel="stylesheet" href="styles/variables.css">
+  <link rel="stylesheet" href="styles/responsive.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/themes.css">
+  <link rel="stylesheet" href="styles/themes-test.css">
+```
+- 로드 순서: variables → responsive → base → components → themes → themes-test
+
+---
+
+### 검증
+
+- 6개 파일 합산 줄 수 = 원본 merged.css 줄 수 (3,442줄) 일치
+- `cat` 합산 후 `diff` 비교 결과 원본과 내용 완전 일치 확인

@@ -1,0 +1,1063 @@
+/* ========================================
+   기본 스타일
+======================================== */
+#section-detail-view {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Malgun Gothic', sans-serif;
+    margin: 0;
+    padding: var(--spacing-xl);
+}
+
+#section-detail-view h2 {
+    color: var(--gold);
+    border-bottom: none;
+    padding-bottom: var(--spacing-md);
+    margin: 0 0 var(--spacing-xl) 0;
+    font-size: var(--fs-lg);
+}
+
+#section-detail-view h3 {
+    color: var(--gold);
+    margin-top: 0;
+}
+
+/* ========================================
+   레이아웃
+======================================== */
+#section-detail-view .control-bar {
+    margin-bottom: var(--spacing-xl);
+    display: flex;
+    gap: var(--spacing-xl);
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: var(--z-sticky);
+    padding: 15px 0 0 0;
+}
+
+#section-detail-view .char-section {
+    margin-bottom: var(--spacing-4xl);
+}
+
+#section-detail-view .char-section-inner {
+    display: block;
+}
+
+#section-detail-view .char-info-table {
+    border-collapse: collapse;
+    background-color: var(--table-bg);
+    border: var(--border-width-heavy) var(--border-style) var(--gold);
+    border-bottom: none;
+    width: max-content;
+    max-width: 100%;
+    font-size: var(--fs-table);
+}
+
+#section-detail-view .char-info-table th {
+    background-color: var(--bg-header);
+    color: var(--gold);
+    font-weight: bold;
+    padding: var(--padding-cell);
+    border: var(--border-width) var(--border-style) var(--border);
+    text-align: center;
+    white-space: nowrap;
+}
+
+#section-detail-view .char-info-table td {
+    border: var(--border-width) var(--border-style) var(--border);
+    padding: 4px 6px;
+    vertical-align: top;
+}
+
+#section-detail-view .char-info-table input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#section-detail-view .table-container {
+    overflow-x: visible;
+}
+
+/* ========================================
+   테이블 스타일
+======================================== */
+#section-detail-view table {
+    border-collapse: collapse;
+    background-color: var(--table-bg);
+    width: max-content;
+    font-size: var(--fs-table);
+    border: none;
+}
+
+#section-detail-view th, #section-detail-view td {
+    border: var(--border-width) var(--border-style) var(--border) !important;
+    padding: var(--padding-cell);
+    text-align: center;
+    height: var(--height-row);
+    color: var(--color-gray-lightest);
+}
+
+#section-detail-view th {
+    background-color: var(--bg-header);
+    color: var(--gold);
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+#section-detail-view .v-border-heavy {
+    border-left: none !important;
+}
+
+#section-detail-view .group-header {
+    border-bottom: none !important;
+}
+
+/* 혼합/남색/다크 테마: char-info-table 진한 테두리 제거 */
+body.theme-navy #section-detail-view .char-info-table,
+body.theme-dark #section-detail-view .char-info-table,
+body.theme-mixed #section-detail-view .char-info-table {
+    border: var(--border-width) var(--border-style) var(--border);
+    border-bottom: none;
+}
+
+/* 열 너비 */
+#section-detail-view .col-char-info { width: var(--width-char-info) !important; }
+#section-detail-view .col-slot { width: var(--width-slot) !important; font-weight: bold; color: var(--gold) !important; }
+#section-detail-view .col-rarity { width: var(--width-rarity) !important; }
+#section-detail-view .col-exceed { width: var(--width-exceed) !important; }
+#section-detail-view .col-prefix { width: var(--width-prefix) !important; }
+#section-detail-view .col-val-short { width: var(--width-val-short) !important; }
+#section-detail-view .col-emblem { width: var(--width-emblem) !important; }
+#section-detail-view .col-enchant { width: var(--width-enchant) !important; min-width: var(--width-enchant); }
+#section-detail-view .col-m-num { width: var(--width-col-num); }
+
+/* ========================================
+   입력 요소 (Form Controls)
+======================================== */
+#section-detail-view input {
+    background: var(--input-bg);
+    color: var(--color-white);
+    border: var(--border-width) var(--border-style) var(--border);
+    padding: var(--padding-xs);
+    width: 100%;
+    font-size: var(--fs-table);
+    box-sizing: border-box;
+    height: var(--height-input);
+    outline: none;
+    text-align: center;
+}
+
+#section-detail-view select {
+    background: var(--gradient-select);
+    color: var(--color-white);
+    border: var(--border-width) var(--border-style) var(--color-gray-medium);
+    padding: 1px 0px;
+    width: 100%;
+    font-size: var(--fs-table);
+    box-sizing: border-box;
+    height: var(--height-select);
+    outline: none;
+    text-align: center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    pointer-events: auto !important;
+    touch-action: auto !important;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, var(--opacity-tap));
+}
+
+#section-detail-view select option {
+    background-color: var(--bg-row);
+    color: var(--color-white);
+}
+
+#section-detail-view select:hover {
+    border-color: var(--gold);
+}
+
+#section-detail-view input:disabled, #section-detail-view select:disabled {
+    cursor: not-allowed;
+    opacity: var(--opacity-full);
+    -webkit-text-fill-color: inherit;
+    pointer-events: none !important;
+}
+
+/* 접두어/익시드 선택 불가 상태 시각적 표시 */
+#section-detail-view .col-exceed select:disabled,
+#section-detail-view .col-prefix select:disabled {
+    opacity: var(--opacity-disabled);
+}
+
+#section-detail-view textarea {
+    background: var(--bg-dark);
+    color: var(--color-white);
+    border: var(--border-width) var(--border-style) var(--border);
+    padding: var(--padding-textarea);
+    resize: none;
+    font-family: sans-serif;
+    font-size: var(--fs-table);
+    box-sizing: border-box;
+    text-align: left;
+    outline: none;
+}
+
+/* ========================================
+   버튼 스타일
+======================================== */
+#section-detail-view .btn-action {
+    background: var(--btn-primary);
+    color: var(--color-white);
+    border: none;
+    padding: var(--padding-lg);
+    cursor: pointer;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+    font-size: var(--fs-button);
+}
+
+#section-detail-view .set-apply-btn {
+    background: none;
+    border: none;
+    padding: 0 2px;
+    cursor: pointer;
+    font-size: 11px;
+    opacity: 0.5;
+}
+#section-detail-view .set-apply-btn:hover { opacity: 1; }
+
+#section-detail-view .btn-add {
+    background: var(--btn-add);
+}
+
+
+#section-detail-view .btn-char-lock {
+    background: var(--btn-lock);
+    color: var(--color-white);
+    padding: var(--padding-button);
+    cursor: pointer;
+    font-size: var(--fs-button);
+    border: none;
+    margin-bottom: var(--spacing-xs);
+}
+
+#section-detail-view .btn-char-unlock {
+    background: var(--color-gray);
+    color: var(--color-white);
+    padding: var(--padding-button);
+    cursor: pointer;
+    font-size: var(--fs-button);
+    border: none;
+}
+
+#section-detail-view .btn-active {
+    border: var(--border-width-heavy) var(--border-style) var(--color-white) !important;
+}
+
+#section-detail-view .btn-move {
+    flex: 1;
+    background: var(--color-gray);
+    padding: var(--spacing-xs);
+}
+
+#section-detail-view .btn-exit-compare {
+    background: var(--btn-secondary);
+    margin-bottom: var(--spacing-3xl);
+}
+
+#section-detail-view .del-btn {
+    background: var(--btn-danger);
+    color: var(--color-white);
+    border: none;
+    padding: var(--padding-button);
+    cursor: pointer;
+    font-size: var(--fs-button);
+    border-radius: var(--border-radius-sm);
+}
+
+#section-detail-view .status-msg {
+    font-size: var(--fs-sm);
+    color: var(--gold);
+}
+
+/* ========================================
+   등급 색상 (Rarity Colors)
+======================================== */
+#section-detail-view .rare-에픽, #section-detail-view .bg-에픽 {
+    color: var(--txt-epic) !important;
+    font-weight: bold;
+}
+
+#section-detail-view .rare-유니크, #section-detail-view .bg-유니크 {
+    color: var(--txt-unique) !important;
+    font-weight: bold;
+}
+
+#section-detail-view .rare-레어, #section-detail-view .bg-레어 {
+    color: var(--txt-rare) !important;
+    font-weight: bold;
+}
+
+#section-detail-view .rare-언커먼, #section-detail-view .bg-언커먼 {
+    color: var(--txt-uncom) !important;
+    font-weight: bold;
+}
+
+#section-detail-view .rare-커먼, #section-detail-view .bg-커먼 {
+    color: var(--txt-common) !important;
+    font-weight: bold;
+}
+
+#section-detail-view .rare-티어 {
+    color: var(--color-white) !important;
+    font-weight: bold;
+}
+
+/* ========================================
+   익시드 색상 (Exceed Colors)
+======================================== */
+#section-detail-view .ex-이상 {
+    color: var(--ex-isang) !important;
+    font-weight: bold;
+}
+
+#section-detail-view .ex-선봉 {
+    color: var(--ex-sunbong) !important;
+    font-weight: bold;
+}
+
+#section-detail-view .ex-의지 {
+    color: var(--ex-uiji) !important;
+    font-weight: bold;
+}
+
+#section-detail-view .ex-itemname-light {
+    color: var(--ex-itemname-light) !important;
+    font-weight: bold;
+}
+
+/* ========================================
+   접두어 색상 (Prefix Colors)
+======================================== */
+#section-detail-view .prefix-selected {
+    color: var(--txt-epic) !important;
+    font-weight: bold;
+}
+
+#section-detail-view .prefix-tier {
+    color: var(--color-white) !important;
+    font-weight: bold;
+}
+
+#section-detail-view .p-blue { color: var(--prefix-blue) !important; }
+#section-detail-view .p-red { color: var(--prefix-red) !important; }
+#section-detail-view .p-green { color: var(--prefix-green) !important; }
+#section-detail-view .p-yellow { color: var(--prefix-yellow) !important; }
+
+#section-detail-view select.prefix-selected.p-blue { color: var(--prefix-blue); }
+#section-detail-view select.prefix-selected.p-red { color: var(--prefix-red); }
+#section-detail-view select.prefix-selected.p-green { color: var(--prefix-green); }
+#section-detail-view select.prefix-selected.p-yellow { color: var(--prefix-yellow); }
+
+/* ========================================
+   엠블렘 배경 (Emblem Backgrounds)
+======================================== */
+#section-detail-view .emb-bg-red {
+    background: var(--gradient-emb-red) !important;
+    color: var(--color-white) !important;
+}
+
+#section-detail-view .emb-bg-yellow {
+    background: var(--gradient-emb-yellow) !important;
+    color: var(--color-white) !important;
+}
+
+#section-detail-view .emb-bg-blue {
+    background: var(--gradient-emb-blue) !important;
+    color: var(--color-white) !important;
+}
+
+#section-detail-view .emb-bg-green {
+    background: var(--gradient-emb-green) !important;
+    color: var(--color-white) !important;
+}
+
+#section-detail-view .emb-bg-gray {
+    background: var(--gradient-emb-gray) !important;
+    color: var(--color-white) !important;
+}
+
+/* ========================================
+   하이라이트 (Highlights)
+======================================== */
+#section-detail-view .highlight-yellow {
+    color: var(--highlight-yellow) !important;
+    font-weight: bold;
+    text-shadow: var(--shadow-text);
+}
+
+#section-detail-view .set-highlight {
+    color: var(--highlight-cyan) !important;
+    font-weight: bold;
+}
+
+#section-detail-view .itemname-color-sync {
+    font-weight: bold;
+}
+
+/* ========================================
+   아티팩트 (Creature Artifacts)
+======================================== */
+#section-detail-view .artifact-main-wrapper {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    align-items: stretch;
+    padding: 4px 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#section-detail-view .art-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    border: var(--border-width) var(--border-style) var(--border);
+    padding: 4px;
+    background: var(--bg-dark);
+    flex: 1;
+    min-width: 0;
+}
+
+#section-detail-view .art-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+#section-detail-view .custom-top-line {
+    margin-bottom: var(--spacing-sm);
+    border-bottom: var(--border-width) var(--border-style-dashed) var(--border);
+    padding-bottom: var(--spacing-sm);
+}
+
+#section-detail-view .art-color-select {
+    min-width: 50px;
+    flex-shrink: 0;
+}
+
+#section-detail-view .art-opt-select {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ========================================
+   모달 (Modals)
+======================================== */
+#section-detail-view .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, var(--opacity-overlay));
+    z-index: var(--z-overlay);
+}
+
+#section-detail-view #skillRunemodal {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: var(--transform-center);
+    background: var(--bg-row);
+    border: var(--border-width) var(--border-style) var(--border);
+    padding: var(--padding-modal);
+    z-index: var(--z-modal);
+    width: var(--width-modal);
+    max-height: var(--max-height-modal);
+    overflow-y: auto;
+}
+
+#section-detail-view #historyModal {
+    display: none;
+    position: fixed;
+    top: var(--position-center-y);
+    left: var(--position-center-x);
+    transform: var(--transform-center);
+    background: var(--bg-row);
+    border: var(--border-width) var(--border-style) var(--border);
+    padding: var(--padding-modal);
+    z-index: var(--z-modal);
+    width: var(--width-modal-history);
+    max-height: var(--max-height-modal-history);
+    overflow-y: auto;
+}
+
+#section-detail-view #historyList {
+    font-size: var(--fs-table);
+    color: var(--color-gray-lightest);
+    line-height: var(--line-height-history);
+}
+
+/* ========================================
+   스킬 룬 모달 특화
+======================================== */
+#section-detail-view .m-rune-name { width: var(--width-rune-name) !important; }
+#section-detail-view .m-rune-lv { width: var(--width-rune-lv) !important; }
+#section-detail-view .m-rune-skillLv { width: var(--width-rune-skill) !important; }
+
+#section-detail-view .v-line {
+    border-left: var(--border-width) var(--border-style) var(--color-gray-medium);
+    height: var(--height-vline);
+    margin: 0 var(--spacing-lg);
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#section-detail-view .gakin-section {
+    margin-top: var(--spacing-xl);
+    border-top: none;
+    padding-top: var(--spacing-xl);
+}
+
+#section-detail-view .gakin-title {
+    color: var(--gold);
+    font-weight: bold;
+    font-size: var(--fs-sm);
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+}
+
+#section-detail-view .gakin-container {
+    display: flex;
+    gap: var(--spacing-md);
+    width: 100%;
+}
+
+#section-detail-view .m-gakin-input-box {
+    flex: 1;
+}
+
+#section-detail-view .rune-modal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-sm);
+    border: var(--border-width) var(--border-style) var(--border);
+}
+
+#section-detail-view .rune-row-divider td {
+    border-bottom: 2px solid var(--gold) !important;
+}
+
+/* ========================================
+   캐릭터 정보 섹션
+======================================== */
+#section-detail-view .info-select {
+    flex: 1;
+    border: var(--border-width) var(--border-style) var(--border);
+    background: var(--bg-dark);
+    color: var(--color-white);
+    font-size: var(--fs-button);
+    height: var(--height-select);
+}
+
+#section-detail-view .divider-gold {
+    border-bottom: none;
+    margin: var(--spacing-sm) 0;
+}
+
+#section-detail-view .divider-gold-lg {
+    border-bottom: none;
+    margin: var(--spacing-lg) 0;
+}
+
+/* ========================================
+   비교 모드 (Compare Mode)
+======================================== */
+#section-detail-view #characterContainer {
+    display: block;
+}
+
+#section-detail-view #compareContainer {
+    display: none;
+}
+
+/* 3열 비교 레이아웃 */
+#section-detail-view .compare-three-col {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+}
+
+#section-detail-view .compare-side {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+#section-detail-view .compare-left table {
+    width: 100%;
+    margin-left: auto; /* 오른쪽 정렬 */
+}
+
+#section-detail-view .compare-right table {
+    width: 100%;
+    margin-right: auto; /* 왼쪽 정렬 */
+}
+
+#section-detail-view .compare-center {
+    flex: 0 0 130px;
+    width: 130px;
+}
+
+#section-detail-view .compare-side-table, #section-detail-view .compare-center-table {
+    border-collapse: collapse;
+    background-color: var(--table-bg);
+    border: var(--border-width) var(--border-style) var(--border);
+    margin-bottom: var(--spacing-4xl);
+    table-layout: auto;
+    width: 100%;
+}
+
+#section-detail-view .compare-side-table th, #section-detail-view .compare-side-table td, #section-detail-view .compare-center-table th, #section-detail-view .compare-center-table td {
+    padding: var(--spacing-lg) var(--spacing-sm);
+    border: var(--border-width) var(--border-style) var(--border);
+    font-size: var(--fs-compare);
+    white-space: nowrap;
+    height: 28px;
+    box-sizing: border-box;
+}
+
+#section-detail-view .compare-side-table th, #section-detail-view .compare-center-table th {
+    background-color: var(--bg-header);
+    color: var(--gold);
+    text-align: center;
+}
+
+#section-detail-view .compare-side-table td {
+    text-align: center;
+}
+
+#section-detail-view .compare-center-table {
+    border-left: none !important;
+    border-right: none !important;
+    margin-bottom: var(--spacing-4xl);
+}
+
+#section-detail-view .compare-center-table th {
+    background-color: var(--bg-header-alt) !important;
+    color: var(--gold) !important;
+    font-weight: bold;
+    text-align: center;
+}
+
+#section-detail-view .compare-center-table td {
+    text-align: center;
+    font-weight: bold;
+}
+
+#section-detail-view .compare-center-table td.same {
+    background-color: var(--bg-compare-diff) !important;
+    color: var(--color-gray-lighter) !important;
+    font-weight: normal;
+}
+#section-detail-view .compare-center-table td.positive {
+    background-color: var(--highlight-green-dark) !important;
+    color: var(--highlight-green) !important;
+}
+#section-detail-view .compare-center-table td.negative {
+    background-color: var(--highlight-red-dark) !important;
+    color: var(--highlight-red) !important;
+}
+
+#section-detail-view .compare-section-wrapper {
+    margin-bottom: var(--spacing-3xl);
+}
+
+#section-detail-view #compareCharSelectionContainer {
+    display: none;
+    margin-bottom: var(--spacing-3xl);
+    padding: var(--padding-modal);
+    background: var(--bg-row);
+    border: var(--border-width-heavy) var(--border-style) var(--border);
+    border-radius: var(--border-radius-md);
+}
+
+#section-detail-view #compareCharSelectionContainer h3 {
+    color: var(--gold);
+    margin-top: 0;
+}
+
+#section-detail-view #compareCharSelectionContainer p {
+    color: var(--color-gray-lighter);
+    font-size: var(--fs-compare);
+    margin: var(--spacing-xl) 0;
+}
+
+/* [100% 완성] 비교 선택 드롭다운 클래스 */
+#section-detail-view .compare-select-wrapper {
+    flex: 1;
+}
+
+#section-detail-view .compare-select-label {
+    color: var(--gold);
+    font-weight: bold;
+    display: block;
+    margin-bottom: var(--spacing-lg);
+}
+
+#section-detail-view .compare-select {
+    width: var(--width-full);
+    padding: var(--padding-input);
+    background: var(--bg-dark);
+    color: var(--color-white);
+    border: var(--border-width) var(--border-style) var(--border);
+    border-radius: var(--border-radius-md);
+    font-size: var(--fs-sm);
+    cursor: pointer;
+    height: var(--height-button-tall);
+    line-height: var(--line-height-normal);
+}
+
+#section-detail-view .compare-select-container {
+    display: flex;
+    gap: var(--spacing-4xl);
+    margin-top: var(--spacing-3xl);
+    align-items: center;
+}
+
+#section-detail-view .compare-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-3xl);
+    gap: var(--spacing-5xl);
+}
+
+#section-detail-view .compare-header h3 {
+    color: var(--gold);
+    margin: 0;
+    flex: 1;
+    text-align: center;
+}
+
+#section-detail-view .compare-center-label {
+    flex: 0 0 100px;
+    color: var(--color-gray-lighter);
+    text-align: center;
+    font-size: var(--fs-sm);
+}
+
+#section-detail-view .compare-section-title {
+    color: var(--gold);
+    font-weight: bold;
+    margin-top: var(--spacing-3xl);
+    margin-bottom: var(--spacing-xl);
+    font-size: var(--fs-md);
+}
+
+/* 비교 테이블 */
+#section-detail-view .compare-table {
+    width: max-content;
+    table-layout: auto;
+    border-collapse: collapse;
+    background-color: var(--table-bg);
+    border: var(--border-width) var(--border-style) var(--border);
+    margin-bottom: var(--spacing-4xl);
+}
+
+#section-detail-view #compareContent {
+    overflow-x: auto;
+}
+
+#section-detail-view .compare-table th {
+    background-color: var(--bg-header);
+    color: var(--gold);
+    padding: var(--spacing-lg) var(--spacing-sm);
+    border: var(--border-width) var(--border-style) var(--border);
+    font-size: var(--fs-compare);
+    font-weight: bold;
+}
+
+#section-detail-view .compare-table td {
+    border: var(--border-width) var(--border-style) var(--border);
+    padding: 6px var(--spacing-sm);
+    font-size: var(--fs-compare);
+    height: auto;
+}
+
+/* 비교 테이블 열 너비 */
+#section-detail-view .compare-slot-col {
+    width: var(--compare-slot-width) !important;
+    min-width: var(--compare-slot-min) !important;
+}
+
+#section-detail-view .compare-option-col {
+    width: var(--compare-option-width) !important;
+    min-width: var(--compare-option-min) !important;
+}
+
+#section-detail-view .compare-value-col {
+    width: var(--compare-value-width) !important;
+    min-width: var(--compare-value-min) !important;
+    text-align: center !important;
+}
+
+#section-detail-view .compare-attr-col {
+    width: var(--compare-attr-width) !important;
+    min-width: var(--compare-attr-min) !important;
+    text-align: center !important;
+}
+
+#section-detail-view .compare-item-col {
+    width: var(--compare-item-width) !important;
+    min-width: var(--compare-item-min) !important;
+}
+
+#section-detail-view .compare-reinforce-col {
+    width: var(--compare-reinforce-width) !important;
+    min-width: var(--compare-reinforce-min) !important;
+    text-align: center !important;
+}
+
+#section-detail-view .compare-diff-col {
+    width: var(--compare-diff-width) !important;
+    min-width: var(--compare-diff-min) !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    background-color: var(--bg-compare-diff) !important;
+    border-left: none !important;
+    border-right: none !important;
+    position: relative;
+}
+
+#section-detail-view .compare-table th.compare-diff-col {
+    background-color: var(--bg-header-alt) !important;
+    font-weight: bold;
+    color: var(--gold) !important;
+    font-size: var(--fs-compare);
+}
+
+#section-detail-view .compare-table td.compare-diff {
+    background-color: var(--bg-highlight) !important;
+    color: var(--highlight-yellow) !important;
+    font-weight: bold;
+    text-align: center;
+    border-left: none !important;
+    border-right: none !important;
+    font-size: var(--fs-compare);
+}
+
+#section-detail-view .compare-table td.compare-diff.same {
+    background-color: var(--bg-compare-diff) !important;
+    color: var(--color-gray-light) !important;
+    font-weight: normal;
+}
+
+#section-detail-view .compare-table td.compare-diff.positive {
+    background-color: var(--highlight-green-dark) !important;
+    color: var(--highlight-green) !important;
+}
+
+#section-detail-view .compare-table td.compare-diff.negative {
+    background-color: var(--highlight-red-dark) !important;
+    color: var(--highlight-red) !important;
+}
+
+#section-detail-view .compare-diff-col::before {
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: 0;
+    bottom: 0;
+    width: var(--spacing-sm);
+    background: linear-gradient(to right, rgba(197, 166, 120, 0.3), transparent);
+}
+
+#section-detail-view .compare-diff-col::after {
+    content: '';
+    position: absolute;
+    right: -3px;
+    top: 0;
+    bottom: 0;
+    width: var(--spacing-sm);
+    background: linear-gradient(to left, rgba(197, 166, 120, 0.3), transparent);
+}
+
+#section-detail-view .compare-slot-name {
+    background-color: var(--bg-header);
+    color: var(--gold);
+    font-weight: bold;
+    width: var(--compare-slot-min);
+}
+
+#section-detail-view .compare-divider-row td {
+    border-top: none;
+    height: var(--height-divider);
+    background: transparent;
+}
+
+/* 비교 테이블 색상 적용 */
+#section-detail-view .compare-table .rare-에픽 { color: var(--txt-epic) !important; font-weight: bold; }
+#section-detail-view .compare-table .rare-유니크 { color: var(--txt-unique) !important; font-weight: bold; }
+#section-detail-view .compare-table .rare-레어 { color: var(--txt-rare) !important; font-weight: bold; }
+#section-detail-view .compare-table .rare-언커먼 { color: var(--txt-uncom) !important; font-weight: bold; }
+#section-detail-view .compare-table .rare-커먼 { color: var(--txt-common) !important; font-weight: bold; }
+#section-detail-view .compare-table .rare-티어 { color: var(--color-white) !important; font-weight: bold; }
+#section-detail-view .compare-table .ex-이상 { color: var(--ex-isang) !important; font-weight: bold; }
+#section-detail-view .compare-table .ex-선봉 { color: var(--ex-sunbong) !important; font-weight: bold; }
+#section-detail-view .compare-table .ex-의지 { color: var(--ex-uiji) !important; font-weight: bold; }
+#section-detail-view .compare-table .prefix-selected { color: var(--txt-epic) !important; font-weight: bold; }
+#section-detail-view .compare-table .prefix-tier { color: var(--color-white) !important; font-weight: bold; }
+#section-detail-view .compare-table .p-blue { color: var(--prefix-blue) !important; }
+#section-detail-view .compare-table .p-red { color: var(--prefix-red) !important; }
+#section-detail-view .compare-table .p-green { color: var(--prefix-green) !important; }
+#section-detail-view .compare-table .p-yellow { color: var(--prefix-yellow) !important; }
+
+/* ========================================
+   모달 버튼 그룹
+======================================== */
+#section-detail-view .modal-button-group {
+    margin-top: var(--padding-modal);
+    display: flex;
+    gap: var(--spacing-xl);
+    justify-content: center;
+    padding-bottom: var(--spacing-md);
+}
+
+#section-detail-view .modal-flex-row {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+#section-detail-view .modal-flex-col {
+    flex: 1;
+}
+
+#section-detail-view .modal-flex-col-wide {
+    flex: 1.2;
+}
+
+#section-detail-view .modal-title {
+    color: var(--gold);
+    margin-top: 0;
+}
+
+/* ========================================
+   유틸리티 클래스 (Utility Classes)
+======================================== */
+
+/* 배경 색상 */
+#section-detail-view .bg-dark { background: var(--bg-dark) !important; }
+#section-detail-view .bg-section { background: var(--bg-section) !important; }
+#section-detail-view .bg-row { background: var(--bg-row) !important; }
+#section-detail-view .bg-header { background: var(--bg-header) !important; }
+
+/* 텍스트 색상 */
+#section-detail-view .text-white { color: var(--color-white) !important; }
+#section-detail-view .text-gold { color: var(--gold) !important; }
+#section-detail-view .text-gray { color: var(--color-gray-lighter) !important; }
+#section-detail-view .text-dark-gray { color: var(--color-gray-light) !important; }
+#section-detail-view .text-center { text-align: center; }
+
+/* 테두리 */
+#section-detail-view .border-gold { border: var(--border-width) var(--border-style) var(--border) !important; }
+#section-detail-view .border-gold-2 { border: none !important; }
+#section-detail-view .border-gray { border: var(--border-width) var(--border-style) var(--border) !important; }
+
+/* 패딩 */
+#section-detail-view .p-xs { padding: var(--padding-xs) !important; }
+#section-detail-view .p-sm { padding: var(--padding-sm) !important; }
+#section-detail-view .p-md { padding: var(--padding-md) !important; }
+#section-detail-view .p-lg { padding: var(--padding-lg) !important; }
+
+/* 간격 */
+#section-detail-view .gap-xs { gap: var(--spacing-xs) !important; }
+#section-detail-view .gap-sm { gap: var(--spacing-sm) !important; }
+#section-detail-view .gap-md { gap: var(--spacing-md) !important; }
+#section-detail-view .gap-lg { gap: var(--spacing-lg) !important; }
+
+/* 폰트 크기 */
+#section-detail-view .fs-xs { font-size: var(--fs-xs) !important; }
+#section-detail-view .fs-sm { font-size: var(--fs-sm) !important; }
+#section-detail-view .fs-md { font-size: var(--fs-md) !important; }
+
+/* 그림자 */
+#section-detail-view .shadow-highlight { box-shadow: var(--shadow-highlight); }
+
+/* 불투명도 */
+#section-detail-view .opacity-disabled { opacity: var(--opacity-disabled); }
+
+/* 커서 */
+#section-detail-view .cursor-pointer { cursor: pointer; }
+#section-detail-view .cursor-default { cursor: default; }
+#section-detail-view .cursor-text { cursor: text; }
+#section-detail-view .cursor-not-allowed { cursor: not-allowed; }
+
+/* 텍스트 스타일 */
+#section-detail-view .font-bold { font-weight: bold; }
+#section-detail-view .text-left { text-align: left; }
+
+/* Display */
+#section-detail-view .d-none { display: none; }
+#section-detail-view .d-block { display: block; }
+#section-detail-view .d-flex { display: flex; }
+#section-detail-view .d-inline-block { display: inline-block; }
+
+/* Flex */
+#section-detail-view .flex-1 { flex: 1; }
+#section-detail-view .flex-column { flex-direction: column; }
+#section-detail-view .align-center { align-items: center; }
+#section-detail-view .justify-center { justify-content: center; }
+
+/* 메모 */
+#section-detail-view .memo-popup {
+    width: 400px;  /* ← 이 값 변경 */
+}
+
+#section-detail-view .memo-popup textarea {
+    height: 150px;  /* ← 이 값 변경 */
+}
+
+/* 메모 버튼 스타일 */
+#section-detail-view .memo-edit-button {
+    width: 100%;
+    text-align: left;
+    padding: 6px 10px;
+    background: rgba(255, 215, 0, 0.1);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: #aaa;
+    font-size: 12px;
+    font-style: italic;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+#section-detail-view .memo-edit-button:hover {
+    background: rgba(255, 215, 0, 0.2);
+    border-color: var(--gold);
+    transform: translateY(-1px);
+}
+
+#section-detail-view .memo-edit-button:active {
+    transform: translateY(0);
+}
+
+#section-detail-view .memo-edit-button.has-memo {
+    color: #fff;
+    font-style: normal;
+}
+
+#section-detail-view .tag-remove {
+    cursor: pointer;
+}
+
