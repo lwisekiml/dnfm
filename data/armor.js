@@ -17,54 +17,20 @@ const ARMOR_ITEM_STATS = {
             }
         },
         "base": {
-            "이상": {
-                "전격": [
-                    { "stats": ["모든 타입 피해 증가"],               "amount": 42,   "unit": "%" },
-                    { "stats": ["물리 방어력"],                       "amount": 6237, "unit": ""  },
-                    { "stats": ["힘", "지능", "체력", "정신력"],     "amount": 44,   "unit": ""  },
-                    { "stats": ["공격속도"],                          "amount": 5,    "unit": "%" },
-                    { "stats": ["캐스팅속도"],                        "amount": 7,    "unit": "%" }
-                ],
-                "허상": [
-                    { "stats": ["모든 타입 피해 증가"],               "amount": 42,   "unit": "%" },
-                    { "stats": ["물리 방어력"],                       "amount": 6237, "unit": ""  },
-                    { "stats": ["힘", "지능", "체력", "정신력"],     "amount": 44,   "unit": ""  },
-                    { "stats": ["공격속도"],                          "amount": 5,    "unit": "%" },
-                    { "stats": ["캐스팅속도"],                        "amount": 7,    "unit": "%" }
-                ]
-            },
-            "선봉": {
-                "전격": [
-                    { "stats": ["모든 타입 피해 증가"],               "amount": 42,   "unit": "%" },
-                    { "stats": ["물리 방어력"],                       "amount": 6237, "unit": ""  },
-                    { "stats": ["힘", "지능", "체력", "정신력"],     "amount": 44,   "unit": ""  },
-                    { "stats": ["공격속도"],                          "amount": 5,    "unit": "%" },
-                    { "stats": ["캐스팅속도"],                        "amount": 7,    "unit": "%" }
-                ],
-                "허상": [
-                    { "stats": ["모든 타입 피해 증가"],               "amount": 42,   "unit": "%" },
-                    { "stats": ["물리 방어력"],                       "amount": 6237, "unit": ""  },
-                    { "stats": ["힘", "지능", "체력", "정신력"],     "amount": 44,   "unit": ""  },
-                    { "stats": ["공격속도"],                          "amount": 5,    "unit": "%" },
-                    { "stats": ["캐스팅속도"],                        "amount": 7,    "unit": "%" }
-                ]
-            },
-            "의지": {
-                "전격": [
-                    { "stats": ["모든 타입 피해 증가"],               "amount": 42,   "unit": "%" },
-                    { "stats": ["물리 방어력"],                       "amount": 6237, "unit": ""  },
-                    { "stats": ["힘", "지능", "체력", "정신력"],     "amount": 44,   "unit": ""  },
-                    { "stats": ["공격속도"],                          "amount": 5,    "unit": "%" },
-                    { "stats": ["캐스팅속도"],                        "amount": 7,    "unit": "%" }
-                ],
-                "허상": [
-                    { "stats": ["모든 타입 피해 증가"],               "amount": 42,   "unit": "%" },
-                    { "stats": ["물리 방어력"],                       "amount": 6237, "unit": ""  },
-                    { "stats": ["힘", "지능", "체력", "정신력"],     "amount": 44,   "unit": ""  },
-                    { "stats": ["공격속도"],                          "amount": 5,    "unit": "%" },
-                    { "stats": ["캐스팅속도"],                        "amount": 7,    "unit": "%" }
-                ]
-            }
+            "전격": [
+                { "stats": ["모든 타입 피해 증가"],               "amount": 42,   "unit": "%" },
+                { "stats": ["물리 방어력"],                       "amount": 6237, "unit": ""  },
+                { "stats": ["힘", "지능", "체력", "정신력"],     "amount": 44,   "unit": ""  },
+                { "stats": ["공격속도"],                          "amount": 5,    "unit": "%" },
+                { "stats": ["캐스팅속도"],                        "amount": 7,    "unit": "%" }
+            ],
+            "허상": [
+                { "stats": ["모든 타입 피해 증가"],               "amount": 42,   "unit": "%" },
+                { "stats": ["물리 방어력"],                       "amount": 6237, "unit": ""  },
+                { "stats": ["힘", "지능", "체력", "정신력"],     "amount": 44,   "unit": ""  },
+                { "stats": ["공격속도"],                          "amount": 5,    "unit": "%" },
+                { "stats": ["캐스팅속도"],                        "amount": 7,    "unit": "%" }
+            ]
         },
         "eff": {
             "전격": [{ "stats": ["힘", "지능"], "amount": 40, "unit": "%" }],
@@ -404,54 +370,20 @@ const ARMOR_ITEM_STATS = {
             }
         },
         "base": {
-            "이상": {
-                "작열": [
-                    { "stats": ["모든 타입 피해 증가"],           "amount": 42,   "unit": "%" },
-                    { "stats": ["물리 방어력"],                   "amount": 6237, "unit": ""  },
-                    { "stats": ["힘", "지능", "체력", "정신력"], "amount": 44,   "unit": ""  },
-                    { "stats": ["공격속도"],                      "amount": 3,    "unit": "%" },
-                    { "stats": ["캐스팅속도"],                    "amount": 4,    "unit": "%" }
-                ],
-                "침식": [
-                    { "stats": ["모든 타입 피해 증가"],           "amount": 42,   "unit": "%" },
-                    { "stats": ["물리 방어력"],                   "amount": 6237, "unit": ""  },
-                    { "stats": ["힘", "지능", "체력", "정신력"], "amount": 44,   "unit": ""  },
-                    { "stats": ["공격속도"],                      "amount": 3,    "unit": "%" },
-                    { "stats": ["캐스팅속도"],                    "amount": 4,    "unit": "%" }
-                ]
-            },
-            "선봉": {
-                "작열": [
-                    { "stats": ["모든 타입 피해 증가"],           "amount": 42,   "unit": "%" },
-                    { "stats": ["물리 방어력"],                   "amount": 6237, "unit": ""  },
-                    { "stats": ["힘", "지능", "체력", "정신력"], "amount": 44,   "unit": ""  },
-                    { "stats": ["공격속도"],                      "amount": 3,    "unit": "%" },
-                    { "stats": ["캐스팅속도"],                    "amount": 4,    "unit": "%" }
-                ],
-                "침식": [
-                    { "stats": ["모든 타입 피해 증가"],           "amount": 42,   "unit": "%" },
-                    { "stats": ["물리 방어력"],                   "amount": 6237, "unit": ""  },
-                    { "stats": ["힘", "지능", "체력", "정신력"], "amount": 44,   "unit": ""  },
-                    { "stats": ["공격속도"],                      "amount": 3,    "unit": "%" },
-                    { "stats": ["캐스팅속도"],                    "amount": 4,    "unit": "%" }
-                ]
-            },
-            "의지": {
-                "작열": [
-                    { "stats": ["모든 타입 피해 증가"],           "amount": 42,   "unit": "%" },
-                    { "stats": ["물리 방어력"],                   "amount": 6237, "unit": ""  },
-                    { "stats": ["힘", "지능", "체력", "정신력"], "amount": 44,   "unit": ""  },
-                    { "stats": ["공격속도"],                      "amount": 3,    "unit": "%" },
-                    { "stats": ["캐스팅속도"],                    "amount": 4,    "unit": "%" }
-                ],
-                "침식": [
-                    { "stats": ["모든 타입 피해 증가"],           "amount": 42,   "unit": "%" },
-                    { "stats": ["물리 방어력"],                   "amount": 6237, "unit": ""  },
-                    { "stats": ["힘", "지능", "체력", "정신력"], "amount": 44,   "unit": ""  },
-                    { "stats": ["공격속도"],                      "amount": 3,    "unit": "%" },
-                    { "stats": ["캐스팅속도"],                    "amount": 4,    "unit": "%" }
-                ]
-            }
+            "작열": [
+                { "stats": ["모든 타입 피해 증가"],           "amount": 42,   "unit": "%" },
+                { "stats": ["물리 방어력"],                   "amount": 6237, "unit": ""  },
+                { "stats": ["힘", "지능", "체력", "정신력"], "amount": 44,   "unit": ""  },
+                { "stats": ["공격속도"],                      "amount": 3,    "unit": "%" },
+                { "stats": ["캐스팅속도"],                    "amount": 4,    "unit": "%" }
+            ],
+            "침식": [
+                { "stats": ["모든 타입 피해 증가"],           "amount": 42,   "unit": "%" },
+                { "stats": ["물리 방어력"],                   "amount": 6237, "unit": ""  },
+                { "stats": ["힘", "지능", "체력", "정신력"], "amount": 44,   "unit": ""  },
+                { "stats": ["공격속도"],                      "amount": 3,    "unit": "%" },
+                { "stats": ["캐스팅속도"],                    "amount": 4,    "unit": "%" }
+            ]
         },
         "eff": {
             "작열": [

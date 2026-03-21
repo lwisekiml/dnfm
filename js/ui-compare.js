@@ -602,7 +602,7 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
     const armorData = (typeof ARMOR_ITEM_STATS !== 'undefined') ? ARMOR_ITEM_STATS : {};
 
     // 슬롯에서 스탯 배열 추출 헬퍼
-    // exceed 아이템: base[exceedStage][prefix], eff[prefix], mastery[prefix]
+    // exceed 아이템: base[prefix], eff[prefix], mastery[prefix]
     // 일반 아이템:   base[prefix],              eff[prefix], mastery[prefix]
     function getArmorStats(section, slot) {
         const itemname = section.querySelector(`[data-key="${slot}_itemname"]`)?.value || '';
@@ -614,12 +614,11 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
         let baseArr, effArr, masteryArr;
 
         if (item.exceed) {
-            // exceed 아이템: exceedStage = exceed 값(이상/선봉/의지), prefixKey = prefix(전격/허상)
-            const exceedStage = exceed || '이상';
-            const prefixKey   = prefix || '전격';
-            baseArr    = item.base?.[exceedStage]?.[prefixKey]  || [];
-            effArr     = item.eff?.[prefixKey]                   || [];
-            masteryArr = item.mastery?.[prefixKey]               || [];
+            // exceed 아이템: base[prefix], eff[prefix], mastery[prefix]
+            const prefixKey = prefix || '전격';
+            baseArr    = item.base?.[prefixKey]    || [];
+            effArr     = item.eff?.[prefixKey]     || [];
+            masteryArr = item.mastery?.[prefixKey] || [];
         } else {
             // 일반 아이템: prefix = 기본/전격/허상
             const prefixKey = prefix || '기본';
@@ -1134,10 +1133,9 @@ function buildAccStatCompare(section1, section2, name1, name2) {
         let baseArr, effArr;
 
         if (item.exceed) {
-            const exceedStage = exceed || '이상';
-            const prefixKey   = prefix || '견고';
-            baseArr = item.base?.[exceedStage]?.[prefixKey] || [];
-            effArr  = item.eff?.[prefixKey]                 || [];
+            const prefixKey = prefix || '견고';
+            baseArr = item.base?.[prefixKey] || [];
+            effArr  = item.eff?.[prefixKey]  || [];
         } else {
             const prefixKey = prefix || '기본';
             baseArr = item.base?.[prefixKey] || [];
@@ -1513,10 +1511,9 @@ function buildSpecialStatCompare(section1, section2, name1, name2) {
         let baseArr, effArr;
 
         if (item.exceed) {
-            const exceedStage = exceed || '이상';
-            const prefixKey   = prefix || '불굴';
-            baseArr = item.base?.[exceedStage]?.[prefixKey] || [];
-            effArr  = item.eff?.[prefixKey]                 || [];
+            const prefixKey = prefix || '불굴';
+            baseArr = item.base?.[prefixKey] || [];
+            effArr  = item.eff?.[prefixKey]  || [];
         } else {
             const prefixKey = prefix || '기본';
             baseArr = item.base?.[prefixKey] || [];

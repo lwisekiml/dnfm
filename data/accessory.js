@@ -21,48 +21,18 @@ const ACCESSORY_ITEM_STATS = {
             }
         },
         "base": {
-            "이상": {
-                "견고": [
-                    { "stats": ["모든 타입 피해 증가"], "amount": 32,   "unit": "%" },
-                    { "stats": ["마법 방어력"],          "amount": 3741, "unit": ""  },
-                    { "stats": ["힘"],                   "amount": 36,   "unit": ""  },
-                    { "stats": ["체력"],                 "amount": 90,   "unit": ""  }
-                ],
-                "혈독": [
-                    { "stats": ["모든 타입 피해 증가"], "amount": 32,   "unit": "%" },
-                    { "stats": ["마법 방어력"],          "amount": 3741, "unit": ""  },
-                    { "stats": ["힘"],                   "amount": 36,   "unit": ""  },
-                    { "stats": ["체력"],                 "amount": 90,   "unit": ""  }
-                ]
-            },
-            "선봉": {
-                "견고": [
-                    { "stats": ["모든 타입 피해 증가"], "amount": 32,   "unit": "%" },
-                    { "stats": ["마법 방어력"],          "amount": 3741, "unit": ""  },
-                    { "stats": ["힘"],                   "amount": 36,   "unit": ""  },
-                    { "stats": ["체력"],                 "amount": 90,   "unit": ""  }
-                ],
-                "혈독": [
-                    { "stats": ["모든 타입 피해 증가"], "amount": 32,   "unit": "%" },
-                    { "stats": ["마법 방어력"],          "amount": 3741, "unit": ""  },
-                    { "stats": ["힘"],                   "amount": 36,   "unit": ""  },
-                    { "stats": ["체력"],                 "amount": 90,   "unit": ""  }
-                ]
-            },
-            "의지": {
-                "견고": [
-                    { "stats": ["모든 타입 피해 증가"], "amount": 32,   "unit": "%" },
-                    { "stats": ["마법 방어력"],          "amount": 3741, "unit": ""  },
-                    { "stats": ["힘"],                   "amount": 36,   "unit": ""  },
-                    { "stats": ["체력"],                 "amount": 90,   "unit": ""  }
-                ],
-                "혈독": [
-                    { "stats": ["모든 타입 피해 증가"], "amount": 32,   "unit": "%" },
-                    { "stats": ["마법 방어력"],          "amount": 3741, "unit": ""  },
-                    { "stats": ["힘"],                   "amount": 36,   "unit": ""  },
-                    { "stats": ["체력"],                 "amount": 90,   "unit": ""  }
-                ]
-            }
+            "견고": [
+                { "stats": ["모든 타입 피해 증가"], "amount": 32,   "unit": "%" },
+                { "stats": ["마법 방어력"],          "amount": 3741, "unit": ""  },
+                { "stats": ["힘"],                   "amount": 36,   "unit": ""  },
+                { "stats": ["체력"],                 "amount": 90,   "unit": ""  }
+            ],
+            "혈독": [
+                { "stats": ["모든 타입 피해 증가"], "amount": 32,   "unit": "%" },
+                { "stats": ["마법 방어력"],          "amount": 3741, "unit": ""  },
+                { "stats": ["힘"],                   "amount": 36,   "unit": ""  },
+                { "stats": ["체력"],                 "amount": 90,   "unit": ""  }
+            ]
         },
         "eff": {
             "견고": [
