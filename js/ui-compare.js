@@ -573,6 +573,14 @@ function displayComparison() {
     const accSetEffectEl = buildAccSetEffectCompare(section1, section2, displayName1, displayName2);
     container.appendChild(accSetEffectEl);
 
+    // 특수장비 스탯 비교 표
+    const specialStatEl = buildSpecialStatCompare(section1, section2, displayName1, displayName2);
+    container.appendChild(specialStatEl);
+
+    // 특수장비 세트 효과 비교 표
+    const specialSetEffectEl = buildSpecialSetEffectCompare(section1, section2, displayName1, displayName2);
+    container.appendChild(specialSetEffectEl);
+
     // DOM에 추가된 후 행 높이 동기화
     requestAnimationFrame(() => {
         sections.forEach(s => {
@@ -1440,6 +1448,367 @@ function buildAccSetEffectCompare(section1, section2, name1, name2) {
                 } else if (val1 && !val2) {
                     diffText = `↓ -${val1.amount}${val1.unit}`;
                     diffClass = 'color:#e74c3c;font-weight:bold;';
+                }
+
+                const highlight = (display1 !== display2) ? 'background:rgba(100,114,168,0.12);' : '';
+
+                tbodyHtml += `<tr style="${highlight}">
+                    <td style="text-align:center;padding:2px 6px;color:#7fd4ff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">3세트</td>
+                    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val1 ? statName : ''}</td>
+                    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+                    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffClass}">${diffText}</td>
+                    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
+                    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val2 ? statName : ''}</td>
+                    <td style="text-align:center;padding:2px 6px;color:#7fd4ff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">3세트</td>
+                </tr>`;
+            });
+        }
+    }
+
+    if (!result1.effects3 && !result2.effects3) {
+        tbodyHtml += `<tr>
+            <td colspan="7" style="text-align:center;padding:12px 8px;color:#888;font-size:0.85em;">세트 효과 없음</td>
+        </tr>`;
+    }
+
+    tableWrap.innerHTML = `
+    <table style="border-collapse:collapse;width:max-content;min-width:400px;">
+    <thead>
+        <tr>
+            <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;border-right:1px solid #2a3158;">${name1}</th>
+            <th rowspan="2" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">차이</th>
+            <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;">${name2}</th>
+        </tr>
+        <tr>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">구분</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:100px;border-right:1px solid #2a3158;">수치</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:100px;border-right:1px solid #2a3158;">수치</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;">구분</th>
+        </tr>
+    </thead>
+        <tbody>${tbodyHtml}</tbody>
+    </table>`;
+
+    wrapper.appendChild(tableWrap);
+    return wrapper;
+}
+
+/**
+ * 특수장비 부위별 스탯 비교 표
+ */
+function buildSpecialStatCompare(section1, section2, name1, name2) {
+    const SPECIAL_SLOTS = ["귀걸이", "마법석", "보조장비"];
+
+    const specialData = (typeof SPECIAL_ITEM_STATS !== 'undefined') ? SPECIAL_ITEM_STATS : {};
+
+    function getSpecialStats(section, slot) {
+        const itemname = section.querySelector(`[data-key="${slot}_itemname"]`)?.value || '';
+        const exceed   = section.querySelector(`select[data-key="${slot}_exceed"]`)?.value || '';
+        const prefix   = section.querySelector(`select[data-key="${slot}_prefix"]`)?.value || '';
+        if (!itemname || !specialData[itemname]) return { itemname, exceed, prefix, stats: null };
+
+        const item = specialData[itemname];
+        let baseArr, effArr;
+
+        if (item.exceed) {
+            const exceedStage = exceed || '이상';
+            const prefixKey   = prefix || '불굴';
+            baseArr = item.base?.[exceedStage]?.[prefixKey] || [];
+            effArr  = item.eff?.[prefixKey]                 || [];
+        } else {
+            const prefixKey = prefix || '기본';
+            baseArr = item.base?.[prefixKey] || [];
+            effArr  = item.eff?.[prefixKey]  || [];
+        }
+
+        const map = {};
+        const addToMap = (arr, section) => {
+            arr.forEach(entry => {
+                (entry.stats || []).forEach(statName => {
+                    const key = `[${section}] ${statName}`;
+                    if (!map[key]) map[key] = { amount: 0, unit: entry.unit || '' };
+                    map[key].amount += (entry.amount || 0);
+                });
+            });
+        };
+        addToMap(baseArr, '기본효과');
+        addToMap(effArr,  '효과');
+
+        return { itemname, exceed, prefix, stats: map };
+    }
+
+    const slotResults1 = {};
+    const slotResults2 = {};
+    SPECIAL_SLOTS.forEach(slot => {
+        slotResults1[slot] = getSpecialStats(section1, slot);
+        slotResults2[slot] = getSpecialStats(section2, slot);
+    });
+
+    let tbodyHtml = '';
+
+    SPECIAL_SLOTS.forEach((slot, slotIdx) => {
+        const r1 = slotResults1[slot];
+        const r2 = slotResults2[slot];
+
+        if (slotIdx > 0) {
+            tbodyHtml += `<tr><td colspan="8" style="padding:0;border-top:1px solid #2a3158;"></td></tr>`;
+        }
+
+        const noData1 = !r1.stats;
+        const noData2 = !r2.stats;
+
+        if (noData1 && noData2) {
+            const label1 = r1.itemname || '(미착용)';
+            const label2 = r2.itemname || '(미착용)';
+            tbodyHtml += `<tr>
+                <td style="text-align:center;padding:3px 8px;color:#aaa;font-size:0.85em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;">${slot}</td>
+                <td style="text-align:center;padding:3px 8px;color:#555;font-size:0.8em;" colspan="2">${label1}</td>
+                <td style="text-align:center;padding:3px 8px;color:#888;font-size:0.78em;">vs</td>
+                <td style="text-align:center;padding:3px 8px;color:#555;font-size:0.8em;" colspan="3">${label2}</td>
+            </tr>`;
+            return;
+        }
+
+        const allKeys = [...new Set([
+            ...Object.keys(r1.stats || {}),
+            ...Object.keys(r2.stats || {})
+        ])];
+
+        const sectionOrder = ['[기본효과]', '[효과]'];
+        allKeys.sort((a, b) => {
+            const sa = sectionOrder.findIndex(s => a.startsWith(s));
+            const sb = sectionOrder.findIndex(s => b.startsWith(s));
+            return sa - sb;
+        });
+
+        const itemLabel1 = r1.itemname
+            ? `${r1.exceed ? `[${r1.exceed}] ` : ''}${r1.prefix && r1.prefix !== '기본' ? `${r1.prefix}: ` : ''}${r1.itemname}`
+            : '(미착용)';
+        const itemLabel2 = r2.itemname
+            ? `${r2.exceed ? `[${r2.exceed}] ` : ''}${r2.prefix && r2.prefix !== '기본' ? `${r2.prefix}: ` : ''}${r2.itemname}`
+            : '(미착용)';
+
+        tbodyHtml += `<tr>
+            <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;">${slot}</td>
+            <td style="text-align:center;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${itemLabel1}</td>
+            <td style="text-align:center;padding:3px 8px;color:#888;font-size:0.78em;white-space:nowrap;">vs</td>
+            <td style="text-align:center;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${itemLabel2}</td>
+            <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;border-left:1px solid #2a3158;">${slot}</td>
+        </tr>`;
+
+        allKeys.forEach(key => {
+            const e1 = r1.stats?.[key];
+            const e2 = r2.stats?.[key];
+            const v1 = e1?.amount ?? 0;
+            const v2 = e2?.amount ?? 0;
+            const unit = e1?.unit || e2?.unit || '';
+            const diff = v2 - v1;
+            const highlight = (v1 !== v2) ? 'background:rgba(100,114,168,0.12);' : '';
+            const displayKey = key.replace(/^\[기본효과\] |^\[효과\] /, '');
+            const sectionTag = key.match(/^\[(.+?)\]/)?.[1] || '';
+            const tagColor = sectionTag === '기본효과' ? '#7a9fcf' : '#a0d4a0';
+
+            const display1 = v1 !== 0 ? `${v1}${unit}` : '';
+            const display2 = v2 !== 0 ? `${v2}${unit}` : '';
+
+            let diffText = '';
+            let diffStyle2 = 'color:#888;';
+            if (v1 !== 0 && v2 !== 0) {
+                if (diff > 0) { diffText = `↑ +${diff}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;'; }
+                else if (diff < 0) { diffText = `↓ ${diff}${unit}`; diffStyle2 = 'color:#e74c3c;font-weight:bold;'; }
+                else { diffText = '동일'; diffStyle2 = 'color:#888;'; }
+            } else if (v1 === 0 && v2 !== 0) {
+                diffText = `↑ +${v2}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;';
+            } else if (v1 !== 0 && v2 === 0) {
+                diffText = `↓ -${v1}${unit}`; diffStyle2 = 'color:#e74c3c;font-weight:bold;';
+            }
+
+            tbodyHtml += `<tr style="${highlight}">
+                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${v1 !== 0 ? sectionTag : ''}</td>
+                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v1 !== 0 ? displayKey : ''}</td>
+                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle2}">${diffText}</td>
+                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
+                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v2 !== 0 ? displayKey : ''}</td>
+                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${v2 !== 0 ? sectionTag : ''}</td>
+            </tr>`;
+        });
+    });
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'compare-section-wrapper';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'compare-section-title';
+    titleEl.textContent = '*특수장비 스탯 비교*';
+    wrapper.appendChild(titleEl);
+
+    const tableWrap = document.createElement('div');
+    tableWrap.style.cssText = 'overflow-x:auto;margin-top:6px;';
+
+    tableWrap.innerHTML = `
+    <table style="border-collapse:collapse;width:max-content;min-width:400px;">
+        <thead>
+            <tr>
+                <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;border-right:1px solid #2a3158;">${name1}</th>
+                <th rowspan="2" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">차이</th>
+                <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;">${name2}</th>
+            </tr>
+            <tr>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">구분</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:100px;border-right:1px solid #2a3158;">수치</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:100px;border-right:1px solid #2a3158;">수치</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;">구분</th>
+            </tr>
+        </thead>
+        <tbody>${tbodyHtml}</tbody>
+    </table>`;
+
+    wrapper.appendChild(tableWrap);
+    return wrapper;
+}
+
+/**
+ * 특수장비 세트 효과 비교 표
+ */
+function buildSpecialSetEffectCompare(section1, section2, name1, name2) {
+    const SPECIAL_SLOTS = ["귀걸이", "마법석", "보조장비"];
+
+    const setEffectsData = (typeof SPECIAL_SET_EFFECTS !== 'undefined') ? SPECIAL_SET_EFFECTS : {};
+
+    function getSpecialSetEffects(section) {
+        const specialItemInfo = (typeof SPECIAL_ITEM_INFO !== 'undefined') ? SPECIAL_ITEM_INFO : {};
+
+        const slots = {};
+        SPECIAL_SLOTS.forEach(slot => {
+            const itemname = section.querySelector(`[data-key="${slot}_itemname"]`)?.value || '';
+            const prefix   = section.querySelector(`select[data-key="${slot}_prefix"]`)?.value || '';
+            if (itemname) slots[slot] = { itemname, prefix };
+        });
+
+        const items = Object.values(slots);
+        if (items.length === 0) return { setName: null, prefix: null, count: 0, effects3: null };
+
+        const setNames = items.map(({ itemname }) => specialItemInfo[itemname]?.setName).filter(Boolean);
+        if (setNames.length === 0) return { setName: null, prefix: null, count: 0, effects3: null };
+
+        const setNameCount = {};
+        setNames.forEach(s => { setNameCount[s] = (setNameCount[s] || 0) + 1; });
+        const bestSet = Object.entries(setNameCount).sort((a, b) => b[1] - a[1])[0][0];
+        const count = setNameCount[bestSet];
+
+        if (count < 3) return { setName: bestSet, prefix: null, count, effects3: null };
+
+        // 접두어 판정: 귀걸이/마법석/보조장비 모두 같은 접두어이면 해당 접두어, 아니면 기본
+        const earPrefix  = slots['귀걸이']?.prefix  || '기본';
+        const gemPrefix  = slots['마법석']?.prefix  || '기본';
+        const subPrefix  = slots['보조장비']?.prefix || '기본';
+
+        let resultPrefix;
+        if (earPrefix === gemPrefix && gemPrefix === subPrefix && earPrefix !== '기본') {
+            resultPrefix = earPrefix;
+        } else {
+            resultPrefix = '기본';
+        }
+
+        let effects3 = null;
+        const setData = setEffectsData[bestSet];
+        if (setData && setData[resultPrefix]) {
+            effects3 = setData[resultPrefix]["3"];
+        }
+
+        return { setName: bestSet, prefix: resultPrefix, count, effects3 };
+    }
+
+    const result1 = getSpecialSetEffects(section1);
+    const result2 = getSpecialSetEffects(section2);
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'compare-section-wrapper';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'compare-section-title';
+    titleEl.textContent = '*특수장비 세트 효과 비교*';
+    wrapper.appendChild(titleEl);
+
+    const tableWrap = document.createElement('div');
+    tableWrap.style.cssText = 'overflow-x:auto;margin-top:6px;';
+
+    let tbodyHtml = '';
+
+    const set1Label = result1.setName
+        ? `${result1.prefix && result1.prefix !== '기본' ? result1.prefix + ': ' : ''}${result1.setName} (${result1.count}셋)`
+        : '세트 없음';
+    const set2Label = result2.setName
+        ? `${result2.prefix && result2.prefix !== '기본' ? result2.prefix + ': ' : ''}${result2.setName} (${result2.count}셋)`
+        : '세트 없음';
+
+    tbodyHtml += `<tr>
+        <td style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;" colspan="3">${set1Label}</td>
+        <td style="text-align:center;padding:6px 8px;color:#888;font-size:0.85em;border-right:1px solid #2a3158;" colspan="1">vs</td>
+        <td style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;white-space:nowrap;font-weight:bold;" colspan="3">${set2Label}</td>
+    </tr>`;
+
+    const has3Set1 = result1.count >= 3 && result1.effects3;
+    const has3Set2 = result2.count >= 3 && result2.effects3;
+
+    if (has3Set1 || has3Set2) {
+        const stats1 = result1.effects3?.stats || [];
+        const stats2 = result2.effects3?.stats || [];
+
+        const statMap1 = {};
+        const statMap2 = {};
+
+        stats1.forEach(entry => {
+            entry.stats.forEach(statName => {
+                statMap1[statName] = { amount: entry.amount, unit: entry.unit };
+            });
+        });
+
+        stats2.forEach(entry => {
+            entry.stats.forEach(statName => {
+                statMap2[statName] = { amount: entry.amount, unit: entry.unit };
+            });
+        });
+
+        const allStatNames = [...new Set([...Object.keys(statMap1), ...Object.keys(statMap2)])];
+
+        tbodyHtml += `<tr style="background:rgba(127,212,255,0.15);">
+            <td colspan="7" style="text-align:center;padding:6px 8px;color:#7fd4ff;font-size:0.9em;font-weight:bold;">━━━ 3세트 효과 ━━━</td>
+        </tr>`;
+
+        if (allStatNames.length === 0) {
+            tbodyHtml += `<tr>
+                <td colspan="7" style="text-align:center;padding:8px;color:#888;font-size:0.85em;">3세트 효과 데이터 없음</td>
+            </tr>`;
+        } else {
+            allStatNames.forEach(statName => {
+                const val1 = statMap1[statName];
+                const val2 = statMap2[statName];
+
+                const display1 = val1 ? `${val1.amount}${val1.unit}` : '';
+                const display2 = val2 ? `${val2.amount}${val2.unit}` : '';
+
+                let diffText = '';
+                let diffClass = 'color:#888;';
+
+                if (val1 && val2) {
+                    if (val1.amount === val2.amount && val1.unit === val2.unit) {
+                        diffText = '동일'; diffClass = 'color:#888;';
+                    } else {
+                        const diff = val2.amount - val1.amount;
+                        if (diff > 0) { diffText = `↑ +${diff}${val2.unit}`; diffClass = 'color:#2ecc71;font-weight:bold;'; }
+                        else if (diff < 0) { diffText = `↓ ${diff}${val2.unit}`; diffClass = 'color:#e74c3c;font-weight:bold;'; }
+                        else { diffText = '동일'; diffClass = 'color:#888;'; }
+                    }
+                } else if (!val1 && val2) {
+                    diffText = `↑ +${val2.amount}${val2.unit}`; diffClass = 'color:#2ecc71;font-weight:bold;';
+                } else if (val1 && !val2) {
+                    diffText = `↓ -${val1.amount}${val1.unit}`; diffClass = 'color:#e74c3c;font-weight:bold;';
                 }
 
                 const highlight = (display1 !== display2) ? 'background:rgba(100,114,168,0.12);' : '';

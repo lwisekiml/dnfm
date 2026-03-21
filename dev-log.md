@@ -5513,3 +5513,46 @@ container.appendChild(armorSetEffectEl);
 **`index.html`**
 
 - `data/accessory.js`, `data/accessory_set_effects.js` script 태그 추가
+
+---
+---
+
+## 2026-03-20 (132차)
+
+### 특수장비 데이터 파일 신규 생성 + 비교 모드 특수장비 스탯/세트 효과 비교 추가
+
+**수정된 파일:** `data/special.js`(신규), `data/special_set_effects.js`(신규), `js/ui-compare.js`, `index.html`
+
+---
+
+### 변경 내용
+
+**`data/special.js`** (신규)
+
+- 특수장비 아이템 스탯 데이터 파일 생성 (`data/special.json` 대체)
+- 세트: `개구쟁이 호문쿨루스`
+- 익시드 아이템 `말괄량이의 문양 귀걸이` (`exceed: true`, `base[이상/선봉/의지][불굴/숙련]`)
+- 일반 아이템: `베키의 문양 귀걸이`, `베키의 새총`, `베키의 장갑` (기본/불굴/숙련)
+
+**`data/special_set_effects.js`** (신규)
+
+- 특수장비 세트 효과 데이터 파일 생성
+- `개구쟁이 호문쿨루스` 세트 기본/불굴/숙련 3셋 효과 포함
+
+**`js/ui-compare.js`**
+
+- `buildSpecialStatCompare` 함수 신규 추가
+  - 특수장비 슬롯(귀걸이/마법석/보조장비) 스탯 비교 테이블
+  - `SPECIAL_ITEM_STATS` 데이터 사용
+  - 악세서리 스탯 비교와 동일한 구조
+- `buildSpecialSetEffectCompare` 함수 신규 추가
+  - 세트 효과 판정: 귀걸이/마법석/보조장비 접두어 기준으로 판정
+  - 세트 라벨 형식: `"불굴: 개구쟁이 호문쿨루스 (3셋)"` / 기본일 때: `"개구쟁이 호문쿨루스 (3셋)"`
+- `displayComparison()`에 특수장비 비교 2개 호출 추가 (악세서리 세트 효과 비교 다음에 배치)
+
+**`index.html`**
+
+- `data/special.js`, `data/special_set_effects.js` script 태그 추가
+
+---
+---
