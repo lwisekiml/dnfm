@@ -5713,3 +5713,93 @@ container.appendChild(armorSetEffectEl);
 
 ---
 ---
+
+## 2026-03-22 (135차)
+
+### 파일 역할 분리 리팩토링 1단계 - 혼재된 기능 분리
+
+**수정된 파일:** `scripts/eq_weapon.js`, `js/storage.js`, `js/main.js`, `index.html`
+**신규 파일:** `scripts/eq_craft.js`, `js/migration.js`, `js/events.js`
+
+---
+
+### 변경 내용
+
+**`scripts/eq_craft.js`** (신규, 약 300줄)
+
+- `scripts/eq_weapon.js`의 [섹션 12] 제작 시스템 전체를 분리
+- 포함 함수: `renderCraftTable`, `updateCraftTotals`, `setCraftLock`, `applyCraftModulo`, `undoCraftModulo`
+- 의존 변수: `craftLocked` (`eq_data.js`), `characters` (`eq_data.js`), `saveLocalData` (`eq_core.js`)
+- `craftUndoSnapshot` 변수도 이 파일로 이동
+
+**`scripts/eq_weapon.js`** (1,261줄 → 812줄)
+
+- [섹션 12] 제작 시스템 코드 전체 제거
+- 제거된 섹션 위치에 `eq_craft.js` 참조 주석으로 대체
+
+**`js/migration.js`** (신규, 약 120줄)
+
+- `js/storage.js`의 마이그레이션 함수 3개를 분리
+- 포함 함수: `migrateToUnified`, `migrateRuneData`, `migrateInputs`
+- `migrateToUnified`: project1/project2 구버전 데이터 → `dnfm_unified` 통합 스토리지 1회성 마이그레이션
+- `migrateRuneData`: `character.runeData` → `inputs["스킬룬"].runeData` 구조 변환
+- `migrateInputs`: 플랫 inputs 구조 → 중첩 inputs 구조 변환
+- 의존 상수: `STORAGE_KEYS` (`shared_constants.js`)
+- 로드 순서: `storage.js` 보다 먼저 로드되어야 함
+
+**`js/storage.js`** (489줄 → 362줄)
+
+- 마이그레이션 함수 3개 제거
+- 제거된 섹션 위치에 `migration.js` 참조 주석으로 대체
+
+**`js/events.js`** (신규, 약 160줄)
+
+- `js/main.js`의 전역 이벤트 리스너 3개를 분리
+- 포함 이벤트: `keydown` (탭 이동), `change` (변경 감지 및 히스토리 기록), `DOMContentLoaded` (모달/팝업 초기화)
+- `window.addEventListener('load')`는 `initProject1()` 초기화 로직이므로 `main.js`에 유지
+- 의존: `AppState` (`state.js`), `applySealHighlight` (`ui-core.js`), `getCurrentDateTime` (`utils.js`)
+- 로드 순서: `main.js` 이후에 로드
+
+**`js/main.js`** (251줄 → 87줄)
+
+- 이벤트 리스너 3개 제거, `initProject1` 함수와 `window.addEventListener('load')` 초기화 로직만 유지
+- 제거된 섹션 위치에 `events.js` 참조 주석으로 대체
+
+**`index.html`**
+
+- 신규 파일 3개에 대한 script 태그 추가
+- 로드 순서 변경 사항:
+  - `eq_craft.js`: `eq_weapon.js` 바로 다음에 추가
+  - `migration.js`: `utils.js`와 `storage.js` 사이에 추가
+  - `events.js`: `main.js` 바로 다음(마지막)에 추가
+
+```html
+<!-- 변경 전 -->
+<script src="scripts/eq_weapon.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+...
+<script src="js/main.js"></script>
+
+<!-- 변경 후 -->
+<script src="scripts/eq_weapon.js"></script>
+<script src="scripts/eq_craft.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/migration.js"></script>
+<script src="js/storage.js"></script>
+...
+<script src="js/main.js"></script>
+<script src="js/events.js"></script>
+```
+
+---
+
+### 분리 기준
+
+각 파일이 단일 역할을 갖도록 분리
+
+| 파일 | 분리 전 | 분리 후 |
+|------|---------|---------|
+| `eq_weapon.js` | 무기 등록 + 제작 시스템 | 무기 등록만 |
+| `storage.js` | 저장/불러오기 + 마이그레이션 | 저장/불러오기만 |
+| `main.js` | 초기화 + 이벤트 리스너 | 초기화만 |
