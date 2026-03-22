@@ -5803,3 +5803,74 @@ container.appendChild(armorSetEffectEl);
 | `eq_weapon.js` | 무기 등록 + 제작 시스템 | 무기 등록만 |
 | `storage.js` | 저장/불러오기 + 마이그레이션 | 저장/불러오기만 |
 | `main.js` | 초기화 + 이벤트 리스너 | 초기화만 |
+
+---
+---
+
+네, 2단계 끝난 거 맞아요! 개발로그 작성할게요.
+
+---
+
+## 2026-03-22 (136차)
+
+### 파일 역할 분리 리팩토링 2단계 - 불필요 파일 제거 및 폴더 구조 정리
+
+**수정된 파일:** `js/ui-core.js`, `index.html`
+**삭제된 파일:** `shared/shared_item_stats.js`, `js/ui-modal.js`
+**폴더명 변경:** `scripts/` → `equipment/`, `js/` → `character/`
+
+---
+
+### 변경 내용
+
+**`shared/shared_item_stats.js`** (삭제)
+
+- 주석과 빈 변수 선언 2줄(`let ACCESSORY_ITEM_STATS`, `let SPECIAL_ITEM_STATS`)만 존재
+- `accessory.js`, `special.js`에서 이미 `const`로 선언하므로 실질적으로 무의미한 파일
+- `index.html`에서 해당 script 태그 삭제
+
+**`js/ui-modal.js`** (삭제)
+
+- `openHistoryModal`, `closeHistoryModal` 2개 함수(30줄)만 존재
+- `openHistoryModal`은 프로젝트 어디에서도 호출되지 않아 함께 삭제
+- `closeHistoryModal`은 `ui-core.js` 맨 끝으로 이동
+- `index.html`에서 해당 script 태그 삭제
+
+**`character/ui-core.js`** (구 `js/ui-core.js`)
+
+- 맨 끝에 `closeHistoryModal` 함수 추가 (ui-modal.js에서 이동)
+
+```js
+// 추가 (파일 맨 끝)
+function closeHistoryModal() {
+    document.getElementById('modalOverlay').style.display = 'none';
+    document.getElementById('historyModal').style.display = 'none';
+}
+```
+
+**폴더명 변경**
+
+| 변경 전 | 변경 후 | 포함 파일 |
+|---------|---------|---------|
+| `scripts/` | `equipment/` | eq_data, eq_core, eq_character, eq_equipment, eq_render, eq_statistics, eq_weapon, eq_craft, eq_main |
+| `js/` | `character/` | state, utils, migration, storage, ui-core, ui-character, ui-popups, ui-rune, ui-compare, ui-search, ui-templates, ui-memo-tag, ui-tag-filter, main, events |
+
+**`index.html`**
+
+- `shared/shared_item_stats.js` script 태그 삭제
+- `js/ui-modal.js` script 태그 삭제
+- 전체 script 태그 경로 변경 (`scripts/` → `equipment/`, `js/` → `character/`)
+
+---
+
+### 최종 폴더 구조
+
+```
+/
+├── data/           ← 아이템 데이터 (변경 없음)
+├── shared/         ← 양쪽 공통 데이터/상수 (변경 없음)
+├── equipment/      ← 획득장비/무기/제작 탭 (구 scripts/)
+├── character/      ← 캐릭터 관리 탭 (구 js/)
+├── styles/         ← 스타일 (변경 없음)
+└── index.html
+```
