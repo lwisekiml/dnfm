@@ -1,8 +1,8 @@
 // ============================================
-// migration.js - 구버전 데이터 마이그레이션
+// core-migration.js - 구버전 데이터 마이그레이션
 // ============================================
 // ※ STORAGE_KEYS → shared_constants.js 에 선언됨
-// ※ 이 파일은 storage.js 보다 먼저 로드되어야 함
+// ※ 이 파일은 core-storage.js 보다 먼저 로드되어야 함
 // ============================================
 
 // ============================================
@@ -138,4 +138,4 @@ function migrateInputs(inputs) {
     return newInputs;
 }
 
-console.log("✅ migration.js 로드 완료");
+console.log("✅ core-migration.js 로드 완료");

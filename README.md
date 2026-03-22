@@ -6,392 +6,187 @@
 
 ```
 project/
-├── index.html
-├── dev-log.md
-├── README.md
-├── data/
-│   ├── accessory.json
-│   ├── armor.json
-│   ├── armor_set_effects.json
-│   ├── exceed_effects.json
-│   ├── exceed_unique_effects.json
-│   └── special.json
-├── images/
-│   ├── ACCESSORY/
-│   ├── ARMOR/
-│   ├── SPECIAL/
-│   ├── WEAPON/
-│   ├── appearanceTitle/
-│   ├── aura/
-│   ├── craftMaterials/
-│   ├── title/
-│   └── 제작/
-├── js/
-│   ├── main.js
-│   ├── state.js
-│   ├── storage.js
-│   ├── ui-character.js
-│   ├── ui-compare.js
-│   ├── ui-core.js
-│   ├── ui-memo-tag.js
-│   ├── ui-modal.js
-│   ├── ui-rune.js
-│   ├── ui-search.js
-│   ├── ui-tag-filter.js
-│   ├── ui-templates.js
-│   └── utils.js
-├── scripts/
-│   ├── eq_character.js
-│   ├── eq_core.js
-│   ├── eq_data.js
-│   ├── eq_equipment.js
-│   ├── eq_main.js
-│   └── eq_weapon.js
-├── shared/
-│   ├── shared_constants.js
-│   ├── shared_data.js
-│   ├── shared_item_stats.js
-│   └── shared_weapon.js
-└── styles/
-    ├── eq_main.css
-    ├── merged.css
-    └── styles.css
-```
-
-### 파일 설명
-
-#### 📄 index.html
-- 메인 HTML 구조
-- `<template>` 태그로 재사용 컴포넌트
-- CSS/JS 외부 파일 로드
-
-#### 🎨 css/styles.css
-- **100+ CSS 변수** 정의
-- 색상 시스템 (희귀도, 익시드, 엠블렘)
-- 간격/크기 시스템
-- 반응형 미디어 쿼리
-- 다크 테마 준비
-
-#### 📜 JavaScript 모듈
-
-| 파일 | 역할 | 주요 기능 |
-|------|------|----------|
-| `constants.js` | 상수 | 슬롯, 희귀도, 룬, 접두어 |
-| `data.js` | 데이터 | 아이템, 세트, 봉인 옵션 |
-| `state.js` | 상태 관리 | charRuneData, 히스토리 |
-| `utils.js` | 유틸리티 | DOM, 클래스, 계산 함수 |
-| `storage.js` | 저장/복구 | localStorage, JSON |
-| `ui-core.js` | UI 핵심 | 봉인, 세트, 스타일 |
-| `ui-character.js` | 캐릭터 | 생성, 삭제, 이동, 잠금 |
-| `ui-rune.js` | 스킬룬 | 모달, 일괄설정, 요약 |
-| `ui-modal.js` | 모달 | 히스토리 모달 |
-| `ui-compare.js` | 비교 | 비교 모드, 테이블 생성 |
-| `ui-templates.js` | 템플릿 | HTML 생성 헬퍼 |
-| `main.js` | 초기화 | 이벤트 리스너, 로드 |
-
----
-
-## 💻 사용 방법
-
-### 1. 캐릭터 생성
-
-1. **"캐릭터 추가"** 버튼 클릭
-2. 직업, 이름, 항마력 입력
-3. 자동으로 저장됨 ✅
-
-### 2. 장비 설정
-
-각 슬롯별로:
-- **희귀도** 선택 (에픽/유니크/레어 등)
-- **익시드** 선택 (이상/선봉/의지)
-- **접두어** 선택 (전격/허상 등)
-- **아이템 이름** 입력/선택
-- **강화 수치** 입력 (+12 등)
-- **마법봉인** 2개 설정
-- **엠블렘** 2개 설정
-- **마법부여** 설정
-
-### 3. 스킬룬 설정
-
-1. **"수정"** 버튼 클릭 (스킬룬 행)
-2. 20개 룬 슬롯에 각각 설정:
-    - 룬 이름 선택
-    - 룬 레벨 선택
-    - 스킬 레벨 선택
-3. **일괄 설정** 기능 활용:
-    - 모든 룬 → 같은 이름
-    - 모든 룬 → 같은 레벨
-    - 모든 스킬 → 같은 레벨
-4. **각인** 입력 (선택)
-5. **"저장"** 버튼 클릭
-
-### 4. 비교 모드
-
-1. 2개 이상의 캐릭터 생성
-2. **"비교"** 버튼 클릭
-3. 좌우에서 캐릭터 선택
-4. 4가지 비교 테이블 확인:
-    - 장비 비교
-    - 마법봉인 비교
-    - 엠블렘 비교
-    - 마법부여 비교
-5. **차이값** 확인 (녹색↑/빨간색↓)
-
-### 5. 데이터 백업
-
-- **"JSON 파일 저장"** - 다운로드 폴더에 자동 저장
-- **"JSON 경로 지정 저장"** - 원하는 위치에 저장
-- **"JSON 파일 불러오기"** - 백업 파일 복원
-
----
-
-## 🎨 UI 특징
-
-### CSS 변수 시스템 (100+ 변수)
-
-**styles.css**는 완전히 CSS 변수 기반으로 작성되었습니다:
-
-```css
-:root {
-    /* ===== 기본 색상 팔레트 ===== */
-    --color-white: #ffffff;
-    --color-black: #000000;
-    --gold: #c5a678;
-
-    /* ===== 배경 색상 ===== */
-    --bg: #0f0f12;
-    --bg-dark: #000;
-    --bg-section: #121216;
-    --bg-row: #1a1a1f;
-
-    /* ===== 희귀도 색상 ===== */
-    --txt-epic: #fcc419;
-    --txt-unique: #ff80ab;
-    --txt-rare: #b197fc;
-    --txt-uncom: #4dabf7;
-    --txt-common: #888;
-
-    /* ===== 엠블렘 그라디언트 ===== */
-    --gradient-emb-red: linear-gradient(to bottom, #6a1a1a 0%, #4a1212 100%);
-    --gradient-emb-yellow: linear-gradient(to bottom, #6a5a1a 0%, #4a3f12 100%);
-    --gradient-emb-blue: linear-gradient(to bottom, #1a2a6a 0%, #121d4a 100%);
-    --gradient-emb-green: linear-gradient(to bottom, #1a6a2a 0%, #124a1d 100%);
-
-    /* ===== 간격 시스템 ===== */
-    --spacing-xs: 2px;
-    --spacing-sm: 4px;
-    --spacing-md: 5px;
-    --spacing-lg: 8px;
-    --spacing-xl: 10px;
-    --spacing-2xl: 15px;
-    --spacing-3xl: 20px;
-
-    /* ===== 폰트 크기 ===== */
-    --fs-xs: 11px;
-    --fs-sm: 12px;
-    --fs-md: 13px;
-    --fs-lg: 1.1rem;
-
-    /* ===== 너비 시스템 ===== */
-    --width-slot: 45px;
-    --width-rarity: 42px;
-    --width-enchant: 55px;
-    /* ... 총 100개 이상의 변수 */
-}
-```
-
-**장점:**
-- ✅ **일관성** - 모든 요소가 동일한 색상/간격 사용
-- ✅ **유지보수** - 변수만 수정하면 전체 적용
-- ✅ **확장성** - 다크 테마 등 쉽게 추가 가능
-- ✅ **가독성** - 의미 있는 변수명
-
-### 색상 시스템
-
-**희귀도:**
-- 🟡 **에픽** - 노란색
-- 🩷 **유니크** - 분홍색
-- 🟣 **레어** - 보라색
-- 🔵 **언커먼** - 파란색
-- ⚪ **커먼** - 회색
-- ⚪ **티어** - 흰색
-
-**익시드:**
-- 🟢 **이상** - 초록색
-- 🔴 **선봉** - 빨간색
-- 🔵 **의지** - 파란색
-
-**접두어 (무기):**
-- 🔵 **광채** - 파란색
-- 🔴 **분쇄** - 빨간색
-- 🟢 **선명** - 초록색
-- 🟡 **강타** - 노란색
-
-**엠블렘 배경:**
-- 🔴 **상의/하의** - 빨간색 그라디언트
-- 🟡 **어깨/벨트** - 노란색 그라디언트
-- 🔵 **신발/팔찌** - 파란색 그라디언트
-- 🟢 **목걸이/반지** - 초록색 그라디언트
-
-### 세트 효과 하이라이트
-
-- 3셋 이상 착용 시 아이템 이름 **청록색**으로 표시
-- 지원 세트:
-    - 방어구 14종
-    - 악세서리 8종
-    - 특수장비 6종
-
----
-
-## ⚙️ 기술 스택
-
-- **Frontend:** HTML5, CSS3 (CSS Variables), Vanilla JavaScript (ES6+)
-- **Style System:** CSS Custom Properties (100+ 변수)
-- **Storage:** localStorage API
-- **Testing:** Playwright, Cypress, 바닐라 JavaScript
-- **Build:** 빌드 도구 불필요 (순수 HTML/CSS/JS)
-
-### CSS 아키텍처
-
-```css
-/* css/styles.css - 100% CSS 변수 기반 */
-:root {
-    /* 색상 팔레트 */
-    --color-white: #ffffff;
-    --gold: #c5a678;
-    
-    /* 희귀도 색상 */
-    --txt-epic: #fcc419;
-    --txt-unique: #ff80ab;
-    --txt-rare: #b197fc;
-    
-    /* 엠블렘 배경 그라디언트 */
-    --gradient-emb-red: linear-gradient(to bottom, #6a1a1a 0%, #4a1212 100%);
-    --gradient-emb-yellow: linear-gradient(to bottom, #6a5a1a 0%, #4a3f12 100%);
-    
-    /* 간격/크기 시스템 */
-    --spacing-xs: 2px;
-    --spacing-sm: 4px;
-    --spacing-md: 5px;
-    /* ... 총 100+ 변수 */
-}
-```
-
-**특징:**
-- ✅ **일관된 디자인** - 모든 색상/간격이 변수화
-- ✅ **쉬운 커스터마이징** - 변수만 수정하면 전체 테마 변경
-- ✅ **반응형 설계** - 미디어 쿼리와 조합
-- ✅ **다크 테마 준비** - 변수 재정의만으로 다크모드 가능
-
----
-
-## 🌟 주요 기능 상세
-
-### 자동 저장 시스템
-
-```javascript
-// 800ms 디바운스로 자동 저장
-function autoSave() {
-    clearTimeout(window.sTime);
-    window.sTime = setTimeout(() => {
-        localStorage.setItem('dnfm_character_equipment_data', JSON.stringify(allData));
-    }, 800);
-}
-```
-
-- ✅ 입력할 때마다 자동으로 저장
-- ✅ 브라우저 종료 후 다시 열어도 복구
-- ✅ 상태 메시지 표시 (💾 저장됨)
-
-### 템플릿 시스템
-
-```html
-<template id="equipment-row-template">
-    <!-- 재사용 가능한 HTML 템플릿 -->
-</template>
-```
-
-- ✅ HTML `<template>` 태그 활용
-- ✅ 동적으로 행 생성
-- ✅ 메모리 효율적
-
-### 이벤트 위임
-
-```javascript
-// 버블링 활용한 효율적인 이벤트 처리
-document.addEventListener('change', function(e) {
-    if (e.target.matches('[data-key]')) {
-        autoSave();
-    }
-});
+├── index.html                          # 진입점, 전체 탭 구조 및 스크립트 로드
+├── character/                          # 캐릭터 관리 탭 (구 js/)
+│   ├── base-character.js               # 캐릭터 테이블 생성, 슬롯 구성, 저장 데이터 복원
+│   ├── base-core.js                    # 아이템색상·세트판정·접두어/익시드·봉인 하이라이트·각종 메뉴
+│   ├── base-popups.js                  # 크리쳐/칭호/오라 팝업, 자동완성 드롭다운
+│   ├── base-rune.js                    # 스킬룬 모달 (입력, 저장, 요약 표시)
+│   ├── base-templates.js               # HTML 템플릿 헬퍼 (template 태그 복제 및 데이터 주입)
+│   ├── core-core-events.js                  # 전역 이벤트 리스너 (탭이동, 변경감지, 모달초기화)
+│   ├── core-main.js                    # 캐릭터 관리 탭 초기화 (initProject1)
+│   ├── core-memo-tag.js                # 메모/설명 모달, 태그 추가·삭제·저장
+│   ├── core-core-migration.js               # 구버전 데이터 → 신버전 마이그레이션 (1회성)
+│   ├── core-core-state.js                   # 전역 상태 관리 (AppState, UIState)
+│   ├── core-core-storage.js                 # 자동저장, JSON 내보내기/가져오기
+│   ├── core-core-utils.js                   # DOM·슬롯·클래스 유틸, 봉인 수치 테이블, 헬퍼 함수
+│   ├── mode-compare.js                 # 비교 모드 전체 (장비·봉인·엠블렘·스탯·세트 비교)
+│   ├── mode-search.js                  # 검색 모드 전체 (슬롯별 검색, 결과 표시, 인라인 편집)
+│   └── mode-tag-filter.js              # 태그 필터 패널, 빠른 버튼, 태그 자동완성
+├── data/                               # 아이템 원본 데이터
+│   ├── accessory.js                    # 악세서리 아이템별 스탯 데이터
+│   ├── accessory_set_effects.js        # 악세서리 세트 효과 데이터
+│   ├── armor.js                        # 방어구 아이템별 스탯 데이터
+│   ├── armor_set_effects.js            # 방어구 세트 효과 데이터
+│   ├── exceed_unique_effects.js        # 익시드 고유 효과 데이터
+│   ├── special.js                      # 특수장비 아이템별 스탯 데이터
+│   └── special_set_effects.js          # 특수장비 세트 효과 데이터
+├── equipment/                          # 획득장비/무기/제작 탭 (구 scripts/)
+│   ├── eq_character.js                 # 캐릭터 목록 UI (추가/삭제/이동/편집)
+│   ├── eq_core.js                      # 저장/불러오기 핵심, 장비 행 생성, 캐시 관리
+│   ├── eq_craft.js                     # 제작 시스템 (재료 입력, 잠금, 계산, 실행취소)
+│   ├── eq_data.js                      # 전역 변수 선언 (characters 배열, craftLocked 등)
+│   ├── eq_equipment.js                 # 세트 버튼, 세트 상세, 장비 증감, 행 색상
+│   ├── eq_main.js                      # 탭 전환, 캐릭터 순서 동기화, 초기화 진입점
+│   ├── eq_render.js                    # 획득장비 탭 화면 렌더링
+│   ├── eq_statistics.js                # 장비/무기 통계 및 검색
+│   └── eq_weapon.js                    # 무기 등록 탭, 최근 업데이트 모달
+├── images/                             # 아이템 이미지 리소스
+│   ├── ACCESSORY/                      # 악세서리 이미지
+│   ├── ARMOR/                          # 방어구 이미지
+│   ├── SPECIAL/                        # 특수장비 이미지
+│   ├── WEAPON/                         # 무기 이미지
+│   ├── appearanceTitle/                # 외형칭호 이미지
+│   ├── aura/                           # 오라 이미지
+│   ├── craftMaterials/                 # 제작 재료 이미지
+│   └── title/                          # 칭호 이미지
+├── shared/                             # 양쪽 탭 공통 데이터/상수
+│   ├── shared_constants.js             # 슬롯·접두어·희귀도·스토리지 키 등 전역 상수
+│   ├── shared_data.js                  # 세트명·슬롯·아이템명·크리쳐·아티팩트 데이터
+│   └── shared_weapon.js                # 무기 아이템 데이터
+└── styles/                             # 스타일
+├── base.css                        # 캐릭터 관리 탭 핵심 UI 스타일
+├── components.css                  # 전역 공통 컴포넌트 스타일 (버튼·툴바·테이블 등)
+├── responsive.css                  # 반응형 미디어쿼리, 접근성
+├── themes.css                      # 테마 6종, 팝업·자동완성 스타일
+├── themes-test.css                 # 실험용 테마 2종
+└── variables.css                   # CSS 전역 변수 (색상·배경·폰트·간격 등)
 ```
 
 ---
 
-## 📱 반응형 디자인
+## 전체 파일 역할 정리
 
-- ✅ **테이블 가로 스크롤** - `overflow-x: auto`
-- ✅ **모바일 뷰포트** - 작은 화면에서도 사용 가능
-- ✅ **터치 지원** - 모바일 디바이스 최적화
+### 📁 data/ — 아이템 원본 데이터
 
----
-
-## 🔒 데이터 보안
-
-### localStorage 사용
-
-- ✅ **클라이언트 저장소** - 서버 전송 없음
-- ✅ **브라우저별 격리** - 다른 사이트 접근 불가
-- ✅ **5MB 용량** - 수백 개 캐릭터 저장 가능
-
-### JSON 백업
-
-- ✅ **로컬 파일** - 사용자 PC에 저장
-- ✅ **암호화 없음** - 텍스트 에디터로 편집 가능
-- ✅ **버전 관리** - 파일명에 날짜/시간 포함
+| 파일 | 역할 | 언제/어디서 필요 |
+|------|------|----------------|
+| `accessory.js` | 악세서리 아이템별 스탯 데이터 (`ACCESSORY_ITEM_STATS`) | 캐릭터 관리 비교 모드의 악세서리 스탯 비교 |
+| `accessory_set_effects.js` | 악세서리 세트 효과 데이터 (`ACCESSORY_SET_EFFECTS`) | 캐릭터 관리 비교 모드의 악세서리 세트 효과 비교 |
+| `armor.js` | 방어구 아이템별 스탯 데이터 (`ARMOR_ITEM_STATS`) | 캐릭터 관리 비교 모드의 방어구 스탯 비교 |
+| `armor_set_effects.js` | 방어구 세트 효과 데이터 (`ARMOR_SET_EFFECTS`) | 캐릭터 관리 비교 모드의 방어구 세트 효과 비교 |
+| `exceed_unique_effects.js` | 익시드 고유 효과 데이터 (`EXCEED_UNIQUE_EFFECTS`) | 캐릭터 관리 장비 정보 표시 |
+| `special.js` | 특수장비 아이템별 스탯 데이터 (`SPECIAL_ITEM_STATS`) | 캐릭터 관리 비교 모드의 특수장비 스탯 비교 |
+| `special_set_effects.js` | 특수장비 세트 효과 데이터 (`SPECIAL_SET_EFFECTS`) | 캐릭터 관리 비교 모드의 특수장비 세트 효과 비교 |
 
 ---
 
-## 🤝 기여하기
+### 📁 shared/ — 양쪽 공통 데이터/상수
 
-### 버그 리포트
-
-이슈를 생성할 때 다음을 포함해주세요:
-1. 브라우저 및 버전
-2. 재현 단계
-3. 예상 동작 vs 실제 동작
-4. 스크린샷 (선택)
-
-### 기능 제안
-
-1. 이슈에서 논의
-2. Fork & Pull Request
-3. 테스트 포함 (106개 테스트 유지)
+| 파일 | 역할 | 언제/어디서 필요 |
+|------|------|----------------|
+| `shared_constants.js` | 슬롯 목록, 접두어 목록, 익시드 태그, 희귀도 색상, 스토리지 키 등 모든 전역 상수 | 전체 탭에서 상시 참조 |
+| `shared_data.js` | 세트명·슬롯·아이템명·크리쳐·아티팩트 데이터 (`ARMOR_ITEM_INFO`, `ACC_ITEM_INFO`, `CREATURE_ITEM_INFO` 등) | 전체 탭에서 세트 판정, 드롭다운 목록, 비교 모드 세트 효과 판정 |
+| `shared_weapon.js` | 무기 아이템 데이터 | 획득장비 탭 무기 등록, 캐릭터 관리 무기 선택 |
 
 ---
 
-## 📄 라이선스
+### 📁 equipment/ — 획득장비/무기/제작 탭
 
-MIT License - 자유롭게 사용, 수정, 배포 가능합니다.
-
----
-
-## 📞 문의
-
-- **이슈:** GitHub Issues
-- **테스트 가이드:** [README-TEST.md](./README-TEST.md)
-- **문서:** 이 파일 (README.md)
-
----
-
-## 🎉 감사합니다!
-
-**RPG 통합 장비 관리 시스템**을 사용해주셔서 감사합니다!
-
-즐거운 게임 되세요! 🎮✨
+| 파일 | 역할 | 언제/어디서 필요 |
+|------|------|----------------|
+| `eq_character.js` | 캐릭터 목록 UI (`addCharacter`, `renderCharacterList`, `deleteCharacterConfirmed`, `moveCharacterUp/Down`) | 획득장비 탭 좌측 캐릭터 목록 패널 |
+| `eq_core.js` | 저장/불러오기 핵심 (`saveLocalData`, `_loadUnified`), 장비 행 생성, 캐시 관리 | 모든 equipment 파일에서 참조 |
+| `eq_craft.js` | 제작 시스템 (`renderCraftTable`, `setCraftLock`, `applyCraftModulo`, `undoCraftModulo`) | 제작 등록 탭 |
+| `eq_data.js` | 전역 변수 선언 (`characters` 배열, `craftLocked`, 페이지 상수 등) | 모든 equipment 파일의 기반, 가장 먼저 로드 |
+| `eq_equipment.js` | 세트 버튼, 세트 상세(`openSet`), 장비 행 증감, 행 색상 업데이트 | 획득장비 탭 메인 기능 |
+| `eq_main.js` | 탭 전환 (`switchTo`), 캐릭터 순서 동기화, 초기화 진입점 | 페이지 로드 시 탭 구조 초기화 |
+| `eq_render.js` | 획득장비 탭 렌더링 (`renderEquipmentTab`, `renderFullEquipmentTab`, 캐릭터별 보유현황) | 획득장비 탭 화면 그리기 |
+| `eq_statistics.js` | 장비/무기 통계, 장비 검색 (`showEquipmentStatistics`, `searchEquipment`) | 획득장비 탭 통계·검색 기능 |
+| `eq_weapon.js` | 무기 등록 탭 전체 (`selectWeaponJob`, 증감, 최근 업데이트 모달) | 무기 등록 탭 |
 
 ---
 
-**최종 업데이트:** 2026-02-07  
-**버전:** 1.0.0  
-**테스트 현황:** 106/106 통과 ✅
+### 📁 character/ — 캐릭터 관리 탭
+
+| 파일 | 역할 | 언제/어디서 필요 |
+|------|------|----------------|
+| `base-character.js` | 캐릭터 테이블 생성, 슬롯 콘텐츠 생성, 이미지 업데이트, 저장 데이터 복원, 삭제/이동/잠금 | 캐릭터 관리 탭 기본 모드 전체 |
+| `base-core.js` | 아이템이름 색상, 세트 판정, 접두어/익시드 상태 관리, 봉인 하이라이트, 세트/접두어/강화 메뉴, 크리쳐 연동, 히스토리 모달 | 캐릭터 관리 탭 기본 모드에서 장비 입력 시 상시 |
+| `base-popups.js` | 크리쳐/칭호/오라 팝업, 자동완성 드롭다운 | 캐릭터 관리 탭 기본 모드에서 크리쳐·칭호·오라 입력 시 |
+| `base-rune.js` | 스킬룬 모달 (`openRuneModal`, `saveRuneData`, `updateRuneSummary`) | 캐릭터 관리 탭 기본 모드에서 스킬룬 입력 시 |
+| `base-templates.js` | HTML 템플릿 헬퍼 (`<template>` 태그 복제 및 데이터 주입) | 캐릭터 테이블 생성 시 |
+| `core-core-events.js` | 전역 이벤트 리스너 - 탭 이동(keydown), 변경 감지·히스토리 기록(change), 모달 초기화(DOMContentLoaded) | 페이지 전체에서 상시 동작 |
+| `core-main.js` | 캐릭터 관리 탭 초기화 (`initProject1`), 페이지 로드 이벤트 | 캐릭터 관리 탭 진입 시 1회 |
+| `core-memo-tag.js` | 메모 모달, 설명 모달, 태그 추가/삭제/저장/조회 | 기본 모드 메모·태그 입력 시, 태그 필터 모드에서 태그 데이터 참조 시 |
+| `core-core-migration.js` | 구버전 데이터 → 신버전 마이그레이션 (`migrateToUnified`, `migrateRuneData`, `migrateInputs`) | 페이지 로드 시 1회, core-storage.js보다 먼저 |
+| `core-core-state.js` | 앱 전역 상태 관리 (`AppState`, `UIState`) - 히스토리, 스냅샷, 비교 선택, 각종 UI 상태 | 전체 character 파일에서 상시 참조 |
+| `core-core-storage.js` | 자동저장(`autoSave`), JSON 내보내기/가져오기(`exportToJSON`, `importFromJSON`, `saveJsonWithLocation`) | 입력 변경 시마다, 저장·불러오기 버튼 |
+| `core-core-utils.js` | DOM 유틸, 슬롯 유틸, 클래스 유틸, 봉인 수치 테이블, 날짜/숫자 헬퍼 함수 | 전체 character 파일에서 상시 참조 |
+| `mode-compare.js` | 비교 모드 전체 - 캐릭터 선택, 장비/봉인/엠블렘/마법부여/스탯/세트 효과 비교 표 생성 | 캐릭터 관리 탭 비교 모드 |
+| `mode-search.js` | 검색 모드 전체 - 슬롯별 검색, 결과 표시, 인라인 편집 | 캐릭터 관리 탭 검색 모드 |
+| `mode-tag-filter.js` | 태그 필터 패널, 빠른 버튼, 태그 자동완성 | 캐릭터 관리 탭 태그 필터 사용 시 |
+
+---
+
+## 캐릭터 관리 탭 - 기능별 필요 파일
+
+### 🔵 기본 모드
+
+| 파일 | 이유 |
+|------|------|
+| `base-character.js` | 캐릭터 테이블 생성, 슬롯 구성, 저장 복원 |
+| `base-core.js` | 아이템 색상, 세트 판정, 접두어/익시드, 봉인 하이라이트, 각종 메뉴 |
+| `base-popups.js` | 크리쳐/칭호/오라 팝업 |
+| `base-rune.js` | 스킬룬 모달 |
+| `base-templates.js` | 템플릿 헬퍼 |
+| `core-core-events.js` | 탭 이동, 변경 감지, 히스토리 기록 |
+| `core-main.js` | 탭 초기화 |
+| `core-memo-tag.js` | 메모/설명 모달, 태그 추가·삭제·저장 |
+| `core-core-migration.js` | 로드 시 구버전 데이터 변환 |
+| `core-core-state.js` | AppState, UIState 전역 상태 |
+| `core-core-storage.js` | 자동저장, JSON 내보내기/가져오기 |
+| `core-core-utils.js` | 슬롯 유틸, 봉인 수치, 헬퍼 함수 |
+| `data/` 전체 | 익시드 고유효과 표시 |
+| `shared_constants.js` | 슬롯/접두어/상수 |
+| `shared_data.js` | 세트 판정, 아이템 목록 |
+| `shared_weapon.js` | 무기 아이템 목록 |
+
+---
+
+### 🟡 비교 모드
+
+기본 모드 파일 전체 +
+
+| 파일 | 이유 |
+|------|------|
+| `mode-compare.js` | 비교 모드 UI 전체 |
+| `data/accessory.js` | 악세서리 스탯 비교 |
+| `data/accessory_set_effects.js` | 악세서리 세트 효과 비교 |
+| `data/armor.js` | 방어구 스탯 비교 |
+| `data/armor_set_effects.js` | 방어구 세트 효과 비교 |
+| `data/special.js` | 특수장비 스탯 비교 |
+| `data/special_set_effects.js` | 특수장비 세트 효과 비교 |
+
+---
+
+### 🟢 검색 모드
+
+기본 모드 파일 전체 +
+
+| 파일 | 이유 |
+|------|------|
+| `mode-search.js` | 검색 모드 UI 전체, 결과 표시, 인라인 편집 |
+
+---
+
+### 🔴 태그 필터
+
+기본 모드 파일 전체 +
+
+| 파일 | 이유 |
+|------|------|
+| `core-memo-tag.js` | 태그 데이터 관리 (태그 조회 함수를 mode-tag-filter.js에서 직접 호출) |
+| `mode-tag-filter.js` | 태그 필터 패널, 빠른 버튼, 자동완성 |
+
+---

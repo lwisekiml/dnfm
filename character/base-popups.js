@@ -1,5 +1,5 @@
 // ============================================
-// ui-popups.js - 팝업 관리 (칭호/오라/크리쳐/아바타/무기아바타)
+// base-popups.js - 팝업 관리 (칭호/오라/크리쳐/아바타/무기아바타)
 // ============================================
 
 // ============================================
@@ -120,7 +120,7 @@ function _entriesToLines(arr) {
 }
 
 // 캐릭터 추가 동기화 무한루프 방지 플래그
-// _syncInProgress → UIState.syncInProgress (state.js)
+// _syncInProgress → UIState.syncInProgress (core-state.js)
 
 /**
  * 캐릭터 테이블 생성 (템플릿 방식)
@@ -1511,8 +1511,8 @@ function renderAvatarBtnHTML(text) {
 }
 
 // 현재 팝업 대상 정보
-// _avatarCharId → UIState.avatarCharId (state.js)
-// _avatarBtn     → UIState.avatarBtn     (state.js)
+// _avatarCharId → UIState.avatarCharId (core-state.js)
+// _avatarBtn     → UIState.avatarBtn     (core-state.js)
 
 /**
  * 아바타 팝업 열기

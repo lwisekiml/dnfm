@@ -1,5 +1,5 @@
 // ============================================
-// main.js - 메인 초기화 및 이벤트 리스너
+// core-main.js - 메인 초기화 및 이벤트 리스너
 // ============================================
 
 /**
@@ -7,7 +7,7 @@
  * - 단독 실행: window.onload 에서 호출
  * - 통합 환경: switchTo('detail') 에서 호출 (탭 진입 시)
  */
-// _p1Initialized → UIState.p1Initialized (state.js)
+// _p1Initialized → UIState.p1Initialized (core-state.js)
 
 function initProject1() {
     if (UIState.p1Initialized) return; // 이미 초기화됐으면 중복 실행 방지
@@ -79,9 +79,9 @@ window.addEventListener('load', () => {
 });
 
 // ============================================
-// 이벤트 리스너 → events.js 로 이동
+// 이벤트 리스너 → core-events.js 로 이동
 // ============================================
 // keydown(탭 이동), change(히스토리 기록),
-// DOMContentLoaded(모달/팝업 초기화) → events.js 참조
+// DOMContentLoaded(모달/팝업 초기화) → core-events.js 참조
 
-console.log("✅ main.js 로드 완료");
+console.log("✅ core-main.js 로드 완료");

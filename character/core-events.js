@@ -1,9 +1,9 @@
 // ============================================
-// events.js - 전역 이벤트 리스너
+// core-events.js - 전역 이벤트 리스너
 // ============================================
-// ※ initProject1() → main.js 에 선언됨
-// ※ autoSave()      → storage.js 에 선언됨
-// ※ AppState        → state.js 에 선언됨
+// ※ initProject1() → core-main.js 에 선언됨
+// ※ autoSave()      → core-storage.js 에 선언됨
+// ※ AppState        → core-state.js 에 선언됨
 // ============================================
 
 /**
@@ -177,4 +177,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-console.log("✅ events.js 로드 완료");
+console.log("✅ core-events.js 로드 완료");

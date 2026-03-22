@@ -136,7 +136,7 @@ function switchTo(view) {
 [섹션 15] 초기화 & 이벤트 리스너
 ======================================== */
 
-// migrateToUnified() 함수는 storage.js로 이동
+// migrateToUnified() 함수는 character/core-migration.js로 이동
 
 migrateToUnified();
 calculateGlobalWidths();

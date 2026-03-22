@@ -1,5 +1,5 @@
 // ============================================
-// ui-search.js - 검색 모드 기능
+// mode-search.js - 검색 모드 기능
 // ============================================
 
 // ============================================
@@ -1396,4 +1396,4 @@ function _applySearchEditToDOM(charId, slot, newData) {
     if (typeof autoSave === 'function') autoSave();
 }
 
-console.log("✅ ui-search.js 로드 완료");
+console.log("✅ mode-search.js 로드 완료");

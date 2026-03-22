@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────
 // 7.1 캐릭터 CRUD
 // ─────────────────────────────────────────
-// _syncInProgress → UIState.syncInProgress (state.js) 로 통합
+// _syncInProgress → UIState.syncInProgress (core-state.js) 로 통합
 
 // Create
 function addCharacter() {

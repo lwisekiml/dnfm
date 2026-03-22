@@ -1,5 +1,5 @@
 // ============================================
-// ui-memo-tag.js - 메모/태그 기능
+// core-memo-tag.js - 메모/태그 기능
 // ============================================
 
 /**
@@ -222,7 +222,7 @@ function loadTags(charId) {
     });
 }
 
-// filterByTag → ui-tag-filter.js 에 정의 (UIState.filterTag 관리 포함)
+// filterByTag → mode-tag-filter.js 에 정의 (UIState.filterTag 관리 포함)
 
 /**
  * 모든 태그 목록 가져오기 (추후 확장 기능)
@@ -239,7 +239,7 @@ function getAllTags() {
 // 메모 모달 기능
 // ============================================
 
-// currentMemoCharId → UIState.memoCharId (state.js)
+// currentMemoCharId → UIState.memoCharId (core-state.js)
 
 /**
  * 메모 모달 열기 (라벨 클릭 시)
@@ -403,7 +403,7 @@ function updateMemoPreview(charId) {
 // 설명칸 팝업 기능
 // ============================================
 
-// UIState.descInput  → UIState.descInput  (state.js)
+// UIState.descInput  → UIState.descInput  (core-state.js)
 
 /**
  * 설명칸 팝업 열기
@@ -542,4 +542,4 @@ function closeDescModal() {
     UIState.descInput = null;
 }
 
-console.log("✅ ui-memo-tag.js 로드 완료");
+console.log("✅ core-memo-tag.js 로드 완료");

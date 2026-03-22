@@ -1,12 +1,12 @@
 // ============================================
-// ui-tag-filter.js - 태그 필터링 + 빠른버튼 + 자동완성
+// mode-tag-filter.js - 태그 필터링 + 빠른버튼 + 자동완성
 // ============================================
 
 // ============================================
 // 1. 태그 필터링
 // ============================================
 
-// UIState.filterTag → UIState.filterTag (state.js)
+// UIState.filterTag → UIState.filterTag (core-state.js)
 
 /**
  * 태그로 필터링
@@ -284,7 +284,7 @@ function closeAutocompleteOnClickOutside(e) {
 // 키보드 네비게이션
 // ============================================
 
-// UIState.autocompleteIndex → UIState.UIState.autocompleteIndex (state.js)
+// UIState.autocompleteIndex → UIState.UIState.autocompleteIndex (core-state.js)
 
 function handleAutocompleteKeyboard(event, charId) {
     const panel = document.getElementById('tagAutocompletePanel');
@@ -313,4 +313,4 @@ function handleAutocompleteKeyboard(event, charId) {
     });
 }
 
-console.log("✅ ui-tag-filter.js 로드 완료");
+console.log("✅ mode-tag-filter.js 로드 완료");

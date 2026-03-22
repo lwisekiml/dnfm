@@ -1,5 +1,5 @@
 // ============================================
-// storage.js - 저장/불러오기 기능
+// core-storage.js - 저장/불러오기 기능
 // ============================================
 // ※ localStorage 읽기는 eq_core.js의 _loadUnified() 공통 헬퍼 사용
 
@@ -357,6 +357,6 @@ function importFromJSON(input) {
 // ============================================
 
 // ============================================
-// 구버전 데이터 마이그레이션 → migration.js 로 이동
+// 구버전 데이터 마이그레이션 → core-migration.js 로 이동
 // ============================================
-// migrateToUnified, migrateRuneData, migrateInputs → migration.js 참조
+// migrateToUnified, migrateRuneData, migrateInputs → core-migration.js 참조

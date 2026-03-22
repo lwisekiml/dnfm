@@ -5874,3 +5874,49 @@ function closeHistoryModal() {
 ├── styles/         ← 스타일 (변경 없음)
 └── index.html
 ```
+
+---
+---
+
+## 2026-03-22 (137차)
+
+### 파일 역할 분리 리팩토링 3단계 - character/ 파일명 정리
+
+**수정된 파일:** `index.html`
+**파일명 변경:** `character/` 폴더 내 15개 파일
+
+---
+
+### 변경 내용
+
+**`character/` 파일명 변경**
+
+접두어 규칙으로 파일명을 통일하여 파일만 봐도 역할 구분이 가능하도록 변경
+
+| 변경 전 | 변경 후 | 접두어 의미 |
+|---------|---------|------------|
+| `events.js` | `core-events.js` | 모든 모드 공통 |
+| `main.js` | `core-main.js` | 모든 모드 공통 |
+| `memo-tag.js` | `core-memo-tag.js` | 모든 모드 공통 (태그 필터에서도 참조) |
+| `migration.js` | `core-migration.js` | 모든 모드 공통 |
+| `state.js` | `core-state.js` | 모든 모드 공통 |
+| `storage.js` | `core-storage.js` | 모든 모드 공통 |
+| `utils.js` | `core-utils.js` | 모든 모드 공통 |
+| `ui-compare.js` | `mode-compare.js` | 비교 모드 전용 |
+| `ui-search.js` | `mode-search.js` | 검색 모드 전용 |
+| `ui-tag-filter.js` | `mode-tag-filter.js` | 태그 필터 모드 전용 |
+| `ui-character.js` | `base-character.js` | 기본 모드 전용 |
+| `ui-core.js` | `base-core.js` | 기본 모드 전용 |
+| `ui-popups.js` | `base-popups.js` | 기본 모드 전용 |
+| `ui-rune.js` | `base-rune.js` | 기본 모드 전용 |
+| `ui-templates.js` | `base-templates.js` | 기본 모드 전용 |
+
+**접두어 규칙**
+
+- **`core-`**: 기본/비교/검색/태그 모든 모드에서 공통으로 사용
+- **`mode-`**: 비교/검색/태그 각 해당 모드에서만 사용
+- **`base-`**: 기본 모드에서만 사용
+
+**`index.html`**
+
+- `character/` 폴더 내 스크립트 태그 경로 15개 변경 전 파일명 → 변경 후 파일명으로 수정

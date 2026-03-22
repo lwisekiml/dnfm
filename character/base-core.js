@@ -1,5 +1,5 @@
 // ============================================
-// ui-core.js - 핵심 UI 기능 (중복 제거 완료)
+// base-core.js - 핵심 UI 기능 (중복 제거 완료)
 // ============================================
 
 /**
@@ -1276,7 +1276,7 @@ function _adjustMenuPosition(menu, event) {
     menu.style.top  = top  + 'px';
 }
 
-// _menuOutsideHandler → UIState.menuOutsideHandler (state.js)
+// _menuOutsideHandler → UIState.menuOutsideHandler (core-state.js)
 
 function _addOutsideHandler(menu) {
     if (UIState.menuOutsideHandler) {
@@ -1520,7 +1520,7 @@ function applyReinforceToSlots(charId, slots, value) {
     autoSave();
 }
 
-console.log("✅ ui-core.js 로드 완료");
+console.log("✅ base-core.js 로드 완료");
 
 // ============================================
 // 크리쳐 이름 select 초기화 및 연동

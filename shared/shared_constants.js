@@ -194,5 +194,5 @@ const elementEmbList     = AppConstants.ELEMENT_EMB_LIST;
 const artOptions         = AppConstants.ART_OPTIONS;
 const rarityColors       = AppConstants.RARITY_COLORS;
 
-// project2 SlotUtils 호환 (utils.js 의 SlotUtils 는 그대로 유지하되, 데이터는 여기서 참조)
-// → 실제 SlotUtils 객체는 utils.js 에 남겨두고 SLOT_TYPES 를 공유 소스로 사용
+// project2 SlotUtils 호환 (core-utils.js 의 SlotUtils 는 그대로 유지하되, 데이터는 여기서 참조)
+// → 실제 SlotUtils 객체는 core-utils.js 에 남겨두고 SLOT_TYPES 를 공유 소스로 사용

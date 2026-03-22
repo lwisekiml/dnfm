@@ -1,11 +1,11 @@
 // ============================================
-// ui-character.js - 캐릭터 관리 UI
+// base-character.js - 캐릭터 관리 UI
 // ============================================
-// ※ 팝업(칭호/오라/크리쳐/아바타/무기아바타)은 ui-popups.js 참조
+// ※ 팝업(칭호/오라/크리쳐/아바타/무기아바타)은 base-popups.js 참조
 
 
 // 캐릭터 추가 동기화 무한루프 방지 플래그
-// _syncInProgress → UIState.syncInProgress (state.js)
+// _syncInProgress → UIState.syncInProgress (core-state.js)
 
 /**
  * 캐릭터 테이블 생성 (템플릿 방식)

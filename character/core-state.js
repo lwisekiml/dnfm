@@ -1,5 +1,5 @@
 // ============================================
-// state.js - 애플리케이션 상태 관리
+// core-state.js - 애플리케이션 상태 관리
 // ============================================
 
 const AppState = {
@@ -84,23 +84,23 @@ const AppState = {
 // UI 상태 전역 변수 (각 파일 분산 → 한곳 관리)
 // ============================================
 const UIState = {
-    // ui-character.js
+    // base-character.js
     syncInProgress: false,   // 캐릭터 추가 동기화 무한루프 방지
     avatarCharId:   null,    // 아바타 팝업 - 현재 편집 중인 캐릭터 ID
     avatarBtn:      null,    // 아바타 팝업 - 현재 편집 중인 버튼 요소
 
-    // ui-core.js
+    // base-core.js
     menuOutsideHandler: null, // 세트 컨텍스트 메뉴 외부 클릭 핸들러
 
-    // ui-memo-tag.js
+    // core-memo-tag.js
     memoCharId:  null,  // 현재 메모 팝업이 열린 캐릭터 ID
     descInput:   null,  // 현재 설명 팝업이 열린 textarea 요소
 
-    // ui-tag-filter.js
+    // mode-tag-filter.js
     filterTag:          '',  // 현재 활성화된 태그 필터
     autocompleteIndex:  -1,  // 태그 자동완성 선택 인덱스
 
-    // main.js
+    // core-main.js
     p1Initialized: false,    // project1 초기화 완료 여부
-    saveTimer:      null,    // autoSave 디바운스 타이머 (storage.js)
+    saveTimer:      null,    // autoSave 디바운스 타이머 (core-storage.js)
 };
