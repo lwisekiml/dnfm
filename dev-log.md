@@ -5628,3 +5628,88 @@ container.appendChild(armorSetEffectEl);
 
 - 6개 파일 합산 줄 수 = 원본 merged.css 줄 수 (3,442줄) 일치
 - `cat` 합산 후 `diff` 비교 결과 원본과 내용 완전 일치 확인
+
+---
+---
+
+## 2026-03-22 (134차)
+
+### 세트 효과 데이터 구조 개선 (attrs/desc 필드 추가) + 비교 모드 세트 효과 렌더링 개선
+
+**수정된 파일:** `data/armor_set_effects.js`, `data/accessory_set_effects.js`, `data/special_set_effects.js`, `js/ui-compare.js`
+
+---
+
+### 변경 내용
+
+**`data/armor_set_effects.js`**
+
+- 모든 세트 효과 항목에 `attrs`, `desc` 필드 추가
+- `attrs`: 속성 부여 태그 배열 (수공격속성, 명공격속성, 화공격속성, 암공격속성 등)
+  - 해당 없는 항목은 빈 배열 `[]`
+- `desc`: 조건부/설명형 효과 텍스트 (수치 없이 설명으로만 표현되는 효과)
+  - 해당 없는 항목은 빈 문자열 `""`
+- 적용 예시
+  - `어느 말괄량이의 탐사복` 전격 3세트: `attrs: ["수공격속성", "명공격속성"]`
+  - `어느 말괄량이의 탐사복` 전격 5세트: `desc: "감전 상태 적 공격 시, 10초 동안 모든 공격 속도 10% 증가(쿨타임 10초)"`
+  - `포이즈닝 퀸 스파이더` 기본 5세트: `desc: "던전 입장 시 받는 물리, 마법 피해가 상시 20% 감소하는 대신, ..."`
+
+**`data/accessory_set_effects.js`**
+
+- 모든 세트 효과 항목에 `attrs`, `desc` 필드 추가
+- 악세서리 세트 특성상 `attrs`는 전부 빈 배열
+- `desc` 적용 예시
+  - `엘팅 메모리얼의 기억` 견고 3세트: `desc: "15~30레벨 스킬 시전 시, 3초 동안 20,000만큼의 피해를 흡수하는 보호막 부여(쿨타임 10초)"`
+
+**`data/special_set_effects.js`**
+
+- 모든 세트 효과 항목에 `attrs`, `desc` 필드 추가
+- 특수장비 세트 특성상 `attrs`는 전부 빈 배열
+- `desc` 적용 예시
+  - `개구쟁이 호문쿨루스` 불굴 3세트: `desc: "대쉬 상태일 때, 1초마다 [개구쟁이] 1스택 획득(최대 10중첩) / ..."`
+  - `개구쟁이 호문쿨루스` 숙련 3세트: `desc: "35~45, 65~70레벨 스킬 시전 시, 10초 동안 모든 속도 1.5% 증가(최대 5중첩)"`
+
+**`js/ui-compare.js`**
+
+- `buildSetEffectRows` 공통 헬퍼 함수 신규 추가
+  - 세 함수(`buildArmorSetEffectCompare`, `buildAccSetEffectCompare`, `buildSpecialSetEffectCompare`)의 중복 tbody 생성 로직을 하나로 통합
+  - 파라미터: `eff1`, `eff2`, `tierLabel`, `tierColor`, `tierBg`
+  - 렌더링 순서: **attrs 행 → stats 행 → desc 행**
+
+- **attrs 행** (세트 헤더 바로 아래)
+  - 양쪽에 속성 태그를 뱃지 형태로 표시 (`background:rgba(100,114,168,0.25)`, `color:#b0bcff`)
+  - 차이 컬럼: 양쪽 attrs 정렬 비교 후 `동일` (회색) / `다름` (주황색 `#f0a500`)
+  - 양쪽 모두 attrs가 없으면 행 자체를 생략
+
+- **stats 행** (기존 수치 비교 로직 유지)
+  - 수치 차이: `↑ +N` (초록) / `↓ -N` (빨강) / `동일` (회색)
+
+- **desc 행** (각 세트 맨 아래)
+  - 양쪽에 설명 텍스트를 `\n` 기준으로 줄바꿈하여 표시 (`color:#c8b87a`)
+  - 차이 컬럼: `동일` (회색) / `다름` (주황색, 행 배경 `rgba(240,165,0,0.06)`)
+  - 양쪽 모두 desc가 비어있으면 행 자체를 생략
+
+- `buildArmorSetEffectCompare`, `buildAccSetEffectCompare`, `buildSpecialSetEffectCompare`
+  - 기존 내부 인라인 tbody 생성 코드를 제거하고 `buildSetEffectRows` 호출로 교체
+  - 방어구는 3세트/5세트 모두, 악세서리/특수장비는 3세트만 적용 (기존 구조 동일)
+
+---
+
+### 데이터 필드 구조 정의
+
+```js
+// 세트 효과 항목 구조
+{
+    "label": "...",       // 기존 표시용 텍스트 (변경 없음)
+    "attrs": [...],       // 속성 부여 태그 배열 (없으면 [])
+    "stats": [...],       // 수치 스탯 배열 (기존과 동일)
+    "desc": "..."         // 설명형 효과 텍스트 (없으면 "")
+}
+```
+
+- `attrs`: **있다/없다** 비교, 태그 뱃지로 표시
+- `stats`: **수치 차이** 비교, 기존 방식 유지
+- `desc`: **동일/다름** 비교, 텍스트 그대로 표시
+
+---
+---

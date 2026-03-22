@@ -791,6 +791,132 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
 }
 
 /**
+ * 세트 효과 비교 tbody 행 생성 헬퍼
+ * @param {object|null} eff1 - 캐릭터1의 세트 효과 객체 (effects3 or effects5)
+ * @param {object|null} eff2 - 캐릭터2의 세트 효과 객체
+ * @param {string} tierLabel - "3세트" or "5세트"
+ * @param {string} tierColor - 헤더 색상 hex
+ * @param {string} tierBg    - 헤더 배경 rgba
+ * @returns {string} tbodyHtml 추가분
+ */
+function buildSetEffectRows(eff1, eff2, tierLabel, tierColor, tierBg) {
+    let html = '';
+
+    // 헤더 행
+    html += `<tr style="background:${tierBg};">
+        <td colspan="7" style="text-align:center;padding:6px 8px;color:${tierColor};font-size:0.9em;font-weight:bold;">━━━ ${tierLabel} 효과 ━━━</td>
+    </tr>`;
+
+    // ── attrs 행 ──────────────────────────────────────────────
+    const attrs1 = eff1?.attrs || [];
+    const attrs2 = eff2?.attrs || [];
+    const allAttrs = [...new Set([...attrs1, ...attrs2])];
+
+    if (allAttrs.length > 0) {
+        const attrDisplay = (attrs) => attrs.length > 0
+            ? attrs.map(a => `<span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(100,114,168,0.25);color:#b0bcff;font-size:0.8em;margin:1px 2px;">${a}</span>`).join(' ')
+            : '<span style="color:#555;font-size:0.8em;">-</span>';
+
+        const a1 = attrDisplay(attrs1);
+        const a2 = attrDisplay(attrs2);
+
+        const attrsSame = JSON.stringify([...attrs1].sort()) === JSON.stringify([...attrs2].sort());
+        const diffText  = attrsSame ? '동일' : '다름';
+        const diffStyle = attrsSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+
+        html += `<tr style="background:rgba(100,114,168,0.08);">
+            <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${tierLabel}</td>
+            <td style="text-align:center;padding:3px 8px;white-space:nowrap;">${a1}</td>
+            <td style="text-align:center;padding:3px 8px;color:#b0bcff;font-size:0.78em;white-space:nowrap;border-right:1px solid #2a3158;">속성부여</td>
+            <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle}">${diffText}</td>
+            <td style="text-align:center;padding:3px 8px;color:#b0bcff;font-size:0.78em;white-space:nowrap;border-right:1px solid #2a3158;">속성부여</td>
+            <td style="text-align:center;padding:3px 8px;white-space:nowrap;">${a2}</td>
+            <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${tierLabel}</td>
+        </tr>`;
+    }
+
+    // ── stats 행 ─────────────────────────────────────────────
+    const stats1 = eff1?.stats || [];
+    const stats2 = eff2?.stats || [];
+
+    const statMap1 = {};
+    const statMap2 = {};
+    stats1.forEach(entry => entry.stats.forEach(n => { statMap1[n] = { amount: entry.amount, unit: entry.unit }; }));
+    stats2.forEach(entry => entry.stats.forEach(n => { statMap2[n] = { amount: entry.amount, unit: entry.unit }; }));
+
+    const allStatNames = [...new Set([...Object.keys(statMap1), ...Object.keys(statMap2)])];
+
+    if (allStatNames.length === 0 && attrs1.length === 0 && attrs2.length === 0) {
+        html += `<tr>
+            <td colspan="7" style="text-align:center;padding:8px;color:#888;font-size:0.85em;">${tierLabel} 효과 데이터 없음</td>
+        </tr>`;
+    } else {
+        allStatNames.forEach(statName => {
+            const val1 = statMap1[statName];
+            const val2 = statMap2[statName];
+
+            const display1 = val1 ? `${val1.amount}${val1.unit}` : '';
+            const display2 = val2 ? `${val2.amount}${val2.unit}` : '';
+
+            let diffText = '';
+            let diffClass = 'color:#888;';
+
+            if (val1 && val2) {
+                if (val1.amount === val2.amount && val1.unit === val2.unit) {
+                    diffText = '동일'; diffClass = 'color:#888;';
+                } else {
+                    const diff = val2.amount - val1.amount;
+                    if (diff > 0)      { diffText = `↑ +${diff}${val2.unit}`; diffClass = 'color:#2ecc71;font-weight:bold;'; }
+                    else if (diff < 0) { diffText = `↓ ${diff}${val2.unit}`;  diffClass = 'color:#e74c3c;font-weight:bold;'; }
+                    else               { diffText = '동일'; diffClass = 'color:#888;'; }
+                }
+            } else if (!val1 && val2) {
+                diffText = `↑ +${val2.amount}${val2.unit}`; diffClass = 'color:#2ecc71;font-weight:bold;';
+            } else if (val1 && !val2) {
+                diffText = `↓ -${val1.amount}${val1.unit}`; diffClass = 'color:#e74c3c;font-weight:bold;';
+            }
+
+            const highlight = (display1 !== display2) ? 'background:rgba(100,114,168,0.12);' : '';
+
+            html += `<tr style="${highlight}">
+                <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${tierLabel}</td>
+                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val1 ? statName : ''}</td>
+                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffClass}">${diffText}</td>
+                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
+                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val2 ? statName : ''}</td>
+                <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${tierLabel}</td>
+            </tr>`;
+        });
+    }
+
+    // ── desc 행 ──────────────────────────────────────────────
+    const desc1 = eff1?.desc || '';
+    const desc2 = eff2?.desc || '';
+
+    if (desc1 || desc2) {
+        const descSame = desc1 === desc2;
+        const fmtDesc = (d) => d
+            ? d.split('\n').map(line => `<span style="display:block;line-height:1.5;">${line}</span>`).join('')
+            : '<span style="color:#555;font-size:0.8em;">-</span>';
+
+        const diffText  = descSame ? '동일' : '다름';
+        const diffStyle = descSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+        const rowBg     = !descSame ? 'background:rgba(240,165,0,0.06);' : '';
+
+        html += `<tr style="${rowBg}">
+            <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${tierLabel}</td>
+            <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fmtDesc(desc1)}</td>
+            <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle}">${diffText}</td>
+            <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fmtDesc(desc2)}</td>
+            <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${tierLabel}</td>
+        </tr>`;
+    }
+
+    return html;
+}
+
+/**
  * 방어구 세트 효과 비교 표
  */
 function buildArmorSetEffectCompare(section1, section2, name1, name2) {
@@ -908,180 +1034,26 @@ function buildArmorSetEffectCompare(section1, section2, name1, name2) {
         <td style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;white-space:nowrap;font-weight:bold;" colspan="3">${set2Label}</td>
     </tr>`;
 
-    // 3세트 효과 비교 (스탯별로 한 줄씩)
+    // 3세트 효과 비교
     const has3Set1 = result1.count >= 3 && result1.effects3;
     const has3Set2 = result2.count >= 3 && result2.effects3;
-
     if (has3Set1 || has3Set2) {
-        const stats1 = result1.effects3?.stats || [];
-        const stats2 = result2.effects3?.stats || [];
-
-        // stats 배열을 { "스탯명": { amount, unit } } 맵으로 변환
-        const statMap1 = {};
-        const statMap2 = {};
-
-        stats1.forEach(entry => {
-            entry.stats.forEach(statName => {
-                statMap1[statName] = { amount: entry.amount, unit: entry.unit };
-            });
-        });
-
-        stats2.forEach(entry => {
-            entry.stats.forEach(statName => {
-                statMap2[statName] = { amount: entry.amount, unit: entry.unit };
-            });
-        });
-
-        // 모든 스탯명 합집합
-        const allStatNames = [...new Set([...Object.keys(statMap1), ...Object.keys(statMap2)])];
-
-        // 3세트 헤더
-        tbodyHtml += `<tr style="background:rgba(127,212,255,0.15);">
-            <td colspan="7" style="text-align:center;padding:6px 8px;color:#7fd4ff;font-size:0.9em;font-weight:bold;">━━━ 3세트 효과 ━━━</td>
-        </tr>`;
-
-        if (allStatNames.length === 0) {
-            tbodyHtml += `<tr>
-                <td colspan="7" style="text-align:center;padding:8px;color:#888;font-size:0.85em;">3세트 효과 데이터 없음</td>
-            </tr>`;
-        } else {
-            allStatNames.forEach(statName => {
-                const val1 = statMap1[statName];
-                const val2 = statMap2[statName];
-
-                const display1 = val1 ? `${val1.amount}${val1.unit}` : '';
-                const display2 = val2 ? `${val2.amount}${val2.unit}` : '';
-
-                let diffText = '';
-                let diffClass = 'color:#888;';
-
-                if (val1 && val2) {
-                    if (val1.amount === val2.amount && val1.unit === val2.unit) {
-                        diffText = '동일';
-                        diffClass = 'color:#888;';
-                    } else {
-                        const diff = val2.amount - val1.amount;
-                        if (diff > 0) {
-                            diffText = `↑ +${diff}${val2.unit}`;
-                            diffClass = 'color:#2ecc71;font-weight:bold;';
-                        } else if (diff < 0) {
-                            diffText = `↓ ${diff}${val2.unit}`;
-                            diffClass = 'color:#e74c3c;font-weight:bold;';
-                        } else {
-                            diffText = '동일';
-                            diffClass = 'color:#888;';
-                        }
-                    }
-                } else if (!val1 && val2) {
-                    diffText = `↑ +${val2.amount}${val2.unit}`;
-                    diffClass = 'color:#2ecc71;font-weight:bold;';
-                } else if (val1 && !val2) {
-                    diffText = `↓ -${val1.amount}${val1.unit}`;
-                    diffClass = 'color:#e74c3c;font-weight:bold;';
-                }
-
-                const highlight = (display1 !== display2)
-                    ? 'background:rgba(100,114,168,0.12);' : '';
-
-                tbodyHtml += `<tr style="${highlight}">
-                    <td style="text-align:center;padding:2px 6px;color:#7fd4ff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">3세트</td>
-                    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val1 ? statName : ''}</td>
-                    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
-                    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffClass}">${diffText}</td>
-                    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
-                    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val2 ? statName : ''}</td>
-                    <td style="text-align:center;padding:2px 6px;color:#7fd4ff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">3세트</td>
-                </tr>`;
-            });
-        }
+        tbodyHtml += buildSetEffectRows(
+            result1.effects3 || null,
+            result2.effects3 || null,
+            '3세트', '#7fd4ff', 'rgba(127,212,255,0.15)'
+        );
     }
 
-    // 5세트 효과 비교 (스탯별로 한 줄씩)
+    // 5세트 효과 비교
     const has5Set1 = result1.count >= 5 && result1.effects5;
     const has5Set2 = result2.count >= 5 && result2.effects5;
-
     if (has5Set1 || has5Set2) {
-        const stats1 = result1.effects5?.stats || [];
-        const stats2 = result2.effects5?.stats || [];
-
-        // stats 배열을 { "스탯명": { amount, unit } } 맵으로 변환
-        const statMap1 = {};
-        const statMap2 = {};
-
-        stats1.forEach(entry => {
-            entry.stats.forEach(statName => {
-                statMap1[statName] = { amount: entry.amount, unit: entry.unit };
-            });
-        });
-
-        stats2.forEach(entry => {
-            entry.stats.forEach(statName => {
-                statMap2[statName] = { amount: entry.amount, unit: entry.unit };
-            });
-        });
-
-        // 모든 스탯명 합집합
-        const allStatNames = [...new Set([...Object.keys(statMap1), ...Object.keys(statMap2)])];
-
-        // 5세트 헤더
-        tbodyHtml += `<tr style="background:rgba(255,215,0,0.15);">
-            <td colspan="7" style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;font-weight:bold;">━━━ 5세트 효과 ━━━</td>
-        </tr>`;
-
-        if (allStatNames.length === 0) {
-            tbodyHtml += `<tr>
-                <td colspan="7" style="text-align:center;padding:8px;color:#888;font-size:0.85em;">5세트 효과 데이터 없음</td>
-            </tr>`;
-        } else {
-            allStatNames.forEach(statName => {
-                const val1 = statMap1[statName];
-                const val2 = statMap2[statName];
-
-                const display1 = val1 ? `${val1.amount}${val1.unit}` : '';
-                const display2 = val2 ? `${val2.amount}${val2.unit}` : '';
-
-                let diffText = '';
-                let diffClass = 'color:#888;';
-
-                if (val1 && val2) {
-                    if (val1.amount === val2.amount && val1.unit === val2.unit) {
-                        diffText = '동일';
-                        diffClass = 'color:#888;';
-                    } else {
-                        const diff = val2.amount - val1.amount;
-                        if (diff > 0) {
-                            diffText = `↑ +${diff}${val2.unit}`;
-                            diffClass = 'color:#2ecc71;font-weight:bold;';
-                        } else if (diff < 0) {
-                            diffText = `↓ ${diff}${val2.unit}`;
-                            diffClass = 'color:#e74c3c;font-weight:bold;';
-                        } else {
-                            diffText = '동일';
-                            diffClass = 'color:#888;';
-                        }
-                    }
-                } else if (!val1 && val2) {
-                    diffText = `↑ +${val2.amount}${val2.unit}`;
-                    diffClass = 'color:#2ecc71;font-weight:bold;';
-                } else if (val1 && !val2) {
-                    diffText = `↓ -${val1.amount}${val1.unit}`;
-                    diffClass = 'color:#e74c3c;font-weight:bold;';
-                }
-
-                const highlight = (display1 !== display2)
-                    ? 'background:rgba(100,114,168,0.12);' : '';
-
-                tbodyHtml += `<tr style="${highlight}">
-                    <td style="text-align:center;padding:2px 6px;color:#ffd700;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">5세트</td>
-                    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val1 ? statName : ''}</td>
-                    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
-                    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffClass}">${diffText}</td>
-                    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
-                    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val2 ? statName : ''}</td>
-                    <td style="text-align:center;padding:2px 6px;color:#ffd700;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">5세트</td>
-                </tr>`;
-            });
-        }
+        tbodyHtml += buildSetEffectRows(
+            result1.effects5 || null,
+            result2.effects5 || null,
+            '5세트', '#ffd700', 'rgba(255,215,0,0.15)'
+        );
     }
 
     // 세트 효과가 둘 다 없을 때
@@ -1384,83 +1356,11 @@ function buildAccSetEffectCompare(section1, section2, name1, name2) {
     const has3Set2 = result2.count >= 3 && result2.effects3;
 
     if (has3Set1 || has3Set2) {
-        const stats1 = result1.effects3?.stats || [];
-        const stats2 = result2.effects3?.stats || [];
-
-        const statMap1 = {};
-        const statMap2 = {};
-
-        stats1.forEach(entry => {
-            entry.stats.forEach(statName => {
-                statMap1[statName] = { amount: entry.amount, unit: entry.unit };
-            });
-        });
-
-        stats2.forEach(entry => {
-            entry.stats.forEach(statName => {
-                statMap2[statName] = { amount: entry.amount, unit: entry.unit };
-            });
-        });
-
-        const allStatNames = [...new Set([...Object.keys(statMap1), ...Object.keys(statMap2)])];
-
-        tbodyHtml += `<tr style="background:rgba(127,212,255,0.15);">
-            <td colspan="7" style="text-align:center;padding:6px 8px;color:#7fd4ff;font-size:0.9em;font-weight:bold;">━━━ 3세트 효과 ━━━</td>
-        </tr>`;
-
-        if (allStatNames.length === 0) {
-            tbodyHtml += `<tr>
-                <td colspan="7" style="text-align:center;padding:8px;color:#888;font-size:0.85em;">3세트 효과 데이터 없음</td>
-            </tr>`;
-        } else {
-            allStatNames.forEach(statName => {
-                const val1 = statMap1[statName];
-                const val2 = statMap2[statName];
-
-                const display1 = val1 ? `${val1.amount}${val1.unit}` : '';
-                const display2 = val2 ? `${val2.amount}${val2.unit}` : '';
-
-                let diffText = '';
-                let diffClass = 'color:#888;';
-
-                if (val1 && val2) {
-                    if (val1.amount === val2.amount && val1.unit === val2.unit) {
-                        diffText = '동일';
-                        diffClass = 'color:#888;';
-                    } else {
-                        const diff = val2.amount - val1.amount;
-                        if (diff > 0) {
-                            diffText = `↑ +${diff}${val2.unit}`;
-                            diffClass = 'color:#2ecc71;font-weight:bold;';
-                        } else if (diff < 0) {
-                            diffText = `↓ ${diff}${val2.unit}`;
-                            diffClass = 'color:#e74c3c;font-weight:bold;';
-                        } else {
-                            diffText = '동일';
-                            diffClass = 'color:#888;';
-                        }
-                    }
-                } else if (!val1 && val2) {
-                    diffText = `↑ +${val2.amount}${val2.unit}`;
-                    diffClass = 'color:#2ecc71;font-weight:bold;';
-                } else if (val1 && !val2) {
-                    diffText = `↓ -${val1.amount}${val1.unit}`;
-                    diffClass = 'color:#e74c3c;font-weight:bold;';
-                }
-
-                const highlight = (display1 !== display2) ? 'background:rgba(100,114,168,0.12);' : '';
-
-                tbodyHtml += `<tr style="${highlight}">
-                    <td style="text-align:center;padding:2px 6px;color:#7fd4ff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">3세트</td>
-                    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val1 ? statName : ''}</td>
-                    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
-                    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffClass}">${diffText}</td>
-                    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
-                    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val2 ? statName : ''}</td>
-                    <td style="text-align:center;padding:2px 6px;color:#7fd4ff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">3세트</td>
-                </tr>`;
-            });
-        }
+        tbodyHtml += buildSetEffectRows(
+            result1.effects3 || null,
+            result2.effects3 || null,
+            '3세트', '#7fd4ff', 'rgba(127,212,255,0.15)'
+        );
     }
 
     if (!result1.effects3 && !result2.effects3) {
@@ -1754,73 +1654,11 @@ function buildSpecialSetEffectCompare(section1, section2, name1, name2) {
     const has3Set2 = result2.count >= 3 && result2.effects3;
 
     if (has3Set1 || has3Set2) {
-        const stats1 = result1.effects3?.stats || [];
-        const stats2 = result2.effects3?.stats || [];
-
-        const statMap1 = {};
-        const statMap2 = {};
-
-        stats1.forEach(entry => {
-            entry.stats.forEach(statName => {
-                statMap1[statName] = { amount: entry.amount, unit: entry.unit };
-            });
-        });
-
-        stats2.forEach(entry => {
-            entry.stats.forEach(statName => {
-                statMap2[statName] = { amount: entry.amount, unit: entry.unit };
-            });
-        });
-
-        const allStatNames = [...new Set([...Object.keys(statMap1), ...Object.keys(statMap2)])];
-
-        tbodyHtml += `<tr style="background:rgba(127,212,255,0.15);">
-            <td colspan="7" style="text-align:center;padding:6px 8px;color:#7fd4ff;font-size:0.9em;font-weight:bold;">━━━ 3세트 효과 ━━━</td>
-        </tr>`;
-
-        if (allStatNames.length === 0) {
-            tbodyHtml += `<tr>
-                <td colspan="7" style="text-align:center;padding:8px;color:#888;font-size:0.85em;">3세트 효과 데이터 없음</td>
-            </tr>`;
-        } else {
-            allStatNames.forEach(statName => {
-                const val1 = statMap1[statName];
-                const val2 = statMap2[statName];
-
-                const display1 = val1 ? `${val1.amount}${val1.unit}` : '';
-                const display2 = val2 ? `${val2.amount}${val2.unit}` : '';
-
-                let diffText = '';
-                let diffClass = 'color:#888;';
-
-                if (val1 && val2) {
-                    if (val1.amount === val2.amount && val1.unit === val2.unit) {
-                        diffText = '동일'; diffClass = 'color:#888;';
-                    } else {
-                        const diff = val2.amount - val1.amount;
-                        if (diff > 0) { diffText = `↑ +${diff}${val2.unit}`; diffClass = 'color:#2ecc71;font-weight:bold;'; }
-                        else if (diff < 0) { diffText = `↓ ${diff}${val2.unit}`; diffClass = 'color:#e74c3c;font-weight:bold;'; }
-                        else { diffText = '동일'; diffClass = 'color:#888;'; }
-                    }
-                } else if (!val1 && val2) {
-                    diffText = `↑ +${val2.amount}${val2.unit}`; diffClass = 'color:#2ecc71;font-weight:bold;';
-                } else if (val1 && !val2) {
-                    diffText = `↓ -${val1.amount}${val1.unit}`; diffClass = 'color:#e74c3c;font-weight:bold;';
-                }
-
-                const highlight = (display1 !== display2) ? 'background:rgba(100,114,168,0.12);' : '';
-
-                tbodyHtml += `<tr style="${highlight}">
-                    <td style="text-align:center;padding:2px 6px;color:#7fd4ff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">3세트</td>
-                    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val1 ? statName : ''}</td>
-                    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
-                    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffClass}">${diffText}</td>
-                    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
-                    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val2 ? statName : ''}</td>
-                    <td style="text-align:center;padding:2px 6px;color:#7fd4ff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">3세트</td>
-                </tr>`;
-            });
-        }
+        tbodyHtml += buildSetEffectRows(
+            result1.effects3 || null,
+            result2.effects3 || null,
+            '3세트', '#7fd4ff', 'rgba(127,212,255,0.15)'
+        );
     }
 
     if (!result1.effects3 && !result2.effects3) {
