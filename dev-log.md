@@ -5920,3 +5920,60 @@ function closeHistoryModal() {
 **`index.html`**
 
 - `character/` 폴더 내 스크립트 태그 경로 15개 변경 전 파일명 → 변경 후 파일명으로 수정
+
+---
+---
+
+## 2026-03-22 (138차)
+
+### 캐릭터 관리 - 비교 모드 탭 분리 (장비 비교 / 스탯 비교)
+
+**수정된 파일:** `character/mode-compare.js`, `index.html`
+
+---
+
+### 변경 내용
+
+**`index.html`**
+
+- 비교 모드 캐릭터 선택 컨테이너 아래에 탭 바 추가
+- `compareContainer` 내부를 `compareContentEq`(장비 비교)와 `compareContentStat`(스탯 비교) 두 개로 분리
+
+```html
+<!-- 추가 -->
+<div id="compareTabBar" style="display:none; border-bottom:2px solid #2a3158; margin:12px 0 0 0;">
+    <button id="compareTabEq" onclick="switchCompareTab('eq')" ...>장비 비교</button>
+    <button id="compareTabStat" onclick="switchCompareTab('stat')" ...>스탯 비교</button>
+</div>
+<div id="compareContainer">
+    <div id="compareContentEq"></div>
+    <div id="compareContentStat" style="display:none;"></div>
+</div>
+```
+
+**`character/mode-compare.js`**
+
+- `switchCompareTab(tab)` 함수 신규 추가
+  - 탭 전환 시 `compareContentEq` / `compareContentStat` show/hide
+  - 활성 탭 색상 강조 (`#ffd700`), 비활성 탭 색상 (`#888`)
+
+- `displayComparison` 수정
+  - `compareTabBar` 표시 추가
+  - 장비 비교 섹션(장비·봉인·엠블렘·마법부여) → `compareContentEq`에 렌더링
+  - 스탯 비교 섹션(방어구/악세서리/특수장비 스탯·세트 효과) → `compareContentStat`에 렌더링
+  - 진입 시 `switchCompareTab('eq')` 호출로 장비 비교 탭 기본 선택
+
+- `switchToBasicMode` 수정 — `compareTabBar` 숨기기 추가
+- `enterCompareMode` 수정 — `compareTabBar` 숨기기 추가
+- `exitCompareMode` 수정
+  - `compareTabBar` 숨기기 추가
+  - `compareContent.innerHTML` → `compareContentEq.innerHTML` + `compareContentStat.innerHTML` 초기화로 변경
+
+---
+
+### 탭 구성
+
+| 탭 | 포함 내용 |
+|----|---------|
+| 장비 비교 (기본) | 장비 비교, 마법봉인 비교(고유/일반), 엠블렘 비교, 마법부여 비교 |
+| 스탯 비교 | 방어구 스탯, 방어구 세트 효과, 악세서리 스탯, 악세서리 세트 효과, 특수장비 스탯, 특수장비 세트 효과 |

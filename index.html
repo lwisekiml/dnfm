@@ -312,8 +312,14 @@
             </div>
         </div>
     </div>
+    <!-- 비교 모드 탭 -->
+    <div id="compareTabBar" style="display:none; border-bottom:2px solid #2a3158; margin:12px 0 0 0;">
+        <button id="compareTabEq" onclick="switchCompareTab('eq')" style="padding:8px 20px; background:none; border:none; border-bottom:3px solid #ffd700; color:#ffd700; font-size:0.9em; font-weight:bold; cursor:pointer; margin-bottom:-2px;">장비 비교</button>
+        <button id="compareTabStat" onclick="switchCompareTab('stat')" style="padding:8px 20px; background:none; border:none; border-bottom:3px solid transparent; color:#888; font-size:0.9em; font-weight:bold; cursor:pointer; margin-bottom:-2px;">스탯 비교</button>
+    </div>
     <div id="compareContainer">
-        <div id="compareContent"></div>
+        <div id="compareContentEq"></div>
+        <div id="compareContentStat" style="display:none;"></div>
     </div>
 
     <!-- 검색 모드 UI -->

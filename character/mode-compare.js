@@ -402,6 +402,7 @@ function switchToBasicMode() {
     document.getElementById('characterContainer').style.display = 'block';
     document.getElementById('compareCharSelectionContainer').style.display = 'none';
     document.getElementById('compareContainer').style.display = 'none';
+    document.getElementById('compareTabBar').style.display = 'none';
     document.getElementById('searchContainer').style.display = 'none';
 
     document.getElementById('btnBasicMode').classList.add('active');
@@ -425,6 +426,7 @@ function enterCompareMode() {
     document.getElementById('characterContainer').style.display = 'none';
     document.getElementById('compareCharSelectionContainer').style.display = 'block';
     document.getElementById('compareContainer').style.display = 'none';
+    document.getElementById('compareTabBar').style.display = 'none';
     document.getElementById('searchContainer').style.display = 'none';
 
     document.getElementById('btnBasicMode').classList.remove('active');
@@ -527,6 +529,7 @@ function enterCompareMode() {
 function displayComparison() {
     document.getElementById('compareCharSelectionContainer').style.display = 'block';
     document.getElementById('compareContainer').style.display = 'block';
+    document.getElementById('compareTabBar').style.display = 'block';
 
     const charId1 = AppState.compareSelection.left;
     const charId2 = AppState.compareSelection.right;
@@ -544,8 +547,9 @@ function displayComparison() {
     const displayName1 = `${job1}(${name1}) / ${power1}`;
     const displayName2 = `${job2}(${name2}) / ${power2}`;
 
-    const container = document.getElementById('compareContent');
-    container.innerHTML = '';
+    // 장비 비교 탭
+    const containerEq = document.getElementById('compareContentEq');
+    containerEq.innerHTML = '';
 
     const sections = [
         buildEquipmentCompare(section1, section2, displayName1, displayName2),
@@ -554,32 +558,32 @@ function displayComparison() {
         buildEmblemCompare(section1, section2, displayName1, displayName2),
         buildEnchantCompare(section1, section2, displayName1, displayName2),
     ];
+    sections.forEach(s => containerEq.appendChild(s));
 
-    sections.forEach(s => container.appendChild(s));
+    // 스탯 비교 탭
+    const containerStat = document.getElementById('compareContentStat');
+    containerStat.innerHTML = '';
 
-    // 방어구 스탯 비교 표
     const armorStatEl = buildArmorStatCompare(section1, section2, displayName1, displayName2);
-    container.appendChild(armorStatEl);
+    containerStat.appendChild(armorStatEl);
 
-    // 방어구 세트 효과 비교 표
     const armorSetEffectEl = buildArmorSetEffectCompare(section1, section2, displayName1, displayName2);
-    container.appendChild(armorSetEffectEl);
+    containerStat.appendChild(armorSetEffectEl);
 
-    // 악세서리 스탯 비교 표
     const accStatEl = buildAccStatCompare(section1, section2, displayName1, displayName2);
-    container.appendChild(accStatEl);
+    containerStat.appendChild(accStatEl);
 
-    // 악세서리 세트 효과 비교 표
     const accSetEffectEl = buildAccSetEffectCompare(section1, section2, displayName1, displayName2);
-    container.appendChild(accSetEffectEl);
+    containerStat.appendChild(accSetEffectEl);
 
-    // 특수장비 스탯 비교 표
     const specialStatEl = buildSpecialStatCompare(section1, section2, displayName1, displayName2);
-    container.appendChild(specialStatEl);
+    containerStat.appendChild(specialStatEl);
 
-    // 특수장비 세트 효과 비교 표
     const specialSetEffectEl = buildSpecialSetEffectCompare(section1, section2, displayName1, displayName2);
-    container.appendChild(specialSetEffectEl);
+    containerStat.appendChild(specialSetEffectEl);
+
+    // 기본은 장비 비교 탭 선택
+    switchCompareTab('eq');
 
     // DOM에 추가된 후 행 높이 동기화
     requestAnimationFrame(() => {
@@ -1694,12 +1698,31 @@ function buildSpecialSetEffectCompare(section1, section2, name1, name2) {
 /**
  * 비교 모드 종료
  */
+/**
+ * 비교 모드 탭 전환 (장비 비교 / 스탯 비교)
+ */
+function switchCompareTab(tab) {
+    const isEq = tab === 'eq';
+
+    document.getElementById('compareContentEq').style.display = isEq ? 'block' : 'none';
+    document.getElementById('compareContentStat').style.display = isEq ? 'none' : 'block';
+
+    const tabEq   = document.getElementById('compareTabEq');
+    const tabStat = document.getElementById('compareTabStat');
+    tabEq.style.borderBottomColor   = isEq ? '#ffd700' : 'transparent';
+    tabEq.style.color                = isEq ? '#ffd700' : '#888';
+    tabStat.style.borderBottomColor  = isEq ? 'transparent' : '#ffd700';
+    tabStat.style.color              = isEq ? '#888' : '#ffd700';
+}
+
 function exitCompareMode() {
     document.getElementById('characterContainer').style.display = 'block';
     document.getElementById('compareCharSelectionContainer').style.display = 'none';
     document.getElementById('compareContainer').style.display = 'none';
+    document.getElementById('compareTabBar').style.display = 'none';
     AppState.compareSelection = { left: null, right: null };
-    document.getElementById('compareContent').innerHTML = '';
+    document.getElementById('compareContentEq').innerHTML = '';
+    document.getElementById('compareContentStat').innerHTML = '';
 }
 
 /**
