@@ -97,13 +97,13 @@ function autoSave() {
                 inputsObj['아바타']['itemname'] = { val: rawVal, cls: btn.className };
             });
 
-            // 무기 아바타 수치 버튼: weapon_stat_v2 구조로 저장
+            // 무기 아바타 수치 버튼: weapon_stat 구조로 저장
             const weaponAvatarBtn = sec.querySelector('button[data-weapon-avatar-btn]');
             if (weaponAvatarBtn) {
                 if (!inputsObj['아바타']) inputsObj['아바타'] = {};
                 const waName  = weaponAvatarBtn.getAttribute('data-weapon-avatar-name') || '';
                 const waStats = JSON.parse(weaponAvatarBtn.getAttribute('data-weapon-avatar-stats') || '{}');
-                inputsObj['아바타']['weapon_stat_v2'] = {
+                inputsObj['아바타']['weapon_stat'] = {
                     name: waName,
                     base: waStats.base || [],
                     eff:  waStats.eff  || [],

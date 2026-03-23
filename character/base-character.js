@@ -821,28 +821,13 @@ function restoreSavedData(section, savedData, charId) {
 
         // 무기 아바타 수치 버튼 복원 (새 팝업 방식)
         const waBtn = section.querySelector('button[data-weapon-avatar-btn]');
-        if (waBtn && avatarInputs.weapon_stat_v2) {
-            const ws = avatarInputs.weapon_stat_v2;
+        if (waBtn && avatarInputs.weapon_stat) {
+            const ws = avatarInputs.weapon_stat;
             const wName  = ws.name  || '';
             const wStats = JSON.stringify({ base: ws.base || [], eff: ws.eff || [], desc: ws.desc || '' });
             waBtn.setAttribute('data-weapon-avatar-name',  wName);
             waBtn.setAttribute('data-weapon-avatar-stats', wStats);
             waBtn.textContent = wName;
-        } else if (waBtn && avatarInputs.weapon_stat) {
-            // 구버전 weapon_stat(select 방식) fallback: 라벨 텍스트로 이름만 복원
-            const ws = avatarInputs.weapon_stat;
-            let legacyLabel = '';
-            if (Array.isArray(ws.stats) && ws.stats.length > 0) {
-                const statStr = ws.stats.join(', ');
-                legacyLabel = (ws.amount !== null && ws.amount !== undefined)
-                    ? `${statStr} +${ws.amount}`
-                    : statStr;
-            } else if (ws.val) {
-                legacyLabel = ws.val;
-            }
-            waBtn.setAttribute('data-weapon-avatar-name',  legacyLabel);
-            waBtn.setAttribute('data-weapon-avatar-stats', '{}');
-            waBtn.textContent = legacyLabel;
         }
     }
 

@@ -5977,3 +5977,34 @@ function closeHistoryModal() {
 |----|---------|
 | 장비 비교 (기본) | 장비 비교, 마법봉인 비교(고유/일반), 엠블렘 비교, 마법부여 비교 |
 | 스탯 비교 | 방어구 스탯, 방어구 세트 효과, 악세서리 스탯, 악세서리 세트 효과, 특수장비 스탯, 특수장비 세트 효과 |
+
+---
+---
+
+## 2026-03-23 (139차)
+
+### 무기 아바타 수치 키 정리
+
+**수정된 파일:** `character/base-character.js`, `character/core-storage.js`
+
+---
+
+### 변경 내용
+
+**`character/base-character.js`**
+
+- 구버전 `weapon_stat` fallback 코드 제거
+  - 기존에 select 방식으로 저장된 구버전 데이터를 복원하는 코드였으나 스탯 수치가 복원되지 않아 실질적으로 의미 없어 제거
+- `weapon_stat_v2` → `weapon_stat` 키 이름 변경 (불러오기)
+
+**`character/core-storage.js`**
+
+- `weapon_stat_v2` → `weapon_stat` 키 이름 변경 (저장)
+- 주석도 동일하게 수정
+
+---
+
+### 변경 이유
+
+- `weapon_stat_v2`는 구버전 `weapon_stat`(select 방식)을 대체하면서 임시로 붙인 이름
+- 구버전 fallback 제거로 `weapon_stat_v2`만 사용하게 되어 `weapon_stat`으로 통일
