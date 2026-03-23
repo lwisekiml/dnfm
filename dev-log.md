@@ -6008,3 +6008,49 @@ function closeHistoryModal() {
 
 - `weapon_stat_v2`는 구버전 `weapon_stat`(select 방식)을 대체하면서 임시로 붙인 이름
 - 구버전 fallback 제거로 `weapon_stat_v2`만 사용하게 되어 `weapon_stat`으로 통일
+
+---
+---
+
+## 2026-03-23 (140차)
+
+### 아이템 스탯 데이터 구조 개편 및 비교 기능 확장
+
+---
+
+### 데이터 파일 변경
+
+**`data/armor.js`**
+- 익시드 아이템 `base`/`eff`/`mastery`에서 `이상/선봉/의지` 레이어 제거 → `prefix`(전격/허상 등)만으로 단순화
+  - 대상: 못말리는 말괄량이의 가죽 자켓, 엠프리스 스파이더 상의, 거신의 스펙쿨룸 상의
+- 거신의 스펙쿨룸 상의(익시드) + 거인의 스펙쿨룸 상의/하의/어깨 장식/허리띠/신발 신규 추가
+- 전 아이템에 `attrs`, `desc` 빈 틀 추가
+  - 익시드: `attrs[이상/선봉/의지][prefix]`, `desc[이상/선봉/의지][prefix]`
+  - 일반: `attrs[prefix]`, `desc[prefix]`
+
+**`data/accessory.js`**
+- 전 아이템에 `attrs`, `desc` 빈 틀 추가 (익시드: `attrs[이상/선봉/의지][prefix]`, 일반: `attrs[prefix]`)
+
+**`data/special.js`**
+- 파일 전체 교체 (프로젝트 원본 → 현재 코드 기준으로 동기화)
+- 전 아이템에 `attrs`, `desc` 빈 틀 추가
+
+---
+
+### `character/mode-compare.js`
+
+**`getArmorStats` / `getAccStats` / `getSpecialStats` 수정**
+- 기존에는 `stats` 맵만 반환하던 것을 `attrs`, `desc`도 함께 반환하도록 변경
+- 읽기 로직:
+  - 익시드 아이템: `item.attrs?.[이상/선봉/의지]?.[prefix]` (exceed 값 없으면 `이상` 기본값)
+  - 일반 아이템: `item.attrs?.[prefix]`
+- `desc`도 동일한 방식 적용
+
+**`buildArmorStatCompare` / `buildAccStatCompare` / `buildSpecialStatCompare` 수정**
+- 각 슬롯의 스탯 행 렌더링 다음에 `attrs`, `desc` 행 추가
+- `attrs` 행: 속성 값을 뱃지 스타일로 표시, 좌우 다르면 주황색 "다름"
+- `desc` 행: 줄바꿈 처리된 텍스트로 표시, 좌우 다르면 주황색 "다름"
+- 값이 없으면(빈 배열/빈 문자열) 행 미표시
+
+---
+---

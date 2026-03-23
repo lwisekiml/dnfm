@@ -617,6 +617,7 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
         const item = armorData[itemname];
         let baseArr, effArr, masteryArr;
 
+        const exceed_stage = exceed || '이상';
         if (item.exceed) {
             // exceed 아이템: base[prefix], eff[prefix], mastery[prefix]
             const prefixKey = prefix || '전격';
@@ -646,7 +647,24 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
         addToMap(effArr,     '효과');
         addToMap(masteryArr, '방어구 마스터리');
 
-        return { itemname, exceed, prefix, stats: map };
+        // attrs, desc 읽기
+        let attrs = [], desc = '';
+        if (item.attrs) {
+            if (item.exceed) {
+                attrs = item.attrs?.[exceed_stage]?.[prefix || '전격'] || [];
+            } else {
+                attrs = item.attrs?.[prefix || '기본'] || [];
+            }
+        }
+        if (item.desc) {
+            if (item.exceed) {
+                desc = item.desc?.[exceed_stage]?.[prefix || '전격'] || '';
+            } else {
+                desc = item.desc?.[prefix || '기본'] || '';
+            }
+        }
+
+        return { itemname, exceed, prefix, stats: map, attrs, desc };
     }
 
     // 두 캐릭터의 모든 스탯 키 합집합
@@ -757,6 +775,45 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
                 <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${v2 !== 0 ? sectionTag : ''}</td>
             </tr>`;
         });
+
+        // attrs 행
+        const attrs1 = r1.attrs || [];
+        const attrs2 = r2.attrs || [];
+        if (attrs1.length > 0 || attrs2.length > 0) {
+            const attrDisplay = (attrs) => attrs.length > 0
+                ? attrs.map(a => `<span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(100,114,168,0.25);color:#b0bcff;font-size:0.8em;margin:1px 2px;">${a}</span>`).join(' ')
+                : '<span style="color:#555;font-size:0.8em;">-</span>';
+            const attrsSame = JSON.stringify([...attrs1].sort()) === JSON.stringify([...attrs2].sort());
+            const attrDiffText  = attrsSame ? '동일' : '다름';
+            const attrDiffStyle = attrsSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+            tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
+                <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">속성</td>
+                <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${attrDisplay(attrs1)}</td>
+                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${attrDiffStyle}">${attrDiffText}</td>
+                <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${attrDisplay(attrs2)}</td>
+                <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">속성</td>
+            </tr>`;
+        }
+
+        // desc 행
+        const desc1 = r1.desc || '';
+        const desc2 = r2.desc || '';
+        if (desc1 || desc2) {
+            const descSame = desc1 === desc2;
+            const fmtDesc = (d) => d
+                ? d.split('\n').map(line => `<span style="display:block;line-height:1.5;">${line}</span>`).join('')
+                : '<span style="color:#555;font-size:0.8em;">-</span>';
+            const descDiffText  = descSame ? '동일' : '다름';
+            const descDiffStyle = descSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+            const rowBg = !descSame ? 'background:rgba(240,165,0,0.06);' : '';
+            tbodyHtml += `<tr style="${rowBg}">
+                <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">설명</td>
+                <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fmtDesc(desc1)}</td>
+                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${descDiffStyle}">${descDiffText}</td>
+                <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fmtDesc(desc2)}</td>
+                <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">설명</td>
+            </tr>`;
+        }
     });
 
     const wrapper = document.createElement('div');
@@ -1108,6 +1165,7 @@ function buildAccStatCompare(section1, section2, name1, name2) {
         const item = accData[itemname];
         let baseArr, effArr;
 
+        const exceed_stage = exceed || '이상';
         if (item.exceed) {
             const prefixKey = prefix || '견고';
             baseArr = item.base?.[prefixKey] || [];
@@ -1131,7 +1189,24 @@ function buildAccStatCompare(section1, section2, name1, name2) {
         addToMap(baseArr, '기본효과');
         addToMap(effArr,  '효과');
 
-        return { itemname, exceed, prefix, stats: map };
+        // attrs, desc 읽기
+        let attrs = [], desc = '';
+        if (item.attrs) {
+            if (item.exceed) {
+                attrs = item.attrs?.[exceed_stage]?.[prefix || '견고'] || [];
+            } else {
+                attrs = item.attrs?.[prefix || '기본'] || [];
+            }
+        }
+        if (item.desc) {
+            if (item.exceed) {
+                desc = item.desc?.[exceed_stage]?.[prefix || '견고'] || '';
+            } else {
+                desc = item.desc?.[prefix || '기본'] || '';
+            }
+        }
+
+        return { itemname, exceed, prefix, stats: map, attrs, desc };
     }
 
     const slotResults1 = {};
@@ -1230,6 +1305,45 @@ function buildAccStatCompare(section1, section2, name1, name2) {
                 <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${v2 !== 0 ? sectionTag : ''}</td>
             </tr>`;
         });
+
+        // attrs 행
+        const attrs1 = r1.attrs || [];
+        const attrs2 = r2.attrs || [];
+        if (attrs1.length > 0 || attrs2.length > 0) {
+            const attrDisplay = (attrs) => attrs.length > 0
+                ? attrs.map(a => `<span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(100,114,168,0.25);color:#b0bcff;font-size:0.8em;margin:1px 2px;">${a}</span>`).join(' ')
+                : '<span style="color:#555;font-size:0.8em;">-</span>';
+            const attrsSame = JSON.stringify([...attrs1].sort()) === JSON.stringify([...attrs2].sort());
+            const attrDiffText  = attrsSame ? '동일' : '다름';
+            const attrDiffStyle = attrsSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+            tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
+                <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">속성</td>
+                <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${attrDisplay(attrs1)}</td>
+                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${attrDiffStyle}">${attrDiffText}</td>
+                <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${attrDisplay(attrs2)}</td>
+                <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">속성</td>
+            </tr>`;
+        }
+
+        // desc 행
+        const desc1 = r1.desc || '';
+        const desc2 = r2.desc || '';
+        if (desc1 || desc2) {
+            const descSame = desc1 === desc2;
+            const fmtDesc = (d) => d
+                ? d.split('\n').map(line => `<span style="display:block;line-height:1.5;">${line}</span>`).join('')
+                : '<span style="color:#555;font-size:0.8em;">-</span>';
+            const descDiffText  = descSame ? '동일' : '다름';
+            const descDiffStyle = descSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+            const rowBg = !descSame ? 'background:rgba(240,165,0,0.06);' : '';
+            tbodyHtml += `<tr style="${rowBg}">
+                <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">설명</td>
+                <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fmtDesc(desc1)}</td>
+                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${descDiffStyle}">${descDiffText}</td>
+                <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fmtDesc(desc2)}</td>
+                <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">설명</td>
+            </tr>`;
+        }
     });
 
     const wrapper = document.createElement('div');
@@ -1414,6 +1528,7 @@ function buildSpecialStatCompare(section1, section2, name1, name2) {
         const item = specialData[itemname];
         let baseArr, effArr;
 
+        const exceed_stage = exceed || '이상';
         if (item.exceed) {
             const prefixKey = prefix || '불굴';
             baseArr = item.base?.[prefixKey] || [];
@@ -1437,7 +1552,24 @@ function buildSpecialStatCompare(section1, section2, name1, name2) {
         addToMap(baseArr, '기본효과');
         addToMap(effArr,  '효과');
 
-        return { itemname, exceed, prefix, stats: map };
+        // attrs, desc 읽기
+        let attrs = [], desc = '';
+        if (item.attrs) {
+            if (item.exceed) {
+                attrs = item.attrs?.[exceed_stage]?.[prefix || '불굴'] || [];
+            } else {
+                attrs = item.attrs?.[prefix || '기본'] || [];
+            }
+        }
+        if (item.desc) {
+            if (item.exceed) {
+                desc = item.desc?.[exceed_stage]?.[prefix || '불굴'] || '';
+            } else {
+                desc = item.desc?.[prefix || '기본'] || '';
+            }
+        }
+
+        return { itemname, exceed, prefix, stats: map, attrs, desc };
     }
 
     const slotResults1 = {};
@@ -1536,6 +1668,45 @@ function buildSpecialStatCompare(section1, section2, name1, name2) {
                 <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${v2 !== 0 ? sectionTag : ''}</td>
             </tr>`;
         });
+
+        // attrs 행
+        const attrs1 = r1.attrs || [];
+        const attrs2 = r2.attrs || [];
+        if (attrs1.length > 0 || attrs2.length > 0) {
+            const attrDisplay = (attrs) => attrs.length > 0
+                ? attrs.map(a => `<span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(100,114,168,0.25);color:#b0bcff;font-size:0.8em;margin:1px 2px;">${a}</span>`).join(' ')
+                : '<span style="color:#555;font-size:0.8em;">-</span>';
+            const attrsSame = JSON.stringify([...attrs1].sort()) === JSON.stringify([...attrs2].sort());
+            const attrDiffText  = attrsSame ? '동일' : '다름';
+            const attrDiffStyle = attrsSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+            tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
+                <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">속성</td>
+                <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${attrDisplay(attrs1)}</td>
+                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${attrDiffStyle}">${attrDiffText}</td>
+                <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${attrDisplay(attrs2)}</td>
+                <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">속성</td>
+            </tr>`;
+        }
+
+        // desc 행
+        const desc1 = r1.desc || '';
+        const desc2 = r2.desc || '';
+        if (desc1 || desc2) {
+            const descSame = desc1 === desc2;
+            const fmtDesc = (d) => d
+                ? d.split('\n').map(line => `<span style="display:block;line-height:1.5;">${line}</span>`).join('')
+                : '<span style="color:#555;font-size:0.8em;">-</span>';
+            const descDiffText  = descSame ? '동일' : '다름';
+            const descDiffStyle = descSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+            const rowBg = !descSame ? 'background:rgba(240,165,0,0.06);' : '';
+            tbodyHtml += `<tr style="${rowBg}">
+                <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">설명</td>
+                <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fmtDesc(desc1)}</td>
+                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${descDiffStyle}">${descDiffText}</td>
+                <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fmtDesc(desc2)}</td>
+                <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">설명</td>
+            </tr>`;
+        }
     });
 
     const wrapper = document.createElement('div');
