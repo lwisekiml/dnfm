@@ -1426,11 +1426,11 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "자상": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ],
             "맹독": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ]
         },
@@ -1490,15 +1490,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["힘", "지능"],                  "amount": 38,   "unit": "%" }
             ],
             "자상": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ],
             "맹독": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ]
         },
@@ -1563,17 +1563,17 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["물리 공격력 증가"],           "amount": 46,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 46,   "unit": "%" }
             ],
             "자상": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
             ],
             "맹독": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
             ]
@@ -1642,15 +1642,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["데미지 증가"],                 "amount": 38,   "unit": "%" }
             ],
             "자상": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
             ],
             "맹독": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
             ]
         },
@@ -1715,15 +1715,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 38,   "unit": "%" }
             ],
             "자상": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
             ],
             "맹독": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
             ]
         },
@@ -1788,21 +1788,21 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["물리 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 6,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
             ],
             "자상": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
             ],
             "맹독": [
-                // { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 50레벨 스킬 공격력 증가"],  "amount": 3, "unit": "%" },
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
@@ -1892,12 +1892,12 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "허상": [
-                { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ],
             "보호": [
-                { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ]
         },
         "mastery": {
@@ -1956,16 +1956,16 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                { "stats": ["힘", "지능"],                  "amount": 38,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["힘", "지능"],                  "amount": 38,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ],
             "허상": [
-                { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ],
             "보호": [
-                { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ]
         },
         "mastery": {
@@ -2030,18 +2030,18 @@ const ARMOR_ITEM_STATS = {
         "eff": {
             "기본": [
                 { "stats": ["물리 공격력 증가"],           "amount": 46,   "unit": "%" },
-                { "stats": ["마법 공격력 증가"],           "amount": 46,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["마법 공격력 증가"],           "amount": 46,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ],
             "허상": [
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
-                { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ],
             "보호": [
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
-                { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ]
         },
         "mastery": {
@@ -2108,16 +2108,16 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                { "stats": ["데미지 증가"],                 "amount": 38,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["데미지 증가"],                 "amount": 38,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ],
             "허상": [
-                { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ],
             "보호": [
-                { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ]
         },
         "mastery": {
@@ -2181,16 +2181,16 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                { "stats": ["공격 시 추가 데미지"],                 "amount": 38,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["공격 시 추가 데미지"],                 "amount": 38,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ],
             "허상": [
-                { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ],
             "보호": [
-                { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ]
         },
         "mastery": {
@@ -2257,22 +2257,22 @@ const ARMOR_ITEM_STATS = {
                 { "stats": ["물리 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 6,    "unit": "%" },
-                { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ],
             "허상": [
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
-                { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ],
             "보호": [
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
-                { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
-                // { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
+                { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" },
+                { "stats": ["모든 파티원 물리 방어력", "모든 파티원 마법 방어력"],  "amount": 1000, "unit": "" },
             ]
         },
         "mastery": {
@@ -2358,11 +2358,11 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "맹독": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ],
             "왜곡": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ]
         },
@@ -2422,15 +2422,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 38,   "unit": "%" }
             ],
             "맹독": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ],
             "왜곡": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ]
         },
@@ -2495,17 +2495,17 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 46,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 46,   "unit": "%" }
             ],
             "맹독": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
             ],
             "왜곡": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
             ]
@@ -2574,15 +2574,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 38,   "unit": "%" }
             ],
             "맹독": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
             ],
             "왜곡": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
             ]
         },
@@ -2647,15 +2647,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 38,   "unit": "%" }
             ],
             "맹독": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
             ],
             "왜곡": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
             ]
         },
@@ -2720,21 +2720,21 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 6,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
             ],
             "맹독": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
             ],
             "왜곡": [
-                // { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
+                { "stats": ["모든 상태변화 내성"],  "amount": 5, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
@@ -2824,11 +2824,11 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "쇄도": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ],
             "침식": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ]
         },
@@ -2888,15 +2888,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 38,   "unit": "%" }
             ],
             "쇄도": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ],
             "침식": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ]
         },
@@ -2961,17 +2961,17 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 46,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 46,   "unit": "%" }
             ],
             "쇄도": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
             ],
             "침식": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
             ]
@@ -3040,15 +3040,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 38,   "unit": "%" }
             ],
             "쇄도": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
             ],
             "침식": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
             ]
         },
@@ -3113,15 +3113,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 38,   "unit": "%" }
             ],
             "쇄도": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
             ],
             "침식": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
             ]
         },
@@ -3186,21 +3186,21 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 6,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
             ],
             "쇄도": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
             ],
             "침식": [
-                // { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["출혈 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
@@ -3290,11 +3290,11 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "신속": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ],
             "연격": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ]
         },
@@ -3354,15 +3354,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 38,   "unit": "%" }
             ],
             "신속": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ],
             "연격": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ]
         },
@@ -3427,17 +3427,17 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 46,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 46,   "unit": "%" }
             ],
             "신속": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
             ],
             "연격": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
             ]
@@ -3506,15 +3506,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 38,   "unit": "%" }
             ],
             "신속": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
             ],
             "연격": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
             ]
         },
@@ -3579,15 +3579,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 38,   "unit": "%" }
             ],
             "신속": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
             ],
             "연격": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
             ]
         },
@@ -3652,21 +3652,21 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 6,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
             ],
             "신속": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
             ],
             "연격": [
-                // { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["화상 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
@@ -3756,11 +3756,11 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "수호": [
-                // { "stats": ["MP MAX +165"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ],
             "연격": [
-                // { "stats": ["MP MAX +165"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ]
         },
@@ -3820,15 +3820,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 38,   "unit": "%" }
             ],
             "수호": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ],
             "연격": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ]
         },
@@ -3893,17 +3893,17 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 46,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 46,   "unit": "%" }
             ],
             "수호": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
             ],
             "연격": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
             ]
@@ -3972,15 +3972,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 38,   "unit": "%" }
             ],
             "수호": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
             ],
             "연격": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
             ]
         },
@@ -4045,15 +4045,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 38,   "unit": "%" }
             ],
             "수호": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
             ],
             "연격": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
             ]
         },
@@ -4118,21 +4118,21 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 6,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
             ],
             "수호": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
             ],
             "연격": [
-                // { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
+                { "stats": ["MP MAX"],  "amount": 165, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
@@ -4222,11 +4222,11 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "자상": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ],
             "쇄도": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ]
         },
@@ -4286,15 +4286,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 38,   "unit": "%" }
             ],
             "자상": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ],
             "쇄도": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ]
         },
@@ -4359,17 +4359,17 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 46,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 46,   "unit": "%" }
             ],
             "자상": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
             ],
             "쇄도": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
             ]
@@ -4438,15 +4438,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 38,   "unit": "%" }
             ],
             "자상": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
             ],
             "쇄도": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
             ]
         },
@@ -4511,15 +4511,15 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 38,   "unit": "%" }
             ],
             "자상": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
             ],
             "쇄도": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
             ]
         },
@@ -4584,21 +4584,21 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 6,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
             ],
             "자상": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
             ],
             "쇄도": [
-                // { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
+                { "stats": ["감전 내성"],  "amount": 10, "unit": "" },
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
@@ -4688,13 +4688,13 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "작열": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ],
             "보호": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ]
         },
@@ -4754,18 +4754,18 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["힘", "지능"],                  "amount": 38,   "unit": "%" }
             ],
             "작열": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ],
             "보호": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" }
             ]
         },
@@ -4830,20 +4830,20 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["물리 공격력 증가"],           "amount": 46,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 46,   "unit": "%" }
             ],
             "작열": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
             ],
             "보호": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" }
             ]
@@ -4912,18 +4912,18 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["데미지 증가"],                 "amount": 38,   "unit": "%" }
             ],
             "작열": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
             ],
             "보호": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" }
             ]
         },
@@ -4988,18 +4988,18 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 38,   "unit": "%" }
             ],
             "작열": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
             ],
             "보호": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" }
             ]
         },
@@ -5064,24 +5064,24 @@ const ARMOR_ITEM_STATS = {
         },
         "eff": {
             "기본": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["물리 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 6,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
             ],
             "작열": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" }
             ],
             "보호": [
-                // { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
-                // { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
+                { "stats": ["모든 직업 10~45레벨 스킬 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["모든 직업 65~70레벨 스킬 쿨타임 감소"],  "amount": 2, "unit": "%" },
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
@@ -5172,11 +5172,11 @@ const ARMOR_ITEM_STATS = {
         "eff": {
             "신속": [
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ],
             "전격": [
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ]
         },
         "mastery": {
@@ -5236,15 +5236,15 @@ const ARMOR_ITEM_STATS = {
         "eff": {
             "기본": [
                 { "stats": ["힘", "지능"],                  "amount": 38,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ],
             "신속": [
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ],
             "전격": [
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ]
         },
         "mastery": {
@@ -5310,17 +5310,17 @@ const ARMOR_ITEM_STATS = {
             "기본": [
                 { "stats": ["물리 공격력 증가"],           "amount": 46,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 46,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ],
             "신속": [
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ],
             "전격": [
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ]
         },
         "mastery": {
@@ -5388,15 +5388,15 @@ const ARMOR_ITEM_STATS = {
         "eff": {
             "기본": [
                 { "stats": ["데미지 증가"],                 "amount": 38,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ],
             "신속": [
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ],
             "전격": [
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ]
         },
         "mastery": {
@@ -5461,15 +5461,15 @@ const ARMOR_ITEM_STATS = {
         "eff": {
             "기본": [
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 38,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ],
             "신속": [
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ],
             "전격": [
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ]
         },
         "mastery": {
@@ -5537,21 +5537,21 @@ const ARMOR_ITEM_STATS = {
                 { "stats": ["마법 크리티컬"],              "amount": 275,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 6,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ],
             "신속": [
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ],
             "전격": [
                 { "stats": ["물리 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" },
-                // { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
+                { "stats": ["회피이동 쿨타임 감소"],  "amount": 3, "unit": "%" },
             ]
         },
         "mastery": {
@@ -5622,7 +5622,7 @@ const ARMOR_ITEM_STATS = {
         "eff": {
             "레거시": [
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" },
-                // { "stats": ["기본기 공격력 증가"],  "amount": 10, "unit": "%" },
+                { "stats": ["기본기 공격력 증가"],  "amount": 10, "unit": "%" },
             ],
         },
         "mastery": {
@@ -5657,7 +5657,7 @@ const ARMOR_ITEM_STATS = {
         "eff": {
             "레거시": [
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" },
-                // { "stats": ["기본기 공격력 증가"],  "amount": 10, "unit": "%" },
+                { "stats": ["기본기 공격력 증가"],  "amount": 10, "unit": "%" },
             ],
         },
         "mastery": {
@@ -5693,7 +5693,7 @@ const ARMOR_ITEM_STATS = {
             "레거시": [
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" },
-                // { "stats": ["기본기 공격력 증가"],  "amount": 10, "unit": "%" },
+                { "stats": ["기본기 공격력 증가"],  "amount": 10, "unit": "%" },
             ],
         },
         "mastery": {
@@ -5729,7 +5729,7 @@ const ARMOR_ITEM_STATS = {
         "eff": {
             "레거시": [
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" },
-                // { "stats": ["기본기 공격력 증가"],  "amount": 10, "unit": "%" },
+                { "stats": ["기본기 공격력 증가"],  "amount": 10, "unit": "%" },
             ],
         },
         "mastery": {
@@ -5764,7 +5764,7 @@ const ARMOR_ITEM_STATS = {
         "eff": {
             "레거시": [
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" },
-                // { "stats": ["기본기 공격력 증가"],  "amount": 10, "unit": "%" },
+                { "stats": ["기본기 공격력 증가"],  "amount": 10, "unit": "%" },
             ],
         },
         "mastery": {
@@ -5802,7 +5802,7 @@ const ARMOR_ITEM_STATS = {
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" },
-                // { "stats": ["기본기 공격력 증가"],  "amount": 10, "unit": "%" },
+                { "stats": ["기본기 공격력 증가"],  "amount": 10, "unit": "%" },
             ],
         },
         "mastery": {
@@ -5863,7 +5863,7 @@ const ARMOR_ITEM_STATS = {
         "eff": {
             "레거시": [
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" },
-                // { "stats": ["공격 시 확률로 콜 라이트닝 시전"],  "amount": 10, "unit": "%" },
+                { "stats": ["공격 시 확률로 콜 라이트닝 시전"],  "amount": 10, "unit": "%" },
             ],
         },
         "mastery": {
@@ -5898,7 +5898,7 @@ const ARMOR_ITEM_STATS = {
         "eff": {
             "레거시": [
                 { "stats": ["힘", "지능"],                  "amount": 40,   "unit": "%" },
-                // { "stats": ["공격 시 확률로 콜 라이트닝 시전"],  "amount": 10, "unit": "%" },
+                { "stats": ["공격 시 확률로 콜 라이트닝 시전"],  "amount": 10, "unit": "%" },
             ],
         },
         "mastery": {
@@ -5934,7 +5934,7 @@ const ARMOR_ITEM_STATS = {
             "레거시": [
                 { "stats": ["물리 공격력 증가"],           "amount": 50,   "unit": "%" },
                 { "stats": ["마법 공격력 증가"],           "amount": 50,   "unit": "%" },
-                // { "stats": ["공격 시 확률로 볼케이노 시전"],  "amount": 10, "unit": "%" },
+                { "stats": ["공격 시 확률로 볼케이노 시전"],  "amount": 10, "unit": "%" },
             ],
         },
         "mastery": {
@@ -5970,7 +5970,7 @@ const ARMOR_ITEM_STATS = {
         "eff": {
             "레거시": [
                 { "stats": ["데미지 증가"],                 "amount": 40,   "unit": "%" },
-                // { "stats": ["공격 시 확률로 블랙 스웜 시전"],  "amount": 10, "unit": "%" },
+                { "stats": ["공격 시 확률로 블랙 스웜 시전"],  "amount": 10, "unit": "%" },
             ],
         },
         "mastery": {
@@ -6005,7 +6005,7 @@ const ARMOR_ITEM_STATS = {
         "eff": {
             "레거시": [
                 { "stats": ["공격 시 추가 데미지"],                 "amount": 40,   "unit": "%" },
-                // { "stats": ["공격 시 10% 확률로 아이스 블라스터 시전"],  "amount": 10, "unit": "%" },
+                { "stats": ["공격 시 10% 확률로 아이스 블라스터 시전"],  "amount": 10, "unit": "%" },
             ],
         },
         "mastery": {
@@ -6043,8 +6043,8 @@ const ARMOR_ITEM_STATS = {
                 { "stats": ["마법 크리티컬"],              "amount": 300,  "unit": "" },
                 { "stats": ["모든 타입 피해 증가"],        "amount": 7,    "unit": "%" },
                 { "stats": ["크리티컬 데미지 증가"],       "amount": 25,   "unit": "%" },
-                // { "stats": ["던전 입장 시 모든 타입 피해 증가"],  "amount": 25, "unit": "%" },
-                // { "stats": [" 스킬 공격력 감소"],  "amount": -20, "unit": "%" },
+                { "stats": ["던전 입장 시 모든 타입 피해 증가"],  "amount": 25, "unit": "%" },
+                { "stats": ["스킬 공격력 감소"],  "amount": -20, "unit": "%" },
             ],
         },
         "mastery": {
