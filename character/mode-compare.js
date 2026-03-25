@@ -1083,10 +1083,10 @@ function buildArmorSetEffectCompare(section1, section2, name1, name2) {
 
     // 캐릭터1 세트 정보
     const set1Label = result1.setName
-        ? `${result1.prefix && result1.prefix !== '기본' ? result1.prefix + ': ' : ''}${result1.setName} (${result1.count}셋)`
+        ? `${result1.prefix && result1.prefix !== '기본' && !result1.setName.startsWith(result1.prefix) ? result1.prefix + ': ' : ''}${result1.setName} (${result1.count}셋)`
         : '세트 없음';
     const set2Label = result2.setName
-        ? `${result2.prefix && result2.prefix !== '기본' ? result2.prefix + ': ' : ''}${result2.setName} (${result2.count}셋)`
+        ? `${result2.prefix && result2.prefix !== '기본' && !result2.setName.startsWith(result2.prefix) ? result2.prefix + ': ' : ''}${result2.setName} (${result2.count}셋)`
         : '세트 없음';
 
     tbodyHtml += `<tr>
@@ -1436,6 +1436,12 @@ function buildAccSetEffectCompare(section1, section2, name1, name2) {
         const setData = setEffectsData[bestSet];
         if (setData && setData[resultPrefix]) {
             effects3 = setData[resultPrefix]["3"];
+        } else if (!setData) {
+            const strippedName = bestSet.replace(/^[^:]+:\s*/, '');
+            const strippedData = setEffectsData[strippedName];
+            if (strippedData && strippedData[resultPrefix]) {
+                effects3 = strippedData[resultPrefix]["3"];
+            }
         }
 
         return { setName: bestSet, prefix: resultPrefix, count, effects3 };
@@ -1458,10 +1464,10 @@ function buildAccSetEffectCompare(section1, section2, name1, name2) {
     let tbodyHtml = '';
 
     const set1Label = result1.setName
-        ? `${result1.prefix && result1.prefix !== '기본' ? result1.prefix + ': ' : ''}${result1.setName} (${result1.count}셋)`
+        ? `${result1.prefix && result1.prefix !== '기본' && !result1.setName.startsWith(result1.prefix) ? result1.prefix + ': ' : ''}${result1.setName} (${result1.count}셋)`
         : '세트 없음';
     const set2Label = result2.setName
-        ? `${result2.prefix && result2.prefix !== '기본' ? result2.prefix + ': ' : ''}${result2.setName} (${result2.count}셋)`
+        ? `${result2.prefix && result2.prefix !== '기본' && !result2.setName.startsWith(result2.prefix) ? result2.prefix + ': ' : ''}${result2.setName} (${result2.count}셋)`
         : '세트 없음';
 
     tbodyHtml += `<tr>
