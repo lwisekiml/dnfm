@@ -854,7 +854,7 @@ const _AURA_TEMPLATES = {
             { stats: ['데미지 증가'], amount: 7, unit: "%" },
         ]
     },
-    // 극한을 이겨낸 자, 체인질링 오라, 광기의 물결 오라
+    // 극한을 이겨낸 자, 체인질링 오라, 광기의 물결 오라, 차원 스캐너(알파), 차원 스캐너(베타)
     V7: {
         info: `기본정보
 힘, 지능, 체력, 정신력 +50
@@ -893,6 +893,8 @@ const AURA_ITEM_INFO = {
     "극한을 이겨낸 자": _AURA_TEMPLATES.V7,
     "체인질링 오라": _AURA_TEMPLATES.V7,
     "광기의 물결 오라": _AURA_TEMPLATES.V7,
+    "차원 스캐너(알파)": _AURA_TEMPLATES.V7,
+    "차원 스캐너(베타)": _AURA_TEMPLATES.V7,
 };
 
 const itemOptions = (() => {
