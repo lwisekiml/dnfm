@@ -77,7 +77,6 @@ const WEAPON_DATA_MAP = {
     "격투가":    WEAPON_DATA_FIGHTER,
     "거너":      WEAPON_DATA_GUNNER,
     "마법사":    WEAPON_DATA_MAGE,
-    "마법사(남)":WEAPON_DATA_MAGE,
     "프리스트":  WEAPON_DATA_PRIEST,
     "워리어":    WEAPON_DATA_WARRIOR,
     "마창사":    WEAPON_DATA_LANCER,
