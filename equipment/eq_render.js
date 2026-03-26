@@ -538,30 +538,16 @@ function renderCharacterEquipmentDetail(char) {
         // 제목에 총 개수 표시
         html += `<h2 style="color: #ffd700; margin-bottom: 15px;">🔹 ${category.title} <span style="color: #ffd700; font-weight: bold;">(${categoryTotal}개)</span></h2>`;
 
-        html += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 30px;">`;
-
-        // 헤더
-        const slots = Object.values(category.sets)[0] || [];
-        // renderCharacterEquipmentDetail() 함수 내부
-        html += `<thead style="background: #181c33;"><tr>
-    <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">세트</th>
-    <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">익시드</th>
-    <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">접두어</th>`;
-
-        slots.forEach(slot => {
-            html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: normal; max-width: 120px; font-size: 0.85em; line-height: 1.2;">${slot}</th>`;
-        });
-
-        html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">달성</th>`;
-
-        html += `</tr></thead><tbody>`;
-
-        // 각 세트별 데이터
+        // 각 세트별 데이터 (세트마다 별도 테이블)
         Object.keys(category.sets).forEach(baseSetName => {
             const setSlots = category.sets[baseSetName];
             const prefixes = category.prefix[baseSetName] || [];
             const exceedSlot = category.exceedSlot;
             const isLegacy = LEGACY_PREFIX_SETS.includes(baseSetName);
+
+            // 세트타입 결정
+            const setType = category.title === "방어구" ? "ARMOR"
+                : category.title === "악세"   ? "ACCESSORY" : "SPECIAL";
 
             // 세트별 데이터 수집
             let rows = [];
@@ -629,7 +615,44 @@ function renderCharacterEquipmentDetail(char) {
             // 행이 하나도 없으면 이 세트는 건너뜀
             if (rows.length === 0) return;
 
-            // 테이블 행 렌더링
+            // 세트별 테이블 시작 + 헤더에 아이템명 표시
+            const hasExceedRow = rows.some(r => r.type === 'exceed');
+            html += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 20px;">`;
+            html += `<thead style="background: #181c33;"><tr>
+    <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">세트</th>
+    <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">익시드</th>
+    <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">접두어</th>`;
+
+            setSlots.forEach(slot => {
+                let normalName = slot;
+                let exceedName = null;
+                if (setType === "ARMOR" && ARMOR_DISPLAY_NAMES[baseSetName] && ARMOR_DISPLAY_NAMES[baseSetName][slot]) {
+                    const raw = ARMOR_DISPLAY_NAMES[baseSetName][slot];
+                    if (Array.isArray(raw)) { exceedName = raw[0]; normalName = raw[1]; }
+                    else normalName = raw;
+                } else if (setType === "ACCESSORY" && ACCESSORY_DISPLAY_NAMES[baseSetName] && ACCESSORY_DISPLAY_NAMES[baseSetName][slot]) {
+                    const raw = ACCESSORY_DISPLAY_NAMES[baseSetName][slot];
+                    if (Array.isArray(raw)) { exceedName = raw[0]; normalName = raw[1]; }
+                    else normalName = raw;
+                } else if (setType === "SPECIAL" && SPECIAL_DISPLAY_NAMES[baseSetName] && SPECIAL_DISPLAY_NAMES[baseSetName][slot]) {
+                    const raw = SPECIAL_DISPLAY_NAMES[baseSetName][slot];
+                    if (Array.isArray(raw)) { exceedName = raw[0]; normalName = raw[1]; }
+                    else normalName = raw;
+                }
+
+                const isExceedSlot = slot === exceedSlot;
+                if (isExceedSlot && exceedName && exceedName !== normalName) {
+                    html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; font-size: 0.82em; line-height: 1.3; text-align: center;">
+        <div style="color:#aad4ff;">${exceedName}</div>
+        <div style="color:#fff; font-size:0.9em; margin-top:2px;">${normalName}</div>
+    </th>`;
+                } else {
+                    html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; font-size: 0.82em; line-height: 1.3; text-align: center; color:#fff;">${normalName}</th>`;
+                }
+            });
+
+            html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">달성</th>`;
+            html += `</tr></thead><tbody>`;
             rows.forEach((row, rowIdx) => {
                 html += `<tr style="border-bottom: 1px solid #444;">`;
 
@@ -657,7 +680,7 @@ function renderCharacterEquipmentDetail(char) {
                     html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center;"></td>`;
                 }
 
-                // 각 슬롯별 개수
+                // 각 슬롯별 개수 (아이템명은 헤더에 표시됨)
                 setSlots.forEach(slot => {
                     const count = row.slots[slot] || 0;
 
@@ -665,8 +688,11 @@ function renderCharacterEquipmentDetail(char) {
                     if (row.type === 'exceed' && slot !== exceedSlot) {
                         html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; background: #0a0c15;"></td>`;
                     } else {
-                        const displayCount = count > 0 ? count : "";
-                        html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${displayCount}</td>`;
+                        if (count > 0) {
+                            html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${count}</td>`;
+                        } else {
+                            html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;"></td>`;
+                        }
                     }
                 });
 
@@ -689,11 +715,12 @@ function renderCharacterEquipmentDetail(char) {
                 html += `</tr>`;
             });
 
-            // 세트 구분선 (두꺼운 선)
-            html += `<tr style="height: 3px; background: #2a3158;"><td colspan="${4 + setSlots.length}" style="padding: 0; border: none;"></td></tr>`;
+            // 세트별 테이블 닫기
+            html += `</tbody></table>`;
         });
 
-        html += `</tbody></table>`;
+        // 카테고리 구분 여백
+        html += `<div style="margin-bottom: 10px;"></div>`;
     });
 
     // 무기 섹션 추가

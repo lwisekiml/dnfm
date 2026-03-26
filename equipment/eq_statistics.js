@@ -260,7 +260,23 @@ function searchEquipment() {
 
     CATEGORIES.forEach(category => {
         Object.keys(category.sets).forEach(baseSetName => {
-            if (!baseSetName.includes(searchTerm)) return;
+            // 세트명 또는 실제 아이템명(부위명)에 검색어 포함 여부 확인
+            const setType = category.name === "방어구" ? "ARMOR"
+                : category.name === "악세"   ? "ACCESSORY" : "SPECIAL";
+            let allItemNames = [];
+            const displayMap = setType === "ARMOR"     ? ARMOR_DISPLAY_NAMES[baseSetName]
+                : setType === "ACCESSORY" ? ACCESSORY_DISPLAY_NAMES[baseSetName]
+                    : SPECIAL_DISPLAY_NAMES[baseSetName];
+            if (displayMap) {
+                Object.values(displayMap).forEach(v => {
+                    if (Array.isArray(v)) allItemNames.push(...v);
+                    else allItemNames.push(v);
+                });
+            }
+            const matchesSetName  = baseSetName.includes(searchTerm);
+            const matchesItemName = allItemNames.some(n => n && n.includes(searchTerm));
+
+            if (!matchesSetName && !matchesItemName) return;
             found = true;
 
             const set = {
@@ -278,7 +294,22 @@ function searchEquipment() {
                 <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">익시드</th>
                 <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">접두어</th>`;
             set.slots.forEach(slot => {
-                html += `<th style="padding:10px; border:1px solid #2a3158; white-space:normal; max-width:120px; font-size:0.85em; line-height:1.2;">${slot}</th>`;
+                // 실제 아이템명을 헤더에 표시
+                let rawName = slot;
+                if (setType === "ARMOR" && ARMOR_DISPLAY_NAMES[baseSetName] && ARMOR_DISPLAY_NAMES[baseSetName][slot]) {
+                    rawName = ARMOR_DISPLAY_NAMES[baseSetName][slot];
+                } else if (setType === "ACCESSORY" && ACCESSORY_DISPLAY_NAMES[baseSetName] && ACCESSORY_DISPLAY_NAMES[baseSetName][slot]) {
+                    rawName = ACCESSORY_DISPLAY_NAMES[baseSetName][slot];
+                } else if (setType === "SPECIAL" && SPECIAL_DISPLAY_NAMES[baseSetName] && SPECIAL_DISPLAY_NAMES[baseSetName][slot]) {
+                    rawName = SPECIAL_DISPLAY_NAMES[baseSetName][slot];
+                }
+                let displayName;
+                if (Array.isArray(rawName)) {
+                    displayName = `<div style="color:#aad4ff;">${rawName[0]}</div><div style="color:#fff; font-size:0.9em; margin-top:2px;">${rawName[1]}</div>`;
+                } else {
+                    displayName = `<div style="color:#fff;">${rawName}</div>`;
+                }
+                html += `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap; font-size:0.85em; line-height:1.3; text-align:center;">${displayName}</th>`;
             });
             html += `<th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">달성</th>`;
             html += `</tr></thead><tbody>`;
