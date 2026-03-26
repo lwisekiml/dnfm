@@ -1504,6 +1504,15 @@ const _CREATURE_TEMPLATES = {
         info: `던전 입장 시 자신을 포함한 파티원의 모든 속성 강화 2 증가`,
         stats: []
     },
+    // 4th 아루, 4th 따봉 기어, 4th 하트 에임, 4th 파티 크라운, 4th 사회자 마누스, 4th 윙키
+    RARE_V12: {
+        info: `던전 입장 시 모든 속성 강화 3, 모든 속성 저항 3 증가`,
+        stats: [
+            { stat: '던전 입장 시 모든 속성 강화', amount: 3, unit: '', label: '던전 입장 시 모든 속성 강화 3' },
+            { stat: '던전 입장 시 모든 속성 저항', amount: 3, unit: '', label: '던전 입장 시 모든 속성 저항 3' },
+
+        ]
+    },
 
 
     // 비네, 쁘띠 스켈레톤 골드
@@ -1561,6 +1570,12 @@ const CREATURE_ITEM_INFO = {
     "4th Anniversary 세리아":            { grade: '에픽',   ..._CREATURE_TEMPLATES.EPIC_V3  },
     "드래곤테이머 소피아":            { grade: '에픽',   ..._CREATURE_TEMPLATES.EPIC_V4  },
     "ARCADE 세리아":            { grade: '에픽',   ..._CREATURE_TEMPLATES.EPIC_V2  },
+    "4th 아루":   { grade: '레어',  ..._CREATURE_TEMPLATES.RARE_V11 },
+    "4th 따봉 기어":    { grade: '레어',  ..._CREATURE_TEMPLATES.RARE_V11 },
+    "4th 하트 에임":    { grade: '레어',  ..._CREATURE_TEMPLATES.RARE_V11 },
+    "4th 파티 크라운":   { grade: '레어',  ..._CREATURE_TEMPLATES.RARE_V11 },
+    "4th 사회자 마누스":  { grade: '레어',  ..._CREATURE_TEMPLATES.RARE_V11 },
+    "4th 윙키":  { grade: '레어',  ..._CREATURE_TEMPLATES.RARE_V11 },
 };
 // ============================================
 // 아티팩트 세트 데이터
