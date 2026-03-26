@@ -1418,12 +1418,12 @@ const CREATURE_ART_STATS = {
  *           label 을 줄바꿈으로 이어붙여 desc textarea에 자동 입력
  */
 const _CREATURE_TEMPLATES = {
-    // 진 : 옥령왕, 뇌해:마고스, 멸망의 칼릭스
+    // 진 : 옥령왕, 뇌해:마고스, 멸망의 칼릭스, 파광의 아스마르
     EPIC_V1: {
         info: `모든 속성 강화 +5\n공격 시 18% 추가 데미지`,
         stats: [
             { stat: '모든 속성 강화',      amount: 5,  label: '모든 속성 강화 +5'       },
-            { stat: '공격 시 추가 데미지', amount: 18, label: '공격 시 18% 추가 데미지' },
+            { stat: '공격 시 추가 데미지', amount: 18, unit: '%', label: '공격 시 18% 추가 데미지' },
         ]
     },
     // 곰인형 민D, ARCADE 세리아
@@ -1433,27 +1433,27 @@ const _CREATURE_TEMPLATES = {
             { stat: '물리 크리티컬 확률', amount: 2,  unit: '%', label: '물리 크리티컬 확률 +2%'  },
             { stat: '마법 크리티컬 확률', amount: 2,  unit: '%', label: '마법 크리티컬 확률 +2%'  },
             { stat: '모든 속성 강화',     amount: 8,             label: '모든 속성 강화 +8'       },
-            { stat: '공격 시 추가 데미지',amount: 21,            label: '공격 시 21% 추가 데미지' },
+            { stat: '공격 시 추가 데미지',amount: 21, unit: '%', label: '공격 시 21% 추가 데미지' },
         ]
     },
-    // 4th Anniversary 세리아
+    // 4th Anniversary 세리아, 에지, 캐넌 아스칸, 캐넌 레아, 우주로 떠난 토끼
     EPIC_V3: {
         info: `물리, 마법 크리티컬 확률 +2%\n모든 속성 강화 +10\n공격 시 25% 추가 데미지`,
         stats: [
             { stat: '물리 크리티컬 확률', amount: 2,  unit: '%', label: '물리 크리티컬 확률 +2%'  },
             { stat: '마법 크리티컬 확률', amount: 2,  unit: '%', label: '마법 크리티컬 확률 +2%'  },
             { stat: '모든 속성 강화',     amount: 10,             label: '모든 속성 강화 +10'       },
-            { stat: '공격 시 추가 데미지',amount: 25,            label: '공격 시 25% 추가 데미지' },
+            { stat: '공격 시 추가 데미지',amount: 25, unit: '%', label: '공격 시 25% 추가 데미지' },
         ]
     },
-    // 드래곤테이머 소피아
+    // 드래곤테이머 소피아, 시공을 초월한 차원 여행자 에오스
     EPIC_V4: {
         info: `물리, 마법 크리티컬 확률 +2%\n모든 속성 강화 +10\n공격 시 25% 추가 데미지\n최종 데미지 5% 증가`,
         stats: [
             { stat: '물리 크리티컬 확률',   amount: 2,  unit: '%', label: '물리 크리티컬 확률 +2%'  },
             { stat: '마법 크리티컬 확률',   amount: 2,  unit: '%', label: '마법 크리티컬 확률 +2%'  },
             { stat: '모든 속성 강화',      amount: 10,             label: '모든 속성 강화 +10'       },
-            { stat: '공격 시 추가 데미지',  amount: 25,            label: '공격 시 25% 추가 데미지' },
+            { stat: '공격 시 추가 데미지',  amount: 25, unit: '%', label: '공격 시 25% 추가 데미지' },
             { stat: '최종 데미지 증가',    amount: 5,  unit: '%',  label: '최종 데미지 5% 증가' },
         ]
     },
@@ -1469,14 +1469,17 @@ const _CREATURE_TEMPLATES = {
         info: `던전 입장 시 지능 +30\n마법 공격력 +5% 증가`,
         stats: []
     },
-    // 유이
+    // 유이, 마법사 소피아, 소피아, 아스나, 리즈벳, 스구하, 토티, 전장의 발키리 에이르, 마가티나
+    // SD 타크로드, SD 네메시스, SD 염제 페월수화, SD 지니위즈, SD 헤카테, SD 세인트, SD 세라핌, SD 천선낭랑
     UNIQUE_V3: {
         info: `던전 입장 시 자신을 포함한 파티원의 모든 속성 강화 11 증가\n공격 시 5% 추가 데미지`,
         stats: [
             { stat: '공격 시 추가 데미지', amount: 5, unit: '%', label: '공격 시 5% 추가 데미지' },
         ]
     },
-    // 검돌이, 방위대 드론
+    // 검돌이, 방위대 드론, 기사 세바스찬, 세바스찬, 델피나, 전장의 발키리 미스트, 마가티노
+    // SD 검신, SD 블러드 이블, SD 인다라천, SD 마제스티, SD 디어사이드, SD 검제, SD 카이저, SD 용독문주, SD 얼티밋 디바, SD 레이븐, SD 디스트로이어, SD 프라임, SD 커맨더, SD 크림슨로제, SD 스톰트루퍼, SD 옵티머스, SD 프레이야, SD 오버마인드, SD 아슈타르테
+    // SD 저스티스, SD 인페르노, SD 리디머, SD 이그제큐터, SD 알키오네, SD 시라누이, SD 워로드, SD 에레보스, SD 테라 치프, SD 트라이브 윙
     UNIQUE_V4: {
         info: `공격 시 15% 추가 데미지`,
         stats: [
@@ -1628,6 +1631,64 @@ const CREATURE_ITEM_INFO = {
     "4th 윙키":  { grade: '레어',  ..._CREATURE_TEMPLATES.RARE_V11 },
     "차원 여행자 에오스":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V5 },
     "차원 과학자 헤스":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V6 },
+    "에지":  { grade: '에픽',  ..._CREATURE_TEMPLATES.EPIC_V3 },
+    "우주로 떠난 토끼":  { grade: '에픽',  ..._CREATURE_TEMPLATES.EPIC_V3 },
+    "밧코":  { grade: '에픽',  ..._CREATURE_TEMPLATES.EPIC_V3 },
+    "선장 제니아":  { grade: '에픽',  ..._CREATURE_TEMPLATES.EPIC_V3 },
+    "캐넌 아스칸":  { grade: '에픽',  ..._CREATURE_TEMPLATES.EPIC_V3 },
+    "캐넌 레아":  { grade: '에픽',  ..._CREATURE_TEMPLATES.EPIC_V3 },
+    "파광의 아스마르":  { grade: '에픽',  ..._CREATURE_TEMPLATES.EPIC_V1 },
+    "기사 세바스찬":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "마법사 소피아":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "델피나":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "소피아":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "세바스찬":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "아스나":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "리즈벳":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "스구하":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "토티":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "SD 타크로드":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "SD 네메시스":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "SD 염제 페월수화":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "SD 지니위즈":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "SD 헤카테":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "SD 세인트":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "SD 세라핌":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "SD 천선낭랑":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "전장의 발키리 에이르":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "마가티나":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "SD 검신":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 블러드 이블":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 인다라천":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 마제스티":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 디어사이드":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 검제":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 카이저":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 용독문주":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 얼티밋 디바":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 레이븐":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 디스트로이어":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 프라임":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 커맨더":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 크림슨로제":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 스톰트루퍼":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 옵티머스":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 프레이야":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 오버마인드":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 아슈타르테":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 저스티스":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 인페르노":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 리디머":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 이그제큐터":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 알키오네":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 시라누이":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 워로드":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 에레보스":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 테라 치프":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "SD 트라이브 윙":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "전장의 발키리 미스트":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "마가티노":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V4 },
+    "시공을 초월한 차원 여행자 에오스":  { grade: '에픽',  ..._CREATURE_TEMPLATES.EPIC_V4 },
 };
 // ============================================
 // 아티팩트 세트 데이터
