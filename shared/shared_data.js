@@ -1605,6 +1605,36 @@ const ARTIFACT_SET_DATA = [
         setEffect: '모속강 +10\n공격 시 5% 추가 데미지\n30초 마다 공격속도 3%, 이동속도 3%, 캐스팅속도 3% 증가',
     },
     {
+        setName: '시로코 아티팩트 3세트 효과',
+        red: {
+            name: '침식된 마검',
+            stats: {
+                '크리쳐_art_red_stat_물리 공격력': '22',
+                '크리쳐_art_red_stat_마법 공격력': '22',
+                '크리쳐_art_red_stat_힘':         '36',
+                '크리쳐_art_red_stat_지능':        '36',
+            }
+        },
+        blue: {
+            name: '여왕의 왕관',
+            stats: {
+                '크리쳐_art_blue_stat_공격속도':   '5',
+                '크리쳐_art_blue_stat_캐스팅속도':  '7.5',
+                '크리쳐_art_blue_stat_이동속도':   '2.5',
+                '크리쳐_art_blue_stat_적중':       '100',
+            }
+        },
+        green: {
+            name: '침식의 베일',
+            stats: {
+                '크리쳐_art_green_stat_HPMAX':  '165',
+                '크리쳐_art_green_stat_MPMAX':  '165',
+                '크리쳐_art_green_stat_모속강': '4',
+            }
+        },
+        setEffect: '최종 데미지 5% 증가\n모속강 +10\n공격 시 5% 추가 데미지\n30초 마다 공격속도 3%, 이동속도 3%, 캐스팅속도 3% 증가',
+    },
+    {
         setName: '아스마르 아티팩트 3세트 효과',
         red: {
             name: '광기 서린 손톱',
