@@ -700,6 +700,36 @@ HP MAX +220
             { stats: ['데미지 증가'],              amount: 15   , unit: '%'},
         ]
     },
+    // 차원 여행자, 차원 이동자
+    V8: {
+        info: `기본정보
+힘, 지능 +66
+체력, 정신력 +33
+공격속도 +5%
+캐스팅속도 +7%
+이동속도 +5%
+물리 크리티컬 +30
+마법 크리티컬 +30
+---
+효과
+HP MAX +220
+모든 속성 강화 +3
+데미지 15% 증가`,
+        base: [
+            { stats: ['힘', '지능'], amount: 66  , unit: ''},
+            { stats: ['체력','정신력'], amount: 33  , unit: ''},
+            { stats: ['공격속도'],             amount: 5   , unit: '%'},
+            { stats: ['캐스팅속도'],           amount: 7   , unit: '%'},
+            { stats: ['이동속도'],             amount: 5   , unit: '%'},
+            { stats: ['물리 크리티컬'],             amount: 30   , unit: ''},
+            { stats: ['마법 크리티컬'],             amount: 30   , unit: ''},
+        ],
+        eff: [
+            { stats: ['HP MAX'],              amount: 220  , unit: ''},
+            { stats: ['모든 속성 강화'],         amount: 3   , unit: ''},
+            { stats: ['데미지 증가'],              amount: 15   , unit: '%'},
+        ]
+    },
 };
 
 const TITLE_ITEM_INFO = {
@@ -718,6 +748,8 @@ const TITLE_ITEM_INFO = {
     "Specialist": _TITLE_TEMPLATES.V4,
     "안톤:공대 참전자": _TITLE_TEMPLATES.V5,
     "안톤 정복자": _TITLE_TEMPLATES.V6,
+    "차원 여행자": _TITLE_TEMPLATES.V8,
+    "차원 이동자": _TITLE_TEMPLATES.V8,
 };
 
 const _AURA_TEMPLATES = {
@@ -1437,7 +1469,7 @@ const _CREATURE_TEMPLATES = {
     },
     // 유이
     UNIQUE_V3: {
-        info: `던전 입장 시 자신을 포함한 파티원의 모든 속성 강화 11증가\n공격 시 5% 추가 데미지`,
+        info: `던전 입장 시 자신을 포함한 파티원의 모든 속성 강화 11 증가\n공격 시 5% 추가 데미지`,
         stats: [
             { stat: '공격 시 추가 데미지', amount: 5, unit: '%', label: '공격 시 5% 추가 데미지' },
         ]
@@ -1449,6 +1481,22 @@ const _CREATURE_TEMPLATES = {
             { stat: '공격 시 추가 데미지', amount: 15, unit: '%', label: '공격 시 15% 추가 데미지' },
         ]
     },
+    // 차원 여행자 에오스
+    UNIQUE_V5: {
+        info: `공격 시 18% 추가 데미지`,
+        stats: [
+            { stat: '공격 시 추가 데미지', amount: 18, unit: '%', label: '공격 시 18% 추가 데미지' },
+        ]
+    },
+    // 차원 과학자 헤스
+    UNIQUE_V6: {
+        info: `던전 입장 시 자신을 포함한 파티원의 모든 속성 강화 18 증가\n공격 시 5% 추가 데미지`,
+        stats: [
+            { stat: '공격 시 추가 데미지', amount: 5, unit: '%', label: '공격 시 5% 추가 데미지' },
+        ]
+    },
+
+
     // 짐꾼 당나귀
     RARE_V1: {
         info: `던전 입장 시 공격속도 3%, 이동속도 3%, 캐스팅속도 3%, 물리, 마법 방어력 1200 증가`,
@@ -1576,6 +1624,8 @@ const CREATURE_ITEM_INFO = {
     "4th 파티 크라운":   { grade: '레어',  ..._CREATURE_TEMPLATES.RARE_V11 },
     "4th 사회자 마누스":  { grade: '레어',  ..._CREATURE_TEMPLATES.RARE_V11 },
     "4th 윙키":  { grade: '레어',  ..._CREATURE_TEMPLATES.RARE_V11 },
+    "차원 여행자 에오스":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V5 },
+    "차원 과학자 헤스":  { grade: '유니크',  ..._CREATURE_TEMPLATES.UNIQUE_V6 },
 };
 // ============================================
 // 아티팩트 세트 데이터
