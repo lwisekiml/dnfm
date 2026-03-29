@@ -823,8 +823,7 @@ const _AURA_TEMPLATES = {
     V5: {
         info: `기본정보
 힘, 지능, 체력, 정신력 +24
-적중 +80
-`,
+적중 +80`,
         base: [
             { stats: ['힘', '지능', '체력', '정신력'], amount: 24, unit: ''},
             { stats: ['적중'], amount: 80, unit: ''},
@@ -874,12 +873,45 @@ const _AURA_TEMPLATES = {
 };
 
 const AURA_ITEM_INFO = {
+    //기본정보
+    // 힘, 지능, 체력, 정신력 +45
+    // 물리 크리티컬 +110
+    // 마법 크리티컬 +110
+    // ---
+    // 효과
+    // 화속강 +8
+    // 수속강 +8
+    // 암속강 +8
+    // 명속강 +8
     "우리들의 Arcade 오라":  _AURA_TEMPLATES.V1,
-    "우리모두 Arcade 오라":  _AURA_TEMPLATES.V2,
     "2nd Anniversary 오라": _AURA_TEMPLATES.V1,
+
+    // 기본정보
+    // 힘, 지능, 체력, 정신력 +50
+    // 물리 크리티컬 확률 +2%
+    // 마법 크리티컬 확률 +2%
+    // 물리 크리티컬 +130
+    // 마법 크리티컬 +130
+    // ---
+    // 효과
+    // 모든 속성 강화 +10
+    // 마을 이동속도 증가 +5%
+    // 데미지 5% 증가
+    "우리모두 Arcade 오라":  _AURA_TEMPLATES.V2,
     "3rd Anniversary 오라": _AURA_TEMPLATES.V2,
     "4rd Anniversary 오라": _AURA_TEMPLATES.V2,
+
+    // 기본정보
+    // 힘, 지능, 체력, 정신력 +45
+    // 물리 크리티컬 +110
+    // 마법 크리티컬 +110
+    // ---
+    // 효과
+    // 모든 속성 강화 +8
     "해방전력 오라": _AURA_TEMPLATES.V3,
+
+    // 기본정보
+    // 힘, 지능, 체력, 정신력 +9
     "성안의 봉인 오라": _AURA_TEMPLATES.V4,
     "검의 기억 오라": _AURA_TEMPLATES.V4,
     "즐거운 새로움이 가득한 오라": _AURA_TEMPLATES.V4,
@@ -890,10 +922,35 @@ const AURA_ITEM_INFO = {
     "허상의 눈": _AURA_TEMPLATES.V4,
     "일렉트로닉 플레임": _AURA_TEMPLATES.V4,
     "공업지대의 악몽": _AURA_TEMPLATES.V4,
+    "포효하는 번개 오라": _AURA_TEMPLATES.V4,
+
+    // 기본정보
+    // 힘, 지능, 체력, 정신력 +24
+    // 적중 +80
     "눈꽃 오라": _AURA_TEMPLATES.V5,
+
+    // 기본정보
+    // 힘, 지능, 체력, 정신력 +50
+    // 물리 크리티컬 확률 +5%
+    // 마법 크리티컬 확률 +5%
+    // 물리 크리티컬 +130
+    // 마법 크리티컬 +130
+    // ---
+    // 효과
+    // 모든 속성 강화 +10
+    // 마을 이동속도 증가 +5%
+    // 데미지 7% 증가
     "극한을 정복한 자": _AURA_TEMPLATES.V6,
     "코스믹 스피어": _AURA_TEMPLATES.V6,
     "마르실의 소생 마법 오라": _AURA_TEMPLATES.V6,
+
+    // 기본정보
+    // 힘, 지능, 체력, 정신력 +50
+    // 물리 크리티컬 +130
+    // 마법 크리티컬 +130
+    // ---
+    // 효과
+    // 모든 속성 강화 +10
     "극한을 이겨낸 자": _AURA_TEMPLATES.V7,
     "체인질링 오라": _AURA_TEMPLATES.V7,
     "광기의 물결 오라": _AURA_TEMPLATES.V7,
@@ -1078,23 +1135,69 @@ const _WEAPON_AVATAR_TEMPLATES = {
  *   "아이템 이름": _WEAPON_AVATAR_TEMPLATES.WA_V1,
  */
 const WEAPON_AVATAR_ITEM_INFO = {
-    // ↓ 여기에 무기 아바타 수치 아이템을 추가하세요
+    // 기본정보
+    // 힘, 지능, 체력, 정신력 +18
+    // ---
+    // 효과
+    // 물리 공격력 5% 증가
+    // 마법 공격력 5% 증가
     "블루 레몬 에이드": _WEAPON_AVATAR_TEMPLATES.WA_V1,
     "클래식 코튼 글러브": _WEAPON_AVATAR_TEMPLATES.WA_V1,
     "청룡의 무기": _WEAPON_AVATAR_TEMPLATES.WA_V1,
     "티라미수 케이크": _WEAPON_AVATAR_TEMPLATES.WA_V1,
+
+    // 기본정보
+    // 힘, 지능, 체력, 정신력 +18
+    // ---
+    // 효과
+    // 물리 공격력 3% 증가
+    // 마법 공격력 3% 증가
     "황천의 구도자 무기": _WEAPON_AVATAR_TEMPLATES.WA_V2,
     "명계의 구도자 무기": _WEAPON_AVATAR_TEMPLATES.WA_V2,
+
+    // 기본정보
+    // 힘, 지능, 체력, 정신력 +18
+    // ---
+    // 효과
+    // 공격 시 5% 추가 데미지
     "무형의 무기": _WEAPON_AVATAR_TEMPLATES.WA_V3,
     "기사단의 무기": _WEAPON_AVATAR_TEMPLATES.WA_V3,
     "생명의 나무 무기": _WEAPON_AVATAR_TEMPLATES.WA_V3,
     "홈쇼핑 공구세트 무기": _WEAPON_AVATAR_TEMPLATES.WA_V3,
 
+    // 힘, 지능, 체력, 정신력 +18
+    "주부 8단 후라이팬": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "계란말이란 말이오": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "샐러드용 당근 통파": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "토메이토 토마토": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "아이스 쵸코 바닐라": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "신선한 유기농 옥수수": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "따끈한 웰던 스테이크": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "한입 가득 산적 꼬치": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "냉동 화덕 피자": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+
+    "파인애플맛 막대사탕": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "프리스트의 검정색 장미 토템": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "프리스트의 장미 토템": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "글렌 시보그의 머스켓": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "옵티머스의 무기 아바타": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "모디스의 미사일 런처": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+
+    // 힘, 지능, 체력, 정신력 +11
     "사랑 가득 마법봉": _WEAPON_AVATAR_TEMPLATES.WA_V5,
     "명부의 구도자 무기": _WEAPON_AVATAR_TEMPLATES.WA_V5,
     "특제 고블린 몽둥이": _WEAPON_AVATAR_TEMPLATES.WA_V5,
     "흑도 : 쿠로이츠키의 형상": _WEAPON_AVATAR_TEMPLATES.WA_V5,
     "천해의 형상 무기": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+    "방천극의 형상": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+    "롤리팝": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+    "스카사의 만년빙": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+    "레이저 홀릭의 형상": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+    "말이야? 당근이지!": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+    "빛의 리볼버 - 라이트 익스펜션": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+    "물약 스태프": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+    "강인한 푸른빛 기타": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+    "하이퍼리온의 형상": _WEAPON_AVATAR_TEMPLATES.WA_V5,
 };
 
 const GameData = {
