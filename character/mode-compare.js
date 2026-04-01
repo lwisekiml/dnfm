@@ -392,6 +392,205 @@ function buildEnchantCompare(section1, section2, name1, name2) {
 const CompareTable = {};
 
 // ============================================
+// 전체 장비 스탯 표 (전체 비교 탭)
+// ============================================
+
+/**
+ * armor.js / accessory.js / special.js 전체 아이템을 스탯 표 형식으로 렌더링
+ * - exceed:true  → 이상 + 첫번째 접두어 조합으로 1행
+ * - exceed:false → 기본 / 접두어1 / 접두어2 각각 1행씩
+ */
+function buildAllItemsCompare(container) {
+    const armorData   = (typeof ARMOR_ITEM_STATS   !== 'undefined') ? ARMOR_ITEM_STATS   : {};
+    const accData     = (typeof ACCESSORY_ITEM_STATS !== 'undefined') ? ACCESSORY_ITEM_STATS : {};
+    const specialData = (typeof SPECIAL_ITEM_STATS  !== 'undefined') ? SPECIAL_ITEM_STATS  : {};
+
+    // 섹션별 렌더
+    const sections = [
+        { label: '방어구', data: armorData,   type: 'armor'   },
+        { label: '악세서리', data: accData,   type: 'acc'     },
+        { label: '특수장비', data: specialData, type: 'special' },
+    ];
+
+    sections.forEach(({ label, data, type }) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'compare-section-wrapper';
+        wrapper.style.marginBottom = '24px';
+
+        const titleEl = document.createElement('div');
+        titleEl.className = 'compare-section-title';
+        titleEl.textContent = `*${label} 전체 스탯*`;
+        wrapper.appendChild(titleEl);
+
+        const tableWrap = document.createElement('div');
+        tableWrap.style.cssText = 'overflow-x:auto;margin-top:6px;';
+
+        let tbodyHtml = '';
+
+        Object.entries(data).forEach(([itemname, item]) => {
+            // 이 아이템에서 표시할 (접두어, 레이블) 조합 목록 생성
+            const variants = _getAllItemVariants(item, itemname);
+
+            variants.forEach(({ prefixKey, displayLabel }, varIdx) => {
+                const stats = _extractStatMap(item, prefixKey, type);
+                const allKeys = Object.keys(stats);
+
+                const sectionOrder = ['[기본효과]', '[효과]', '[방어구 마스터리]'];
+                allKeys.sort((a, b) => {
+                    const sa = sectionOrder.findIndex(s => a.startsWith(s));
+                    const sb = sectionOrder.findIndex(s => b.startsWith(s));
+                    return (sa === -1 ? 99 : sa) - (sb === -1 ? 99 : sb);
+                });
+
+                // 아이템 구분선 (첫번째 variant의 첫번째 행 앞)
+                if (varIdx === 0) {
+                    tbodyHtml += `<tr><td colspan="4" style="padding:0;border-top:2px solid #2a3158;"></td></tr>`;
+                }
+
+                // 아이템+접두어 헤더 행
+                tbodyHtml += `<tr>
+                    <td colspan="4" style="padding:4px 10px;background:rgba(100,114,168,0.18);color:#aad4ff;font-size:0.82em;white-space:nowrap;font-weight:bold;">
+                        ${displayLabel}
+                    </td>
+                </tr>`;
+
+                if (allKeys.length === 0) {
+                    tbodyHtml += `<tr><td colspan="4" style="padding:3px 10px;color:#555;font-size:0.8em;">(스탯 데이터 없음)</td></tr>`;
+                }
+
+                allKeys.forEach(key => {
+                    const entry = stats[key];
+                    const v = entry.amount;
+                    const unit = entry.unit || '';
+                    const displayKey = key.replace(/^\[기본효과\] |^\[효과\] |^\[방어구 마스터리\] /, '');
+                    const sectionTag = key.match(/^\[(.+?)\]/)?.[1] || '';
+                    const tagColor = sectionTag === '기본효과' ? '#7a9fcf' : sectionTag === '효과' ? '#a0d4a0' : '#c8a0d4';
+
+                    tbodyHtml += `<tr>
+                        <td style="text-align:center;padding:2px 8px;color:${tagColor};font-size:0.75em;white-space:nowrap;width:90px;border-right:1px solid #2a3158;">${sectionTag}</td>
+                        <td style="text-align:left;padding:2px 10px;color:#ccc;font-size:0.82em;white-space:nowrap;">${displayKey}</td>
+                        <td style="text-align:center;padding:2px 10px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-left:1px solid #2a3158;width:80px;">${v !== 0 ? `${v}${unit}` : ''}</td>
+                        <td style="width:10px;"></td>
+                    </tr>`;
+                });
+
+                // attrs 행
+                const attrs = _getItemAttrs(item, prefixKey);
+                if (attrs.length > 0) {
+                    const attrHtml = attrs.map(a =>
+                        `<span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(100,114,168,0.25);color:#b0bcff;font-size:0.8em;margin:1px 2px;">${a}</span>`
+                    ).join(' ');
+                    tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
+                        <td style="text-align:center;padding:2px 8px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">속성</td>
+                        <td colspan="3" style="padding:3px 10px;">${attrHtml}</td>
+                    </tr>`;
+                }
+
+                // desc 행
+                const desc = _getItemDesc(item, prefixKey);
+                if (desc) {
+                    const fmtDesc = desc.split('\n').map(line =>
+                        `<span style="display:block;line-height:1.5;">${line}</span>`
+                    ).join('');
+                    tbodyHtml += `<tr>
+                        <td style="text-align:center;padding:2px 8px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">설명</td>
+                        <td colspan="3" style="padding:4px 10px;color:#c8b87a;font-size:0.8em;text-align:left;vertical-align:top;">${fmtDesc}</td>
+                    </tr>`;
+                }
+            });
+        });
+
+        tableWrap.innerHTML = `
+        <table style="border-collapse:collapse;width:max-content;min-width:340px;">
+            <thead>
+                <tr>
+                    <th style="padding:4px 8px;text-align:center;font-size:0.8em;width:90px;border-right:1px solid #2a3158;">구분</th>
+                    <th style="padding:4px 8px;text-align:center;font-size:0.8em;">스탯</th>
+                    <th style="padding:4px 8px;text-align:center;font-size:0.8em;width:80px;border-left:1px solid #2a3158;">수치</th>
+                    <th style="width:10px;"></th>
+                </tr>
+            </thead>
+            <tbody>${tbodyHtml}</tbody>
+        </table>`;
+
+        wrapper.appendChild(tableWrap);
+        container.appendChild(wrapper);
+    });
+}
+
+/**
+ * 아이템의 표시 variant 목록 반환
+ * exceed:true  → [{ prefixKey: '이상+첫번째접두어', displayLabel }]
+ * exceed:false → 접두어별 각각
+ */
+function _getAllItemVariants(item, itemname) {
+    const variants = [];
+    if (item.exceed) {
+        // exceed:true → 이상 + base의 첫번째 접두어
+        const firstPrefix = Object.keys(item.base || {})[0] || '';
+        variants.push({
+            prefixKey:    firstPrefix,
+            displayLabel: `[익시드 이상] ${itemname} / ${firstPrefix}`,
+        });
+    } else {
+        // exceed:false → base의 모든 접두어 각각
+        const prefixes = Object.keys(item.base || {});
+        prefixes.forEach(pfx => {
+            const label = pfx === '기본' ? `${itemname}` : `${itemname} / ${pfx}`;
+            variants.push({
+                prefixKey:    pfx,
+                displayLabel: label,
+            });
+        });
+    }
+    return variants;
+}
+
+/**
+ * 아이템의 스탯 맵 추출 (base + eff + mastery)
+ */
+function _extractStatMap(item, prefixKey, type) {
+    const map = {};
+    const addToMap = (arr, section) => {
+        if (!Array.isArray(arr)) return;
+        arr.forEach(entry => {
+            (entry.stats || []).forEach(statName => {
+                const key = `[${section}] ${statName}`;
+                if (!map[key]) map[key] = { amount: 0, unit: entry.unit || '' };
+                map[key].amount += (entry.amount || 0);
+            });
+        });
+    };
+
+    addToMap(item.base?.[prefixKey],    '기본효과');
+    addToMap(item.eff?.[prefixKey],     '효과');
+    if (type === 'armor') {
+        addToMap(item.mastery?.[prefixKey], '방어구 마스터리');
+    }
+    return map;
+}
+
+/**
+ * 아이템의 attrs 반환
+ */
+function _getItemAttrs(item, prefixKey) {
+    if (!item.attrs) return [];
+    const val = item.attrs[prefixKey];
+    if (Array.isArray(val)) return val;
+    return [];
+}
+
+/**
+ * 아이템의 desc 반환
+ */
+function _getItemDesc(item, prefixKey) {
+    if (!item.desc) return '';
+    const val = item.desc[prefixKey];
+    return typeof val === 'string' ? val : '';
+}
+
+
+// ============================================
 // 메인 함수들
 // ============================================
 
@@ -1879,27 +2078,33 @@ function buildSpecialSetEffectCompare(section1, section2, name1, name2) {
  * 비교 모드 탭 전환 (장비 비교 / 스탯 비교)
  */
 function switchCompareTab(tab) {
-    const isEq = tab === 'eq';
+    const isEq   = tab === 'eq';
+    const isStat = tab === 'stat';
+    const isAll  = tab === 'all';
 
-    document.getElementById('compareContentEq').style.display = isEq ? 'block' : 'none';
-    document.getElementById('compareContentStat').style.display = isEq ? 'none' : 'block';
+    document.getElementById('compareContentEq').style.display   = isEq   ? 'block' : 'none';
+    document.getElementById('compareContentStat').style.display = isStat ? 'block' : 'none';
+    document.getElementById('compareContentAll').style.display  = isAll  ? 'block' : 'none';
 
     const tabEq   = document.getElementById('compareTabEq');
     const tabStat = document.getElementById('compareTabStat');
-    tabEq.style.borderBottomColor   = isEq ? '#ffd700' : 'transparent';
-    tabEq.style.color                = isEq ? '#ffd700' : '#888';
-    tabStat.style.borderBottomColor  = isEq ? 'transparent' : '#ffd700';
-    tabStat.style.color              = isEq ? '#888' : '#ffd700';
-}
+    const tabAll  = document.getElementById('compareTabAll');
 
-function exitCompareMode() {
-    document.getElementById('characterContainer').style.display = 'block';
-    document.getElementById('compareCharSelectionContainer').style.display = 'none';
-    document.getElementById('compareContainer').style.display = 'none';
-    document.getElementById('compareTabBar').style.display = 'none';
-    AppState.compareSelection = { left: null, right: null };
-    document.getElementById('compareContentEq').innerHTML = '';
-    document.getElementById('compareContentStat').innerHTML = '';
+    tabEq.style.borderBottomColor   = isEq   ? '#ffd700' : 'transparent';
+    tabEq.style.color                = isEq   ? '#ffd700' : '#888';
+    tabStat.style.borderBottomColor  = isStat ? '#ffd700' : 'transparent';
+    tabStat.style.color              = isStat ? '#ffd700' : '#888';
+    tabAll.style.borderBottomColor   = isAll  ? '#ffd700' : 'transparent';
+    tabAll.style.color               = isAll  ? '#ffd700' : '#888';
+
+    // 전체 비교 탭: 처음 열릴 때 한 번만 렌더링
+    if (isAll) {
+        const container = document.getElementById('compareContentAll');
+        if (!container._rendered) {
+            container._rendered = true;
+            buildAllItemsCompare(container);
+        }
+    }
 }
 
 /**
