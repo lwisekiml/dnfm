@@ -683,6 +683,7 @@ HP MAX +220
 효과
 HP MAX +220
 모든 속성 강화 +3
+모든 직업 15~70레벨 스킬Lv+1(TP스킬 제외)
 데미지 15% 증가`,
         desc: `모든 직업 15~70레벨 스킬Lv+1(TP스킬 제외)`,
         base: [
@@ -701,7 +702,7 @@ HP MAX +220
         ]
     },
     // 차원 여행자, 차원 이동자
-    V8: {
+    V10: {
         info: `기본정보
 힘, 지능 +66
 체력, 정신력 +33
@@ -733,23 +734,155 @@ HP MAX +220
 };
 
 const TITLE_ITEM_INFO = {
+    // 기본정보
+    // 힘, 지능 +33
+    // 체력, 정신력 +22
+    // 공격속도 +2%
+    // 캐스팅속도 +2%
+    // 이동속도 +2%
+    // 물리 크리티컬 +30
+    // 마법 크리티컬 +30
+    // ---
+    // 효과
+    // HP MAX +220
+    // 모든 속성 강화 +10
+    // 데미지 10% 증가
+    // 공격 시 1% 확률로 무색 큐블 조각 1개를 소모하여 30초간 힘 30, 지능 30, 체력 20, 정신력 20, 공격속도 5%, 캐스팅속도 5%, 이동속도 5% 증가합니다.`,
     "우리들의 Arcade": _TITLE_TEMPLATES.V1,
-    "우리함께 Arcade": _TITLE_TEMPLATES.V2,
-    "우리모두 Arcade": _TITLE_TEMPLATES.V7,
     "2nd Anniversary 칭호": _TITLE_TEMPLATES.V1,
+    "신수의 가호 - 쾌청": _TITLE_TEMPLATES.V1,
+
+    // 기본정보
+    // 힘, 지능 +33
+    // 체력, 정신력 +22
+    // 공격속도 +2%
+    // 캐스팅속도 +3%
+    // 이동속도 +2%
+    // 물리 크리티컬 +30
+    // 마법 크리티컬 +30
+    // ---
+    // 효과
+    // HP MAX +220
+    // 모든 속성 강화 +3
+    // 데미지 15% 증가
+    // 공격 시 1% 확률로 무색 큐블 조각 1개를 소모하여 30초간 힘 30, 지능 30, 체력 20, 정신력 20, 공격속도 5%, 캐스팅속도 5%, 이동속도 5% 증가합니다.`,
+    "우리함께 Arcade": _TITLE_TEMPLATES.V2,
     "3rd Anniversary": _TITLE_TEMPLATES.V2,
+
+    // 기본정보
+    // 힘 +32
+    // 지능 +32
+    // 정신력 +32
+    // 공격속도 +2%
+    // 캐스팅속도 +3%
+    // 이동속도 +2%
+    // ---
+    // 효과
+    // HP MAX +55
+    // MP MAX +110
+    // 수속성 저항 +7
+    // 수속강 +3
+    "천해의 수호자": _TITLE_TEMPLATES.V3,
+
+    // 기본정보
+    // 힘, 지능, 체력, 정신력 +18
+    // 공격속도 +1.5%
+    // 캐스팅속도 +2.2%
+    // 이동속도 +1.5%
+    "Specialist": _TITLE_TEMPLATES.V4,
+
+
+    // 기본정보
+    // 힘, 지능, 체력, 정신력 +8
+    "안톤:공대 참전자": _TITLE_TEMPLATES.V5,
+
+    // 기본정보
+    // 힘 +32
+    // 지능 +32
+    // 체력 +32
+    // 정신력 +32
+    // 공격속도 +2%
+    // 캐스팅속도 +3%
+    // 이동속도 +2%
+    // ---
+    // 효과
+    // HP MAX +55
+    // MP MAX +110
+    // 화속성 저항 +7
+    // 화속강 +3
+    "안톤 정복자": _TITLE_TEMPLATES.V6,
+
+    // 기본정보
+    // 힘, 지능 +66
+    // 체력, 정신력 +33
+    // 공격속도 +5%
+    // 캐스팅속도 +7%
+    // 이동속도 +5%
+    // 물리 크리티컬 +30
+    // 마법 크리티컬 +30
+    // ---
+    // 효과
+    // HP MAX +220
+    // 모든 속성 강화 +3
+    // 데미지 20% 증가
+    "우리모두 Arcade": _TITLE_TEMPLATES.V7,
     "4th Anniversary": _TITLE_TEMPLATES.V7,
+
+    // 기본정보
+    // 힘, 지능 +66
+    // 체력, 정신력 +33
+    // 공격속도 +5%
+    // 캐스팅속도 +7%
+    // 이동속도 +5%
+    // 물리 크리티컬 +30
+    // 마법 크리티컬 +30
+    // ---
+    // 효과
+    // HP MAX +220
+    // 모든 속성 강화 +3
+    // 마을 이동속도 증가 +10%
+    // 모든 직업 15~70레벨 스킬Lv+1(TP스킬 제외)
+    // 데미지 20% 증가
     "아라드 오션브리즈[플래티넘]": _TITLE_TEMPLATES.V8,
     "던전밥": _TITLE_TEMPLATES.V8,
-    "원탁의 기사 [白]": _TITLE_TEMPLATES.V8,
+    "코스믹 히치하이커": _TITLE_TEMPLATES.V8,
+
+    "원탁의 기사 [白] (확인 필요)": _TITLE_TEMPLATES.V8,
+
+
+    // 기본정보
+    // 힘, 지능 +66
+    // 체력, 정신력 +33
+    // 공격속도 +5%
+    // 캐스팅속도 +7%
+    // 이동속도 +5%
+    // 물리 크리티컬 +30
+    // 마법 크리티컬 +30
+    // ---
+    // 효과
+    // HP MAX +220
+    // 모든 속성 강화 +3
+    // 모든 직업 15~70레벨 스킬Lv+1(TP스킬 제외)
+    // 데미지 15% 증가
     "아라드 선라이즈": _TITLE_TEMPLATES.V9,
     "아라드 선셋": _TITLE_TEMPLATES.V9,
-    "천해의 수호자": _TITLE_TEMPLATES.V3,
-    "Specialist": _TITLE_TEMPLATES.V4,
-    "안톤:공대 참전자": _TITLE_TEMPLATES.V5,
-    "안톤 정복자": _TITLE_TEMPLATES.V6,
-    "차원 여행자": _TITLE_TEMPLATES.V8,
-    "차원 이동자": _TITLE_TEMPLATES.V8,
+
+
+    // 기본정보
+    // 힘, 지능 +66
+    // 체력, 정신력 +33
+    // 공격속도 +5%
+    // 캐스팅속도 +7%
+    // 이동속도 +5%
+    // 물리 크리티컬 +30
+    // 마법 크리티컬 +30
+    // ---
+    // 효과
+    // HP MAX +220
+    // 모든 속성 강화 +3
+    // 데미지 15% 증가
+    "차원 여행자": _TITLE_TEMPLATES.V10,
+    "차원 이동자": _TITLE_TEMPLATES.V10,
 };
 
 const _AURA_TEMPLATES = {
@@ -829,7 +962,7 @@ const _AURA_TEMPLATES = {
             { stats: ['적중'], amount: 80, unit: ''},
         ]
     },
-    // 극한을 정복한 자, 코스믹 스피어, 마르실의 소생 마법 오라
+    // 극한을 정복한 자, 코스믹 스피어, 마르실의 소생 마법 오라, 천상의 문 오라
     V6: {
         info: `기본정보
 힘, 지능, 체력, 정신력 +50
@@ -943,6 +1076,7 @@ const AURA_ITEM_INFO = {
     "극한을 정복한 자": _AURA_TEMPLATES.V6,
     "코스믹 스피어": _AURA_TEMPLATES.V6,
     "마르실의 소생 마법 오라": _AURA_TEMPLATES.V6,
+    "천상의 문 오라": _AURA_TEMPLATES.V6,
 
     // 기본정보
     // 힘, 지능, 체력, 정신력 +50
@@ -1110,6 +1244,24 @@ const _WEAPON_AVATAR_TEMPLATES = {
     },
     WA_V4: {
         info: `기본정보
+힘, 지능, 체력, 정신력 +50
+물리 크리티컬 +130
+마법 크리티컬 +130
+---
+효과
+모든 속성 강화 +10
+`,
+        base: [
+            { stats: ['힘', '지능', '체력', '정신력'], amount: 50, unit: '' },
+            { stats: ['물리 크리티컬', '마법 크리티컬'], amount: 130, unit: '' },
+        ],
+        eff: [
+            { stats: ['모든 속성 강화'], amount: 10, unit: '' },
+        ]
+    },
+
+    WA_V18: {
+        info: `기본정보
 힘, 지능, 체력, 정신력 +18
 `,
         base: [
@@ -1117,7 +1269,7 @@ const _WEAPON_AVATAR_TEMPLATES = {
         ],
         eff: []
     },
-    WA_V5: {
+    WA_V11: {
         info: `기본정보
 힘, 지능, 체력, 정신력 +11
 `,
@@ -1145,6 +1297,7 @@ const WEAPON_AVATAR_ITEM_INFO = {
     "클래식 코튼 글러브": _WEAPON_AVATAR_TEMPLATES.WA_V1,
     "청룡의 무기": _WEAPON_AVATAR_TEMPLATES.WA_V1,
     "티라미수 케이크": _WEAPON_AVATAR_TEMPLATES.WA_V1,
+    "아이스 아메리카노(포장)": _WEAPON_AVATAR_TEMPLATES.WA_V1,
 
     // 기본정보
     // 힘, 지능, 체력, 정신력 +18
@@ -1154,6 +1307,7 @@ const WEAPON_AVATAR_ITEM_INFO = {
     // 마법 공격력 3% 증가
     "황천의 구도자 무기": _WEAPON_AVATAR_TEMPLATES.WA_V2,
     "명계의 구도자 무기": _WEAPON_AVATAR_TEMPLATES.WA_V2,
+    "흐려진 어둠의 염원 무기": _WEAPON_AVATAR_TEMPLATES.WA_V2,
 
     // 기본정보
     // 힘, 지능, 체력, 정신력 +18
@@ -1164,40 +1318,52 @@ const WEAPON_AVATAR_ITEM_INFO = {
     "기사단의 무기": _WEAPON_AVATAR_TEMPLATES.WA_V3,
     "생명의 나무 무기": _WEAPON_AVATAR_TEMPLATES.WA_V3,
     "홈쇼핑 공구세트 무기": _WEAPON_AVATAR_TEMPLATES.WA_V3,
+    "디멘션 사복검": _WEAPON_AVATAR_TEMPLATES.WA_V3,
+    "수행자의 도": _WEAPON_AVATAR_TEMPLATES.WA_V3,
+
+    // 기본정보
+    // 힘, 지능, 체력, 정신력 +50
+    // 물리 크리티컬 +130
+    // 마법 크리티컬 +130
+    // ---
+    // 효과
+    // 모든 속성 강화 +10
+    "그린 커서": _WEAPON_AVATAR_TEMPLATES.WA_V4,
 
     // 힘, 지능, 체력, 정신력 +18
-    "주부 8단 후라이팬": _WEAPON_AVATAR_TEMPLATES.WA_V4,
-    "계란말이란 말이오": _WEAPON_AVATAR_TEMPLATES.WA_V4,
-    "샐러드용 당근 통파": _WEAPON_AVATAR_TEMPLATES.WA_V4,
-    "토메이토 토마토": _WEAPON_AVATAR_TEMPLATES.WA_V4,
-    "아이스 쵸코 바닐라": _WEAPON_AVATAR_TEMPLATES.WA_V4,
-    "신선한 유기농 옥수수": _WEAPON_AVATAR_TEMPLATES.WA_V4,
-    "따끈한 웰던 스테이크": _WEAPON_AVATAR_TEMPLATES.WA_V4,
-    "한입 가득 산적 꼬치": _WEAPON_AVATAR_TEMPLATES.WA_V4,
-    "냉동 화덕 피자": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "주부 8단 후라이팬": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "계란말이란 말이오": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "샐러드용 당근 통파": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "토메이토 토마토": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "아이스 쵸코 바닐라": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "신선한 유기농 옥수수": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "따끈한 웰던 스테이크": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "한입 가득 산적 꼬치": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "냉동 화덕 피자": _WEAPON_AVATAR_TEMPLATES.WA_V18,
 
-    "파인애플맛 막대사탕": _WEAPON_AVATAR_TEMPLATES.WA_V4,
-    "프리스트의 검정색 장미 토템": _WEAPON_AVATAR_TEMPLATES.WA_V4,
-    "프리스트의 장미 토템": _WEAPON_AVATAR_TEMPLATES.WA_V4,
-    "글렌 시보그의 머스켓": _WEAPON_AVATAR_TEMPLATES.WA_V4,
-    "옵티머스의 무기 아바타": _WEAPON_AVATAR_TEMPLATES.WA_V4,
-    "모디스의 미사일 런처": _WEAPON_AVATAR_TEMPLATES.WA_V4,
+    "파인애플맛 막대사탕": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "프리스트의 검정색 장미 토템": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "프리스트의 장미 토템": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "글렌 시보그의 머스켓": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "옵티머스의 무기 아바타": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "모디스의 미사일 런처": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "크림슨로제의 무기 아바타": _WEAPON_AVATAR_TEMPLATES.WA_V18,
 
     // 힘, 지능, 체력, 정신력 +11
-    "사랑 가득 마법봉": _WEAPON_AVATAR_TEMPLATES.WA_V5,
-    "명부의 구도자 무기": _WEAPON_AVATAR_TEMPLATES.WA_V5,
-    "특제 고블린 몽둥이": _WEAPON_AVATAR_TEMPLATES.WA_V5,
-    "흑도 : 쿠로이츠키의 형상": _WEAPON_AVATAR_TEMPLATES.WA_V5,
-    "천해의 형상 무기": _WEAPON_AVATAR_TEMPLATES.WA_V5,
-    "방천극의 형상": _WEAPON_AVATAR_TEMPLATES.WA_V5,
-    "롤리팝": _WEAPON_AVATAR_TEMPLATES.WA_V5,
-    "스카사의 만년빙": _WEAPON_AVATAR_TEMPLATES.WA_V5,
-    "레이저 홀릭의 형상": _WEAPON_AVATAR_TEMPLATES.WA_V5,
-    "말이야? 당근이지!": _WEAPON_AVATAR_TEMPLATES.WA_V5,
-    "빛의 리볼버 - 라이트 익스펜션": _WEAPON_AVATAR_TEMPLATES.WA_V5,
-    "물약 스태프": _WEAPON_AVATAR_TEMPLATES.WA_V5,
-    "강인한 푸른빛 기타": _WEAPON_AVATAR_TEMPLATES.WA_V5,
-    "하이퍼리온의 형상": _WEAPON_AVATAR_TEMPLATES.WA_V5,
+    "사랑 가득 마법봉": _WEAPON_AVATAR_TEMPLATES.WA_V11,
+    "명부의 구도자 무기": _WEAPON_AVATAR_TEMPLATES.WA_V11,
+    "특제 고블린 몽둥이": _WEAPON_AVATAR_TEMPLATES.WA_V11,
+    "흑도 : 쿠로이츠키의 형상": _WEAPON_AVATAR_TEMPLATES.WA_V11,
+    "천해의 형상 무기": _WEAPON_AVATAR_TEMPLATES.WA_V11,
+    "방천극의 형상": _WEAPON_AVATAR_TEMPLATES.WA_V11,
+    "롤리팝": _WEAPON_AVATAR_TEMPLATES.WA_V11,
+    "스카사의 만년빙": _WEAPON_AVATAR_TEMPLATES.WA_V11,
+    "레이저 홀릭의 형상": _WEAPON_AVATAR_TEMPLATES.WA_V11,
+    "말이야? 당근이지!": _WEAPON_AVATAR_TEMPLATES.WA_V11,
+    "빛의 리볼버 - 라이트 익스펜션": _WEAPON_AVATAR_TEMPLATES.WA_V11,
+    "물약 스태프": _WEAPON_AVATAR_TEMPLATES.WA_V11,
+    "강인한 푸른빛 기타": _WEAPON_AVATAR_TEMPLATES.WA_V11,
+    "하이퍼리온의 형상": _WEAPON_AVATAR_TEMPLATES.WA_V11,
 };
 
 const GameData = {
@@ -1947,6 +2113,29 @@ const ARTIFACT_SET_DATA = [
         },
         green: {
             name: '야채 찐빵',
+            stats: {
+                '크리쳐_art_green_stat_HPMAX':  '165',
+            }
+        },
+    },
+    {
+        setName: '디저트 세트',
+        red: {
+            name: '초코 바닐라 딸기 콘',
+            stats: {
+                '크리쳐_art_red_stat_힘':         '18',
+                '크리쳐_art_red_stat_지능':        '18',
+            }
+        },
+        blue: {
+            name: '트로피컬 블루 레몬 하드',
+            stats: {
+                '크리쳐_art_blue_stat_공격속도':   '5',
+                '크리쳐_art_blue_stat_캐스팅속도':  '7.5',
+            }
+        },
+        green: {
+            name: '과일 초코 녹차 파르페',
             stats: {
                 '크리쳐_art_green_stat_HPMAX':  '165',
             }
