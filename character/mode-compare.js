@@ -2,6 +2,46 @@
 // mode-compare.js - 비교 모드 기능 (리팩토링 완료)
 // ============================================
 
+
+function getExceedUniqueEffect(job, exceed) {
+    if (!job || !exceed) return '';
+    if (typeof EXCEED_UNIQUE_EFFECTS === 'undefined') return '';
+    const stageMap = EXCEED_UNIQUE_EFFECTS[exceed];
+    if (!stageMap) return '';
+    for (const [keyGroup, effectText] of Object.entries(stageMap)) {
+        if (keyGroup.split('|').includes(job)) return effectText;
+    }
+    return '';
+}
+
+function buildExceedUniqueEffectRows(effect1, exceed1, effect2, exceed2) {
+    if (!effect1 && !effect2) return '';
+    const exceedColor = { '이상': '#2ecc71', '선봉': '#ff5252', '의지': '#448aff' };
+    const fmtEffect = (effect, exceed) => {
+        if (!effect) return '<span style="color:#555;font-size:0.8em;">-</span>';
+        const color = exceedColor[exceed] || '#e6e9ff';
+        return effect.split('\n').map(line =>
+            `<span style="display:block;line-height:1.5;color:${color};font-size:0.8em;">${line}</span>`
+        ).join('');
+    };
+    const isSame = effect1 === effect2;
+    const diffText  = isSame ? '동일' : '다름';
+    const diffStyle = isSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+    const exceedLabel1 = exceed1 ? `<span style="color:${exceedColor[exceed1]||'#fff'};font-weight:bold;font-size:0.78em;">[${exceed1}]</span> ` : '';
+    const exceedLabel2 = exceed2 ? `<span style="color:${exceedColor[exceed2]||'#fff'};font-weight:bold;font-size:0.78em;">[${exceed2}]</span> ` : '';
+    return `<tr style="background:rgba(100,114,168,0.08);">
+        <td style="text-align:center;padding:2px 6px;color:#d6d989;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">고유 효과</td>
+        <td style="padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">
+            ${exceedLabel1}${fmtEffect(effect1, exceed1)}
+        </td>
+        <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle}">${diffText}</td>
+        <td style="padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">
+            ${exceedLabel2}${fmtEffect(effect2, exceed2)}
+        </td>
+        <td style="text-align:center;padding:2px 6px;color:#d6d989;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">고유 효과</td>
+    </tr>`;
+}
+
 /**
  * 비교 유틸리티 함수
  */
@@ -1013,6 +1053,18 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
                 <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">설명</td>
             </tr>`;
         }
+
+        if (slot === '상의') {
+            const job1    = section1.querySelector('[data-key="info_job"]')?.value || '';
+            const job2    = section2.querySelector('[data-key="info_job"]')?.value || '';
+            const exceed1 = r1.exceed || '';
+            const exceed2 = r2.exceed || '';
+            const eff1 = getExceedUniqueEffect(job1, exceed1);
+            const eff2 = getExceedUniqueEffect(job2, exceed2);
+            tbodyHtml += buildExceedUniqueEffectRows(eff1, exceed1, eff2, exceed2);
+        }
+        // ↑↑↑ 여기까지 추가 ↑↑↑
+
     });
 
     const wrapper = document.createElement('div');
@@ -1045,6 +1097,8 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
         </thead>
         <tbody>${tbodyHtml}</tbody>
     </table>`;
+
+
 
     wrapper.appendChild(tableWrap);
     return wrapper;
@@ -1543,6 +1597,16 @@ function buildAccStatCompare(section1, section2, name1, name2) {
                 <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">설명</td>
             </tr>`;
         }
+
+        if (slot === '팔찌') {
+            const job1    = section1.querySelector('[data-key="info_job"]')?.value || '';
+            const job2    = section2.querySelector('[data-key="info_job"]')?.value || '';
+            const exceed1 = r1.exceed || '';
+            const exceed2 = r2.exceed || '';
+            const eff1 = getExceedUniqueEffect(job1, exceed1);
+            const eff2 = getExceedUniqueEffect(job2, exceed2);
+            tbodyHtml += buildExceedUniqueEffectRows(eff1, exceed1, eff2, exceed2);
+        }
     });
 
     const wrapper = document.createElement('div');
@@ -1911,6 +1975,16 @@ function buildSpecialStatCompare(section1, section2, name1, name2) {
                 <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fmtDesc(desc2)}</td>
                 <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">설명</td>
             </tr>`;
+        }
+
+        if (slot === '귀걸이') {
+            const job1    = section1.querySelector('[data-key="info_job"]')?.value || '';
+            const job2    = section2.querySelector('[data-key="info_job"]')?.value || '';
+            const exceed1 = r1.exceed || '';
+            const exceed2 = r2.exceed || '';
+            const eff1 = getExceedUniqueEffect(job1, exceed1);
+            const eff2 = getExceedUniqueEffect(job2, exceed2);
+            tbodyHtml += buildExceedUniqueEffectRows(eff1, exceed1, eff2, exceed2);
         }
     });
 

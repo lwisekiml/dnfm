@@ -6111,3 +6111,44 @@ function closeHistoryModal() {
 - 기존: 슬롯명 표시 + 익시드 아이템명을 `(익시드: xxx)` 형식으로 병기
 - 변경: 익시드 아이템명 파란색(`#aad4ff`), 일반 아이템명 흰색(`#fff`) 2줄 표시로 통일
 - 헤더 `<th>` 스타일 `white-space: nowrap` 적용 → 긴 아이템명 한 줄 표시
+
+---
+---
+
+## 2026-04-04 (144차)
+
+### 캐릭터 비교 - 스탯 비교에 익시드 고유효과 표시 추가
+
+**수정된 파일:** `character/mode-compare.js`
+
+---
+
+### 변경 내용
+
+**`character/mode-compare.js`**
+
+- 헬퍼 함수 2개 추가 (파일 맨 위)
+  - `getExceedUniqueEffect(job, exceed)`: 직업명과 익시드 단계를 받아 `EXCEED_UNIQUE_EFFECTS`에서 해당 고유효과 텍스트 반환
+  - `buildExceedUniqueEffectRows(effect1, exceed1, effect2, exceed2)`: 두 캐릭터의 고유효과를 7열 레이아웃으로 tbody 행 HTML 생성
+
+- `buildArmorStatCompare` 수정
+  - `ARMOR_SLOTS.forEach` 내부 desc 행 블록 직후에 `if (slot === '상의')` 조건 블록 추가
+  - 상의 슬롯에 익시드 값이 있을 경우, 각 캐릭터의 직업에 맞는 고유효과 행 표시
+
+- `buildAccStatCompare` 수정
+  - `ACC_SLOTS.forEach` 내부 desc 행 블록 직후에 `if (slot === '팔찌')` 조건 블록 추가
+  - 팔찌 슬롯에 익시드 값이 있을 경우, 각 캐릭터의 직업에 맞는 고유효과 행 표시
+
+- `buildSpecialStatCompare` 수정
+  - `SPECIAL_SLOTS.forEach` 내부 desc 행 블록 직후에 `if (slot === '귀걸이')` 조건 블록 추가
+  - 귀걸이 슬롯에 익시드 값이 있을 경우, 각 캐릭터의 직업에 맞는 고유효과 행 표시
+
+---
+
+### 변경 이유
+
+- 익시드 아이템(상의/팔찌/귀걸이)은 이상/선봉/의지 단계별로 직업마다 다른 고유효과가 존재
+- 스탯 비교 화면에서 두 캐릭터의 익시드 고유효과를 나란히 보여줌으로써 비교 편의성 향상
+- 익시드 값이 없는 슬롯 및 고유효과 데이터가 없는 경우 행 미표시
+
+---
