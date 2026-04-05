@@ -6221,3 +6221,65 @@ function closeHistoryModal() {
 - 무기 접두어별 고유효과는 직업마다 달라 별도 파일(`exceed_weapon_unique_effects.js`)로 분리 관리
 
 ---
+---
+
+## 2026-04-05 (146차)
+
+### 무기 침식(익시드) 기능 추가
+
+**수정된 파일:** `data/weapon.js`, `index.html`, `character/base-templates.js`, `character/base-core.js`, `character/mode-compare.js`
+
+---
+
+### 변경 내용
+
+**`data/weapon.js`**
+
+- 전 무기 항목에 `침식` 키 추가
+- 침식 무기는 기본 스탯과 별도로 다른 수치를 가지므로 독립된 구조로 관리
+  ```javascript
+  "암흑의 별": {
+      "attrs": [], "desc": "", "base": [], "eff": [],
+      "침식": { "attrs": [], "desc": "", "base": [], "eff": [] }
+  }
+  ```
+
+**`index.html`**
+
+- `equipment-row-template` 내 익시드 select에 `침식` 옵션 추가
+  ```html
+  <option>침식</option>
+  ```
+
+**`character/base-templates.js`**
+
+- `createEquipmentRow` 함수 수정
+  - 익시드 활성 슬롯 목록에 `무기` 추가
+  - 무기 슬롯의 익시드 select 옵션을 `빈칸 / 침식` 으로 교체
+
+**`character/base-core.js`**
+
+- `updateStyle` 함수의 exceed 처리 부분 수정
+  - `ex-침식` 클래스 제거 대상에 추가
+  - `침식` 선택 시 그라데이션 스타일 적용 (위: `#ffb3c6` 연한 핑크 → 아래: `#ffffff` 흰색)
+  - 다른 값 선택 또는 초기화 시 그라데이션 인라인 스타일 제거
+
+**`character/mode-compare.js`**
+
+- `buildWeaponStatCompare` 내부 `getWeaponStats` 함수 수정
+  - 무기 익시드(`침식`) 값 읽기 추가
+  - 침식 여부에 따라 데이터 소스 분기: `침식`이면 `item.침식`, 아니면 `item` 사용
+  - 반환값에 `exceed` 필드 추가
+- 아이템 헤더 레이블 생성 로직 수정
+  - `itemLabel1` / `itemLabel2` 직접 생성 → `makeWeaponLabel(r)` 함수로 통합
+  - 침식 무기일 경우 `[침식]` 텍스트를 핑크→흰색 그라데이션으로 표시 (스탯 비교와 동일한 스타일)
+
+---
+
+### 변경 이유
+
+- 무기에 침식(익시드) 개념이 존재하며 침식 여부에 따라 기본정보/효과 스탯이 달라짐
+- 접두어 고유효과(광채/분쇄/선명/강타)는 침식 여부와 무관하게 동일하므로 별도 처리 불필요
+- 기본 화면과 스탯 비교 화면에서 침식 식별이 쉽도록 동일한 핑크 그라데이션 색상 통일
+
+---

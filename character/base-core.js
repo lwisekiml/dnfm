@@ -599,10 +599,21 @@ function updateStyle(el, type, isInitial = false) {
         }
 
         else if (type === 'exceed') {
-            el.classList.remove('ex-이상', 'ex-선봉', 'ex-의지');
-            if (el.value) el.classList.add('ex-' + el.value);
+            el.classList.remove('ex-이상', 'ex-선봉', 'ex-의지', 'ex-침식');
+            el.style.removeProperty('background');
+            el.style.removeProperty('-webkit-background-clip');
+            el.style.removeProperty('-webkit-text-fill-color');
+            el.style.removeProperty('background-clip');
 
-            // 색상은 runSetCheck가 익시드 여부까지 포함해 처리
+            if (el.value === '침식') {
+                el.style.background = 'linear-gradient(to bottom, #ffb3c6, #ffffff)';
+                el.style.webkitBackgroundClip = 'text';
+                el.style.webkitTextFillColor = 'transparent';
+                el.style.backgroundClip = 'text';
+            } else if (el.value) {
+                el.classList.add('ex-' + el.value);
+            }
+
             if (typeof runSetCheck === "function") runSetCheck(slot, charId);
         }
 

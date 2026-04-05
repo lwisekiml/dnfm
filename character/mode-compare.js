@@ -864,11 +864,15 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
     function getWeaponStats(section) {
         const itemname = section.querySelector('[data-key="무기_itemname"]')?.value || '';
         const prefix   = section.querySelector('select[data-key="무기_prefix"]')?.value || '';
+        const exceed   = section.querySelector('select[data-key="무기_exceed"]')?.value || '';
         const job      = section.querySelector('[data-key="info_job"]')?.value || '';
 
-        if (!itemname || !weaponData[itemname]) return { itemname, prefix, job, stats: null, attrs: [], desc: '' };
+        if (!itemname || !weaponData[itemname]) return { itemname, prefix, exceed, job, stats: null, attrs: [], desc: '' };
 
         const item = weaponData[itemname];
+
+        // 침식 여부에 따라 데이터 소스 선택
+        const src = (exceed === '침식' && item.침식) ? item.침식 : item;
 
         const map = {};
         const addToMap = (arr, sectionLabel) => {
@@ -881,16 +885,17 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
                 });
             });
         };
-        addToMap(item.base, '기본효과');
-        addToMap(item.eff,  '효과');
+        addToMap(src.base, '기본효과');
+        addToMap(src.eff,  '효과');
 
         return {
             itemname,
             prefix,
+            exceed,
             job,
             stats: map,
-            attrs: item.attrs || [],
-            desc:  item.desc  || ''
+            attrs: src.attrs || [],
+            desc:  src.desc  || ''
         };
     }
 
@@ -903,12 +908,24 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
     let tbodyHtml = '';
 
     // ── 아이템 헤더 행 ───────────────────────────────────────────
-    const itemLabel1 = r1.itemname
-        ? `${r1.prefix ? `<span style="color:${prefixColor[r1.prefix]||'#fff'};font-weight:bold;">[${r1.prefix}]</span> ` : ''}${r1.itemname}`
-        : '(미착용)';
-    const itemLabel2 = r2.itemname
-        ? `${r2.prefix ? `<span style="color:${prefixColor[r2.prefix]||'#fff'};font-weight:bold;">[${r2.prefix}]</span> ` : ''}${r2.itemname}`
-        : '(미착용)';
+    const CHIM_LABEL = `<span style="
+        background: linear-gradient(to bottom, #ffb3c6, #ffffff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: bold;
+        font-size: 0.9em;
+    ">[침식]</span> `;
+
+    const makeWeaponLabel = (r) => {
+        if (!r.itemname) return '(미착용)';
+        const chimPart   = r.exceed === '침식' ? CHIM_LABEL : '';
+        const prefixPart = r.prefix ? `<span style="color:${prefixColor[r.prefix]||'#fff'};font-weight:bold;">[${r.prefix}]</span> ` : '';
+        return `${chimPart}${prefixPart}${r.itemname}`;
+    };
+
+    const itemLabel1 = makeWeaponLabel(r1);
+    const itemLabel2 = makeWeaponLabel(r2);
 
     tbodyHtml += `<tr>
         <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;">무기</td>

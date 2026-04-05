@@ -96,13 +96,19 @@ window.TemplateHelper = {
         });
 
         // 익시드는 무기, 상의, 팔찌, 귀걸이만 가능
-        const exceedSlots = ['상의', '팔찌', '귀걸이'];
+        const exceedSlots = ['무기', '상의', '팔찌', '귀걸이'];
         if (!exceedSlots.includes(slot)) {
-            // 익시드가 없는 슬롯은 select를 "-"로 교체
             const exceedSelect = fragment.querySelector(`[data-key="${slot}_exceed"]`);
             if (exceedSelect) {
                 const td = exceedSelect.parentElement;
                 td.innerHTML = '<span style="color: #666;">-</span>';
+            }
+        }
+        // 무기 슬롯: 익시드 옵션을 빈칸/침식으로 교체
+        if (slot === '무기') {
+            const exceedSelect = fragment.querySelector(`[data-key="무기_exceed"]`);
+            if (exceedSelect) {
+                exceedSelect.innerHTML = '<option value="">　</option><option value="침식">침식</option>';
             }
         }
 
