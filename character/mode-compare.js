@@ -803,6 +803,9 @@ function displayComparison() {
     const containerStat = document.getElementById('compareContentStat');
     containerStat.innerHTML = '';
 
+    const weaponStatEl = buildWeaponStatCompare(section1, section2, displayName1, displayName2);
+    containerStat.appendChild(weaponStatEl);
+
     const armorStatEl = buildArmorStatCompare(section1, section2, displayName1, displayName2);
     containerStat.appendChild(armorStatEl);
 
@@ -833,6 +836,243 @@ function displayComparison() {
             }
         });
     });
+}
+
+/**
+ * 직업명으로 무기 접두어 고유효과 텍스트 반환
+ * @param {string} job    - 캐릭터 직업명 (예: "검신")
+ * @param {string} prefix - 접두어 (예: "광채", "분쇄", "선명", "강타")
+ * @returns {string}
+ */
+function getWeaponPrefixUniqueEffect(job, prefix) {
+    if (!job || !prefix) return '';
+    if (typeof EXCEED_WEAPON_UNIQUE_EFFECTS === 'undefined') return '';
+    const prefixMap = EXCEED_WEAPON_UNIQUE_EFFECTS[prefix];
+    if (!prefixMap) return '';
+    for (const [keyGroup, effectText] of Object.entries(prefixMap)) {
+        if (keyGroup.split('|').includes(job)) return effectText;
+    }
+    return '';
+}
+
+/**
+ * 무기 스탯 비교 표
+ */
+function buildWeaponStatCompare(section1, section2, name1, name2) {
+    const weaponData = (typeof WEAPON_ITEM_STATS !== 'undefined') ? WEAPON_ITEM_STATS : {};
+
+    function getWeaponStats(section) {
+        const itemname = section.querySelector('[data-key="무기_itemname"]')?.value || '';
+        const prefix   = section.querySelector('select[data-key="무기_prefix"]')?.value || '';
+        const job      = section.querySelector('[data-key="info_job"]')?.value || '';
+
+        if (!itemname || !weaponData[itemname]) return { itemname, prefix, job, stats: null, attrs: [], desc: '' };
+
+        const item = weaponData[itemname];
+
+        const map = {};
+        const addToMap = (arr, sectionLabel) => {
+            if (!Array.isArray(arr)) return;
+            arr.forEach(entry => {
+                (entry.stats || []).forEach(statName => {
+                    const key = `[${sectionLabel}] ${statName}`;
+                    if (!map[key]) map[key] = { amount: 0, unit: entry.unit || '' };
+                    map[key].amount += (entry.amount || 0);
+                });
+            });
+        };
+        addToMap(item.base, '기본효과');
+        addToMap(item.eff,  '효과');
+
+        return {
+            itemname,
+            prefix,
+            job,
+            stats: map,
+            attrs: item.attrs || [],
+            desc:  item.desc  || ''
+        };
+    }
+
+    const r1 = getWeaponStats(section1);
+    const r2 = getWeaponStats(section2);
+
+    // 접두어 색상 (base-core.js의 WEAPON_PREFIXES와 동일)
+    const prefixColor = { '광채': '#3399cc', '분쇄': '#ff4d4f', '선명': '#25c2a0', '강타': '#ffd700' };
+
+    let tbodyHtml = '';
+
+    // ── 아이템 헤더 행 ───────────────────────────────────────────
+    const itemLabel1 = r1.itemname
+        ? `${r1.prefix ? `<span style="color:${prefixColor[r1.prefix]||'#fff'};font-weight:bold;">[${r1.prefix}]</span> ` : ''}${r1.itemname}`
+        : '(미착용)';
+    const itemLabel2 = r2.itemname
+        ? `${r2.prefix ? `<span style="color:${prefixColor[r2.prefix]||'#fff'};font-weight:bold;">[${r2.prefix}]</span> ` : ''}${r2.itemname}`
+        : '(미착용)';
+
+    tbodyHtml += `<tr>
+        <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;">무기</td>
+        <td style="text-align:center;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${itemLabel1}</td>
+        <td style="text-align:center;padding:3px 8px;color:#888;font-size:0.78em;white-space:nowrap;">vs</td>
+        <td style="text-align:center;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${itemLabel2}</td>
+        <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;border-left:1px solid #2a3158;">무기</td>
+    </tr>`;
+
+    // ── 스탯 행 ──────────────────────────────────────────────────
+    const noData1 = !r1.stats || Object.keys(r1.stats).length === 0;
+    const noData2 = !r2.stats || Object.keys(r2.stats).length === 0;
+
+    if (!noData1 || !noData2) {
+        const allKeys = [...new Set([
+            ...Object.keys(r1.stats || {}),
+            ...Object.keys(r2.stats || {})
+        ])];
+        const sectionOrder = ['[기본효과]', '[효과]'];
+        allKeys.sort((a, b) => {
+            const sa = sectionOrder.findIndex(s => a.startsWith(s));
+            const sb = sectionOrder.findIndex(s => b.startsWith(s));
+            return sa - sb;
+        });
+
+        allKeys.forEach(key => {
+            const e1 = r1.stats?.[key];
+            const e2 = r2.stats?.[key];
+            const v1 = e1?.amount ?? 0;
+            const v2 = e2?.amount ?? 0;
+            const unit = e1?.unit || e2?.unit || '';
+            const diff = v2 - v1;
+            const highlight = (v1 !== v2) ? 'background:rgba(100,114,168,0.12);' : '';
+            const displayKey = key.replace(/^\[기본효과\] |^\[효과\] /, '');
+            const sectionTag = key.match(/^\[(.+?)\]/)?.[1] || '';
+            const tagColor = sectionTag === '기본효과' ? '#7a9fcf' : '#a0d4a0';
+
+            const display1 = v1 !== 0 ? `${v1}${unit}` : '';
+            const display2 = v2 !== 0 ? `${v2}${unit}` : '';
+
+            let diffText = '', diffStyle2 = 'color:#888;';
+            if (v1 !== 0 && v2 !== 0) {
+                if (diff > 0)      { diffText = `↑ +${diff}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;'; }
+                else if (diff < 0) { diffText = `↓ ${diff}${unit}`;  diffStyle2 = 'color:#e74c3c;font-weight:bold;'; }
+                else               { diffText = '동일'; }
+            } else if (v1 === 0 && v2 !== 0) {
+                diffText = `↑ +${v2}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;';
+            } else if (v1 !== 0 && v2 === 0) {
+                diffText = `↓ -${v1}${unit}`; diffStyle2 = 'color:#e74c3c;font-weight:bold;';
+            }
+
+            tbodyHtml += `<tr style="${highlight}">
+                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${v1 !== 0 ? sectionTag : ''}</td>
+                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v1 !== 0 ? displayKey : ''}</td>
+                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle2}">${diffText}</td>
+                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
+                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v2 !== 0 ? displayKey : ''}</td>
+                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${v2 !== 0 ? sectionTag : ''}</td>
+            </tr>`;
+        });
+    }
+
+    // ── attrs 행 ─────────────────────────────────────────────────
+    const attrs1 = r1.attrs || [];
+    const attrs2 = r2.attrs || [];
+    if (attrs1.length > 0 || attrs2.length > 0) {
+        const attrDisplay = (attrs) => attrs.length > 0
+            ? attrs.map(a => `<span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(100,114,168,0.25);color:#b0bcff;font-size:0.8em;margin:1px 2px;">${a}</span>`).join(' ')
+            : '<span style="color:#555;font-size:0.8em;">-</span>';
+        const attrsSame = JSON.stringify([...attrs1].sort()) === JSON.stringify([...attrs2].sort());
+        const attrDiffText  = attrsSame ? '동일' : '다름';
+        const attrDiffStyle = attrsSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+        tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
+            <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">속성</td>
+            <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${attrDisplay(attrs1)}</td>
+            <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${attrDiffStyle}">${attrDiffText}</td>
+            <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${attrDisplay(attrs2)}</td>
+            <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">속성</td>
+        </tr>`;
+    }
+
+    // ── desc 행 ──────────────────────────────────────────────────
+    const desc1 = r1.desc || '';
+    const desc2 = r2.desc || '';
+    if (desc1 || desc2) {
+        const descSame = desc1 === desc2;
+        const fmtDesc = (d) => d
+            ? d.split('\n').map(line => `<span style="display:block;line-height:1.5;">${line}</span>`).join('')
+            : '<span style="color:#555;font-size:0.8em;">-</span>';
+        const descDiffText  = descSame ? '동일' : '다름';
+        const descDiffStyle = descSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+        const rowBg = !descSame ? 'background:rgba(240,165,0,0.06);' : '';
+        tbodyHtml += `<tr style="${rowBg}">
+            <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">설명</td>
+            <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fmtDesc(desc1)}</td>
+            <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${descDiffStyle}">${descDiffText}</td>
+            <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fmtDesc(desc2)}</td>
+            <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">설명</td>
+        </tr>`;
+    }
+
+    // ── 접두어 고유효과 행 (광채/분쇄/선명/강타) ─────────────────
+    const PREFIXES = ['광채', '분쇄', '선명', '강타'];
+    PREFIXES.forEach(pref => {
+        const eff1 = getWeaponPrefixUniqueEffect(r1.job, pref);
+        const eff2 = getWeaponPrefixUniqueEffect(r2.job, pref);
+        if (!eff1 && !eff2) return;
+
+        const color = prefixColor[pref] || '#fff';
+        const isSame = eff1 === eff2;
+        const diffText  = isSame ? '동일' : '다름';
+        const diffStyle = isSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+        const fmtEff = (eff) => {
+            if (!eff) return '<span style="color:#555;font-size:0.8em;">-</span>';
+            const prefixLabel = `<span style="color:${color};font-weight:bold;font-size:0.8em;">[${pref}]</span>`;
+            const lines = eff.split('\n').map(line =>
+                `<span style="display:block;line-height:1.5;color:${color};font-size:0.8em;">${line}</span>`
+            ).join('');
+            return `${prefixLabel}${lines}`;
+        };
+
+        tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
+            <td style="text-align:center;padding:2px 6px;color:#d6d989;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">고유 효과</td>
+            <td style="padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">${fmtEff(eff1)}</td>
+            <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle}">${diffText}</td>
+            <td style="padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">${fmtEff(eff2)}</td>
+            <td style="text-align:center;padding:2px 6px;color:#d6d989;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">고유 효과</td>
+        </tr>`;
+    });
+
+    // ── 래퍼 생성 ─────────────────────────────────────────────────
+    const wrapper = document.createElement('div');
+    wrapper.className = 'compare-section-wrapper';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'compare-section-title';
+    titleEl.textContent = '*무기 스탯 비교*';
+    wrapper.appendChild(titleEl);
+
+    const tableWrap = document.createElement('div');
+    tableWrap.style.cssText = 'overflow-x:auto;margin-top:6px;';
+    tableWrap.innerHTML = `
+    <table style="border-collapse:collapse;width:max-content;min-width:400px;">
+        <thead>
+            <tr>
+                <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;border-right:1px solid #2a3158;">${name1}</th>
+                <th rowspan="2" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">차이</th>
+                <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;">${name2}</th>
+            </tr>
+            <tr>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">구분</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:100px;border-right:1px solid #2a3158;">수치</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:100px;border-right:1px solid #2a3158;">수치</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
+                <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;">구분</th>
+            </tr>
+        </thead>
+        <tbody>${tbodyHtml}</tbody>
+    </table>`;
+
+    wrapper.appendChild(tableWrap);
+    return wrapper;
 }
 
 /**

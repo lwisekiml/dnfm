@@ -6152,3 +6152,72 @@ function closeHistoryModal() {
 - 익시드 값이 없는 슬롯 및 고유효과 데이터가 없는 경우 행 미표시
 
 ---
+---
+
+## 2026-04-05 (145차)
+
+### 무기 스탯 비교 추가 및 관련 데이터 파일 신규 생성
+
+**수정된 파일:** `character/mode-compare.js`
+**신규 생성 파일:** `data/weapon.js`, `data/exceed_weapon_unique_effects.js`
+
+---
+
+### 변경 내용
+
+**`data/weapon.js` (신규)**
+
+- 무기 아이템 스탯 데이터 파일 신규 생성
+- `shared_weapon.js`의 모든 무기 목록 기반으로 빈 틀 작성
+- 귀검사/격투가/거너/마법사/프리스트/워리어/마창사/도적 전 무기 종류 포함
+- 구조: 접두어와 무관하게 공통 스탯으로 단순화
+  ```javascript
+  "암흑의 별": {
+      "attrs": [],
+      "desc": "",
+      "base": [],
+      "eff": []
+  }
+  ```
+
+**`data/exceed_weapon_unique_effects.js` (신규)**
+
+- 무기 접두어(광채/분쇄/선명/강타)별 직업 고유효과 데이터 파일 신규 생성
+- `exceed_unique_effects.js`와 동일한 직업 그룹 구조로 작성
+- 구조: 접두어 → 직업 그룹(`|` 구분) → 고유효과 텍스트
+  ```javascript
+  const EXCEED_WEAPON_UNIQUE_EFFECTS = {
+      "광채": { "웨펀마스터|검성|검신": "", ... },
+      "분쇄": { ... },
+      "선명": { ... },
+      "강타": { ... }
+  };
+  ```
+
+**`character/mode-compare.js`**
+
+- 헬퍼 함수 추가
+  - `getWeaponPrefixUniqueEffect(job, prefix)`: 직업명과 접두어를 받아 `EXCEED_WEAPON_UNIQUE_EFFECTS`에서 고유효과 텍스트 반환
+- `buildWeaponStatCompare` 함수 신규 추가
+  - 무기 아이템명, 접두어, 기본정보/효과 스탯 비교 표 생성
+  - attrs, desc 행 표시 (값 없으면 미표시)
+  - 접두어 고유효과(광채/분쇄/선명/강타) 행 표시
+    - 구분 셀: "고유 효과" (보라색 `#c8a0d4`)
+    - 내용: `[광채]` 등 접두어 레이블을 해당 색으로 앞에 표시 후 효과 텍스트 출력
+    - 효과 데이터가 없는 접두어는 행 미표시
+- `displayComparison` 함수 수정
+  - 스탯 비교 탭에서 방어구 스탯 비교 표 위에 `buildWeaponStatCompare` 결과 추가
+
+**`index.html`**
+
+- `exceed_weapon_unique_effects.js`, `weapon.js` 스크립트 로드 추가 (`exceed_unique_effects.js` 다음)
+
+---
+
+### 변경 이유
+
+- 스탯 비교 탭에 무기 비교가 없어 추가
+- 무기는 방어구와 달리 접두어와 무관하게 기본 스탯이 동일하므로 데이터 구조 단순화
+- 무기 접두어별 고유효과는 직업마다 달라 별도 파일(`exceed_weapon_unique_effects.js`)로 분리 관리
+
+---
