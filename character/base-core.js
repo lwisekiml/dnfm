@@ -606,12 +606,19 @@ function updateStyle(el, type, isInitial = false) {
             el.style.removeProperty('background-clip');
 
             if (el.value === '침식') {
+                // el.style.color = '#ffb3c6'; 핑크색 글자
                 el.style.background = 'linear-gradient(to bottom, #ffb3c6, #ffffff)';
                 el.style.webkitBackgroundClip = 'text';
                 el.style.webkitTextFillColor = 'transparent';
                 el.style.backgroundClip = 'text';
             } else if (el.value) {
                 el.classList.add('ex-' + el.value);
+            }
+
+            // 무기 슬롯: 익시드 변경 시 이미지 갱신
+            if (slot === '무기' && typeof updateWeaponImage === 'function') {
+                const weaponSel = section?.querySelector('select[data-key="무기_itemname"]');
+                if (weaponSel) updateWeaponImage(weaponSel);
             }
 
             if (typeof runSetCheck === "function") runSetCheck(slot, charId);

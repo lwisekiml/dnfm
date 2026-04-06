@@ -537,11 +537,16 @@ function updateWeaponImage(select) {
 
     if (!itemName) { img.alt = ''; return; }
 
-    // 콜론만 제거 (예: "요도 : 무라마사" → "요도  무라마사" - 공백 두 개 유지)
+    const row = select.closest('tr');
+    const exceedSel = row ? row.querySelector('select[data-key="무기_exceed"]') : null;
+    const exceed = exceedSel ? exceedSel.value.trim() : '';
+
     const safeName = itemName.replace(/:/g, '');
+    const fileName = exceed === '침식' ? `침식_${safeName}` : safeName;
+
     img.alt = itemName;
     img.onerror = function() { this.onerror = null; this.src = ''; this.classList.remove('has-image'); };
-    img.src = 'images/WEAPON/' + safeName + '.png';
+    img.src = 'images/WEAPON/' + fileName + '.png';
     img.classList.add('has-image');
 }
 
