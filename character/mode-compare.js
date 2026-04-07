@@ -963,29 +963,31 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
             const sectionTag = key.match(/^\[(.+?)\]/)?.[1] || '';
             const tagColor = sectionTag === '기본효과' ? '#7a9fcf' : '#a0d4a0';
 
-            const display1 = v1 !== 0 ? `${v1}${unit}` : '';
-            const display2 = v2 !== 0 ? `${v2}${unit}` : '';
+            const display1 = e1 !== undefined ? `${v1}${unit}` : '';
+            const display2 = e2 !== undefined ? `${v2}${unit}` : '';
 
             let diffText = '', diffStyle2 = 'color:#888;';
-            if (v1 !== 0 && v2 !== 0) {
+            if (e1 !== undefined && e2 !== undefined) {
                 if (diff > 0)      { diffText = `↑ +${diff}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;'; }
                 else if (diff < 0) { diffText = `↓ ${diff}${unit}`;  diffStyle2 = 'color:#e74c3c;font-weight:bold;'; }
                 else               { diffText = '동일'; }
-            } else if (v1 === 0 && v2 !== 0) {
+            } else if (e1 === undefined && e2 !== undefined) {
                 diffText = `↑ +${v2}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;';
-            } else if (v1 !== 0 && v2 === 0) {
+            } else if (e1 !== undefined && e2 === undefined) {
                 diffText = `↓ -${v1}${unit}`; diffStyle2 = 'color:#e74c3c;font-weight:bold;';
             }
 
+            const hasData1 = e1 !== undefined;
+            const hasData2 = e2 !== undefined;
             tbodyHtml += `<tr style="${highlight}">
-                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${v1 !== 0 ? sectionTag : ''}</td>
-                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v1 !== 0 ? displayKey : ''}</td>
-                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
-                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle2}">${diffText}</td>
-                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
-                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v2 !== 0 ? displayKey : ''}</td>
-                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${v2 !== 0 ? sectionTag : ''}</td>
-            </tr>`;
+    <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${hasData1 ? sectionTag : ''}</td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${hasData1 ? displayKey : ''}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle2}">${diffText}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${hasData2 ? displayKey : ''}</td>
+    <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${hasData2 ? sectionTag : ''}</td>
+</tr>`;
         });
     }
 
@@ -1246,30 +1248,32 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
             const sectionTag = key.match(/^\[(.+?)\]/)?.[1] || '';
             const tagColor = sectionTag === '기본효과' ? '#7a9fcf' : sectionTag === '효과' ? '#a0d4a0' : '#c8a0d4';
 
-            const display1 = v1 !== 0 ? `${v1}${unit}` : '';
-            const display2 = v2 !== 0 ? `${v2}${unit}` : '';
+            const display1 = e1 !== undefined ? `${v1}${unit}` : '';
+            const display2 = e2 !== undefined ? `${v2}${unit}` : '';
 
             let diffText = '';
             let diffStyle2 = 'color:#888;';
-            if (v1 !== 0 && v2 !== 0) {
-                if (diff > 0) { diffText = `↑ +${diff}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;'; }
-                else if (diff < 0) { diffText = `↓ ${diff}${unit}`; diffStyle2 = 'color:#e74c3c;font-weight:bold;'; }
-                else { diffText = '동일'; diffStyle2 = 'color:#888;'; }
-            } else if (v1 === 0 && v2 !== 0) {
+            if (e1 !== undefined && e2 !== undefined) {
+                if (diff > 0)      { diffText = `↑ +${diff}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;'; }
+                else if (diff < 0) { diffText = `↓ ${diff}${unit}`;  diffStyle2 = 'color:#e74c3c;font-weight:bold;'; }
+                else               { diffText = '동일'; }
+            } else if (e1 === undefined && e2 !== undefined) {
                 diffText = `↑ +${v2}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;';
-            } else if (v1 !== 0 && v2 === 0) {
+            } else if (e1 !== undefined && e2 === undefined) {
                 diffText = `↓ -${v1}${unit}`; diffStyle2 = 'color:#e74c3c;font-weight:bold;';
             }
 
+            const hasData1 = e1 !== undefined;
+            const hasData2 = e2 !== undefined;
             tbodyHtml += `<tr style="${highlight}">
-                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${v1 !== 0 ? sectionTag : ''}</td>
-                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v1 !== 0 ? displayKey : ''}</td>
-                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
-                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle2}">${diffText}</td>
-                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
-                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v2 !== 0 ? displayKey : ''}</td>
-                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${v2 !== 0 ? sectionTag : ''}</td>
-            </tr>`;
+    <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${hasData1 ? sectionTag : ''}</td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${hasData1 ? displayKey : ''}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle2}">${diffText}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${hasData2 ? displayKey : ''}</td>
+    <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${hasData2 ? sectionTag : ''}</td>
+</tr>`;
         });
 
         // attrs 행
@@ -1790,30 +1794,32 @@ function buildAccStatCompare(section1, section2, name1, name2) {
             const sectionTag = key.match(/^\[(.+?)\]/)?.[1] || '';
             const tagColor = sectionTag === '기본효과' ? '#7a9fcf' : '#a0d4a0';
 
-            const display1 = v1 !== 0 ? `${v1}${unit}` : '';
-            const display2 = v2 !== 0 ? `${v2}${unit}` : '';
+            const display1 = e1 !== undefined ? `${v1}${unit}` : '';
+            const display2 = e2 !== undefined ? `${v2}${unit}` : '';
 
             let diffText = '';
             let diffStyle2 = 'color:#888;';
-            if (v1 !== 0 && v2 !== 0) {
-                if (diff > 0) { diffText = `↑ +${diff}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;'; }
-                else if (diff < 0) { diffText = `↓ ${diff}${unit}`; diffStyle2 = 'color:#e74c3c;font-weight:bold;'; }
-                else { diffText = '동일'; diffStyle2 = 'color:#888;'; }
-            } else if (v1 === 0 && v2 !== 0) {
+            if (e1 !== undefined && e2 !== undefined) {
+                if (diff > 0)      { diffText = `↑ +${diff}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;'; }
+                else if (diff < 0) { diffText = `↓ ${diff}${unit}`;  diffStyle2 = 'color:#e74c3c;font-weight:bold;'; }
+                else               { diffText = '동일'; }
+            } else if (e1 === undefined && e2 !== undefined) {
                 diffText = `↑ +${v2}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;';
-            } else if (v1 !== 0 && v2 === 0) {
+            } else if (e1 !== undefined && e2 === undefined) {
                 diffText = `↓ -${v1}${unit}`; diffStyle2 = 'color:#e74c3c;font-weight:bold;';
             }
 
+            const hasData1 = e1 !== undefined;
+            const hasData2 = e2 !== undefined;
             tbodyHtml += `<tr style="${highlight}">
-                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${v1 !== 0 ? sectionTag : ''}</td>
-                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v1 !== 0 ? displayKey : ''}</td>
-                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
-                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle2}">${diffText}</td>
-                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
-                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v2 !== 0 ? displayKey : ''}</td>
-                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${v2 !== 0 ? sectionTag : ''}</td>
-            </tr>`;
+    <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${hasData1 ? sectionTag : ''}</td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${hasData1 ? displayKey : ''}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle2}">${diffText}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${hasData2 ? displayKey : ''}</td>
+    <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${hasData2 ? sectionTag : ''}</td>
+</tr>`;
         });
 
         // attrs 행
@@ -2169,30 +2175,32 @@ function buildSpecialStatCompare(section1, section2, name1, name2) {
             const sectionTag = key.match(/^\[(.+?)\]/)?.[1] || '';
             const tagColor = sectionTag === '기본효과' ? '#7a9fcf' : '#a0d4a0';
 
-            const display1 = v1 !== 0 ? `${v1}${unit}` : '';
-            const display2 = v2 !== 0 ? `${v2}${unit}` : '';
+            const display1 = e1 !== undefined ? `${v1}${unit}` : '';
+            const display2 = e2 !== undefined ? `${v2}${unit}` : '';
 
             let diffText = '';
             let diffStyle2 = 'color:#888;';
-            if (v1 !== 0 && v2 !== 0) {
-                if (diff > 0) { diffText = `↑ +${diff}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;'; }
-                else if (diff < 0) { diffText = `↓ ${diff}${unit}`; diffStyle2 = 'color:#e74c3c;font-weight:bold;'; }
-                else { diffText = '동일'; diffStyle2 = 'color:#888;'; }
-            } else if (v1 === 0 && v2 !== 0) {
+            if (e1 !== undefined && e2 !== undefined) {
+                if (diff > 0)      { diffText = `↑ +${diff}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;'; }
+                else if (diff < 0) { diffText = `↓ ${diff}${unit}`;  diffStyle2 = 'color:#e74c3c;font-weight:bold;'; }
+                else               { diffText = '동일'; }
+            } else if (e1 === undefined && e2 !== undefined) {
                 diffText = `↑ +${v2}${unit}`; diffStyle2 = 'color:#2ecc71;font-weight:bold;';
-            } else if (v1 !== 0 && v2 === 0) {
+            } else if (e1 !== undefined && e2 === undefined) {
                 diffText = `↓ -${v1}${unit}`; diffStyle2 = 'color:#e74c3c;font-weight:bold;';
             }
 
+            const hasData1 = e1 !== undefined;
+            const hasData2 = e2 !== undefined;
             tbodyHtml += `<tr style="${highlight}">
-                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${v1 !== 0 ? sectionTag : ''}</td>
-                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v1 !== 0 ? displayKey : ''}</td>
-                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
-                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle2}">${diffText}</td>
-                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
-                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${v2 !== 0 ? displayKey : ''}</td>
-                <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${v2 !== 0 ? sectionTag : ''}</td>
-            </tr>`;
+    <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${hasData1 ? sectionTag : ''}</td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${hasData1 ? displayKey : ''}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle2}">${diffText}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${hasData2 ? displayKey : ''}</td>
+    <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${hasData2 ? sectionTag : ''}</td>
+</tr>`;
         });
 
         // attrs 행
