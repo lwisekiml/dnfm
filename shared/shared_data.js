@@ -1743,7 +1743,7 @@ const _CREATURE_TEMPLATES = {
         stats: []
     },
     // 유이, 마법사 소피아, 소피아, 아스나, 리즈벳, 스구하, 토티, 전장의 발키리 에이르, 마가티나
-    // SD 타크로드, SD 네메시스, SD 염제 페월수화, SD 지니위즈, SD 헤카테, SD 세인트, SD 세라핌, SD 천선낭랑
+    // SD 타크로드, SD 네메시스, SD 염제 폐월수화, SD 지니위즈, SD 헤카테, SD 세인트, SD 세라핌, SD 천선낭랑
     UNIQUE_V3: {
         info: `던전 입장 시 자신을 포함한 파티원의 모든 속성 강화 11 증가\n공격 시 5% 추가 데미지`,
         stats: [
@@ -1896,7 +1896,7 @@ const CREATURE_ITEM_INFO = {
     "SD 아슈타르테": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V4 },
     "SD 알키오네": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V4 },
     "SD 에레보스": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V4 },
-    "SD 염제 페월수화": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "SD 염제 폐월수화": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V3 },
     "SD 오버마인드": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V4 },
     "SD 옵티머스": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V4 },
     "SD 용독문주": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V4 },
