@@ -1030,34 +1030,36 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
         </tr>`;
     }
 
-    // ── 접두어 고유효과 행 (광채/분쇄/선명/강타) ─────────────────
-    const PREFIXES = ['광채', '분쇄', '선명', '강타'];
-    PREFIXES.forEach(pref => {
-        const eff1 = getWeaponPrefixUniqueEffect(r1.job, pref);
-        const eff2 = getWeaponPrefixUniqueEffect(r2.job, pref);
-        if (!eff1 && !eff2) return;
+    // ── 접두어 고유효과 행 (각 캐릭터가 선택한 접두어만, 항상 한 행) ──
+    const PREFIXES_ORDER = ['광채', '분쇄', '선명', '강타'];
 
+    const fmtEff = (eff, pref) => {
+        if (!eff) return '<span style="color:#555;font-size:0.8em;">-</span>';
         const color = prefixColor[pref] || '#fff';
-        const isSame = eff1 === eff2;
+        const prefixLabel = `<span style="color:${color};font-weight:bold;font-size:0.8em;">[${pref}]</span>`;
+        const lines = eff.split('\n').map(line =>
+            `<span style="display:block;line-height:1.5;color:${color};font-size:0.8em;">${line}</span>`
+        ).join('');
+        return `${prefixLabel}${lines}`;
+    };
+
+    const hasPrefix1 = PREFIXES_ORDER.includes(r1.prefix);
+    const hasPrefix2 = PREFIXES_ORDER.includes(r2.prefix);
+    const eff1 = hasPrefix1 ? getWeaponPrefixUniqueEffect(r1.job, r1.prefix) : '';
+    const eff2 = hasPrefix2 ? getWeaponPrefixUniqueEffect(r2.job, r2.prefix) : '';
+
+    if (eff1 || eff2) {
+        const isSame = (r1.prefix === r2.prefix) && (eff1 === eff2);
         const diffText  = isSame ? '동일' : '다름';
         const diffStyle = isSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
-        const fmtEff = (eff) => {
-            if (!eff) return '<span style="color:#555;font-size:0.8em;">-</span>';
-            const prefixLabel = `<span style="color:${color};font-weight:bold;font-size:0.8em;">[${pref}]</span>`;
-            const lines = eff.split('\n').map(line =>
-                `<span style="display:block;line-height:1.5;color:${color};font-size:0.8em;">${line}</span>`
-            ).join('');
-            return `${prefixLabel}${lines}`;
-        };
-
         tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
             <td style="text-align:center;padding:2px 6px;color:#d6d989;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">고유 효과</td>
-            <td style="padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">${fmtEff(eff1)}</td>
+            <td style="padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">${fmtEff(eff1, r1.prefix)}</td>
             <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle}">${diffText}</td>
-            <td style="padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">${fmtEff(eff2)}</td>
+            <td style="padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">${fmtEff(eff2, r2.prefix)}</td>
             <td style="text-align:center;padding:2px 6px;color:#d6d989;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">고유 효과</td>
         </tr>`;
-    });
+    }
 
     // ── 래퍼 생성 ─────────────────────────────────────────────────
     const wrapper = document.createElement('div');
