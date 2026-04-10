@@ -1392,33 +1392,39 @@ function buildSetEffectRows(eff1, eff2, tierLabel1, tierLabel2, tierColor, tierB
     // ── attrs 행 ──────────────────────────────────────────────
     const attrs1 = eff1?.attrs || [];
     const attrs2 = eff2?.attrs || [];
-    const maxAttrsLen = Math.max(attrs1.length, attrs2.length);
 
-    if (maxAttrsLen > 0) {
+    if (attrs1.length > 0 || attrs2.length > 0) {
         const attrDisplay = (attr) => attr
             ? `<span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(100,114,168,0.25);color:#b0bcff;font-size:0.8em;margin:1px 2px;">${attr}</span>`
             : '';
 
-        // attrs도 인덱스 기준으로 독립 나열
-        for (let i = 0; i < maxAttrsLen; i++) {
-            const a1 = attrs1[i] || null;
-            const a2 = attrs2[i] || null;
-            const isSame = a1 === a2;
-            const diffText  = (a1 && a2) ? (isSame ? '동일' : '다름') : '';
+        // attr 값 기준 매칭: 같은 attr이면 같은 행, 한쪽에만 있으면 해당 쪽만 표시
+        const set1 = new Set(attrs1);
+        const set2 = new Set(attrs2);
+        const allAttrs = [
+            ...attrs1,
+            ...attrs2.filter(a => !set1.has(a))
+        ];
+
+        allAttrs.forEach(attr => {
+            const has1 = set1.has(attr);
+            const has2 = set2.has(attr);
+            const isSame = has1 && has2;
+            const diffText  = isSame ? '동일' : (has1 && has2 ? '다름' : '');
             const diffStyle = isSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
-            const lbl1 = eff1 ? tierLabel1 : '';
-            const lbl2 = eff2 ? tierLabel2 : '';
+            const lbl1 = (eff1 && has1) ? tierLabel1 : '';
+            const lbl2 = (eff2 && has2) ? tierLabel2 : '';
 
             html += `<tr style="background:rgba(100,114,168,0.08);">
                 <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${lbl1}</td>
-                <td style="text-align:center;padding:3px 8px;white-space:nowrap;">${attrDisplay(a1)}</td>
-                <td style="text-align:center;padding:3px 8px;color:#b0bcff;font-size:0.78em;white-space:nowrap;border-right:1px solid #2a3158;">${a1 ? '속성부여' : ''}</td>
+                <td style="text-align:center;padding:3px 8px;white-space:nowrap;">${has1 ? attrDisplay(attr) : ''}</td>
+                <td style="text-align:center;padding:3px 8px;color:#b0bcff;font-size:0.78em;white-space:nowrap;border-right:1px solid #2a3158;">${has1 ? '속성부여' : ''}</td>
                 <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle}">${diffText}</td>
-                <td style="text-align:center;padding:3px 8px;color:#b0bcff;font-size:0.78em;white-space:nowrap;border-right:1px solid #2a3158;">${a2 ? '속성부여' : ''}</td>
-                <td style="text-align:center;padding:3px 8px;white-space:nowrap;">${attrDisplay(a2)}</td>
+                <td style="text-align:center;padding:3px 8px;color:#b0bcff;font-size:0.78em;white-space:nowrap;border-right:1px solid #2a3158;">${has2 ? '속성부여' : ''}</td>
+                <td style="text-align:center;padding:3px 8px;white-space:nowrap;">${has2 ? attrDisplay(attr) : ''}</td>
                 <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${lbl2}</td>
             </tr>`;
-        }
+        });
     }
 
     // ── stats 행 ─────────────────────────────────────────────
