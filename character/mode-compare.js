@@ -1369,100 +1369,113 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
 
 /**
  * 세트 효과 비교 tbody 행 생성 헬퍼
- * @param {object|null} eff1 - 캐릭터1의 세트 효과 객체 (effects3 or effects5)
- * @param {object|null} eff2 - 캐릭터2의 세트 효과 객체
- * @param {string} tierLabel - "3세트" or "5세트"
- * @param {string} tierColor - 헤더 색상 hex
- * @param {string} tierBg    - 헤더 배경 rgba
+ * @param {object|null} eff1      - 캐릭터1의 세트 효과 객체 (effects3 or effects5)
+ * @param {object|null} eff2      - 캐릭터2의 세트 효과 객체
+ * @param {string} tierLabel1    - 왼쪽 레이블 (예: "3세트 (전격)")
+ * @param {string} tierLabel2    - 오른쪽 레이블 (예: "3세트 (수호)")
+ * @param {string} tierColor     - 헤더 색상 hex
+ * @param {string} tierBg        - 헤더 배경 rgba
  * @returns {string} tbodyHtml 추가분
  */
-function buildSetEffectRows(eff1, eff2, tierLabel, tierColor, tierBg) {
+function buildSetEffectRows(eff1, eff2, tierLabel1, tierLabel2, tierColor, tierBg) {
     let html = '';
 
-    // 헤더 행
+    // 헤더 행: 왼쪽 3칸(구분+스탯+수치) / 차이칸 빈칸 / 오른쪽 3칸(수치+스탯+구분)
+    const leftHeader  = tierLabel1 ? `━━━ ${tierLabel1} 효과 ━━━` : '';
+    const rightHeader = tierLabel2 ? `━━━ ${tierLabel2} 효과 ━━━` : '';
     html += `<tr style="background:${tierBg};">
-        <td colspan="7" style="text-align:center;padding:6px 8px;color:${tierColor};font-size:0.9em;font-weight:bold;">━━━ ${tierLabel} 효과 ━━━</td>
+        <td colspan="3" style="text-align:center;padding:6px 8px;color:${tierColor};font-size:0.9em;font-weight:bold;border-right:1px solid #2a3158;">${leftHeader}</td>
+        <td style="padding:0;border-right:1px solid #2a3158;"></td>
+        <td colspan="3" style="text-align:center;padding:6px 8px;color:${tierColor};font-size:0.9em;font-weight:bold;">${rightHeader}</td>
     </tr>`;
 
     // ── attrs 행 ──────────────────────────────────────────────
     const attrs1 = eff1?.attrs || [];
     const attrs2 = eff2?.attrs || [];
-    const allAttrs = [...new Set([...attrs1, ...attrs2])];
+    const maxAttrsLen = Math.max(attrs1.length, attrs2.length);
 
-    if (allAttrs.length > 0) {
-        const attrDisplay = (attrs) => attrs.length > 0
-            ? attrs.map(a => `<span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(100,114,168,0.25);color:#b0bcff;font-size:0.8em;margin:1px 2px;">${a}</span>`).join(' ')
-            : '<span style="color:#555;font-size:0.8em;">-</span>';
+    if (maxAttrsLen > 0) {
+        const attrDisplay = (attr) => attr
+            ? `<span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(100,114,168,0.25);color:#b0bcff;font-size:0.8em;margin:1px 2px;">${attr}</span>`
+            : '';
 
-        const a1 = attrDisplay(attrs1);
-        const a2 = attrDisplay(attrs2);
+        // attrs도 인덱스 기준으로 독립 나열
+        for (let i = 0; i < maxAttrsLen; i++) {
+            const a1 = attrs1[i] || null;
+            const a2 = attrs2[i] || null;
+            const isSame = a1 === a2;
+            const diffText  = (a1 && a2) ? (isSame ? '동일' : '다름') : '';
+            const diffStyle = isSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+            const lbl1 = eff1 ? tierLabel1 : '';
+            const lbl2 = eff2 ? tierLabel2 : '';
 
-        const attrsSame = JSON.stringify([...attrs1].sort()) === JSON.stringify([...attrs2].sort());
-        const diffText  = attrsSame ? '동일' : '다름';
-        const diffStyle = attrsSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
-
-        html += `<tr style="background:rgba(100,114,168,0.08);">
-            <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${tierLabel}</td>
-            <td style="text-align:center;padding:3px 8px;white-space:nowrap;">${a1}</td>
-            <td style="text-align:center;padding:3px 8px;color:#b0bcff;font-size:0.78em;white-space:nowrap;border-right:1px solid #2a3158;">속성부여</td>
-            <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle}">${diffText}</td>
-            <td style="text-align:center;padding:3px 8px;color:#b0bcff;font-size:0.78em;white-space:nowrap;border-right:1px solid #2a3158;">속성부여</td>
-            <td style="text-align:center;padding:3px 8px;white-space:nowrap;">${a2}</td>
-            <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${tierLabel}</td>
-        </tr>`;
+            html += `<tr style="background:rgba(100,114,168,0.08);">
+                <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${lbl1}</td>
+                <td style="text-align:center;padding:3px 8px;white-space:nowrap;">${attrDisplay(a1)}</td>
+                <td style="text-align:center;padding:3px 8px;color:#b0bcff;font-size:0.78em;white-space:nowrap;border-right:1px solid #2a3158;">${a1 ? '속성부여' : ''}</td>
+                <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle}">${diffText}</td>
+                <td style="text-align:center;padding:3px 8px;color:#b0bcff;font-size:0.78em;white-space:nowrap;border-right:1px solid #2a3158;">${a2 ? '속성부여' : ''}</td>
+                <td style="text-align:center;padding:3px 8px;white-space:nowrap;">${attrDisplay(a2)}</td>
+                <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${lbl2}</td>
+            </tr>`;
+        }
     }
 
     // ── stats 행 ─────────────────────────────────────────────
+    // 스탯명 기준으로 매칭: 같은 스탯명이면 같은 행에, 한쪽에만 있으면 해당 쪽만 채우고 반대쪽 빈칸
     const stats1 = eff1?.stats || [];
     const stats2 = eff2?.stats || [];
 
+    // stats 배열을 { statName → {amount, unit} } 맵으로 변환
     const statMap1 = {};
     const statMap2 = {};
-    stats1.forEach(entry => entry.stats.forEach(n => { statMap1[n] = { amount: entry.amount, unit: entry.unit }; }));
-    stats2.forEach(entry => entry.stats.forEach(n => { statMap2[n] = { amount: entry.amount, unit: entry.unit }; }));
+    stats1.forEach(entry => entry.stats.forEach(n => { statMap1[n] = { amount: entry.amount, unit: entry.unit || '' }; }));
+    stats2.forEach(entry => entry.stats.forEach(n => { statMap2[n] = { amount: entry.amount, unit: entry.unit || '' }; }));
 
-    const allStatNames = [...new Set([...Object.keys(statMap1), ...Object.keys(statMap2)])];
+    // 순서 보존을 위해 왼쪽 스탯 순서 먼저, 그 다음 오른쪽에만 있는 스탯 추가
+    const allStatNames = [
+        ...Object.keys(statMap1),
+        ...Object.keys(statMap2).filter(n => !statMap1[n])
+    ];
 
     if (allStatNames.length === 0 && attrs1.length === 0 && attrs2.length === 0) {
+        const noDataLabel = tierLabel1 === tierLabel2 ? tierLabel1 : `${tierLabel1} / ${tierLabel2}`;
         html += `<tr>
-            <td colspan="7" style="text-align:center;padding:8px;color:#888;font-size:0.85em;">${tierLabel} 효과 데이터 없음</td>
+            <td colspan="7" style="text-align:center;padding:8px;color:#888;font-size:0.85em;">${noDataLabel} 효과 데이터 없음</td>
         </tr>`;
     } else {
         allStatNames.forEach(statName => {
-            const val1 = statMap1[statName];
-            const val2 = statMap2[statName];
+            const s1 = statMap1[statName] || null;
+            const s2 = statMap2[statName] || null;
 
-            const display1 = val1 ? `${val1.amount}${val1.unit}` : '';
-            const display2 = val2 ? `${val2.amount}${val2.unit}` : '';
+            const display1 = s1 ? `${s1.amount}${s1.unit}` : '';
+            const display2 = s2 ? `${s2.amount}${s2.unit}` : '';
 
             let diffText = '';
             let diffClass = 'color:#888;';
-
-            if (val1 && val2) {
-                if (val1.amount === val2.amount && val1.unit === val2.unit) {
-                    diffText = '동일'; diffClass = 'color:#888;';
-                } else {
-                    const diff = val2.amount - val1.amount;
-                    if (diff > 0)      { diffText = `↑ +${diff}${val2.unit}`; diffClass = 'color:#2ecc71;font-weight:bold;'; }
-                    else if (diff < 0) { diffText = `↓ ${diff}${val2.unit}`;  diffClass = 'color:#e74c3c;font-weight:bold;'; }
-                    else               { diffText = '동일'; diffClass = 'color:#888;'; }
-                }
-            } else if (!val1 && val2) {
-                diffText = `↑ +${val2.amount}${val2.unit}`; diffClass = 'color:#2ecc71;font-weight:bold;';
-            } else if (val1 && !val2) {
-                diffText = `↓ -${val1.amount}${val1.unit}`; diffClass = 'color:#e74c3c;font-weight:bold;';
+            if (s1 && s2) {
+                const diff = s2.amount - s1.amount;
+                if (diff > 0)      { diffText = `↑ +${diff}${s2.unit}`; diffClass = 'color:#2ecc71;font-weight:bold;'; }
+                else if (diff < 0) { diffText = `↓ ${diff}${s2.unit}`;  diffClass = 'color:#e74c3c;font-weight:bold;'; }
+                else               { diffText = '동일'; }
+            } else if (!s1 && s2) {
+                diffText = `↑ +${s2.amount}${s2.unit}`; diffClass = 'color:#2ecc71;font-weight:bold;';
+            } else if (s1 && !s2) {
+                diffText = `↓ -${s1.amount}${s1.unit}`; diffClass = 'color:#e74c3c;font-weight:bold;';
             }
 
             const highlight = (display1 !== display2) ? 'background:rgba(100,114,168,0.12);' : '';
+            const lbl1 = (eff1 && s1) ? tierLabel1 : '';
+            const lbl2 = (eff2 && s2) ? tierLabel2 : '';
 
             html += `<tr style="${highlight}">
-                <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${tierLabel}</td>
-                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val1 ? statName : ''}</td>
+                <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${lbl1}</td>
+                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${s1 ? statName : ''}</td>
                 <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
                 <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffClass}">${diffText}</td>
                 <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
-                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${val2 ? statName : ''}</td>
-                <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${tierLabel}</td>
+                <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${s2 ? statName : ''}</td>
+                <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${lbl2}</td>
             </tr>`;
         });
     }
@@ -1475,18 +1488,20 @@ function buildSetEffectRows(eff1, eff2, tierLabel, tierColor, tierBg) {
         const descSame = desc1 === desc2;
         const fmtDesc = (d) => d
             ? d.split('\n').map(line => `<span style="display:block;line-height:1.5;">${line}</span>`).join('')
-            : '<span style="color:#555;font-size:0.8em;">-</span>';
+            : '';
 
         const diffText  = descSame ? '동일' : '다름';
         const diffStyle = descSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
         const rowBg     = !descSame ? 'background:rgba(240,165,0,0.06);' : '';
+        const lbl1 = eff1 ? tierLabel1 : '';
+        const lbl2 = eff2 ? tierLabel2 : '';
 
         html += `<tr style="${rowBg}">
-            <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${tierLabel}</td>
+            <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${lbl1}</td>
             <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fmtDesc(desc1)}</td>
             <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle}">${diffText}</td>
             <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fmtDesc(desc2)}</td>
-            <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${tierLabel}</td>
+            <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${lbl2}</td>
         </tr>`;
     }
 
@@ -1499,91 +1514,109 @@ function buildSetEffectRows(eff1, eff2, tierLabel, tierColor, tierBg) {
 function buildArmorSetEffectCompare(section1, section2, name1, name2) {
     const ARMOR_SLOTS = ["상의", "어깨", "하의", "신발", "벨트"];
 
-    // armor_set_effects.js 데이터 사용
     const setEffectsData = (typeof ARMOR_SET_EFFECTS !== 'undefined') ? ARMOR_SET_EFFECTS : {};
 
-    /**
-     * 캐릭터의 방어구 세트 효과 계산
-     * @returns { setName, prefix, count, effects3, effects5 }
-     */
     function getArmorSetEffects(section) {
         const equipped = {};
 
-        // 1. 각 슬롯의 아이템명, 접두어, 익시드 정보 수집
         ARMOR_SLOTS.forEach(slot => {
             const itemname = section.querySelector(`[data-key="${slot}_itemname"]`)?.value || '';
             const prefix   = section.querySelector(`select[data-key="${slot}_prefix"]`)?.value || '';
             const exceed   = section.querySelector(`select[data-key="${slot}_exceed"]`)?.value || '';
-
-            if (itemname) {
-                equipped[slot] = { itemname, prefix, exceed };
-            }
+            if (itemname) equipped[slot] = { itemname, prefix, exceed };
         });
 
-        // 2. 세트별로 그룹화 (ARMOR_ITEM_INFO 사용)
         const armorItemInfo = (typeof ARMOR_ITEM_INFO !== 'undefined') ? ARMOR_ITEM_INFO : {};
-        const setSets = {}; // { setName: { prefix: count } }
+
+        // 세트명 기준 총 개수 + 접두어별 개수 카운트
+        const setTotalCount = {};
+        const setPrefixCount = {};
 
         Object.values(equipped).forEach(({ itemname, prefix }) => {
             const info = armorItemInfo[itemname];
             if (!info) return;
-
             const setName = info.setName;
-            if (!setSets[setName]) setSets[setName] = {};
 
-            // 접두어가 있으면 접두어로, 없으면 "기본"으로 카운트
-            const key = prefix || "기본";
-            setSets[setName][key] = (setSets[setName][key] || 0) + 1;
+            setTotalCount[setName] = (setTotalCount[setName] || 0) + 1;
+
+            if (prefix) {
+                if (!setPrefixCount[setName]) setPrefixCount[setName] = {};
+                setPrefixCount[setName][prefix] = (setPrefixCount[setName][prefix] || 0) + 1;
+            }
         });
 
-        // 3. 세트 효과 판정 (접두어 우선, 없으면 기본)
+        // 가장 많은 세트명 선택
         let bestSet = null;
-        let bestPrefix = null;
         let bestCount = 0;
-        let effects3 = null;
-        let effects5 = null;
-
-        // 모든 세트에서 가장 많은 개수를 찾기
-        Object.entries(setSets).forEach(([setName, prefixCounts]) => {
-            Object.entries(prefixCounts).forEach(([prefix, count]) => {
-                // 접두어가 있는 것 우선, 같은 개수면 접두어 우선
-                if (count > bestCount) {
-                    bestSet = setName;
-                    bestPrefix = prefix;
-                    bestCount = count;
-                } else if (count === bestCount && prefix !== "기본" && bestPrefix === "기본") {
-                    // 같은 개수인데 현재가 접두어고 기존이 기본이면 교체
-                    bestSet = setName;
-                    bestPrefix = prefix;
-                    bestCount = count;
-                }
-            });
+        Object.entries(setTotalCount).forEach(([setName, count]) => {
+            if (count > bestCount) {
+                bestSet = setName;
+                bestCount = count;
+            }
         });
 
-        // 4. 세트 효과 데이터 가져오기
-        if (bestSet && bestCount >= 3) {
-            const setData = setEffectsData[bestSet];
-            if (setData && setData[bestPrefix]) {
-                effects3 = setData[bestPrefix]["3"];
-                if (bestCount >= 5) {
-                    effects5 = setData[bestPrefix]["5"];
-                }
+        if (!bestSet || bestCount < 3) {
+            return { setName: bestSet, count: bestCount, baseEffects: null, prefixEffect: null };
+        }
+
+        const setData = setEffectsData[bestSet] || {};
+
+        // 접두어 중 3개 이상인 것 찾기 (가장 많은 접두어 1개)
+        const prefixCountForBestSet = setPrefixCount[bestSet] || {};
+        let bestPrefix = null;
+        let bestPrefixCount = 0;
+        Object.entries(prefixCountForBestSet).forEach(([prefix, count]) => {
+            if (count >= 3 && count > bestPrefixCount) {
+                bestPrefix = prefix;
+                bestPrefixCount = count;
+            }
+        });
+
+        // 접두어 세트 효과
+        // - 접두어 3개 이상인 경우만
+        // - 3세트, 5세트 해당 단계 모두 표시
+        let prefixEffect = null;
+        if (bestPrefix) {
+            const pData = setData[bestPrefix] || {};
+            prefixEffect = {
+                prefix: bestPrefix,
+                count: bestPrefixCount,
+                effects3: bestPrefixCount >= 3 ? (pData['3'] || null) : null,
+                effects5: bestPrefixCount >= 5 ? (pData['5'] || null) : null,
+            };
+        }
+
+        // 기본 세트 효과
+        // - 전부 같은 접두어(allSamePrefix)면 기본 세트 없음
+        // - 접두어 세트가 있으면 기본은 총 개수 기준 최고 단계만 (3세트는 5세트에 포함)
+        // - 접두어 세트가 없으면 총 개수 기준 해당 단계 모두 표시
+        const allSamePrefix = bestPrefix && bestPrefixCount === bestCount;
+        let baseEffects = null;
+
+        if (!allSamePrefix) {
+            const bData = setData['기본'] || {};
+            if (bestPrefix) {
+                // 접두어 세트 있음 → 기본은 최고 단계만
+                const has5 = bestCount >= 5 && bData['5'];
+                baseEffects = {
+                    effects3: (!has5 && bestCount >= 3) ? (bData['3'] || null) : null,
+                    effects5: has5 ? (bData['5'] || null) : null,
+                };
+            } else {
+                // 접두어 세트 없음 → 기본 해당 단계 모두 표시
+                baseEffects = {
+                    effects3: bestCount >= 3 ? (bData['3'] || null) : null,
+                    effects5: bestCount >= 5 ? (bData['5'] || null) : null,
+                };
             }
         }
 
-        return {
-            setName: bestSet,
-            prefix: bestPrefix,
-            count: bestCount,
-            effects3,
-            effects5
-        };
+        return { setName: bestSet, count: bestCount, baseEffects, prefixEffect };
     }
 
     const result1 = getArmorSetEffects(section1);
     const result2 = getArmorSetEffects(section2);
 
-    // 표 HTML 생성
     const wrapper = document.createElement('div');
     wrapper.className = 'compare-section-wrapper';
 
@@ -1597,13 +1630,8 @@ function buildArmorSetEffectCompare(section1, section2, name1, name2) {
 
     let tbodyHtml = '';
 
-    // 캐릭터1 세트 정보
-    const set1Label = result1.setName
-        ? `${result1.prefix && result1.prefix !== '기본' && !result1.setName.startsWith(result1.prefix) ? result1.prefix + ': ' : ''}${result1.setName} (${result1.count}셋)`
-        : '세트 없음';
-    const set2Label = result2.setName
-        ? `${result2.prefix && result2.prefix !== '기본' && !result2.setName.startsWith(result2.prefix) ? result2.prefix + ': ' : ''}${result2.setName} (${result2.count}셋)`
-        : '세트 없음';
+    const set1Label = result1.setName ? `${result1.setName} (${result1.count}셋)` : '세트 없음';
+    const set2Label = result2.setName ? `${result2.setName} (${result2.count}셋)` : '세트 없음';
 
     tbodyHtml += `<tr>
         <td style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;" colspan="3">${set1Label}</td>
@@ -1611,30 +1639,52 @@ function buildArmorSetEffectCompare(section1, section2, name1, name2) {
         <td style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;white-space:nowrap;font-weight:bold;" colspan="3">${set2Label}</td>
     </tr>`;
 
-    // 3세트 효과 비교
-    const has3Set1 = result1.count >= 3 && result1.effects3;
-    const has3Set2 = result2.count >= 3 && result2.effects3;
-    if (has3Set1 || has3Set2) {
-        tbodyHtml += buildSetEffectRows(
-            result1.effects3 || null,
-            result2.effects3 || null,
-            '3세트', '#7fd4ff', 'rgba(127,212,255,0.15)'
-        );
+    // 기본 3세트
+    const base3eff1 = result1.baseEffects?.effects3 || null;
+    const base3eff2 = result2.baseEffects?.effects3 || null;
+    if (base3eff1 || base3eff2) {
+        tbodyHtml += buildSetEffectRows(base3eff1, base3eff2, '3세트 (기본)', '3세트 (기본)', '#7fd4ff', 'rgba(127,212,255,0.15)');
     }
 
-    // 5세트 효과 비교
-    const has5Set1 = result1.count >= 5 && result1.effects5;
-    const has5Set2 = result2.count >= 5 && result2.effects5;
-    if (has5Set1 || has5Set2) {
-        tbodyHtml += buildSetEffectRows(
-            result1.effects5 || null,
-            result2.effects5 || null,
-            '5세트', '#ffd700', 'rgba(255,215,0,0.15)'
-        );
+    // 접두어 3세트: 양쪽 접두어가 다를 수 있으므로 각각 레이블 분리
+    {
+        const pe1_prefix = result1.prefixEffect?.prefix || null;
+        const pe2_prefix = result2.prefixEffect?.prefix || null;
+        const p3eff1 = result1.prefixEffect?.effects3 || null;
+        const p3eff2 = result2.prefixEffect?.effects3 || null;
+        if (p3eff1 || p3eff2) {
+            const lbl1 = p3eff1 ? `3세트 (${pe1_prefix})` : '';
+            const lbl2 = p3eff2 ? `3세트 (${pe2_prefix})` : '';
+            tbodyHtml += buildSetEffectRows(p3eff1, p3eff2, lbl1, lbl2, '#25c2a0', 'rgba(37,194,160,0.15)');
+        }
     }
 
-    // 세트 효과가 둘 다 없을 때
-    if (!result1.effects3 && !result2.effects3 && !result1.effects5 && !result2.effects5) {
+    // 5세트: 왼쪽은 기본5세트 또는 접두어5세트 중 해당하는 것, 오른쪽도 동일하게 하나의 블록으로 합침
+    const base5eff1 = result1.baseEffects?.effects5 || null;
+    const base5eff2 = result2.baseEffects?.effects5 || null;
+    const pe1_prefix5 = result1.prefixEffect?.prefix || null;
+    const pe2_prefix5 = result2.prefixEffect?.prefix || null;
+    const p5eff1 = result1.prefixEffect?.effects5 || null;
+    const p5eff2 = result2.prefixEffect?.effects5 || null;
+
+    // 왼쪽 5세트 효과: 접두어5세트 우선, 없으면 기본5세트
+    const left5eff  = p5eff1  || base5eff1  || null;
+    // 오른쪽 5세트 효과: 접두어5세트 우선, 없으면 기본5세트
+    const right5eff = p5eff2  || base5eff2  || null;
+
+    if (left5eff || right5eff) {
+        // 레이블: 접두어5세트면 "5세트 (전격)", 기본5세트면 "5세트 (기본)"
+        const lbl1 = left5eff  ? (p5eff1  ? `5세트 (${pe1_prefix5})` : '5세트 (기본)') : '';
+        const lbl2 = right5eff ? (p5eff2  ? `5세트 (${pe2_prefix5})` : '5세트 (기본)') : '';
+        tbodyHtml += buildSetEffectRows(left5eff, right5eff, lbl1, lbl2, '#ffd700', 'rgba(255,215,0,0.15)');
+    }
+
+    // 세트 효과 없음
+    const anyEffect =
+        base3eff1 || base3eff2 || left5eff || right5eff ||
+        result1.prefixEffect || result2.prefixEffect;
+
+    if (!anyEffect) {
         tbodyHtml += `<tr>
             <td colspan="7" style="text-align:center;padding:12px 8px;color:#888;font-size:0.85em;">세트 효과 없음</td>
         </tr>`;
@@ -2008,10 +2058,12 @@ function buildAccSetEffectCompare(section1, section2, name1, name2) {
     const has3Set2 = result2.count >= 3 && result2.effects3;
 
     if (has3Set1 || has3Set2) {
+        const lbl1 = result1.effects3 ? (result1.prefix && result1.prefix !== '기본' ? `3세트 (${result1.prefix})` : '3세트') : '';
+        const lbl2 = result2.effects3 ? (result2.prefix && result2.prefix !== '기본' ? `3세트 (${result2.prefix})` : '3세트') : '';
         tbodyHtml += buildSetEffectRows(
             result1.effects3 || null,
             result2.effects3 || null,
-            '3세트', '#7fd4ff', 'rgba(127,212,255,0.15)'
+            lbl1, lbl2, '#7fd4ff', 'rgba(127,212,255,0.15)'
         );
     }
 
@@ -2375,10 +2427,12 @@ function buildSpecialSetEffectCompare(section1, section2, name1, name2) {
     const has3Set2 = result2.count >= 3 && result2.effects3;
 
     if (has3Set1 || has3Set2) {
+        const lbl1 = result1.effects3 ? (result1.prefix && result1.prefix !== '기본' ? `3세트 (${result1.prefix})` : '3세트') : '';
+        const lbl2 = result2.effects3 ? (result2.prefix && result2.prefix !== '기본' ? `3세트 (${result2.prefix})` : '3세트') : '';
         tbodyHtml += buildSetEffectRows(
             result1.effects3 || null,
             result2.effects3 || null,
-            '3세트', '#7fd4ff', 'rgba(127,212,255,0.15)'
+            lbl1, lbl2, '#7fd4ff', 'rgba(127,212,255,0.15)'
         );
     }
 
