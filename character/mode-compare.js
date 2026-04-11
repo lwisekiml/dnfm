@@ -968,8 +968,8 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
             const sectionTag = key.match(/^\[(.+?)\]/)?.[1] || '';
             const tagColor = sectionTag === '기본효과' ? '#7a9fcf' : '#a0d4a0';
 
-            const display1 = e1 !== undefined ? `${v1}${unit}` : '';
-            const display2 = e2 !== undefined ? `${v2}${unit}` : '';
+            const display1 = (e1 !== undefined && v1 !== 0) ? `${v1}${unit}` : '';
+            const display2 = (e2 !== undefined && v2 !== 0) ? `${v2}${unit}` : '';
 
             let diffText = '', diffStyle2 = 'color:#888;';
             if (e1 !== undefined && e2 !== undefined) {
@@ -1255,8 +1255,8 @@ function buildArmorStatCompare(section1, section2, name1, name2) {
             const sectionTag = key.match(/^\[(.+?)\]/)?.[1] || '';
             const tagColor = sectionTag === '기본효과' ? '#7a9fcf' : sectionTag === '효과' ? '#a0d4a0' : '#c8a0d4';
 
-            const display1 = e1 !== undefined ? `${v1}${unit}` : '';
-            const display2 = e2 !== undefined ? `${v2}${unit}` : '';
+            const display1 = (e1 !== undefined && v1 !== 0) ? `${v1}${unit}` : '';
+            const display2 = (e2 !== undefined && v2 !== 0) ? `${v2}${unit}` : '';
 
             let diffText = '';
             let diffStyle2 = 'color:#888;';
@@ -1459,8 +1459,8 @@ function buildSetEffectRows(eff1, eff2, tierLabel1, tierLabel2, tierColor, tierB
             const s1 = statMap1[statName] || null;
             const s2 = statMap2[statName] || null;
 
-            const display1 = s1 ? `${s1.amount}${s1.unit}` : '';
-            const display2 = s2 ? `${s2.amount}${s2.unit}` : '';
+            const display1 = (s1 && s1.amount !== 0) ? `${s1.amount}${s1.unit}` : '';
+            const display2 = (s2 && s2.amount !== 0) ? `${s2.amount}${s2.unit}` : '';
 
             let diffText = '';
             let diffClass = 'color:#888;';
@@ -1857,8 +1857,8 @@ function buildAccStatCompare(section1, section2, name1, name2) {
             const sectionTag = key.match(/^\[(.+?)\]/)?.[1] || '';
             const tagColor = sectionTag === '기본효과' ? '#7a9fcf' : '#a0d4a0';
 
-            const display1 = e1 !== undefined ? `${v1}${unit}` : '';
-            const display2 = e2 !== undefined ? `${v2}${unit}` : '';
+            const display1 = (e1 !== undefined && v1 !== 0) ? `${v1}${unit}` : '';
+            const display2 = (e2 !== undefined && v2 !== 0) ? `${v2}${unit}` : '';
 
             let diffText = '';
             let diffStyle2 = 'color:#888;';
@@ -2240,8 +2240,8 @@ function buildSpecialStatCompare(section1, section2, name1, name2) {
             const sectionTag = key.match(/^\[(.+?)\]/)?.[1] || '';
             const tagColor = sectionTag === '기본효과' ? '#7a9fcf' : '#a0d4a0';
 
-            const display1 = e1 !== undefined ? `${v1}${unit}` : '';
-            const display2 = e2 !== undefined ? `${v2}${unit}` : '';
+            const display1 = (e1 !== undefined && v1 !== 0) ? `${v1}${unit}` : '';
+            const display2 = (e2 !== undefined && v2 !== 0) ? `${v2}${unit}` : '';
 
             let diffText = '';
             let diffStyle2 = 'color:#888;';
