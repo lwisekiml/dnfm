@@ -824,8 +824,8 @@ function displayComparison() {
     const specialSetEffectEl = buildSpecialSetEffectCompare(section1, section2, displayName1, displayName2);
     containerStat.appendChild(specialSetEffectEl);
 
-    // 기본은 장비 비교 탭 선택
-    switchCompareTab('eq');
+    // 기본은 스탯 비교 탭 선택
+    switchCompareTab('stat');
 
     // DOM에 추가된 후 행 높이 동기화
     requestAnimationFrame(() => {
