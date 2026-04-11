@@ -827,14 +827,19 @@ function displayComparison() {
     // 기본은 스탯 비교 탭 선택
     switchCompareTab('stat');
 
-    // DOM에 추가된 후 행 높이 동기화
-    requestAnimationFrame(() => {
+    // DOM에 추가된 후 행 높이 동기화 (장비 비교 탭 전체 섹션)
+    function syncAll() {
         sections.forEach(s => {
             if (s._tables) {
                 const { leftTable, centerTable, rightTable } = s._tables;
                 syncRowHeights(leftTable, centerTable, rightTable);
             }
         });
+    }
+    // 렌더링 완료 후 두 번 동기화 (1차: 레이아웃 확정, 2차: 정밀 보정)
+    requestAnimationFrame(() => {
+        syncAll();
+        setTimeout(syncAll, 50);
     });
 }
 
@@ -2491,12 +2496,9 @@ function switchCompareTab(tab) {
     const tabStat = document.getElementById('compareTabStat');
     const tabAll  = document.getElementById('compareTabAll');
 
-    tabEq.style.borderBottomColor   = isEq   ? '#ffd700' : 'transparent';
-    tabEq.style.color                = isEq   ? '#ffd700' : '#888';
-    tabStat.style.borderBottomColor  = isStat ? '#ffd700' : 'transparent';
-    tabStat.style.color              = isStat ? '#ffd700' : '#888';
-    tabAll.style.borderBottomColor   = isAll  ? '#ffd700' : 'transparent';
-    tabAll.style.color               = isAll  ? '#ffd700' : '#888';
+    if (tabEq)   { tabEq.style.borderBottomColor   = isEq   ? '#ffd700' : 'transparent'; tabEq.style.color   = isEq   ? '#ffd700' : '#888'; }
+    if (tabStat) { tabStat.style.borderBottomColor  = isStat ? '#ffd700' : 'transparent'; tabStat.style.color = isStat ? '#ffd700' : '#888'; }
+    if (tabAll)  { tabAll.style.borderBottomColor   = isAll  ? '#ffd700' : 'transparent'; tabAll.style.color  = isAll  ? '#ffd700' : '#888'; }
 
     // 전체 비교 탭: 처음 열릴 때 한 번만 렌더링
     if (isAll) {
@@ -2505,6 +2507,19 @@ function switchCompareTab(tab) {
             container._rendered = true;
             buildAllItemsCompare(container);
         }
+    }
+
+    // 장비 비교 탭: 탭이 보이는 순간 행 높이 재동기화 (display:none 상태에서 측정 불가 문제 해결)
+    if (isEq) {
+        const containerEq = document.getElementById('compareContentEq');
+        setTimeout(() => {
+            containerEq.querySelectorAll('.compare-section-wrapper').forEach(wrapper => {
+                if (wrapper._tables) {
+                    const { leftTable, centerTable, rightTable } = wrapper._tables;
+                    syncRowHeights(leftTable, centerTable, rightTable);
+                }
+            });
+        }, 0);
     }
 }
 
