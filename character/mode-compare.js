@@ -31,11 +31,11 @@ function buildExceedUniqueEffectRows(effect1, exceed1, effect2, exceed2) {
     const exceedLabel2 = exceed2 ? `<span style="color:${exceedColor[exceed2]||'#fff'};font-weight:bold;font-size:0.78em;">[${exceed2}]</span> ` : '';
     return `<tr style="background:rgba(100,114,168,0.08);">
         <td style="text-align:center;padding:2px 6px;color:#d6d989;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">고유 효과</td>
-        <td style="padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">
+        <td style="text-align:left;padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">
             ${exceedLabel1}${fmtEffect(effect1, exceed1)}
         </td>
         <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle}">${diffText}</td>
-        <td style="padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">
+        <td style="text-align:left;padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">
             ${exceedLabel2}${fmtEffect(effect2, exceed2)}
         </td>
         <td style="text-align:center;padding:2px 6px;color:#d6d989;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">고유 효과</td>
@@ -1059,9 +1059,9 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
         const diffStyle = isSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
         tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
             <td style="text-align:center;padding:2px 6px;color:#d6d989;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">고유 효과</td>
-            <td style="padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">${fmtEff(eff1, r1.prefix)}</td>
+            <td style="text-align:left;padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">${fmtEff(eff1, r1.prefix)}</td>
             <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle}">${diffText}</td>
-            <td style="padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">${fmtEff(eff2, r2.prefix)}</td>
+            <td style="text-align:left;padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">${fmtEff(eff2, r2.prefix)}</td>
             <td style="text-align:center;padding:2px 6px;color:#d6d989;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">고유 효과</td>
         </tr>`;
     }
