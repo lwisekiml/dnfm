@@ -941,13 +941,29 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
     </tr>`;
 
     // ── 스탯 행 ──────────────────────────────────────────────────
+    // 공격속도/뽑는속도 그룹: 이 목록에 속하는 스탯은 서로 달라도 같은 행에 표시
+    // 새로운 속도 종류가 생기면 이 배열에만 추가하면 됨
+    const ATTACK_SPEED_GROUP = [
+        '[기본효과] 매우 느린 공격 속도', '[기본효과] 느린 공격 속도',
+        '[기본효과] 보통 공격 속도',      '[기본효과] 빠른 공격 속도',
+        '[기본효과] 매우 빠른 공격 속도',
+        '[기본효과] 매우 느린 뽑는 속도', '[기본효과] 느린 뽑는 속도',
+        '[기본효과] 보통 뽑는 속도',      '[기본효과] 빠른 뽑는 속도',
+        '[기본효과] 매우 빠른 뽑는 속도',
+    ];
+
     const noData1 = !r1.stats || Object.keys(r1.stats).length === 0;
     const noData2 = !r2.stats || Object.keys(r2.stats).length === 0;
 
     if (!noData1 || !noData2) {
+        // 공격속도 그룹에 속하는 키를 왼쪽/오른쪽에서 각각 찾기
+        const speedKey1 = Object.keys(r1.stats || {}).find(k => ATTACK_SPEED_GROUP.includes(k)) || null;
+        const speedKey2 = Object.keys(r2.stats || {}).find(k => ATTACK_SPEED_GROUP.includes(k)) || null;
+
+        // allKeys: 공격속도 그룹 키는 제외하고 나머지만 수집 후 정렬
         const allKeys = [...new Set([
-            ...Object.keys(r1.stats || {}),
-            ...Object.keys(r2.stats || {})
+            ...Object.keys(r1.stats || {}).filter(k => !ATTACK_SPEED_GROUP.includes(k)),
+            ...Object.keys(r2.stats || {}).filter(k => !ATTACK_SPEED_GROUP.includes(k)),
         ])];
         const sectionOrder = ['[기본효과]', '[효과]'];
         allKeys.sort((a, b) => {
@@ -955,6 +971,32 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
             const sb = sectionOrder.findIndex(s => b.startsWith(s));
             return sa - sb;
         });
+
+        // 공격속도 행을 맨 앞에 삽입 (둘 다 없으면 생략)
+        if (speedKey1 || speedKey2) {
+            const e1 = speedKey1 ? r1.stats[speedKey1] : undefined;
+            const e2 = speedKey2 ? r2.stats[speedKey2] : undefined;
+            const displayKey1 = speedKey1 ? speedKey1.replace(/^\[기본효과\] /, '') : '';
+            const displayKey2 = speedKey2 ? speedKey2.replace(/^\[기본효과\] /, '') : '';
+            const sectionTag = '기본효과';
+            const tagColor = '#7a9fcf';
+
+            // 공격속도는 수치가 0이므로 스탯명만 표시, 차이는 이름이 같으면 동일 다르면 다름
+            const isSame = displayKey1 === displayKey2;
+            const diffText  = (e1 && e2) ? (isSame ? '동일' : '다름') : '';
+            const diffStyle2 = isSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+            const highlight = !isSame ? 'background:rgba(100,114,168,0.12);' : '';
+
+            tbodyHtml += `<tr style="${highlight}">
+    <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${e1 ? sectionTag : ''}</td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${displayKey1}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;"></td>
+    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${diffStyle2}">${diffText}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;"></td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${displayKey2}</td>
+    <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${e2 ? sectionTag : ''}</td>
+</tr>`;
+        }
 
         allKeys.forEach(key => {
             const e1 = r1.stats?.[key];
