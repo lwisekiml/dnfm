@@ -225,6 +225,351 @@ function buildCenterTable(label, rows) {
 }
 
 // ============================================
+// 공유: 세트 효과 계산 함수 (buildTotal에서 재사용)
+// ============================================
+
+function _getArmorSetEffectsShared(section) {
+    const ARMOR_SLOTS = ["상의", "어깨", "하의", "신발", "벨트"];
+    const setEffectsData = (typeof ARMOR_SET_EFFECTS !== 'undefined') ? ARMOR_SET_EFFECTS : {};
+    const armorItemInfo  = (typeof ARMOR_ITEM_INFO   !== 'undefined') ? ARMOR_ITEM_INFO   : {};
+    const equipped = {};
+    ARMOR_SLOTS.forEach(slot => {
+        const itemname = section.querySelector(`[data-key="${slot}_itemname"]`)?.value || '';
+        const prefix   = section.querySelector(`select[data-key="${slot}_prefix"]`)?.value || '';
+        if (itemname) equipped[slot] = { itemname, prefix };
+    });
+    const setTotalCount = {}, setPrefixCount = {};
+    Object.values(equipped).forEach(({ itemname, prefix }) => {
+        const info = armorItemInfo[itemname];
+        if (!info) return;
+        const sn = info.setName;
+        setTotalCount[sn] = (setTotalCount[sn] || 0) + 1;
+        if (prefix) { if (!setPrefixCount[sn]) setPrefixCount[sn] = {}; setPrefixCount[sn][prefix] = (setPrefixCount[sn][prefix] || 0) + 1; }
+    });
+    let bestSet = null, bestCount = 0;
+    Object.entries(setTotalCount).forEach(([sn, c]) => { if (c > bestCount) { bestSet = sn; bestCount = c; } });
+    if (!bestSet || bestCount < 3) return { baseEffects: null, prefixEffect: null };
+    const setData = setEffectsData[bestSet] || {};
+    const pfxCnt = setPrefixCount[bestSet] || {};
+    let bestPrefix = null, bestPrefixCount = 0;
+    Object.entries(pfxCnt).forEach(([p, c]) => { if (c >= 3 && c > bestPrefixCount) { bestPrefix = p; bestPrefixCount = c; } });
+    let prefixEffect = null;
+    if (bestPrefix) {
+        const pData = setData[bestPrefix] || {};
+        prefixEffect = { prefix: bestPrefix, count: bestPrefixCount,
+            effects3: bestPrefixCount >= 3 ? (pData['3'] || null) : null,
+            effects5: bestPrefixCount >= 5 ? (pData['5'] || null) : null };
+    }
+    const allSamePrefix = bestPrefix && bestPrefixCount === bestCount;
+    let baseEffects = null;
+    if (!allSamePrefix) {
+        const bData = setData['기본'] || {};
+        if (bestPrefix) {
+            const has5 = bestCount >= 5 && bData['5'];
+            baseEffects = { effects3: (!has5 && bestCount >= 3) ? (bData['3'] || null) : null, effects5: has5 ? (bData['5'] || null) : null };
+        } else {
+            baseEffects = { effects3: bestCount >= 3 ? (bData['3'] || null) : null, effects5: bestCount >= 5 ? (bData['5'] || null) : null };
+        }
+    }
+    return { baseEffects, prefixEffect };
+}
+
+function _getAccSetEffectsShared(section) {
+    const ACC_SLOTS = ["팔찌", "목걸이", "반지"];
+    const setEffectsData = (typeof ACCESSORY_SET_EFFECTS !== 'undefined') ? ACCESSORY_SET_EFFECTS : {};
+    const accItemInfo    = (typeof ACC_ITEM_INFO         !== 'undefined') ? ACC_ITEM_INFO         : {};
+    const slots = {};
+    ACC_SLOTS.forEach(slot => {
+        const itemname = section.querySelector(`[data-key="${slot}_itemname"]`)?.value || '';
+        const prefix   = section.querySelector(`select[data-key="${slot}_prefix"]`)?.value || '';
+        if (itemname) slots[slot] = { itemname, prefix };
+    });
+    const items = Object.values(slots);
+    if (!items.length) return { effects3: null };
+    const setNames = items.map(({ itemname }) => accItemInfo[itemname]?.setName).filter(Boolean);
+    if (!setNames.length) return { effects3: null };
+    const snCnt = {};
+    setNames.forEach(s => { snCnt[s] = (snCnt[s] || 0) + 1; });
+    const bestSet = Object.entries(snCnt).sort((a, b) => b[1] - a[1])[0][0];
+    const count = snCnt[bestSet];
+    if (count < 3) return { effects3: null };
+    const bp = slots['팔찌']?.prefix || '기본', np = slots['목걸이']?.prefix || '기본', rp = slots['반지']?.prefix || '기본';
+    const resultPrefix = (bp === np && np === rp && bp !== '기본') ? bp : '기본';
+    let effects3 = null;
+    const setData = setEffectsData[bestSet];
+    if (setData?.[resultPrefix]) { effects3 = setData[resultPrefix]["3"]; }
+    else { const sd = setEffectsData[bestSet.replace(/^[^:]+:\s*/, '')]; if (sd?.[resultPrefix]) effects3 = sd[resultPrefix]["3"]; }
+    return { effects3 };
+}
+
+function _getSpecialSetEffectsShared(section) {
+    const SPECIAL_SLOTS = ["귀걸이", "마법석", "보조장비"];
+    const setEffectsData  = (typeof SPECIAL_SET_EFFECTS !== 'undefined') ? SPECIAL_SET_EFFECTS  : {};
+    const specialItemInfo = (typeof SPECIAL_ITEM_INFO   !== 'undefined') ? SPECIAL_ITEM_INFO    : {};
+    const slots = {};
+    SPECIAL_SLOTS.forEach(slot => {
+        const itemname = section.querySelector(`[data-key="${slot}_itemname"]`)?.value || '';
+        const prefix   = section.querySelector(`select[data-key="${slot}_prefix"]`)?.value || '';
+        if (itemname) slots[slot] = { itemname, prefix };
+    });
+    const items = Object.values(slots);
+    if (!items.length) return { effects3: null };
+    const setNames = items.map(({ itemname }) => specialItemInfo[itemname]?.setName).filter(Boolean);
+    if (!setNames.length) return { effects3: null };
+    const snCnt = {};
+    setNames.forEach(s => { snCnt[s] = (snCnt[s] || 0) + 1; });
+    const bestSet = Object.entries(snCnt).sort((a, b) => b[1] - a[1])[0][0];
+    const count = snCnt[bestSet];
+    if (count < 3) return { effects3: null };
+    const ep = slots['귀걸이']?.prefix || '기본', gp = slots['마법석']?.prefix || '기본', sp = slots['보조장비']?.prefix || '기본';
+    const resultPrefix = (ep === gp && gp === sp && ep !== '기본') ? ep : '기본';
+    let effects3 = null;
+    const setData = setEffectsData[bestSet];
+    if (setData?.[resultPrefix]) effects3 = setData[resultPrefix]["3"];
+    return { effects3 };
+}
+
+// ============================================
+// 전체 스탯 합산 헬퍼
+// ============================================
+
+/**
+ * section에서 모든 스탯을 합산하여 반환
+ * @returns { statMap: {statName: {amount, unit}}, speedStat: string|null, attrs: Set }
+ */
+function collectTotalStats(section) {
+    const ATTACK_SPEED_GROUP_NAMES = [
+        '매우 느린 공격 속도', '느린 공격 속도', '보통 공격 속도', '빠른 공격 속도', '매우 빠른 공격 속도',
+        '매우 느린 뽑는 속도', '느린 뽑는 속도', '보통 뽑는 속도', '빠른 뽑는 속도', '매우 빠른 뽑는 속도',
+    ];
+
+    const statMap = {};  // { statName: { amount, unit } }
+    const attrsSet = new Set();
+    let speedStat = null;
+
+    // 스탯 배열 합산 헬퍼
+    function addStats(statsArr) {
+        if (!Array.isArray(statsArr)) return;
+        statsArr.forEach(entry => {
+            (entry.stats || []).forEach(statName => {
+                // 공격속도/뽑는속도: 별도 처리
+                if (ATTACK_SPEED_GROUP_NAMES.includes(statName)) {
+                    if (!speedStat) speedStat = statName;
+                    return;
+                }
+                if (!statMap[statName]) statMap[statName] = { amount: 0, unit: entry.unit || '' };
+                statMap[statName].amount += (entry.amount || 0);
+            });
+        });
+    }
+
+    // 세트효과 객체 합산 헬퍼
+    function addSetEffect(eff) {
+        if (!eff) return;
+        addStats(eff.stats || []);
+        (eff.attrs || []).forEach(a => attrsSet.add(a));
+    }
+
+    // ── 무기 ──────────────────────────────────────────────────
+    const weaponData = (typeof WEAPON_ITEM_STATS !== 'undefined') ? WEAPON_ITEM_STATS : {};
+    const weaponName = section.querySelector('[data-key="무기_itemname"]')?.value || '';
+    const weaponExceed = section.querySelector('select[data-key="무기_exceed"]')?.value || '';
+    if (weaponName && weaponData[weaponName]) {
+        const item = weaponData[weaponName];
+        const src = (weaponExceed === '침식' && item.침식) ? item.침식 : item;
+        addStats(src.base);
+        addStats(src.eff);
+        (src.attrs || []).forEach(a => attrsSet.add(a));
+    }
+
+    // ── 방어구 ────────────────────────────────────────────────
+    const armorData = (typeof ARMOR_ITEM_STATS !== 'undefined') ? ARMOR_ITEM_STATS : {};
+    ["상의", "어깨", "하의", "신발", "벨트"].forEach(slot => {
+        const itemname = section.querySelector(`[data-key="${slot}_itemname"]`)?.value || '';
+        const exceed   = section.querySelector(`select[data-key="${slot}_exceed"]`)?.value || '';
+        const prefix   = section.querySelector(`select[data-key="${slot}_prefix"]`)?.value || '';
+        if (!itemname || !armorData[itemname]) return;
+        const item = armorData[itemname];
+        const pfx = prefix || '기본';
+        addStats(item.base?.[pfx]);
+        addStats(item.eff?.[pfx]);
+        addStats(item.mastery?.[pfx]);
+        (item.attrs?.[pfx] || []).forEach(a => attrsSet.add(a));
+    });
+
+    // ── 방어구 세트 효과 ─────────────────────────────────────
+    const armorSE = _getArmorSetEffectsShared(section);
+    const armorBase3 = armorSE.baseEffects?.effects3 || null;
+    const armorBase5 = armorSE.baseEffects?.effects5 || null;
+    const armorPfx3  = armorSE.prefixEffect?.effects3 || null;
+    const armorPfx5  = armorSE.prefixEffect?.effects5 || null;
+    // 기본 3세트 (5세트가 있으면 3세트는 포함되지 않음 - baseEffects에서 이미 처리됨)
+    addSetEffect(armorBase3);
+    addSetEffect(armorBase5);
+    // 접두어 세트: 기본 5세트가 있을 때 접두어 3세트도 합산
+    addSetEffect(armorPfx3);
+    addSetEffect(armorPfx5);
+
+    // ── 악세서리 ─────────────────────────────────────────────
+    const accData = (typeof ACCESSORY_ITEM_STATS !== 'undefined') ? ACCESSORY_ITEM_STATS : {};
+    ["팔찌", "목걸이", "반지"].forEach(slot => {
+        const itemname = section.querySelector(`[data-key="${slot}_itemname"]`)?.value || '';
+        const exceed   = section.querySelector(`select[data-key="${slot}_exceed"]`)?.value || '';
+        const prefix   = section.querySelector(`select[data-key="${slot}_prefix"]`)?.value || '';
+        if (!itemname || !accData[itemname]) return;
+        const item = accData[itemname];
+        const pfx = prefix || '기본';
+        addStats(item.base?.[pfx]);
+        addStats(item.eff?.[pfx]);
+        (item.attrs?.[pfx] || []).forEach(a => attrsSet.add(a));
+    });
+    const accSE = _getAccSetEffectsShared(section);
+    addSetEffect(accSE.effects3);
+
+    // ── 특수장비 ─────────────────────────────────────────────
+    const specialData = (typeof SPECIAL_ITEM_STATS !== 'undefined') ? SPECIAL_ITEM_STATS : {};
+    ["귀걸이", "마법석", "보조장비"].forEach(slot => {
+        const itemname = section.querySelector(`[data-key="${slot}_itemname"]`)?.value || '';
+        const exceed   = section.querySelector(`select[data-key="${slot}_exceed"]`)?.value || '';
+        const prefix   = section.querySelector(`select[data-key="${slot}_prefix"]`)?.value || '';
+        if (!itemname || !specialData[itemname]) return;
+        const item = specialData[itemname];
+        const pfx = prefix || '기본';
+        addStats(item.base?.[pfx]);
+        addStats(item.eff?.[pfx]);
+        (item.attrs?.[pfx] || []).forEach(a => attrsSet.add(a));
+    });
+    const specialSE = _getSpecialSetEffectsShared(section);
+    addSetEffect(specialSE.effects3);
+
+    return { statMap, speedStat, attrs: attrsSet };
+}
+
+// ============================================
+// 전체 스탯 비교 표
+// ============================================
+
+function buildTotalStatCompare(section1, section2, name1, name2) {
+    const total1 = collectTotalStats(section1);
+    const total2 = collectTotalStats(section2);
+
+    // 스탯 순서: 왼쪽 순서 우선, 오른쪽에만 있는 것 뒤에 추가
+    const allStatNames = [
+        ...Object.keys(total1.statMap),
+        ...Object.keys(total2.statMap).filter(n => !total1.statMap[n])
+    ];
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'compare-section-wrapper';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'compare-section-title';
+    titleEl.textContent = '*전체 스탯 합산 비교*';
+    wrapper.appendChild(titleEl);
+
+    const tableWrap = document.createElement('div');
+    tableWrap.style.cssText = 'overflow-x:auto;margin-top:6px;';
+
+    let tbodyHtml = '';
+
+    // ── 속성부여 행 ────────────────────────────────────────────
+    const allAttrs = [...new Set([...total1.attrs, ...total2.attrs])];
+    if (allAttrs.length > 0) {
+        const attrDisplay = (a) => `<span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(100,114,168,0.25);color:#b0bcff;font-size:0.8em;margin:1px 2px;">${a}</span>`;
+        allAttrs.forEach(attr => {
+            const has1 = total1.attrs.has(attr);
+            const has2 = total2.attrs.has(attr);
+            const isSame = has1 && has2;
+            const diffText = isSame ? '동일' : '';
+            const dStyle   = isSame ? 'color:#888;' : '';
+            tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
+    <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${has1 ? '속성부여' : ''}</td>
+    <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${has1 ? attrDisplay(attr) : ''}</td>
+    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${dStyle}">${diffText}</td>
+    <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${has2 ? attrDisplay(attr) : ''}</td>
+    <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${has2 ? '속성부여' : ''}</td>
+</tr>`;
+        });
+    }
+
+    // ── 공격속도/뽑는속도 행 ───────────────────────────────────
+    const speed1 = total1.speedStat || '';
+    const speed2 = total2.speedStat || '';
+    if (speed1 || speed2) {
+        const isSame   = speed1 === speed2;
+        const diffText = (speed1 && speed2) ? (isSame ? '동일' : '다름') : '';
+        const dStyle   = isSame ? 'color:#888;' : 'color:#f0a500;font-weight:bold;';
+        const hl       = !isSame ? 'background:rgba(100,114,168,0.12);' : '';
+        tbodyHtml += `<tr style="${hl}">
+    <td style="text-align:center;padding:2px 6px;color:#7a9fcf;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${speed1 ? '기본효과' : ''}</td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${speed1}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;"></td>
+    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${dStyle}">${diffText}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;"></td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${speed2}</td>
+    <td style="text-align:center;padding:2px 6px;color:#7a9fcf;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${speed2 ? '기본효과' : ''}</td>
+</tr>`;
+    }
+
+    // ── 수치 스탯 행 ───────────────────────────────────────────
+    allStatNames.forEach(statName => {
+        const s1 = total1.statMap[statName] || null;
+        const s2 = total2.statMap[statName] || null;
+        const v1 = s1?.amount ?? 0;
+        const v2 = s2?.amount ?? 0;
+        const unit = s1?.unit || s2?.unit || '';
+        const diff = v2 - v1;
+        const display1 = (s1 && v1 !== 0) ? `${v1}${unit}` : '';
+        const display2 = (s2 && v2 !== 0) ? `${v2}${unit}` : '';
+        const hl = (v1 !== v2) ? 'background:rgba(100,114,168,0.12);' : '';
+
+        let diffText = '', dStyle = 'color:#888;';
+        if (s1 && s2) {
+            if (diff > 0)      { diffText = `↑ +${diff}${unit}`; dStyle = 'color:#2ecc71;font-weight:bold;'; }
+            else if (diff < 0) { diffText = `↓ ${diff}${unit}`;  dStyle = 'color:#e74c3c;font-weight:bold;'; }
+            else               { diffText = '동일'; }
+        } else if (!s1 && s2) {
+            diffText = `↑ +${v2}${unit}`; dStyle = 'color:#2ecc71;font-weight:bold;';
+        } else if (s1 && !s2) {
+            diffText = `↓ -${v1}${unit}`; dStyle = 'color:#e74c3c;font-weight:bold;';
+        }
+
+        tbodyHtml += `<tr style="${hl}">
+    <td style="text-align:center;padding:2px 6px;color:#aaa;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${s1 ? '합산' : ''}</td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${s1 ? statName : ''}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${dStyle}">${diffText}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${s2 ? statName : ''}</td>
+    <td style="text-align:center;padding:2px 6px;color:#aaa;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${s2 ? '합산' : ''}</td>
+</tr>`;
+    });
+
+    tableWrap.innerHTML = `
+    <table style="border-collapse:collapse;width:max-content;min-width:400px;">
+    <thead>
+        <tr>
+            <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;border-right:1px solid #2a3158;">${name1}</th>
+            <th rowspan="2" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">차이</th>
+            <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;">${name2}</th>
+        </tr>
+        <tr>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">구분</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:100px;border-right:1px solid #2a3158;">수치</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:100px;border-right:1px solid #2a3158;">수치</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;">구분</th>
+        </tr>
+    </thead>
+    <tbody>${tbodyHtml}</tbody>
+    </table>`;
+
+    wrapper.appendChild(tableWrap);
+    return wrapper;
+}
+
+// ============================================
 // 각 비교 섹션 데이터 생성
 // ============================================
 
@@ -802,6 +1147,9 @@ function displayComparison() {
     // 스탯 비교 탭
     const containerStat = document.getElementById('compareContentStat');
     containerStat.innerHTML = '';
+
+    const totalStatEl = buildTotalStatCompare(section1, section2, displayName1, displayName2);
+    containerStat.appendChild(totalStatEl);
 
     const weaponStatEl = buildWeaponStatCompare(section1, section2, displayName1, displayName2);
     containerStat.appendChild(weaponStatEl);
