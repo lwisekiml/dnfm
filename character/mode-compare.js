@@ -473,23 +473,46 @@ function buildTotalStatCompare(section1, section2, name1, name2) {
     let tbodyHtml = '';
 
     // ── 속성부여 행 ────────────────────────────────────────────
-    const allAttrs = [...new Set([...total1.attrs, ...total2.attrs])];
-    if (allAttrs.length > 0) {
+    const attrs1List = [...total1.attrs];
+    const attrs2List = [...total2.attrs];
+    if (attrs1List.length > 0 || attrs2List.length > 0) {
         const attrDisplay = (a) => `<span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(100,114,168,0.25);color:#b0bcff;font-size:0.8em;margin:1px 2px;">${a}</span>`;
-        allAttrs.forEach(attr => {
-            const has1 = total1.attrs.has(attr);
-            const has2 = total2.attrs.has(attr);
-            const isSame = has1 && has2;
-            const diffText = isSame ? '동일' : '';
-            const dStyle   = isSame ? 'color:#888;' : '';
+
+        // 1) 공통 attr: 같은 행에 나란히 (차이칸 비움)
+        const common = attrs1List.filter(a => total2.attrs.has(a));
+        // 2) 왼쪽에만 있는 attr
+        const only1  = attrs1List.filter(a => !total2.attrs.has(a));
+        // 3) 오른쪽에만 있는 attr
+        const only2  = attrs2List.filter(a => !total1.attrs.has(a));
+
+        // 공통 행
+        common.forEach(attr => {
             tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
-    <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${has1 ? '속성부여' : ''}</td>
-    <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${has1 ? attrDisplay(attr) : ''}</td>
-    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${dStyle}">${diffText}</td>
-    <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${has2 ? attrDisplay(attr) : ''}</td>
-    <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${has2 ? '속성부여' : ''}</td>
+    <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">속성부여</td>
+    <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${attrDisplay(attr)}</td>
+    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;"></td>
+    <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${attrDisplay(attr)}</td>
+    <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">속성부여</td>
 </tr>`;
         });
+
+        // 한쪽에만 있는 attr: 최대 행 수만큼 나열
+        // 첫 번째 행에만 '다름' 표시 (only1, only2 둘 다 있을 때)
+        const maxOnly = Math.max(only1.length, only2.length);
+        for (let i = 0; i < maxOnly; i++) {
+            const a1 = only1[i] || null;
+            const a2 = only2[i] || null;
+            const showDiff = (i === 0 && only1.length > 0 && only2.length > 0);
+            const diffText = showDiff ? '다름' : '';
+            const dStyle   = showDiff ? 'color:#f0a500;font-weight:bold;' : '';
+            tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
+    <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${a1 ? '속성부여' : ''}</td>
+    <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${a1 ? attrDisplay(a1) : ''}</td>
+    <td style="text-align:center;padding:2px 8px;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;${dStyle}">${diffText}</td>
+    <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${a2 ? attrDisplay(a2) : ''}</td>
+    <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${a2 ? '속성부여' : ''}</td>
+</tr>`;
+        }
     }
 
     // ── 공격속도/뽑는속도 행 ───────────────────────────────────
