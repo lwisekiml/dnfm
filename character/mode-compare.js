@@ -136,9 +136,14 @@ function createCompareSection(title, leftHeader, centerLabel, rightHeader, leftR
 }
 
 function syncRowHeights(leftTable, centerTable, rightTable) {
-    const leftRows  = leftTable.querySelectorAll('tr');
+    // 먼저 강제 설정된 높이를 초기화해야 정확한 측정이 가능
+    [leftTable, centerTable, rightTable].forEach(t => {
+        t.querySelectorAll('tr').forEach(tr => { tr.style.height = ''; });
+    });
+
+    const leftRows   = leftTable.querySelectorAll('tr');
     const centerRows = centerTable.querySelectorAll('tr');
-    const rightRows = rightTable.querySelectorAll('tr');
+    const rightRows  = rightTable.querySelectorAll('tr');
 
     const maxLen = Math.max(leftRows.length, centerRows.length, rightRows.length);
     for (let i = 0; i < maxLen; i++) {
@@ -147,6 +152,8 @@ function syncRowHeights(leftTable, centerTable, rightTable) {
         if (centerRows[i]) heights.push(centerRows[i].getBoundingClientRect().height);
         if (rightRows[i])  heights.push(rightRows[i].getBoundingClientRect().height);
         const maxH = Math.max(...heights);
+        // 높이가 0이면 display:none 상태이므로 설정 스킵
+        if (maxH <= 0) continue;
         if (leftRows[i])   leftRows[i].style.height   = maxH + 'px';
         if (centerRows[i]) centerRows[i].style.height = maxH + 'px';
         if (rightRows[i])  rightRows[i].style.height  = maxH + 'px';
@@ -620,13 +627,9 @@ function buildEquipmentCompare(section1, section2, name1, name2) {
             const s2Id = section2.id;
             const btnHtml = `<button onclick="openCompareSpecialPopup('${slot}','${s1Id}','${s2Id}',this)" style="font-size:0.85em;padding:2px 8px;cursor:pointer;background:#2a3158;color:#fff;border:1px solid #4a5178;border-radius:4px;">비교</button>`;
 
-            // 아바타: 값이 있으면 "아바타", 없으면 빈칸
-            const displayName = (slot === '아바타')
-                ? (rawName1 ? '아바타' : '')
-                : rawName1;
-            const displayName2 = (slot === '아바타')
-                ? (rawName2 ? '아바타' : '')
-                : rawName2;
+            // 아바타: 항상 '아바타'로 표시 (값 유무 상관없이)
+            const displayName = (slot === '아바타') ? '아바타' : rawName1;
+            const displayName2 = (slot === '아바타') ? '아바타' : rawName2;
 
             leftRows.push({ cells: [
                     { text: slot, cls: 'compare-slot-name' },
@@ -1197,21 +1200,7 @@ function displayComparison() {
 
     // 기본은 스탯 비교 탭 선택
     switchCompareTab('stat');
-
-    // DOM에 추가된 후 행 높이 동기화 (장비 비교 탭 전체 섹션)
-    function syncAll() {
-        sections.forEach(s => {
-            if (s._tables) {
-                const { leftTable, centerTable, rightTable } = s._tables;
-                syncRowHeights(leftTable, centerTable, rightTable);
-            }
-        });
-    }
-    // 렌더링 완료 후 두 번 동기화 (1차: 레이아웃 확정, 2차: 정밀 보정)
-    requestAnimationFrame(() => {
-        syncAll();
-        setTimeout(syncAll, 50);
-    });
+    // 장비 비교 탭 행 높이 동기화는 해당 탭으로 전환할 때 switchCompareTab 내부에서 처리
 }
 
 /**
@@ -2932,7 +2921,7 @@ function switchCompareTab(tab) {
                     syncRowHeights(leftTable, centerTable, rightTable);
                 }
             });
-        }, 0);
+        }, 50);
     }
 }
 
@@ -3146,12 +3135,11 @@ function openCompareSpecialPopup(slot, s1Id, s2Id, triggerBtn) {
             </tr>`;
         }).join('');
 
-        const weaponStat1 = section1.querySelector('[data-key="아바타_weapon_stat"]');
-        const weaponStat2 = section2.querySelector('[data-key="아바타_weapon_stat"]');
-        const wsLabel = (sel) => {
-            if (!sel) return '-';
-            const opt = sel.options[sel.selectedIndex];
-            return opt ? (opt.text || '-') : '-';
+        const weaponStat1 = section1.querySelector('button[data-weapon-avatar-btn]');
+        const weaponStat2 = section2.querySelector('button[data-weapon-avatar-btn]');
+        const wsLabel = (btn) => {
+            if (!btn) return '-';
+            return btn.getAttribute('data-weapon-avatar-name') || btn.textContent.trim() || '-';
         };
 
         html = `
