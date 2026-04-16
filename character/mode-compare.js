@@ -1174,6 +1174,24 @@ function displayComparison() {
     const containerStat = document.getElementById('compareContentStat');
     containerStat.innerHTML = '';
 
+    // 이동 버튼 3개
+    const navBtnWrap = document.createElement('div');
+    navBtnWrap.style.cssText = 'display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;';
+    ['방어구 비교', '악세서리 비교', '특수장비 비교'].forEach((label, i) => {
+        const targetId = ['cmp-stat-armor', 'cmp-stat-acc', 'cmp-stat-special'][i];
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.style.cssText = 'padding:6px 16px;background:#2a3158;color:#e6e9ff;border:1px solid #4a5178;border-radius:4px;cursor:pointer;font-size:0.85em;';
+        btn.onmouseenter = () => btn.style.borderColor = '#ffd700';
+        btn.onmouseleave = () => btn.style.borderColor = '#4a5178';
+        btn.onclick = () => {
+            const el = document.getElementById(targetId);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+        navBtnWrap.appendChild(btn);
+    });
+    containerStat.appendChild(navBtnWrap);
+
     const totalStatEl = buildTotalStatCompare(section1, section2, displayName1, displayName2);
     containerStat.appendChild(totalStatEl);
 
@@ -1181,18 +1199,21 @@ function displayComparison() {
     containerStat.appendChild(weaponStatEl);
 
     const armorStatEl = buildArmorStatCompare(section1, section2, displayName1, displayName2);
+    armorStatEl.id = 'cmp-stat-armor';
     containerStat.appendChild(armorStatEl);
 
     const armorSetEffectEl = buildArmorSetEffectCompare(section1, section2, displayName1, displayName2);
     containerStat.appendChild(armorSetEffectEl);
 
     const accStatEl = buildAccStatCompare(section1, section2, displayName1, displayName2);
+    accStatEl.id = 'cmp-stat-acc';
     containerStat.appendChild(accStatEl);
 
     const accSetEffectEl = buildAccSetEffectCompare(section1, section2, displayName1, displayName2);
     containerStat.appendChild(accSetEffectEl);
 
     const specialStatEl = buildSpecialStatCompare(section1, section2, displayName1, displayName2);
+    specialStatEl.id = 'cmp-stat-special';
     containerStat.appendChild(specialStatEl);
 
     const specialSetEffectEl = buildSpecialSetEffectCompare(section1, section2, displayName1, displayName2);
