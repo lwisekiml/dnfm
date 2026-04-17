@@ -1734,6 +1734,54 @@ function avatarPopupSave() {
         UIState.avatarBtn.innerHTML = renderAvatarBtnHTML(rawVal);
     }
 
+    // 아바타_desc에 세트 효과 자동 생성
+    if (UIState.avatarCharId) {
+        const section = document.getElementById(UIState.avatarCharId);
+        const descEl = section?.querySelector('[data-key="아바타_desc"]');
+        if (descEl && typeof AVATAR_SET_EFFECTS !== 'undefined') {
+            // 언커먼/레어 개수 카운트
+            const gradeCounts = { '언커먼': 0, '레어': 0 };
+            parts.forEach(token => {
+                const m = token.match(/^(.+)\((.+)\)$/);
+                if (m && gradeCounts[m[2]] !== undefined) gradeCounts[m[2]]++;
+            });
+
+            const descLines = [];
+
+            ['언커먼', '레어'].forEach((grade, gradeIdx) => {
+                if (gradeIdx > 0 && descLines.length > 0) descLines.push('');
+                const count = gradeCounts[grade];
+                if (count < 3) return;
+
+                const gradeEffects = AVATAR_SET_EFFECTS[grade];
+                if (!gradeEffects) return;
+
+                // 활성화된 세트 단계 목록 (3, 5, 8 중 count 이하인 것)
+                const tiers = Object.keys(gradeEffects).map(Number).sort((a, b) => a - b).filter(t => count >= t);
+                if (tiers.length === 0) return;
+
+                // 최고 활성 단계
+                const maxTier = tiers[tiers.length - 1];
+                const maxEffect = gradeEffects[maxTier];
+
+                if (maxEffect.cumulative) {
+                    // 누적: 이전 단계 label도 포함
+                    tiers.forEach((tier, tierIdx) => {
+                        if (tierIdx > 0) descLines.push('');
+                        descLines.push(`${grade} ${tier}세트`);
+                        descLines.push(gradeEffects[tier].label);
+                    });
+                } else {
+                    // 비누적: 해당 단계만
+                    descLines.push(`${grade} ${maxTier}세트`);
+                    descLines.push(maxEffect.label);
+                }
+            });
+
+            descEl.value = descLines.join('\n');
+        }
+    }
+
     avatarPopupClose();
     if (typeof autoSave === 'function') autoSave();
 }
