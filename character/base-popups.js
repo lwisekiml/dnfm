@@ -402,12 +402,14 @@ function openCreaturePopup(charId, btn) {
     }
 
     // 아티팩트 세트 효과 복원
+    // setTimeout 이후 _creatureCheckArtSet 등에 의한 덮어쓰기를 방지하기 위해 값을 미리 보관
+    const _savedArtSetVal  = btn.getAttribute('data-creature-art-seteffect') || '';
+    const _savedArtSetAuto = btn.getAttribute('data-creature-art-setauto')   || 'false';
     const artSetTA = document.getElementById('creature-popup-art-seteffect');
     if (artSetTA) {
-        artSetTA.value = btn.getAttribute('data-creature-art-seteffect') || '';
-        const artAuto  = btn.getAttribute('data-creature-art-setauto') || 'false';
+        artSetTA.value = _savedArtSetVal;
         const artBadge = document.getElementById('creature-art-seteffect-badge');
-        if (artAuto === 'true') {
+        if (_savedArtSetAuto === 'true') {
             artSetTA.readOnly = true;
             artSetTA.style.opacity = '0.7';
             artSetTA.setAttribute('data-auto', 'true');
@@ -423,6 +425,7 @@ function openCreaturePopup(charId, btn) {
     // 공통 자동완성 드롭다운 외부클릭 닫기 초기화
     _acDropdownInit();
     // 아티팩트 스탯 badge 초기 상태 복원
+    // setTimeout 이후 artSetTA가 덮어씌워질 수 있으므로 재복원도 함께 수행
     setTimeout(() => {
         if (typeof ARTIFACT_SET_DATA === 'undefined') return;
         const p = document.getElementById('creature-popup');
@@ -433,6 +436,16 @@ function openCreaturePopup(charId, btn) {
             const matched = ARTIFACT_SET_DATA.find(s => s[color]?.name === name);
             if (badge) badge.style.display = matched ? 'block' : 'none';
         });
+        // artSetTA 재복원: badge 초기화 이후 값이 초기화되는 것을 방지
+        const _artSetTA2 = document.getElementById('creature-popup-art-seteffect');
+        if (_artSetTA2 && _savedArtSetAuto === 'true') {
+            _artSetTA2.value = _savedArtSetVal;
+            _artSetTA2.readOnly = true;
+            _artSetTA2.style.opacity = '0.7';
+            _artSetTA2.setAttribute('data-auto', 'true');
+            const _artBadge2 = document.getElementById('creature-art-seteffect-badge');
+            if (_artBadge2) _artBadge2.style.display = 'inline';
+        }
     }, 0);
 
     // 팝업 표시: body로 이동 후 absolute 배치 (스크롤 시 표와 함께 이동)
