@@ -1364,6 +1364,7 @@ const WEAPON_AVATAR_ITEM_INFO = {
     "물약 스태프": _WEAPON_AVATAR_TEMPLATES.WA_V11,
     "강인한 푸른빛 기타": _WEAPON_AVATAR_TEMPLATES.WA_V11,
     "하이퍼리온의 형상": _WEAPON_AVATAR_TEMPLATES.WA_V11,
+    "오카리나": _WEAPON_AVATAR_TEMPLATES.WA_V11,
 };
 
 const GameData = {
