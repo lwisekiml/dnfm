@@ -1,30 +1,24 @@
 /* ========================================
    eq_statistics.js - 장비 통계 및 검색
-   (showEquipmentStatistics, showWeaponStatistics, searchEquipment)
 ======================================== */
 
-// 장비 통계 표시 함수
 function showEquipmentStatistics() {
-    // 상태 업데이트
     isCharacterEquipmentViewOpen = false;
     isStatisticsViewOpen = true;
     selectedCharacterForEquipment = null;
 
-    // 기존 화면 숨기기
     document.getElementById("character-selection-area").style.display = "none";
     document.getElementById("character-equipment-detail").style.display = "none";
 
     const displayArea = document.getElementById("equipment-display-area");
     displayArea.style.display = "block";
 
-    // 모든 장비 관리 버튼 비활성화
     document.querySelectorAll("#section-equipment-view .equipment-button-row .char-btn").forEach(btn => {
         btn.classList.remove('active');
     });
 
     let html = `<h2 style="color: #ffd700; margin-bottom: 20px;">📊 캐릭터별 장비 보유 통계</h2>`;
 
-    // 통계 테이블
     html += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 30px;">`;
     html += `<thead style="background: #181c33;"><tr>
         <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">직업(이름)</th>
@@ -32,41 +26,36 @@ function showEquipmentStatistics() {
         <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">악세</th>
         <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">특장</th>
         <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">무기</th>
+        <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">침식 무기</th>
         <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center;">합계</th>
     </tr></thead><tbody>`;
 
-    // 각 캐릭터별 통계
     characters.forEach(char => {
-        let armorCount = 0;
-        let accessoryCount = 0;
-        let specialCount = 0;
-        let weaponCount = 0;
+        let armorCount = 0, accessoryCount = 0, specialCount = 0;
+        let weaponCount = 0, erosionWeaponCount = 0;
 
-        // 방어구/악세/특장 개수 계산
         if (char.armorCounts) {
             Object.entries(char.armorCounts).forEach(([key, count]) => {
                 if (count <= 0) return;
-
                 const parts = key.split(' ');
-                const slot = parts.pop();
+                parts.pop();
                 const name = parts.join(' ');
-                const groupKey = getGroupKey(name);
-                const setType = getSetType(groupKey);
-
+                const setType = getSetType(getGroupKey(name));
                 if (setType === "ARMOR") armorCount += count;
                 else if (setType === "ACCESSORY") accessoryCount += count;
                 else if (setType === "SPECIAL") specialCount += count;
             });
         }
 
-        // 무기 개수 계산
         if (char.weaponCounts) {
-            Object.values(char.weaponCounts).forEach(count => {
-                weaponCount += count || 0;
+            Object.entries(char.weaponCounts).forEach(([key, count]) => {
+                if (!count || count <= 0) return;
+                if (key.startsWith('[침식]')) erosionWeaponCount += count;
+                else weaponCount += count;
             });
         }
 
-        const total = armorCount + accessoryCount + specialCount + weaponCount;
+        const total = armorCount + accessoryCount + specialCount + weaponCount + erosionWeaponCount;
 
         html += `<tr style="border-bottom: 1px solid #444;">
             <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; font-weight: bold;">${char.job}(${char.name})</td>
@@ -74,40 +63,41 @@ function showEquipmentStatistics() {
             <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${accessoryCount}</td>
             <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${specialCount}</td>
             <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${weaponCount}</td>
+            <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; font-weight: bold;
+                background:linear-gradient(to bottom, #ff9de2, #ffffff); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+                ${erosionWeaponCount}
+            </td>
             <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #ffd700; font-weight: bold;">${total}</td>
         </tr>`;
     });
 
     // 전체 합계 행
-    let totalArmor = 0;
-    let totalAccessory = 0;
-    let totalSpecial = 0;
-    let totalWeapon = 0;
+    let totalArmor = 0, totalAccessory = 0, totalSpecial = 0;
+    let totalWeapon = 0, totalErosionWeapon = 0;
 
     characters.forEach(char => {
         if (char.armorCounts) {
             Object.entries(char.armorCounts).forEach(([key, count]) => {
                 if (count <= 0) return;
                 const parts = key.split(' ');
-                const slot = parts.pop();
+                parts.pop();
                 const name = parts.join(' ');
-                const groupKey = getGroupKey(name);
-                const setType = getSetType(groupKey);
-
+                const setType = getSetType(getGroupKey(name));
                 if (setType === "ARMOR") totalArmor += count;
                 else if (setType === "ACCESSORY") totalAccessory += count;
                 else if (setType === "SPECIAL") totalSpecial += count;
             });
         }
-
         if (char.weaponCounts) {
-            Object.values(char.weaponCounts).forEach(count => {
-                totalWeapon += count || 0;
+            Object.entries(char.weaponCounts).forEach(([key, count]) => {
+                if (!count || count <= 0) return;
+                if (key.startsWith('[침식]')) totalErosionWeapon += count;
+                else totalWeapon += count;
             });
         }
     });
 
-    const grandTotal = totalArmor + totalAccessory + totalSpecial + totalWeapon;
+    const grandTotal = totalArmor + totalAccessory + totalSpecial + totalWeapon + totalErosionWeapon;
 
     html += `<tr style="background: #1a1e33; border-top: 3px solid #ffd700;">
         <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; font-weight: bold; color: #ffd700;">전체 합계</td>
@@ -115,11 +105,11 @@ function showEquipmentStatistics() {
         <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #ffd700; font-weight: bold;">${totalAccessory}</td>
         <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #ffd700; font-weight: bold;">${totalSpecial}</td>
         <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #ffd700; font-weight: bold;">${totalWeapon}</td>
+        <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #ffd700; font-weight: bold;">${totalErosionWeapon}</td>
         <td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #ffd700; font-weight: bold; font-size: 1.1em;">${grandTotal}</td>
     </tr>`;
 
     html += `</tbody></table>`;
-
     displayArea.innerHTML = html;
 }
 
@@ -139,13 +129,17 @@ function showWeaponStatistics(selectedJob = null) {
     const displayArea = document.getElementById("equipment-display-area");
     displayArea.style.display = "block";
 
+    // 보유 무기가 있는 직업만 필터 (일반 + 침식 모두 포함)
     const availableJobs = JOB_LIST.filter(jobGroup => {
         const jobData = WEAPON_DATA_MAP[jobGroup];
         if (!jobData) return false;
         return Object.values(jobData).some(weaponList =>
             weaponList.some(weaponName =>
                 WEAPON_PREFIXES.some(prefix =>
-                    characters.some(char => (char.weaponCounts?.[`${prefix.tag} ${weaponName}`] || 0) > 0)
+                    characters.some(char =>
+                        (char.weaponCounts?.[`${prefix.tag} ${weaponName}`] || 0) > 0 ||
+                        (char.weaponCounts?.[`[침식] ${prefix.tag} ${weaponName}`] || 0) > 0
+                    )
                 )
             )
         );
@@ -182,15 +176,29 @@ function showWeaponStatistics(selectedJob = null) {
     categories.forEach((category, cIdx) => {
         const weaponList = jobData[category];
         const visibleItems = [];
+
         weaponList.forEach(weaponName => {
             WEAPON_PREFIXES.forEach(pref => {
-                const key = `${pref.tag} ${weaponName}`;
-                const owners = characters
-                    .map(char => ({ job: char.job, name: char.name, val: char.weaponCounts?.[key] || 0 }))
+                // 일반 무기
+                const normalKey = `${pref.tag} ${weaponName}`;
+                const normalOwners = characters
+                    .map(char => ({ job: char.job, name: char.name, val: char.weaponCounts?.[normalKey] || 0 }))
                     .filter(o => o.val > 0);
-                if (owners.length > 0) visibleItems.push({ weaponName, pref, owners });
+                if (normalOwners.length > 0) {
+                    visibleItems.push({ weaponName, pref, owners: normalOwners, erosion: false });
+                }
+
+                // 침식 무기
+                const erosionKey = `[침식] ${pref.tag} ${weaponName}`;
+                const erosionOwners = characters
+                    .map(char => ({ job: char.job, name: char.name, val: char.weaponCounts?.[erosionKey] || 0 }))
+                    .filter(o => o.val > 0);
+                if (erosionOwners.length > 0) {
+                    visibleItems.push({ weaponName, pref, owners: erosionOwners, erosion: true });
+                }
             });
         });
+
         if (visibleItems.length === 0) return;
 
         const totalRows = visibleItems.reduce((sum, item) => sum + item.owners.length, 0);
@@ -204,7 +212,13 @@ function showWeaponStatistics(selectedJob = null) {
                     categoryRendered = true;
                 }
                 if (oIdx === 0) {
-                    html += `<td rowspan="${item.owners.length}" style="text-align:left; padding:8px 15px; white-space:nowrap; border:1px solid #2a3158; vertical-align:middle;"><span style="color:${item.pref.color}; font-weight:bold;">${item.pref.tag}</span>&nbsp;${item.weaponName}</td>`;
+                    // 침식 무기면 [침식] 태그 표시
+                    const erosionTag = item.erosion
+                        ? `<span style="background:linear-gradient(to bottom, #ff9de2, #ffffff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:bold;">[침식]</span> `
+                        : '';
+                    html += `<td rowspan="${item.owners.length}" style="text-align:left; padding:8px 15px; white-space:nowrap; border:1px solid #2a3158; vertical-align:middle;">
+                        ${erosionTag}<span style="color:${item.pref.color}; font-weight:bold;">${item.pref.tag}</span>&nbsp;${item.weaponName}
+                    </td>`;
                 }
                 html += `<td style="padding:6px 10px; border:1px solid #2a3158; text-align:center; white-space:nowrap;">${owner.job}(${owner.name})</td>`;
                 html += `<td style="padding:6px 10px; border:1px solid #2a3158; text-align:center; color:${item.pref.color}; font-weight:bold;">${owner.val}</td>`;
@@ -233,7 +247,6 @@ function searchEquipment() {
         return;
     }
 
-    // 상태 업데이트
     isCharacterEquipmentViewOpen = false;
     isStatisticsViewOpen = false;
     selectedCharacterForEquipment = null;
@@ -251,7 +264,6 @@ function searchEquipment() {
     let html = `<h2 style="color:#ffd700; margin-bottom:20px;">🔍 검색 결과: "${searchTerm}"</h2>`;
     let found = false;
 
-    // ── 1. 장비(방어구/악세/특장) 검색 ──────────────────────────
     const CATEGORIES = [
         {name: "방어구", sets: ARMOR_SETS, prefix: ARMOR_PREFIX},
         {name: "악세",   sets: ACCESSORY_SETS, prefix: ACCESSORY_PREFIX},
@@ -260,9 +272,8 @@ function searchEquipment() {
 
     CATEGORIES.forEach(category => {
         Object.keys(category.sets).forEach(baseSetName => {
-            // 세트명 또는 실제 아이템명(부위명)에 검색어 포함 여부 확인
             const setType = category.name === "방어구" ? "ARMOR"
-                : category.name === "악세"   ? "ACCESSORY" : "SPECIAL";
+                : category.name === "악세" ? "ACCESSORY" : "SPECIAL";
             let allItemNames = [];
             const displayMap = setType === "ARMOR"     ? ARMOR_DISPLAY_NAMES[baseSetName]
                 : setType === "ACCESSORY" ? ACCESSORY_DISPLAY_NAMES[baseSetName]
@@ -273,10 +284,7 @@ function searchEquipment() {
                     else allItemNames.push(v);
                 });
             }
-            const matchesSetName  = baseSetName.includes(searchTerm);
-            const matchesItemName = allItemNames.some(n => n && n.includes(searchTerm));
-
-            if (!matchesSetName && !matchesItemName) return;
+            if (!baseSetName.includes(searchTerm) && !allItemNames.some(n => n && n.includes(searchTerm))) return;
             found = true;
 
             const set = {
@@ -294,15 +302,11 @@ function searchEquipment() {
                 <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">익시드</th>
                 <th style="padding:10px; border:1px solid #2a3158; white-space:nowrap;">접두어</th>`;
             set.slots.forEach(slot => {
-                // 실제 아이템명을 헤더에 표시
                 let rawName = slot;
-                if (setType === "ARMOR" && ARMOR_DISPLAY_NAMES[baseSetName] && ARMOR_DISPLAY_NAMES[baseSetName][slot]) {
-                    rawName = ARMOR_DISPLAY_NAMES[baseSetName][slot];
-                } else if (setType === "ACCESSORY" && ACCESSORY_DISPLAY_NAMES[baseSetName] && ACCESSORY_DISPLAY_NAMES[baseSetName][slot]) {
-                    rawName = ACCESSORY_DISPLAY_NAMES[baseSetName][slot];
-                } else if (setType === "SPECIAL" && SPECIAL_DISPLAY_NAMES[baseSetName] && SPECIAL_DISPLAY_NAMES[baseSetName][slot]) {
-                    rawName = SPECIAL_DISPLAY_NAMES[baseSetName][slot];
-                }
+                if (setType === "ARMOR" && ARMOR_DISPLAY_NAMES[baseSetName]?.[slot]) rawName = ARMOR_DISPLAY_NAMES[baseSetName][slot];
+                else if (setType === "ACCESSORY" && ACCESSORY_DISPLAY_NAMES[baseSetName]?.[slot]) rawName = ACCESSORY_DISPLAY_NAMES[baseSetName][slot];
+                else if (setType === "SPECIAL" && SPECIAL_DISPLAY_NAMES[baseSetName]?.[slot]) rawName = SPECIAL_DISPLAY_NAMES[baseSetName][slot];
+
                 let displayName;
                 if (Array.isArray(rawName)) {
                     displayName = `<div style="color:#aad4ff;">${rawName[0]}</div><div style="color:#fff; font-size:0.9em; margin-top:2px;">${rawName[1]}</div>`;
@@ -376,7 +380,6 @@ function searchEquipment() {
                         html += `<td style="padding:10px; border:1px solid #2a3158; text-align:center; color:#fff; font-weight:bold;">${count > 0 ? count : ''}</td>`;
                     });
 
-                    // 달성 열
                     if (row.exceed) {
                         html += `<td style="padding:10px; border:1px solid #2a3158; text-align:center;"></td>`;
                     } else {
@@ -391,38 +394,38 @@ function searchEquipment() {
                         }
                         html += `<td style="padding:10px; border:1px solid #2a3158; text-align:center; font-weight:bold; color:${achieveColor};">${achieved}</td>`;
                     }
-
                     html += `</tr>`;
                 });
-
                 html += `<tr style="height:3px; background:#666;"><td colspan="${4 + set.slots.length}" style="padding:0; border:none;"></td></tr>`;
             });
-
             html += `</tbody></table>`;
         });
     });
 
-    // ── 2. 무기 검색 ──────────────────────────────────────────────
-    // 종류(소검/도/...) 또는 무기 이름으로 검색
+    // 무기 검색
     JOB_LIST.forEach(jobGroup => {
         const jobData = WEAPON_DATA_MAP[jobGroup];
         if (!jobData) return;
 
-        // 이 직업군에서 검색어와 일치하는 항목 수집
-        // visibleItems: { weaponName, pref, owners }
         const visibleItems = [];
         Object.entries(jobData).forEach(([category, weaponList]) => {
             const categoryMatch = category.includes(searchTerm);
             weaponList.forEach(weaponName => {
                 if (!categoryMatch && !weaponName.includes(searchTerm)) return;
                 WEAPON_PREFIXES.forEach(pref => {
-                    const key = `${pref.tag} ${weaponName}`;
-                    const owners = characters
-                        .map(char => ({ job: char.job, name: char.name, val: char.weaponCounts?.[key] || 0 }))
+                    // 일반 무기
+                    const normalKey = `${pref.tag} ${weaponName}`;
+                    const normalOwners = characters
+                        .map(char => ({ job: char.job, name: char.name, val: char.weaponCounts?.[normalKey] || 0 }))
                         .filter(o => o.val > 0);
-                    if (owners.length > 0) {
-                        visibleItems.push({ category, weaponName, pref, owners });
-                    }
+                    if (normalOwners.length > 0) visibleItems.push({ category, weaponName, pref, owners: normalOwners, erosion: false });
+
+                    // 침식 무기
+                    const erosionKey = `[침식] ${pref.tag} ${weaponName}`;
+                    const erosionOwners = characters
+                        .map(char => ({ job: char.job, name: char.name, val: char.weaponCounts?.[erosionKey] || 0 }))
+                        .filter(o => o.val > 0);
+                    if (erosionOwners.length > 0) visibleItems.push({ category, weaponName, pref, owners: erosionOwners, erosion: true });
                 });
             });
         });
@@ -439,7 +442,6 @@ function searchEquipment() {
         html += `<th style="width:70px;  padding:12px; border:1px solid #2a3158; white-space:nowrap; text-align:center;">개수</th>`;
         html += `</tr></thead><tbody>`;
 
-        // 카테고리별로 그룹핑해서 종류 rowspan 처리
         const byCategory = {};
         visibleItems.forEach(item => {
             if (!byCategory[item.category]) byCategory[item.category] = [];
@@ -458,7 +460,12 @@ function searchEquipment() {
                         categoryRendered = true;
                     }
                     if (oIdx === 0) {
-                        html += `<td rowspan="${item.owners.length}" style="text-align:left; padding:8px 15px; white-space:nowrap; border:1px solid #2a3158; vertical-align:middle;"><span style="color:${item.pref.color}; font-weight:bold;">${item.pref.tag}</span>&nbsp;${item.weaponName}</td>`;
+                        const erosionTag = item.erosion
+                            ? `<span style="background:linear-gradient(to bottom, #ff9de2, #ffffff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:bold;">[침식]</span> `
+                            : '';
+                        html += `<td rowspan="${item.owners.length}" style="text-align:left; padding:8px 15px; white-space:nowrap; border:1px solid #2a3158; vertical-align:middle;">
+                            ${erosionTag}<span style="color:${item.pref.color}; font-weight:bold;">${item.pref.tag}</span>&nbsp;${item.weaponName}
+                        </td>`;
                     }
                     html += `<td style="padding:6px 10px; border:1px solid #2a3158; text-align:center; white-space:nowrap;">${owner.job}(${owner.name})</td>`;
                     html += `<td style="padding:6px 10px; border:1px solid #2a3158; text-align:center; color:${item.pref.color}; font-weight:bold;">${owner.val}</td>`;
@@ -481,7 +488,6 @@ function searchEquipment() {
     displayArea.innerHTML = html;
 }
 
-// Enter 키로도 검색 가능하도록 이벤트 리스너 추가 (초기화 섹션에 추가)
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById("equipment-search-input");
     if (searchInput) {

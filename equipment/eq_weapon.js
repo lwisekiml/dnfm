@@ -6,16 +6,16 @@
 // 10.1 무기 렌더링
 // ─────────────────────────────────────────
 
-// ★ 추가: 침식 모드 상태 변수
+// 침식 모드 상태 변수
 let erosionMode = false;
 
-// ★ 추가: 침식 모드 토글 함수
+// 침식 모드 토글 함수
 function toggleErosionMode() {
     erosionMode = !erosionMode;
     const btn = document.getElementById("erosion-mode-btn");
     if (btn) {
         if (erosionMode) {
-            btn.textContent = "⚔️ 침식 모드: ON";
+            btn.innerHTML = `⚔️ 침식 모드: <span style="background:linear-gradient(to bottom, #ff9de2, #ffffff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:bold;">ON</span>`;
             btn.style.background = "#c0392b";
             btn.style.border = "2px solid #ff6b6b";
             btn.style.color = "#fff";
@@ -26,7 +26,6 @@ function toggleErosionMode() {
             btn.style.color = "#aaa";
         }
     }
-    // 현재 선택된 직업이 있으면 테이블 다시 렌더링
     if (activeWeaponJob) {
         selectWeaponJob(activeWeaponJob, true);
     }
@@ -36,7 +35,7 @@ function selectWeaponJob(jobName, keepOpen = false) {
     const weaponPanel = document.getElementById("weaponPanel");
     const container = document.getElementById("weaponJobButtons");
 
-    if (!keepOpen && activeWeaponJob === jobName && erosionMode === false) {
+    if (!keepOpen && activeWeaponJob === jobName && !erosionMode) {
         activeWeaponJob = null;
         weaponPanel.innerHTML = "";
         selectWeaponJob(null);
@@ -45,12 +44,9 @@ function selectWeaponJob(jobName, keepOpen = false) {
 
     activeWeaponJob = jobName;
 
-    // ─────────────────────────────────────────
-    // 직업 버튼 + 침식 모드 버튼 렌더링
-    // ─────────────────────────────────────────
     container.innerHTML = "";
 
-    // ★ 침식 모드 ON/OFF 버튼 (직업 버튼보다 먼저 추가)
+    // 침식 모드 ON/OFF 버튼
     const erosionBtn = document.createElement("button");
     erosionBtn.id = "erosion-mode-btn";
     erosionBtn.className = "char-btn";
@@ -83,7 +79,6 @@ function selectWeaponJob(jobName, keepOpen = false) {
                     Object.values(jobData).forEach(weaponList => {
                         weaponList.forEach(weaponName => {
                             WEAPON_PREFIXES.forEach(pref => {
-                                // ★ 침식 모드면 "[침식] " 접두어가 붙은 키로 카운트
                                 const weaponKey = erosionMode
                                     ? `[침식] ${pref.tag} ${weaponName}`
                                     : `${pref.tag} ${weaponName}`;
@@ -109,7 +104,7 @@ function selectWeaponJob(jobName, keepOpen = false) {
         return;
     }
 
-    // ★ 침식 모드 표시 헤더
+    // 침식 모드 표시 헤더
     const modeLabel = erosionMode
         ? `<div style="display:inline-block; margin-bottom:12px; padding:4px 14px; background:#c0392b; color:#fff; border-radius:6px; font-weight:bold; font-size:0.9em;">⚔️ 침식 모드 - [침식] 무기 표시 중</div>`
         : '';
@@ -136,7 +131,7 @@ function selectWeaponJob(jobName, keepOpen = false) {
             WEAPON_PREFIXES.forEach((pref, pIdx) => {
                 const rowId = `weapon-row-${categories.indexOf(category)}-${wIdx}-${pIdx}`;
 
-                // ★ 침식 모드면 키에 "[침식] " 접두어 추가
+                // 침식 모드면 키에 "[침식] " 접두어 추가
                 const weaponKey = erosionMode
                     ? `[침식] ${pref.tag} ${weaponName}`
                     : `${pref.tag} ${weaponName}`;
@@ -147,7 +142,7 @@ function selectWeaponJob(jobName, keepOpen = false) {
                     html += `<td rowspan="${rowSpanCount}" style="background:#181c33; font-weight:bold; width: 120px; border: 1px solid #2a3158; text-align:center; vertical-align: middle; color: #fff; padding: 10px;">${category}</td>`;
                 }
 
-                // ★ 침식 모드면 무기 이름 앞에 [침식] 표시 추가
+                // 침식 모드면 무기 이름 앞에 [침식] 표시
                 const erosionTag = erosionMode
                     ? `<span style="background:linear-gradient(to bottom, #ff9de2, #ffffff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:bold;">[침식]</span> `
                     : '';
@@ -177,7 +172,7 @@ function selectWeaponJob(jobName, keepOpen = false) {
     }
 }
 
-// 무기 전용 숫자 버튼 생성 함수 (기존 makeNumberButton 복사 및 수정)
+// 무기 전용 숫자 버튼 생성 함수
 function makeWeaponNumberButton(charId, key, val, jobName) {
     const extraClass = val > 0 ? " positive" : "";
     return `<button class="num-btn${extraClass}"
@@ -186,7 +181,6 @@ function makeWeaponNumberButton(charId, key, val, jobName) {
 }
 
 // 8-2. 무기 증감
-// 무기 전용 증가 함수
 function incrementWeapon(charId, key, jobName) {
     const char = characters.find(c => c.id === charId);
     if (!char) return;
@@ -200,12 +194,9 @@ function incrementWeapon(charId, key, jobName) {
     char.updateHistory.push({ key, timestamp: char.updateTimes[key], oldCount: oldValue, newCount: newValue });
 
     saveLocalData();
-
-    // 전체 테이블 재렌더링 대신 해당 버튼만 업데이트
     updateWeaponButton(charId, key, char.weaponCounts[key]);
 }
 
-// 무기 전용 감소 함수
 function decrementWeapon(charId, key, jobName) {
     const char = characters.find(c => c.id === charId);
     if (!char) return;
@@ -219,37 +210,26 @@ function decrementWeapon(charId, key, jobName) {
     char.updateHistory.push({ key, timestamp: char.updateTimes[key], oldCount: cur, newCount: newValue });
 
     saveLocalData();
-
-    // 전체 테이블 재렌더링 대신 해당 버튼만 업데이트
     updateWeaponButton(charId, key, char.weaponCounts[key]);
 }
 
-// 무기 버튼만 업데이트하는 헬퍼 함수 (전체 테이블 재렌더링 방지)
 function updateWeaponButton(charId, key, newValue) {
-    // 해당 버튼을 찾아서 내용과 스타일만 업데이트
     const table = document.getElementById("weaponDetailTable");
     if (!table) return;
 
     const buttons = table.querySelectorAll('.num-btn');
     buttons.forEach(btn => {
-        // onclick 속성에서 charId와 key가 일치하는 버튼 찾기
         const onclickStr = btn.getAttribute('onclick') || '';
         if (onclickStr.includes(`'${charId}'`) && onclickStr.includes(`'${key}'`)) {
             btn.textContent = newValue;
-            // positive 클래스 토글
-            if (newValue > 0) {
-                btn.classList.add('positive');
-            } else {
-                btn.classList.remove('positive');
-            }
+            if (newValue > 0) btn.classList.add('positive');
+            else btn.classList.remove('positive');
         }
     });
 
-    // 상단 직업 버튼의 총 개수도 업데이트
     updateWeaponJobTotals();
 }
 
-// 직업별 총 개수만 업데이트하는 함수
 function updateWeaponJobTotals() {
     const container = document.getElementById("weaponJobButtons");
     if (!container) return;
@@ -263,7 +243,9 @@ function updateWeaponJobTotals() {
                     Object.values(jobData).forEach(weaponList => {
                         weaponList.forEach(weaponName => {
                             WEAPON_PREFIXES.forEach(pref => {
-                                const weaponKey = `${pref.tag} ${weaponName}`;
+                                const weaponKey = erosionMode
+                                    ? `[침식] ${pref.tag} ${weaponName}`
+                                    : `${pref.tag} ${weaponName}`;
                                 totalCount += (char.weaponCounts[weaponKey] || 0);
                             });
                         });
@@ -272,7 +254,6 @@ function updateWeaponJobTotals() {
             });
         }
 
-        // 해당 직업 버튼 찾아서 텍스트만 업데이트
         const buttons = container.querySelectorAll('.char-btn');
         buttons.forEach(btn => {
             if (btn.textContent.startsWith(j)) {
@@ -289,19 +270,16 @@ function toggleRowHighlight(rowId) {
 
     const rows = table.querySelectorAll('tbody tr');
 
-    // 이미 선택된 행을 다시 누르면 해제
     if (highlightedRowId === rowId) {
         highlightedRowId = null;
     } else {
         highlightedRowId = rowId;
     }
 
-    // 모든 행의 강조 해제
     rows.forEach(row => {
         row.style.backgroundColor = "";
     });
 
-    // 선택된 행만 강조
     if (highlightedRowId) {
         const selectedRow = document.getElementById(highlightedRowId);
         if (selectedRow) {
@@ -311,7 +289,6 @@ function toggleRowHighlight(rowId) {
 }
 
 function toggleColumnHighlight(colIdx) {
-    // 이미 선택된 열을 다시 누르면 해제, 아니면 해당 열 번호 저장
     if (highlightedColumnIndex === colIdx) {
         highlightedColumnIndex = null;
     } else {
@@ -327,20 +304,16 @@ function applyStoredHighlights() {
     const rows = table.rows;
     for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].cells;
-
-        // 종류/무기이름 셀을 제외한 실제 캐릭터 데이터 셀들의 시작 위치 계산
         const charStartIdx = cells.length - characters.length;
 
         characters.forEach((_, charIdx) => {
             const currentCellIdx = charStartIdx + charIdx;
-            const absoluteColIdx = charIdx + 2; // 캐릭터의 고유 순번(2번부터 시작)
+            const absoluteColIdx = charIdx + 2;
 
             if (cells[currentCellIdx]) {
-                // 현재 순번이 저장된 단일 선택 인덱스와 일치할 때만 강조
                 if (highlightedColumnIndex === absoluteColIdx) {
                     cells[currentCellIdx].style.backgroundColor = "rgba(255, 255, 200, 0.15)";
                 } else {
-                    // 강조되지 않은 셀은 원래 색상으로 복구
                     cells[currentCellIdx].style.backgroundColor = i === 0 ? "#181c33" : "";
                 }
             }
@@ -355,7 +328,6 @@ function showRecentUpdates() {
     allUpdatesData = [];
 
     characters.forEach(char => {
-        // updateHistory(누적 이력)가 있으면 우선 사용, 없으면 updateTimes 기반 레거시 처리
         const historyEntries = char.updateHistory && char.updateHistory.length > 0
             ? char.updateHistory
             : Object.entries(char.updateTimes || {}).map(([key, timestamp]) => ({
@@ -382,7 +354,6 @@ function showRecentUpdates() {
                 if (setType === "ACCESSORY") category = "악세";
                 else if (setType === "SPECIAL") category = "특장";
 
-                // 실제 아이템 이름 조회 (표시용, JSON 데이터는 변경 없음)
                 let realItemName = null;
                 const isExceedItem = fullKey.startsWith('[');
                 try {
@@ -432,7 +403,6 @@ function showRecentUpdates() {
 
     const modalContent = document.getElementById("updateModalContent");
 
-    // ── 탭 헤더 렌더링 ──
     let p1History = [];
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.UNIFIED);
@@ -465,7 +435,6 @@ function showRecentUpdates() {
     filteredUpdatesData = allUpdatesData.slice();
     currentUpdatePage = 1;
 
-    // 검색창 렌더링 (p2 탭 안에 삽입)
     const p2El = document.getElementById('update-tab-p2');
     if (p2El) {
         p2El.innerHTML = `
@@ -507,13 +476,11 @@ function showRecentUpdates() {
             const details = Array.isArray(h.details) ? h.details : [];
             const hasDetails = details.length > 0;
 
-            // 요약 텍스트 생성
             const nameChanged = h.old !== h.new;
             const isCreature  = h.slot === '크리쳐';
             const detailLabel = isCreature ? `항목 ${details.length}개 변경` : `스탯 ${details.length}개 변경`;
             let summary = '';
             if (isCreature) {
-                // 크리쳐: "크리쳐 설정 수정" 고정 표시
                 summary = `크리쳐 설정 수정` + (hasDetails ? ` <span style="color:#aaa;font-size:0.9em">(${detailLabel})</span>` : '');
             } else if (nameChanged && hasDetails) {
                 summary = `${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)} <span style="color:#aaa;font-size:0.9em">(${detailLabel})</span>`;
@@ -627,6 +594,7 @@ function renderUpdatePage(pageNum) {
             else if (tag.includes('의지') || tag.includes('광채')) tagColor = '#3399cc';
             else if (tag.includes('이상')) tagColor = '#25c2a0';
             else if (tag.includes('강타')) tagColor = '#ffd700';
+            else if (tag.includes('침식')) tagColor = '#ff9de2';
 
             let baseNamePart = restName;
             if (restName.includes(':')) {
@@ -639,11 +607,9 @@ function renderUpdatePage(pageNum) {
             if (pMatch) styledItemName = `<span style="color:#e6b800; font-weight:bold;">${pMatch[1]}</span>: ${pMatch[2]}`;
         }
 
-        // 실제 아이템 이름이 있으면 "접두어/익시드: 아이템이름 (세트이름)" 형식으로 표시
         let displayItemCell;
         if (item.realItemName) {
-            // 앞에 붙일 태그/접두어 파트 추출 (styledItemName에서 세트명 제거)
-            const rawName = item.itemName; // 예: "[의지] 조화: 신비로운 빛의 소용돌이"
+            const rawName = item.itemName;
             let prefixPart = '';
 
             const tagMatch2 = rawName.match(/^(\[.*?\])\s*(.*)/);
@@ -652,8 +618,8 @@ function renderUpdatePage(pageNum) {
                 const rest = tagMatch2[2];
                 const tagColor = tag.includes('선봉') || tag.includes('분쇄') ? '#ff4d4f'
                     : tag.includes('의지') || tag.includes('광채') ? '#3399cc'
-                        : tag.includes('이상') ? '#25c2a0' : '#ffd700';
-                // rest = "조화: 신비로운 빛의 소용돌이" → 접두어만 추출
+                        : tag.includes('이상') ? '#25c2a0'
+                            : tag.includes('침식') ? '#ff9de2' : '#ffd700';
                 const pMatch2 = rest.match(/^(.+?):\s*/);
                 const prefLabel = pMatch2 ? `<span style="color:#e6b800; font-weight:bold;">${pMatch2[1]}</span>: ` : '';
                 prefixPart = `<span style="color:${tagColor}; font-weight:bold;">${tag}</span> ${prefLabel}`;
@@ -662,9 +628,7 @@ function renderUpdatePage(pageNum) {
                 if (pMatch2) prefixPart = `<span style="color:#e6b800; font-weight:bold;">${pMatch2[1]}</span>: `;
             }
 
-            // 세트 이름만 추출 (접두어/익시드 제거)
             const baseSetName = rawName.split(':').pop().trim();
-
             displayItemCell = `${prefixPart}${item.realItemName} <span style="color:#888; font-size:0.85em;">(${baseSetName})</span>`;
         } else {
             displayItemCell = styledItemName;
@@ -684,7 +648,6 @@ function renderUpdatePage(pageNum) {
         tbody.appendChild(tr);
     });
 
-    // p2Container(탭)에 렌더링 시 검색창/결과정보는 유지하고 기존 테이블만 교체
     if (p2Container) {
         const oldTable = p2Container.querySelector('table');
         if (oldTable) oldTable.remove();
@@ -705,80 +668,53 @@ function renderPaginationButtons(currentPage) {
         ? filteredUpdatesData : allUpdatesData;
     const totalPages = Math.ceil(dataSource.length / ITEMS_PER_PAGE);
 
-    // 데이터가 없으면 버튼 생성 안 함
     if (totalPages === 0) return;
 
-    // 처음으로 버튼
     const firstBtn = document.createElement("button");
     firstBtn.textContent = "⏮ 처음으로";
     firstBtn.disabled = currentPage === 1;
-    firstBtn.onclick = () => {
-        currentUpdatePage = 1;
-        renderUpdatePage(1);
-    };
+    firstBtn.onclick = () => { currentUpdatePage = 1; renderUpdatePage(1); };
     paginationContainer.appendChild(firstBtn);
 
-    // 이전 페이지 버튼
     const prevBtn = document.createElement("button");
     prevBtn.textContent = "◀ 이전";
     prevBtn.disabled = currentPage === 1;
     prevBtn.onclick = () => {
-        if (currentPage > 1) {
-            currentUpdatePage = currentPage - 1;
-            renderUpdatePage(currentUpdatePage);
-        }
+        if (currentPage > 1) { currentUpdatePage = currentPage - 1; renderUpdatePage(currentUpdatePage); }
     };
     paginationContainer.appendChild(prevBtn);
 
-    // 페이지 범위 계산 (현재 페이지 기준으로 5개씩)
     const pageGroupStart = Math.floor((currentPage - 1) / 5) * 5 + 1;
     const pageGroupEnd = Math.min(pageGroupStart + 4, totalPages);
 
-    // 페이지 번호 버튼 (5개씩 표시)
     for (let i = pageGroupStart; i <= pageGroupEnd; i++) {
         const pageBtn = document.createElement("button");
         pageBtn.textContent = i;
         pageBtn.className = currentPage === i ? "active" : "";
-        pageBtn.onclick = () => {
-            currentUpdatePage = i;
-            renderUpdatePage(i);
-        };
+        pageBtn.onclick = () => { currentUpdatePage = i; renderUpdatePage(i); };
         paginationContainer.appendChild(pageBtn);
     }
 
-    // 다음 페이지 버튼
     const nextBtn = document.createElement("button");
     nextBtn.textContent = "다음 ▶";
     nextBtn.disabled = currentPage === totalPages;
     nextBtn.onclick = () => {
-        if (currentPage < totalPages) {
-            currentUpdatePage = currentPage + 1;
-            renderUpdatePage(currentUpdatePage);
-        }
+        if (currentPage < totalPages) { currentUpdatePage = currentPage + 1; renderUpdatePage(currentUpdatePage); }
     };
     paginationContainer.appendChild(nextBtn);
 
-    // 끝으로 버튼
     const lastBtn = document.createElement("button");
     lastBtn.textContent = "끝으로 ⏭";
     lastBtn.disabled = currentPage === totalPages;
-    lastBtn.onclick = () => {
-        currentUpdatePage = totalPages;
-        renderUpdatePage(totalPages);
-    };
+    lastBtn.onclick = () => { currentUpdatePage = totalPages; renderUpdatePage(totalPages); };
     paginationContainer.appendChild(lastBtn);
 
-    // 페이지 검색 입력창 추가
     const searchDiv = document.createElement("div");
-    searchDiv.style.display = "flex";
-    searchDiv.style.gap = "8px";
-    searchDiv.style.alignItems = "center";
-    searchDiv.style.marginLeft = "15px";
+    searchDiv.style.cssText = "display:flex; gap:8px; align-items:center; margin-left:15px;";
 
     const searchLabel = document.createElement("span");
     searchLabel.textContent = "페이지 검색:";
-    searchLabel.style.color = "#e6e9ff";
-    searchLabel.style.fontWeight = "bold";
+    searchLabel.style.cssText = "color:#e6e9ff; font-weight:bold;";
     searchDiv.appendChild(searchLabel);
 
     const searchInput = document.createElement("input");
@@ -800,18 +736,13 @@ function renderPaginationButtons(currentPage) {
         currentUpdatePage = pageNum;
         renderUpdatePage(pageNum);
     };
-
-    // Enter 키로도 검색 가능
-    searchInput.onkeypress = (e) => {
-        if (e.key === "Enter") searchBtn.click();
-    };
+    searchInput.onkeypress = (e) => { if (e.key === "Enter") searchBtn.click(); };
 
     searchDiv.appendChild(searchInput);
     searchDiv.appendChild(searchBtn);
     paginationContainer.appendChild(searchDiv);
 }
 
-// 검색 필터링
 function filterUpdateData() {
     const jobnameInput = document.getElementById('update-search-jobname');
     const slotInput    = document.getElementById('update-search-slot');
@@ -832,11 +763,9 @@ function filterUpdateData() {
             const slotFull = (item.category + ' ' + item.slot).toLowerCase();
             const itemName = (item.itemName + ' ' + (item.realItemName || '')).toLowerCase();
 
-            const matchJobName = !termJobName || jobName.includes(termJobName);
-            const matchSlot    = !termSlot    || slotFull.includes(termSlot);
-            const matchItem    = !termItem    || itemName.includes(termItem);
-
-            return matchJobName && matchSlot && matchItem;
+            return (!termJobName || jobName.includes(termJobName))
+                && (!termSlot    || slotFull.includes(termSlot))
+                && (!termItem    || itemName.includes(termItem));
         });
     }
 
@@ -850,7 +779,6 @@ function filterUpdateData() {
     renderUpdatePage(1);
 }
 
-// 검색 초기화
 function clearUpdateSearch() {
     const jobnameInput = document.getElementById('update-search-jobname');
     const slotInput    = document.getElementById('update-search-slot');
@@ -861,16 +789,8 @@ function clearUpdateSearch() {
     filterUpdateData();
 }
 
-// 새로 추가: 업데이트 모달 닫기 함수
 function closeUpdateModal() {
     document.getElementById("updateModal").style.display = 'none';
 }
-
-
-/* ========================================
-[섹션 12] 제작 시스템 → eq_craft.js 로 이동
-======================================== */
-// renderCraftTable, updateCraftTotals, setCraftLock,
-// applyCraftModulo, undoCraftModulo → eq_craft.js 참조
 
 console.log("✅ eq_weapon.js 로드 완료");

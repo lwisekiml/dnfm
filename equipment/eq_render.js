@@ -725,20 +725,20 @@ function renderCharacterEquipmentDetail(char) {
 
     // 무기 섹션 추가
     if (char.weaponCounts && Object.keys(char.weaponCounts).length > 0) {
-        // 무기 총 개수 계산
-        let totalWeapons = 0;
-        Object.values(char.weaponCounts).forEach(count => {
-            totalWeapons += count || 0;
+        let totalWeapons = 0, totalErosionWeapons = 0;
+        Object.entries(char.weaponCounts).forEach(([key, count]) => {
+            if (!count || count <= 0) return;
+            if (key.startsWith('[침식]')) totalErosionWeapons += count;
+            else totalWeapons += count;
         });
+        const totalAll = totalWeapons + totalErosionWeapons;
 
-        html += `<h2 style="color: #ffd700; margin-top: 40px; margin-bottom: 15px;">🔹 무기 <span style="color: #ffd700; font-weight: bold;">(${totalWeapons}개)</span></h2>`;
+        html += `<h2 style="color: #ffd700; margin-top: 40px; margin-bottom: 15px;">🔹 무기 <span style="color: #ffd700; font-weight: bold;">(${totalAll}개)</span></h2>`;
 
-        // 직업별로 무기 분류
         JOB_LIST.forEach(jobName => {
             const jobWeaponData = WEAPON_DATA_MAP[jobName];
             if (!jobWeaponData) return;
 
-            // 해당 직업의 무기를 보유하고 있는지 확인
             let hasWeaponsForJob = false;
             const weaponRows = [];
 
@@ -747,25 +747,31 @@ function renderCharacterEquipmentDetail(char) {
 
                 weaponList.forEach(weaponName => {
                     WEAPON_PREFIXES.forEach(prefix => {
-                        const weaponKey = `${prefix.tag} ${weaponName}`;
-                        const count = char.weaponCounts[weaponKey] || 0;
-
-                        if (count > 0) {
+                        // 일반 무기
+                        const normalKey = `${prefix.tag} ${weaponName}`;
+                        const normalCount = char.weaponCounts[normalKey] || 0;
+                        if (normalCount > 0) {
                             hasWeaponsForJob = true;
-                            categoryWeapons.push({name: weaponName, prefix: prefix, count: count});
+                            categoryWeapons.push({ name: weaponName, prefix, count: normalCount, erosion: false });
+                        }
+                        // 침식 무기
+                        const erosionKey = `[침식] ${prefix.tag} ${weaponName}`;
+                        const erosionCount = char.weaponCounts[erosionKey] || 0;
+                        if (erosionCount > 0) {
+                            hasWeaponsForJob = true;
+                            categoryWeapons.push({ name: weaponName, prefix, count: erosionCount, erosion: true });
                         }
                     });
                 });
 
                 if (categoryWeapons.length > 0) {
-                    weaponRows.push({category: category, weapons: categoryWeapons});
+                    weaponRows.push({ category, weapons: categoryWeapons });
                 }
             });
 
             if (!hasWeaponsForJob) return;
 
             html += `<h4 style="color: #fff; margin-top: 25px; margin-bottom: 10px;">[${jobName}]</h4>`;
-
             html += `<table style="width: max-content; border-collapse: collapse; margin-bottom: 20px;">`;
             html += `<thead style="background: #181c33;"><tr>
                 <th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap; text-align: center; width: 100px;">종류</th>
@@ -776,24 +782,18 @@ function renderCharacterEquipmentDetail(char) {
             weaponRows.forEach(row => {
                 row.weapons.forEach((weapon, idx) => {
                     html += `<tr style="border-bottom: 1px solid #444;">`;
-
-                    // 종류 (첫 무기에만 rowspan)
                     if (idx === 0) {
                         html += `<td rowspan="${row.weapons.length}" style="padding: 10px; border: 1px solid #2a3158; font-weight: bold; background: #1a1e33; text-align: center; vertical-align: middle;">${row.category}</td>`;
                     }
-
-                    // 무기 이름 (접두어 색상 적용)
+                    const erosionTag = weapon.erosion
+                        ? `<span style="background:linear-gradient(to bottom, #ff9de2, #ffffff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:bold;">[침식]</span> `
+                        : '';
                     html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: left;">
-                        <span style="color: ${weapon.prefix.color}; font-weight: bold;">${weapon.prefix.tag}</span> ${weapon.name}
+                        ${erosionTag}<span style="color: ${weapon.prefix.color}; font-weight: bold;">${weapon.prefix.tag}</span> ${weapon.name}
                     </td>`;
-
-                    // 개수
                     html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${weapon.count}</td>`;
-
                     html += `</tr>`;
                 });
-
-                // 종류 구분선
                 html += `<tr style="height: 3px; background: #2a3158;"><td colspan="3" style="padding: 0; border: none;"></td></tr>`;
             });
 
