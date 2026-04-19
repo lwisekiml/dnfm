@@ -5,12 +5,38 @@
 // ─────────────────────────────────────────
 // 10.1 무기 렌더링
 // ─────────────────────────────────────────
-// ===== 무기 직업 선택 및 버튼 갱신 (종류 열 너비 고정 및 정중앙 정렬) =====
+
+// ★ 추가: 침식 모드 상태 변수
+let erosionMode = false;
+
+// ★ 추가: 침식 모드 토글 함수
+function toggleErosionMode() {
+    erosionMode = !erosionMode;
+    const btn = document.getElementById("erosion-mode-btn");
+    if (btn) {
+        if (erosionMode) {
+            btn.textContent = "⚔️ 침식 모드: ON";
+            btn.style.background = "#c0392b";
+            btn.style.border = "2px solid #ff6b6b";
+            btn.style.color = "#fff";
+        } else {
+            btn.textContent = "⚔️ 침식 모드: OFF";
+            btn.style.background = "#2a3158";
+            btn.style.border = "2px solid #444";
+            btn.style.color = "#aaa";
+        }
+    }
+    // 현재 선택된 직업이 있으면 테이블 다시 렌더링
+    if (activeWeaponJob) {
+        selectWeaponJob(activeWeaponJob, true);
+    }
+}
+
 function selectWeaponJob(jobName, keepOpen = false) {
     const weaponPanel = document.getElementById("weaponPanel");
     const container = document.getElementById("weaponJobButtons");
 
-    if (!keepOpen && activeWeaponJob === jobName) {
+    if (!keepOpen && activeWeaponJob === jobName && erosionMode === false) {
         activeWeaponJob = null;
         weaponPanel.innerHTML = "";
         selectWeaponJob(null);
@@ -19,7 +45,35 @@ function selectWeaponJob(jobName, keepOpen = false) {
 
     activeWeaponJob = jobName;
 
+    // ─────────────────────────────────────────
+    // 직업 버튼 + 침식 모드 버튼 렌더링
+    // ─────────────────────────────────────────
     container.innerHTML = "";
+
+    // ★ 침식 모드 ON/OFF 버튼 (직업 버튼보다 먼저 추가)
+    const erosionBtn = document.createElement("button");
+    erosionBtn.id = "erosion-mode-btn";
+    erosionBtn.className = "char-btn";
+    if (erosionMode) {
+        erosionBtn.innerHTML = `⚔️ 침식 모드: <span style="background:linear-gradient(to bottom, #ff9de2, #ffffff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:bold;">ON</span>`;
+        erosionBtn.style.background = "#c0392b";
+        erosionBtn.style.border = "2px solid #ff6b6b";
+        erosionBtn.style.color = "#fff";
+    } else {
+        erosionBtn.textContent = "⚔️ 침식 모드: OFF";
+        erosionBtn.style.background = "#2a3158";
+        erosionBtn.style.border = "2px solid #444";
+        erosionBtn.style.color = "#aaa";
+    }
+    erosionBtn.onclick = toggleErosionMode;
+    container.appendChild(erosionBtn);
+
+    // 구분선
+    const divider = document.createElement("span");
+    divider.style.cssText = "display:inline-block; width:1px; height:28px; background:#444; margin:0 6px; vertical-align:middle;";
+    container.appendChild(divider);
+
+    // 직업 버튼들
     JOB_LIST.forEach(j => {
         let totalCount = 0;
         const jobData = WEAPON_DATA_MAP[j];
@@ -29,7 +83,10 @@ function selectWeaponJob(jobName, keepOpen = false) {
                     Object.values(jobData).forEach(weaponList => {
                         weaponList.forEach(weaponName => {
                             WEAPON_PREFIXES.forEach(pref => {
-                                const weaponKey = `${pref.tag} ${weaponName}`;
+                                // ★ 침식 모드면 "[침식] " 접두어가 붙은 키로 카운트
+                                const weaponKey = erosionMode
+                                    ? `[침식] ${pref.tag} ${weaponName}`
+                                    : `${pref.tag} ${weaponName}`;
                                 totalCount += (char.weaponCounts[weaponKey] || 0);
                             });
                         });
@@ -52,11 +109,14 @@ function selectWeaponJob(jobName, keepOpen = false) {
         return;
     }
 
-    let html = `<div style="overflow-x: auto; margin-top: 20px;">`;
+    // ★ 침식 모드 표시 헤더
+    const modeLabel = erosionMode
+        ? `<div style="display:inline-block; margin-bottom:12px; padding:4px 14px; background:#c0392b; color:#fff; border-radius:6px; font-weight:bold; font-size:0.9em;">⚔️ 침식 모드 - [침식] 무기 표시 중</div>`
+        : '';
+
+    let html = modeLabel + `<div style="overflow-x: auto; margin-top: 20px;">`;
     html += `<table id="weaponDetailTable" style="table-layout: fixed; border-collapse: collapse; width: max-content;">`;
     html += `<thead><tr style="background: #181c33;">`;
-
-    // 1. 종류 열의 너비를 120px로 고정 (가장 긴 글자인 '자동권총' 등을 고려)
     html += `<th style="width: 120px; padding: 12px; border: 1px solid #2a3158; white-space: nowrap;">종류</th>`;
     html += `<th style="width: 300px; padding: 12px; border: 1px solid #2a3158; white-space: nowrap;">무기 이름</th>`;
 
@@ -66,9 +126,6 @@ function selectWeaponJob(jobName, keepOpen = false) {
     });
     html += `</tr></thead><tbody>`;
 
-    // ---------------------------------------------------------
-    // 종류별 루프 (정중앙 정렬 및 고정 너비 적용)
-    // ---------------------------------------------------------
     const categories = Object.keys(currentData);
 
     categories.forEach((category, cIdx) => {
@@ -78,18 +135,26 @@ function selectWeaponJob(jobName, keepOpen = false) {
         weaponList.forEach((weaponName, wIdx) => {
             WEAPON_PREFIXES.forEach((pref, pIdx) => {
                 const rowId = `weapon-row-${categories.indexOf(category)}-${wIdx}-${pIdx}`;
+
+                // ★ 침식 모드면 키에 "[침식] " 접두어 추가
+                const weaponKey = erosionMode
+                    ? `[침식] ${pref.tag} ${weaponName}`
+                    : `${pref.tag} ${weaponName}`;
+
                 html += `<tr id="${rowId}" onclick="toggleRowHighlight('${rowId}')">`;
 
-                // 종류 셀: 가로/세로 정중앙 + 너비 고정 적용
                 if (wIdx === 0 && pIdx === 0) {
                     html += `<td rowspan="${rowSpanCount}" style="background:#181c33; font-weight:bold; width: 120px; border: 1px solid #2a3158; text-align:center; vertical-align: middle; color: #fff; padding: 10px;">${category}</td>`;
                 }
 
-                const styledName = `<span style="color:${pref.color}; font-weight:bold;">${pref.tag}</span>&nbsp;${weaponName}`;
+                // ★ 침식 모드면 무기 이름 앞에 [침식] 표시 추가
+                const erosionTag = erosionMode
+                    ? `<span style="background:linear-gradient(to bottom, #ff9de2, #ffffff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:bold;">[침식]</span> `
+                    : '';
+                const styledName = `${erosionTag}<span style="color:${pref.color}; font-weight:bold;">${pref.tag}</span>&nbsp;${weaponName}`;
                 html += `<td style="text-align:left; padding: 8px 15px; white-space: nowrap; border: 1px solid #2a3158; cursor: pointer;">${styledName}</td>`;
 
                 characters.forEach(char => {
-                    const weaponKey = `${pref.tag} ${weaponName}`;
                     const val = (char.weaponCounts && char.weaponCounts[weaponKey]) || 0;
                     html += `<td style="padding: 5px; border: 1px solid #2a3158; text-align:center;">${makeWeaponNumberButton(char.id, weaponKey, val, jobName)}</td>`;
                 });
@@ -97,7 +162,6 @@ function selectWeaponJob(jobName, keepOpen = false) {
             });
         });
 
-        // 카테고리 간 구분 공백 (투명)
         if (cIdx < categories.length - 1) {
             html += `<tr style="height: 20px;">`;
             html += `<td colspan="${characters.length + 2}" style="border: none; border-bottom: 1px solid #2a3158; background: transparent;"></td>`;
