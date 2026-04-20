@@ -780,11 +780,13 @@ function restoreSavedData(section, savedData, charId) {
             const cSetEff     = cInputs.seteffect?.val        || '';
             const cSetAuto    = cInputs.setauto?.val          || 'false';
             const cArtSetEff  = cInputs['art-seteffect']?.val || '';
+            const cArtSetAuto = cInputs['art-setauto']?.val  || 'false';
             creatureBtn.setAttribute('data-creature-name',          cName);
             creatureBtn.setAttribute('data-creature-mode',          cMode);
             creatureBtn.setAttribute('data-creature-seteffect',     cSetEff);
             creatureBtn.setAttribute('data-creature-setauto',       cSetAuto);
             creatureBtn.setAttribute('data-creature-art-seteffect', cArtSetEff);
+            creatureBtn.setAttribute('data-creature-art-setauto',   cArtSetAuto);
             creatureBtn.textContent = cName;
         }
         // 아티팩트 hidden input → 표시 span 동기화
