@@ -587,10 +587,22 @@ function creaturePopupSave() {
         }
     });
 
-    // desc textarea 반영 (세트효과)
+    // desc textarea 반영 (크리쳐 스킬 효과 + 아티팩트 세트 효과 합산)
     if (section) {
         const descEl = section.querySelector('textarea[data-key="크리쳐_desc"]');
-        if (descEl) descEl.value = setVal;
+        if (descEl) {
+            const parts = [];
+            if (setVal) {
+                parts.push('크리쳐 스킬 효과');
+                parts.push(setVal);
+            }
+            if (artSetVal) {
+                if (parts.length > 0) parts.push('---');
+                parts.push('아티팩트 세트 효과');
+                parts.push(artSetVal);
+            }
+            descEl.value = parts.join('\n');
+        }
     }
 
     creaturePopupClose();
