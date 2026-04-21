@@ -389,6 +389,20 @@ body.theme-mixed #section-detail-view .char-info-table {
     color: var(--color-white) !important;
 }
 
+/* td에 emb-bg 클래스가 있을 때 내부 input/select 배경 투명 처리 */
+#section-detail-view td.emb-bg-red input,
+#section-detail-view td.emb-bg-red select,
+#section-detail-view td.emb-bg-yellow input,
+#section-detail-view td.emb-bg-yellow select,
+#section-detail-view td.emb-bg-blue input,
+#section-detail-view td.emb-bg-blue select,
+#section-detail-view td.emb-bg-green input,
+#section-detail-view td.emb-bg-green select,
+#section-detail-view td.emb-bg-gray input,
+#section-detail-view td.emb-bg-gray select {
+    background: transparent !important;
+}
+
 /* ========================================
    하이라이트 (Highlights)
 ======================================== */

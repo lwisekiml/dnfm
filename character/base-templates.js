@@ -159,7 +159,14 @@ window.TemplateHelper = {
      * 칭호 행 생성
      */
     createTitleRow() {
-        return this.clone('title-row-template', {});
+        const fragment = this.clone('title-row-template', {});
+        const emb1 = fragment.querySelector('[data-key="칭호_emb1"]');
+        if (emb1) {
+            const td = emb1.parentElement;
+            const tdClass = td.className;
+            td.innerHTML = `<select data-key="칭호_emb1" class="${tdClass}" onchange="autoSave()"><option></option><option>모속강</option><option>화속강</option><option>수속강</option><option>명속강</option><option>암속강</option><option>힘</option><option>지능</option></select>`;
+        }
+        return fragment;
     },
 
     /**
