@@ -33,6 +33,7 @@ function enterSearchMode() {
     document.getElementById('characterContainer').style.display = 'none';
     document.getElementById('compareCharSelectionContainer').style.display = 'none';
     document.getElementById('compareContainer').style.display = 'none';
+    document.getElementById('compareTabBar').style.display = 'none';
     document.getElementById('searchContainer').style.display = 'block';
 
     // 버튼 상태 업데이트
