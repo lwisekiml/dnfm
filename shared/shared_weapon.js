@@ -108,6 +108,7 @@ const JOB_SELECT_OPTIONS = [
     { value: "대암흑천",        type: "sub" },
     { value: "인다라천",        type: "sub" },
     { value: "---",             type: "separator" },
+
     { value: "귀검사(여)",      type: "base" },
     { value: "",                type: "disabled" },
     { value: "소드마스터",      type: "sub" },
@@ -130,7 +131,8 @@ const JOB_SELECT_OPTIONS = [
     { value: "리벨리온",        type: "sub" },
     { value: "벤데타",          type: "sub" },
     { value: "---",             type: "separator" },
-    { value: "격투가",          type: "base" },
+
+    { value: "격투가(여)",          type: "base" },
     { value: "",                type: "disabled" },
     { value: "넨마스터",        type: "sub" },
     { value: "백화요란",        type: "sub" },
@@ -147,7 +149,19 @@ const JOB_SELECT_OPTIONS = [
     { value: "그래플러",        type: "sub" },
     { value: "토네이도",        type: "sub" },
     { value: "얼티밋 디바",     type: "sub" },
+
     { value: "---",             type: "separator" },
+    { value: "격투가(남)",          type: "base" },
+    { value: "",                type: "disabled" },
+    { value: "스트라이커",      type: "sub" },
+    { value: "무극",          type: "sub" },
+    { value: "패황",          type: "sub" },
+    { value: "",                type: "disabled" },
+    { value: "스트리트파이터",  type: "sub" },
+    { value: "천수나한",            type: "sub" },
+    { value: "명왕",        type: "sub" },
+    { value: "---",             type: "separator" },
+
     { value: "거너(남)",        type: "base" },
     { value: "",                type: "disabled" },
     { value: "레인저(남)",      type: "sub" },
@@ -166,6 +180,7 @@ const JOB_SELECT_OPTIONS = [
     { value: "제너럴",          type: "sub" },
     { value: "커맨더",          type: "sub" },
     { value: "---",             type: "separator" },
+
     { value: "거너(여)",        type: "base" },
     { value: "",                type: "disabled" },
     { value: "레인저(여)",      type: "sub" },
@@ -184,7 +199,8 @@ const JOB_SELECT_OPTIONS = [
     { value: "발키리",          type: "sub" },
     { value: "프레이야",        type: "sub" },
     { value: "---",             type: "separator" },
-    { value: "마법사",          type: "base" },
+
+    { value: "마법사(여)",          type: "base" },
     { value: "",                type: "disabled" },
     { value: "엘레멘탈 마스터", type: "sub" },
     { value: "아크메이지",      type: "sub" },
@@ -202,6 +218,7 @@ const JOB_SELECT_OPTIONS = [
     { value: "블랙 메이든",     type: "sub" },
     { value: "헤카테",          type: "sub" },
     { value: "---",             type: "separator" },
+
     { value: "마법사(남)",          type: "base" },
     { value: "",                type: "disabled" },
     { value: "빙결사", type: "sub" },
@@ -212,6 +229,7 @@ const JOB_SELECT_OPTIONS = [
     { value: "스톰브링어",      type: "sub" },
     { value: "아이올로스",      type: "sub" },
     { value: "---",             type: "separator" },
+
     { value: "프리스트(남)",    type: "base" },
     { value: "",                type: "disabled" },
     { value: "크루세이더(남)",  type: "sub" },
@@ -222,6 +240,7 @@ const JOB_SELECT_OPTIONS = [
     { value: "갓헤드",          type: "sub" },
     { value: "저스티스",        type: "sub" },
     { value: "---",             type: "separator" },
+
     { value: "프리스트(여)",    type: "base" },
     { value: "",                type: "disabled" },
     { value: "크루세이더(여)",  type: "sub" },
@@ -244,6 +263,7 @@ const JOB_SELECT_OPTIONS = [
     { value: "레이징 하트",     type: "sub" },
     { value: "이그제큐터",      type: "sub" },
     { value: "---",             type: "separator" },
+
     { value: "워리어",          type: "base" },
     { value: "",                type: "disabled" },
     { value: "와일드베인",      type: "sub" },
@@ -254,6 +274,7 @@ const JOB_SELECT_OPTIONS = [
     { value: "마엘스트롬",      type: "sub" },
     { value: "트라이브 윙",     type: "sub" },
     { value: "---",             type: "separator" },
+
     { value: "도적",            type: "base" },
     { value: "",                type: "disabled" },
     { value: "로그",            type: "sub" },
@@ -264,6 +285,7 @@ const JOB_SELECT_OPTIONS = [
     { value: "이즈나비",        type: "sub" },
     { value: "시라누이",        type: "sub" },
     { value: "---",             type: "separator" },
+
     { value: "마창사",          type: "base" },
     { value: "",                type: "disabled" },
     { value: "뱅가드",          type: "sub" },
@@ -279,10 +301,11 @@ const JOB_SELECT_OPTIONS = [
 const JOB_TO_WEAPON_KEY = {
     "귀검사(남)":   "귀검사",
     "귀검사(여)":   "귀검사",
-    "격투가":       "격투가",
+    "격투가(여)":       "격투가",
+    "격투가(남)":       "격투가",
     "거너(남)":     "거너",
     "거너(여)":     "거너",
-    "마법사":       "마법사",
+    "마법사(여)":       "마법사",
     "마법사(남)":   "마법사",
     "프리스트(남)": "프리스트",
     "프리스트(여)": "프리스트",
@@ -304,11 +327,14 @@ const SUBJOB_TO_BASE = {
     "데몬슬레이어":"귀검사(여)", "검마":"귀검사(여)", "디어사이드":"귀검사(여)",
     "베가본드":"귀검사(여)", "검호":"귀검사(여)", "검제":"귀검사(여)",
     "블레이드":"귀검사(여)", "리벨리온":"귀검사(여)", "벤데타":"귀검사(여)",
-    // 격투가
-    "넨마스터":"격투가", "백화요란":"격투가", "염제 폐월수화":"격투가",
-    "스트라이커":"격투가", "챔피언":"격투가", "카이저":"격투가",
-    "스트리트파이터":"격투가", "독왕":"격투가", "용독문주":"격투가",
-    "그래플러":"격투가", "토네이도":"격투가", "얼티밋 디바":"격투가",
+    // 격투가(여)
+    "넨마스터":"격투가(여)", "백화요란":"격투가(여)", "염제 폐월수화":"격투가(여)",
+    "스트라이커":"격투가(여)", "챔피언":"격투가(여)", "카이저":"격투가(여)",
+    "스트리트파이터":"격투가(여)", "독왕":"격투가(여)", "용독문주":"격투가(여)",
+    "그래플러":"격투가(여)", "토네이도":"격투가(여)", "얼티밋 디바":"격투가(여)",
+    // 격투가(남)
+    "스트라이커":"격투가(남)", "무극":"격투가(남)", "패황":"격투가(남)",
+    "스트리트파이터":"격투가(남)", "천수나한":"격투가(남)", "명왕":"격투가(남)",
     // 거너(남)
     "레인저(남)":"거너(남)", "데스페라도":"거너(남)", "레이븐":"거너(남)",
     "런처(남)":"거너(남)", "블래스터":"거너(남)", "디스트로이어":"거너(남)",
@@ -320,10 +346,10 @@ const SUBJOB_TO_BASE = {
     "메카닉(여)":"거너(여)", "메탈하트":"거너(여)", "옵티머스":"거너(여)",
     "스핏파이어(여)":"거너(여)", "발키리":"거너(여)", "프레이야":"거너(여)",
     // 마법사
-    "엘레멘탈 마스터":"마법사", "아크메이지":"마법사", "오버마인드":"마법사",
-    "배틀메이지":"마법사", "벨라트릭스":"마법사", "아슈타르테":"마법사",
-    "마도학자":"마법사", "트릭스터":"마법사", "지니위즈":"마법사",
-    "인챈트리스":"마법사", "블랙 메이든":"마법사", "헤카테":"마법사",
+    "엘레멘탈 마스터":"마법사(여)", "아크메이지":"마법사(여)", "오버마인드":"마법사(여)",
+    "배틀메이지":"마법사(여)", "벨라트릭스":"마법사(여)", "아슈타르테":"마법사(여)",
+    "마도학자":"마법사(여)", "트릭스터":"마법사(여)", "지니위즈":"마법사(여)",
+    "인챈트리스":"마법사(여)", "블랙 메이든":"마법사(여)", "헤카테":"마법사(여)",
     // 마법사(남)
     "빙결사":"마법사(남)", "프로즌하트":"마법사(남)", "이터널":"마법사(남)",
     "스위프트 마스터":"마법사(남)", "스톰브링어":"마법사(남)", "아이올로스":"마법사(남)",
