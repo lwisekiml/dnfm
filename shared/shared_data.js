@@ -635,7 +635,7 @@ HP MAX +220
             { stats: ['데미지 증가'],              amount: 20   , unit: '%'},
         ]
     },
-    // 아라드 오션브리즈[플래티넘], 던전밥
+    // 아라드 오션브리즈[플래티넘], 던전밥, 란마 1/2[플래티넘]
     V8: {
         info: `기본정보
 힘, 지능 +66
@@ -846,6 +846,7 @@ const TITLE_ITEM_INFO = {
     "아라드 오션브리즈[플래티넘]": _TITLE_TEMPLATES.V8,
     "던전밥": _TITLE_TEMPLATES.V8,
     "코스믹 히치하이커": _TITLE_TEMPLATES.V8,
+    "란마 1/2[플래티넘]": _TITLE_TEMPLATES.V8,
 
     "원탁의 기사 [白] (확인 필요)": _TITLE_TEMPLATES.V8,
 
@@ -1090,6 +1091,9 @@ const AURA_ITEM_INFO = {
     "광기의 물결 오라": _AURA_TEMPLATES.V7,
     "차원 스캐너(알파)": _AURA_TEMPLATES.V7,
     "차원 스캐너(베타)": _AURA_TEMPLATES.V7,
+    "란마 1/2 오라 - 적호": _AURA_TEMPLATES.V7,
+    "란마 1/2 오라 - 청룡": _AURA_TEMPLATES.V7,
+    "천계의 음양": _AURA_TEMPLATES.V7,
 };
 
 const itemOptions = (() => {
@@ -1720,7 +1724,7 @@ const _CREATURE_TEMPLATES = {
             { stat: '공격 시 추가 데미지',amount: 25, unit: '%', label: '공격 시 25% 추가 데미지' },
         ]
     },
-    // 드래곤테이머 소피아, 시공을 초월한 차원 여행자 에오스
+    // 드래곤테이머 소피아, 시공을 초월한 차원 여행자 에오스, 샴푸
     EPIC_V4: {
         info: `물리, 마법 크리티컬 확률 +2%\n모든 속성 강화 +10\n공격 시 25% 추가 데미지\n최종 데미지 5% 증가`,
         stats: [
@@ -1745,6 +1749,7 @@ const _CREATURE_TEMPLATES = {
     },
     // 유이, 마법사 소피아, 소피아, 아스나, 리즈벳, 스구하, 토티, 전장의 발키리 에이르, 마가티나
     // SD 타크로드, SD 네메시스, SD 염제 폐월수화, SD 지니위즈, SD 헤카테, SD 세인트, SD 세라핌, SD 천선낭랑
+    // 무스
     UNIQUE_V3: {
         info: `던전 입장 시 자신을 포함한 파티원의 모든 속성 강화 11 증가\n공격 시 5% 추가 데미지`,
         stats: [
@@ -1760,7 +1765,7 @@ const _CREATURE_TEMPLATES = {
             { stat: '공격 시 추가 데미지', amount: 15, unit: '%', label: '공격 시 15% 추가 데미지' },
         ]
     },
-    // 차원 여행자 에오스
+    // 차원 여행자 에오스, P짱
     UNIQUE_V5: {
         info: `공격 시 18% 추가 데미지`,
         stats: [
@@ -1878,6 +1883,7 @@ const CREATURE_ITEM_INFO = {
     "캐넌 레아": { grade: '에픽', ..._CREATURE_TEMPLATES.EPIC_V3 },
     "캐넌 아스칸": { grade: '에픽', ..._CREATURE_TEMPLATES.EPIC_V3 },
     "파광의 아스마르": { grade: '에픽', ..._CREATURE_TEMPLATES.EPIC_V1 },
+    "샴푸": { grade: '에픽', ..._CREATURE_TEMPLATES.EPIC_V4 },
 
     // === 유니크 (UNIQUE) ===
     "SD 검신": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V4 },
@@ -1934,7 +1940,9 @@ const CREATURE_ITEM_INFO = {
     "전장의 발키리 에이르": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V3 },
     "차원 과학자 헤스": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V6 },
     "차원 여행자 에오스": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V5 },
+    "P짱": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V5 },
     "토티": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V3 },
+    "무스": { grade: '유니크', ..._CREATURE_TEMPLATES.UNIQUE_V3 },
 
     // === 레어 (RARE) ===
     "4th 따봉 기어": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V11 },
