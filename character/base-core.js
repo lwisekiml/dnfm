@@ -598,6 +598,7 @@ function updateStyle(el, type, isInitial = false) {
             runSetCheck(slot, charId);
         }
 
+        // 수정 후 (이미지 갱신 코드 제거)
         else if (type === 'exceed') {
             el.classList.remove('ex-이상', 'ex-선봉', 'ex-의지', 'ex-침식');
             el.style.removeProperty('background');
@@ -613,12 +614,6 @@ function updateStyle(el, type, isInitial = false) {
                 el.style.backgroundClip = 'text';
             } else if (el.value) {
                 el.classList.add('ex-' + el.value);
-            }
-
-            // 무기 슬롯: 익시드 변경 시 이미지 갱신
-            if (slot === '무기' && typeof updateWeaponImage === 'function') {
-                const weaponSel = section?.querySelector('select[data-key="무기_itemname"]');
-                if (weaponSel) updateWeaponImage(weaponSel);
             }
 
             if (typeof runSetCheck === "function") runSetCheck(slot, charId);
@@ -672,6 +667,11 @@ function updateStyle(el, type, isInitial = false) {
             }
         }
 
+    }
+
+    if (type === 'exceed' && slot === '무기' && typeof updateWeaponImage === 'function') {
+        const weaponSel = section?.querySelector('select[data-key="무기_itemname"]');
+        if (weaponSel) updateWeaponImage(weaponSel);
     }
 
     // 방어구/악세서리/특수장비 접두어 변경 시 익시드 활성화 재계산
