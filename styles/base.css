@@ -1075,3 +1075,38 @@ body.theme-mixed #section-detail-view .char-info-table {
     cursor: pointer;
 }
 
+
+
+/* 캐릭터 순서 편집 모달 아이템 */
+.char-order-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #181c33;
+    border: 1px solid #2a3158;
+    border-radius: 6px;
+    cursor: grab;
+    user-select: none;
+    transition: background 0.15s, box-shadow 0.15s;
+}
+.char-order-item:active { cursor: grabbing; }
+.char-order-item.dragging {
+    opacity: 0.5;
+    box-shadow: 0 4px 16px rgba(74,51,204,0.4);
+}
+.char-order-item.drag-over {
+    background: #2a3158;
+    border-color: #ffd700;
+    box-shadow: 0 0 0 2px #ffd700;
+}
+.char-order-handle {
+    color: #666;
+    font-size: 1.2em;
+    cursor: grab;
+}
+.char-order-label {
+    color: #e6e9ff;
+    font-size: 0.95em;
+    font-weight: bold;
+}

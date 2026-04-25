@@ -339,3 +339,152 @@ function toggleEditMode() {
     // 캐릭터 리스트 다시 렌더링
     renderCharacterList();
 }
+
+// 5-5. 편집 모드 토글 → 모달 오픈 방식으로 변경
+function toggleEditMode() {
+    openCharacterOrderModal();
+}
+
+// ─────────────────────────────────────────
+// 7.4 캐릭터 순서 편집 모달 (드래그 앤 드롭)
+// ─────────────────────────────────────────
+function openCharacterOrderModal() {
+    const modal = document.getElementById('charOrderModal');
+    if (!modal) return;
+    renderCharOrderList();
+    modal.style.display = 'flex';
+}
+
+function closeCharacterOrderModal() {
+    const modal = document.getElementById('charOrderModal');
+    if (modal) modal.style.display = 'none';
+    isEditingCharacterOrder = false;
+}
+
+function renderCharOrderList() {
+    const list = document.getElementById('charOrderList');
+    if (!list) return;
+    list.innerHTML = '';
+
+    characters.forEach((char, index) => {
+        const item = document.createElement('div');
+        item.className = 'char-order-item';
+        item.draggable = true;
+        item.dataset.index = index;
+        item.innerHTML = `
+            <span class="char-order-handle">☰</span>
+            <span class="char-order-label">${index + 1}. ${char.job} (${char.name})</span>
+        `;
+
+        // 드래그 이벤트
+        item.addEventListener('dragstart', onCharOrderDragStart);
+        item.addEventListener('dragover', onCharOrderDragOver);
+        item.addEventListener('dragleave', onCharOrderDragLeave);
+        item.addEventListener('drop', onCharOrderDrop);
+        item.addEventListener('dragend', onCharOrderDragEnd);
+
+        // 터치 이벤트 (모바일)
+        item.addEventListener('touchstart', onCharOrderTouchStart, { passive: true });
+        item.addEventListener('touchmove', onCharOrderTouchMove, { passive: false });
+        item.addEventListener('touchend', onCharOrderTouchEnd);
+
+        list.appendChild(item);
+    });
+}
+
+// 드래그 상태
+let _dragSrcIndex = null;
+let _dragTouchClone = null;
+let _dragTouchSrcIndex = null;
+
+function onCharOrderDragStart(e) {
+    _dragSrcIndex = parseInt(this.dataset.index);
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+}
+
+function onCharOrderDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    this.classList.add('drag-over');
+}
+
+function onCharOrderDragLeave(e) {
+    this.classList.remove('drag-over');
+}
+
+function onCharOrderDrop(e) {
+    e.preventDefault();
+    const targetIndex = parseInt(this.dataset.index);
+    if (_dragSrcIndex === null || _dragSrcIndex === targetIndex) return;
+
+    // characters 배열 재정렬
+    const moved = characters.splice(_dragSrcIndex, 1)[0];
+    characters.splice(targetIndex, 0, moved);
+
+    renderCharOrderList();
+}
+
+function onCharOrderDragEnd(e) {
+    document.querySelectorAll('.char-order-item').forEach(el => {
+        el.classList.remove('dragging', 'drag-over');
+    });
+    _dragSrcIndex = null;
+}
+
+// 터치 드래그 (모바일)
+let _touchStartY = 0;
+let _touchCurrentIndex = null;
+
+function onCharOrderTouchStart(e) {
+    _dragTouchSrcIndex = parseInt(this.dataset.index);
+    _touchStartY = e.touches[0].clientY;
+    this.classList.add('dragging');
+}
+
+function onCharOrderTouchMove(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const list = document.getElementById('charOrderList');
+    const items = list.querySelectorAll('.char-order-item');
+
+    items.forEach(el => el.classList.remove('drag-over'));
+
+    // 현재 터치 위치의 아이템 찾기
+    items.forEach((el, idx) => {
+        const rect = el.getBoundingClientRect();
+        if (touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+            el.classList.add('drag-over');
+            _touchCurrentIndex = idx;
+        }
+    });
+}
+
+function onCharOrderTouchEnd(e) {
+    document.querySelectorAll('.char-order-item').forEach(el => {
+        el.classList.remove('dragging', 'drag-over');
+    });
+
+    if (_dragTouchSrcIndex !== null && _touchCurrentIndex !== null &&
+        _dragTouchSrcIndex !== _touchCurrentIndex) {
+        const moved = characters.splice(_dragTouchSrcIndex, 1)[0];
+        characters.splice(_touchCurrentIndex, 0, moved);
+        renderCharOrderList();
+    }
+
+    _dragTouchSrcIndex = null;
+    _touchCurrentIndex = null;
+}
+
+function saveCharacterOrder() {
+    saveLocalData();
+    renderCharacterList();
+
+    if (activeCharacterId) {
+        const activeChar = characters.find(c => c.id === activeCharacterId);
+        if (activeChar) showSetButtons(activeChar, true);
+    }
+
+    closeCharacterOrderModal();
+    alert('순서 변경이 완료되었습니다!');
+}

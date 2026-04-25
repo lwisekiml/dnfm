@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>던파 모바일 시즌5 캐릭터 관리</title>
+    <title>던파 모바일 시즌5 캐릭터 관리11</title>
 
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/responsive.css">
@@ -274,6 +274,20 @@
             <button id="confirmYes" class="modal-btn" style="background: #e74c3c; flex: 1; color: #fff;">확인</button>
             <button class="modal-btn" style="background: #444; flex: 1; color: #fff;" onclick="closeConfirmModal()">취소
             </button>
+        </div>
+    </div>
+</div>
+<!-- 캐릭터 순서 편집 모달 -->
+<div id="charOrderModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="min-width:320px; max-width:500px; width:90vw;">
+        <h2 style="margin-bottom:20px; color:#fff;">캐릭터 순서 편집</h2>
+        <p style="color:#aaa; font-size:0.9em; margin-bottom:16px;">드래그하여 순서를 변경하세요.</p>
+        <div id="charOrderList" style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto;"></div>
+        <div class="modal-options" style="display:flex; gap:10px; margin-top:24px;">
+            <button type="button" class="modal-btn" style="background:#25c2a0; color:#fff; flex:1;"
+                    onclick="saveCharacterOrder()">저장</button>
+            <button type="button" class="modal-btn" style="background:#444; color:#fff; flex:1;"
+                    onclick="closeCharacterOrderModal()">취소</button>
         </div>
     </div>
 </div>
