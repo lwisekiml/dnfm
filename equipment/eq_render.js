@@ -653,12 +653,24 @@ function renderCharacterEquipmentDetail(char) {
 
             html += `<th style="padding: 10px; border: 1px solid #2a3158; white-space: nowrap;">달성</th>`;
             html += `</tr></thead><tbody>`;
+
+            // 세트이름 칸 배경색: 해당 세트 rows 중 최대달성 행이 있으면 노란색
+            const fullSize = setSlots.length;
+            const hasMaxAchieved = rows.some(row => {
+                if (row.type === 'exceed') return false;
+                const achieved = setSlots.filter(slot => (row.slots[slot] || 0) > 0).length;
+                if (fullSize === 5) return achieved === 5;
+                return achieved === 3;
+            });
+            // 세트 칸 색깔
+            const setNameBg = hasMaxAchieved ? 'rgba(255, 215, 0, 0.75)' : '#1a1e33';
+
             rows.forEach((row, rowIdx) => {
                 html += `<tr style="border-bottom: 1px solid #444;">`;
 
                 // 세트명 (첫 행에만 rowspan으로 표시)
                 if (rowIdx === 0) {
-                    html += `<td rowspan="${rows.length}" style="padding: 10px; border: 1px solid #2a3158; font-weight: bold; background: #1a1e33; text-align: center; vertical-align: middle; white-space: nowrap;">${baseSetName}</td>`;
+                    html += `<td rowspan="${rows.length}" style="padding: 10px; border: 1px solid #2a3158; font-weight: bold; background: ${setNameBg}; text-align: center; vertical-align: middle; white-space: nowrap;">${baseSetName}</td>`;
                 }
 
                 // 익시드 열
@@ -680,6 +692,18 @@ function renderCharacterEquipmentDetail(char) {
                     html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center;"></td>`;
                 }
 
+                // 이 행의 달성도 계산 (슬롯 칸 배경색 결정용)
+                let slotBg = 'rgba(255, 215, 0, 0.2)'; // 기본: 아주 연한 노란색
+                if (row.type !== 'exceed') {
+                    rowAchieved = setSlots.filter(slot => (row.slots[slot] || 0) > 0).length;
+                    if (fullSize === 5) {
+                        if (rowAchieved === 5) slotBg = 'rgba(255, 215, 0, 0.75)';       // 진한 노란색
+                        else if (rowAchieved >= 3) slotBg = 'rgba(255, 215, 0, 0.55)';  // 중간 노란색
+                    } else {
+                        if (rowAchieved === 3) slotBg = 'rgba(255, 215, 0, 0.55)';        // 중간 노란색
+                    }
+                }
+
                 // 각 슬롯별 개수 (아이템명은 헤더에 표시됨)
                 setSlots.forEach(slot => {
                     const count = row.slots[slot] || 0;
@@ -689,7 +713,7 @@ function renderCharacterEquipmentDetail(char) {
                         html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; background: #0a0c15;"></td>`;
                     } else {
                         if (count > 0) {
-                            html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;">${count}</td>`;
+                            html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold; background: ${slotBg};">${count}</td>`;
                         } else {
                             html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center; color: #fff; font-weight: bold;"></td>`;
                         }
@@ -700,8 +724,7 @@ function renderCharacterEquipmentDetail(char) {
                 if (row.type === 'exceed') {
                     html += `<td style="padding: 10px; border: 1px solid #2a3158; text-align: center;"></td>`;
                 } else {
-                    const achieved = setSlots.filter(slot => (row.slots[slot] || 0) > 0).length;
-                    const fullSize = setSlots.length;
+                    const achieved = rowAchieved;
                     let achieveColor = "#fff";
                     if (fullSize === 5) {
                         if (achieved === 5) achieveColor = "#ffd700";
