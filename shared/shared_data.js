@@ -731,6 +731,38 @@ HP MAX +220
             { stats: ['데미지 증가'],              amount: 15   , unit: '%'},
         ]
     },
+    V11: {
+        info: `기본정보
+힘, 지능 +66
+체력, 정신력 +33
+공격속도 +5%
+캐스팅속도 +7%
+이동속도 +5%
+물리 크리티컬 +30
+마법 크리티컬 +30
+---
+효과
+HP MAX +220
+모든 속성 강화 +3
+마을 이동속도 증가 +10%
+데미지 20% 증가`,
+        desc: ``,
+        base: [
+            { stats: ['힘', '지능'], amount: 66  , unit: ''},
+            { stats: ['체력','정신력'], amount: 33  , unit: ''},
+            { stats: ['공격속도'],             amount: 5   , unit: '%'},
+            { stats: ['캐스팅속도'],           amount: 7   , unit: '%'},
+            { stats: ['이동속도'],             amount: 5   , unit: '%'},
+            { stats: ['물리 크리티컬'],             amount: 30   , unit: ''},
+            { stats: ['마법 크리티컬'],             amount: 30   , unit: ''},
+        ],
+        eff: [
+            { stats: ['HP MAX'],              amount: 220  , unit: ''},
+            { stats: ['모든 속성 강화'],         amount: 3   , unit: ''},
+            { stats: ['마을 이동속도 증가'],         amount: 10   , unit: '%'},
+            { stats: ['데미지 증가'],              amount: 20   , unit: '%'},
+        ]
+    },
 };
 
 const TITLE_ITEM_INFO = {
@@ -847,6 +879,7 @@ const TITLE_ITEM_INFO = {
     "던전밥": _TITLE_TEMPLATES.V8,
     "코스믹 히치하이커": _TITLE_TEMPLATES.V8,
     "란마 1/2[플래티넘]": _TITLE_TEMPLATES.V8,
+    "Noblesse Oblige[플래티넘]": _TITLE_TEMPLATES.V8,
 
     "원탁의 기사 [白] (확인 필요)": _TITLE_TEMPLATES.V8,
 
@@ -884,6 +917,22 @@ const TITLE_ITEM_INFO = {
     // 데미지 15% 증가
     "차원 여행자": _TITLE_TEMPLATES.V10,
     "차원 이동자": _TITLE_TEMPLATES.V10,
+
+    // 기본정보
+    // 힘, 지능 +66
+    // 체력, 정신력 +33
+    // 공격속도 +5%
+    // 캐스팅속도 +7%
+    // 이동속도 +5%
+    // 물리 크리티컬 +30
+    // 마법 크리티컬 +30
+    // ---
+    // 효과
+    // HP MAX +220
+    // 모든 속성 강화 +3
+    // 마을 이동속도 증가 +10%
+    // 데미지 20% 증가
+    "Ultimate Dignity 2.0": _TITLE_TEMPLATES.V11,
 };
 
 const _AURA_TEMPLATES = {
@@ -1034,6 +1083,8 @@ const AURA_ITEM_INFO = {
     "우리모두 Arcade 오라":  _AURA_TEMPLATES.V2,
     "3rd Anniversary 오라": _AURA_TEMPLATES.V2,
     "4rd Anniversary 오라": _AURA_TEMPLATES.V2,
+    "Ultimate 2.0 오라": _AURA_TEMPLATES.V2,
+    "행운을 넘어선 행복 오라": _AURA_TEMPLATES.V2,
 
     // 기본정보
     // 힘, 지능, 체력, 정신력 +45
@@ -1094,6 +1145,7 @@ const AURA_ITEM_INFO = {
     "란마 1/2 오라 - 적호": _AURA_TEMPLATES.V7,
     "란마 1/2 오라 - 청룡": _AURA_TEMPLATES.V7,
     "천계의 음양": _AURA_TEMPLATES.V7,
+    "해변의 청량한 파도": _AURA_TEMPLATES.V7,
 };
 
 const itemOptions = (() => {
