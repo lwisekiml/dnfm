@@ -473,7 +473,18 @@ function renderCharacterEquipmentDetail(char) {
     const detailArea = document.getElementById("character-equipment-detail");
     detailArea.style.display = "block";
 
-    let html = `<h2 style="color: #ffd700; margin-bottom: 20px;">${char.job} (${char.name}) - 장비 보유 현황</h2>`;
+    let html = `<h2 style="color: #ffd700; margin-bottom: 10px;">${char.job} (${char.name}) - 장비 보유 현황</h2>`;
+
+    html += `<div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
+        <button class="char-btn" style="background: #4a33cc; border: 1px solid #ffd700; white-space: nowrap;"
+                onclick="document.getElementById('char-detail-cat-armor').scrollIntoView({behavior:'smooth'})">방어구로 이동 →</button>
+        <button class="char-btn" style="background: #4a33cc; border: 1px solid #ffd700; white-space: nowrap;"
+                onclick="document.getElementById('char-detail-cat-accessory').scrollIntoView({behavior:'smooth'})">악세로 이동 →</button>
+        <button class="char-btn" style="background: #4a33cc; border: 1px solid #ffd700; white-space: nowrap;"
+                onclick="document.getElementById('char-detail-cat-special').scrollIntoView({behavior:'smooth'})">특장으로 이동 →</button>
+        <button class="char-btn" style="background: #4a33cc; border: 1px solid #ffd700; white-space: nowrap;"
+                onclick="document.getElementById('char-detail-cat-weapon').scrollIntoView({behavior:'smooth'})">무기로 이동 →</button>
+    </div>`;
 
     const CATEGORIES = [
         {
@@ -481,21 +492,24 @@ function renderCharacterEquipmentDetail(char) {
             sets: ARMOR_SETS,
             prefix: ARMOR_PREFIX,
             exceedOnly: [],
-            exceedSlot: "상의"
+            exceedSlot: "상의",
+            catId: "char-detail-cat-armor"
         },
         {
             title: "악세",
             sets: ACCESSORY_SETS,
             prefix: ACCESSORY_PREFIX,
             exceedOnly: [],
-            exceedSlot: "팔찌"
+            exceedSlot: "팔찌",
+            catId: "char-detail-cat-accessory"
         },
         {
             title: "특장",
             sets: SPECIAL_SETS,
             prefix: SPECIAL_PREFIX,
             exceedOnly: [],
-            exceedSlot: "귀걸이"
+            exceedSlot: "귀걸이",
+            catId: "char-detail-cat-special"
         }
     ];
 
@@ -536,7 +550,7 @@ function renderCharacterEquipmentDetail(char) {
         });
 
         // 제목에 총 개수 표시
-        html += `<h2 style="color: #ffd700; margin-bottom: 15px;">🔹 ${category.title} <span style="color: #ffd700; font-weight: bold;">(${categoryTotal}개)</span></h2>`;
+        html += `<h2 id="${category.catId}" style="color: #ffd700; margin-bottom: 15px;">🔹 ${category.title} <span style="color: #ffd700; font-weight: bold;">(${categoryTotal}개)</span></h2>`;
 
         // 각 세트별 데이터 (세트마다 별도 테이블)
         Object.keys(category.sets).forEach(baseSetName => {
@@ -756,7 +770,7 @@ function renderCharacterEquipmentDetail(char) {
         });
         const totalAll = totalWeapons + totalErosionWeapons;
 
-        html += `<h2 style="color: #ffd700; margin-top: 40px; margin-bottom: 15px;">🔹 무기 <span style="color: #ffd700; font-weight: bold;">(${totalAll}개)</span></h2>`;
+        html += `<h2 id="char-detail-cat-weapon" style="color: #ffd700; margin-top: 40px; margin-bottom: 15px;">🔹 무기 <span style="color: #ffd700; font-weight: bold;">(${totalAll}개)</span></h2>`;
 
         JOB_LIST.forEach(jobName => {
             const jobWeaponData = WEAPON_DATA_MAP[jobName];
