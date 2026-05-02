@@ -763,6 +763,36 @@ HP MAX +220
             { stats: ['데미지 증가'],              amount: 20   , unit: '%'},
         ]
     },
+    V12: {
+        info: `기본정보
+힘, 지능 +66
+체력, 정신력 +33
+공격속도 +5%
+캐스팅속도 +7%
+이동속도 +5%
+물리 크리티컬 +30
+마법 크리티컬 +30
+---
+효과
+HP MAX +220
+모든 속성 강화 +10
+공격 시 10% 추가 데미지`,
+        desc: ``,
+        base: [
+            {stats: ['힘', '지능'], amount: 33, unit: ''},
+            {stats: ['체력', '정신력'], amount: 22, unit: ''},
+            {stats: ['공격속도'], amount: 2, unit: '%'},
+            {stats: ['캐스팅속도'], amount: 2, unit: '%'},
+            {stats: ['이동속도'], amount: 2, unit: '%'},
+            {stats: ['물리 크리티컬'], amount: 30, unit: ''},
+            {stats: ['마법 크리티컬'], amount: 30, unit: ''},
+        ],
+        eff: [
+            {stats: ['HP MAX'], amount: 220, unit: ''},
+            {stats: ['모든 속성 강화'], amount: 10, unit: ''},
+            {stats: ['공격 시 추가 데미지'], amount: 10, unit: '%'},
+        ],
+    },
 };
 
 const TITLE_ITEM_INFO = {
@@ -933,6 +963,21 @@ const TITLE_ITEM_INFO = {
     // 마을 이동속도 증가 +10%
     // 데미지 20% 증가
     "Ultimate Dignity 2.0": _TITLE_TEMPLATES.V11,
+
+    // 기본정보
+    // 힘, 지능 +66
+    // 체력, 정신력 +33
+    // 공격속도 +5%
+    // 캐스팅속도 +7%
+    // 이동속도 +5%
+    // 물리 크리티컬 +30
+    // 마법 크리티컬 +30
+    // ---
+    // 효과
+    // HP MAX +220
+    // 모든 속성 강화 +10
+    // 공격 시 10% 추가 데미지
+    "이상한 나라의 래빗": _TITLE_TEMPLATES.V12,
 };
 
 const _AURA_TEMPLATES = {
