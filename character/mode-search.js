@@ -1012,50 +1012,61 @@ function createMemoTagSearchTable(container, results) {
     table.style.width = 'auto';
     table.style.fontWeight = '900';
 
-    // thead
+    // thead — 메모/태그 헤더에 각각 ✏️ 토글 버튼 (설명 칸과 동일한 패턴)
     const thead = document.createElement('thead');
     thead.innerHTML = `
         <tr>
             <th>직업/이름</th>
-            <th>메모</th>
-            <th>태그</th>
+            <th>메모 <button id="memoEditToggleBtn" title="메모 편집" style="background:#4a5abb;color:#fff;border:none;border-radius:4px;padding:1px 6px;cursor:pointer;font-size:11px;margin-left:4px;">✏️</button></th>
+            <th>태그 <button id="tagEditToggleBtn" title="태그 편집" style="background:#4a5abb;color:#fff;border:none;border-radius:4px;padding:1px 6px;cursor:pointer;font-size:11px;margin-left:4px;">✏️</button></th>
         </tr>
     `;
     table.appendChild(thead);
 
-    // tbody
+    // tbody — 각 행 생성
     const tbody = document.createElement('tbody');
     results.forEach(result => {
-        const tr = _createMemoTagRow(result);
-        tbody.appendChild(tr);
+        tbody.appendChild(_createMemoTagRow(result));
     });
     table.appendChild(tbody);
 
     container.innerHTML = '';
     container.appendChild(table);
+
+    // 메모 토글 버튼 초기화
+    _initMemoToggleBtn(table, '#memoEditToggleBtn');
+    // 태그 토글 버튼 초기화
+    _initTagToggleBtn(table, '#tagEditToggleBtn');
 }
 
 /**
- * 메모/태그 행 생성 (초기 표시 상태)
+ * 메모/태그 행 생성 (표시 전용 — 편집은 헤더 토글 버튼으로 활성화)
  */
 function _createMemoTagRow(result) {
     const tr = document.createElement('tr');
     tr.dataset.charId = result.charId;
 
-    // [0] 직업/이름 셀
+    // [0] 직업/이름
     const tdName = document.createElement('td');
-    tdName.style.cssText = 'white-space:nowrap; vertical-align:top; padding:6px 8px;';
+    tdName.style.cssText = 'white-space:nowrap; vertical-align:middle; padding:6px 8px;';
     tdName.textContent = `${result.job}(${result.name})`;
 
-    // [1] 메모 셀 — 독립 편집 상태
+    // [1] 메모 — 클릭 편집 이벤트 등록
     const tdMemo = document.createElement('td');
-    tdMemo.style.cssText = 'vertical-align:top; padding:0; min-width:220px;';
-    tdMemo.appendChild(_buildMemoCell(result));
+    tdMemo.dataset.memoCell = 'true';
+    tdMemo.dataset.charId = result.charId;
+    tdMemo.style.cssText = 'vertical-align:top; padding:6px 8px; min-width:260px; white-space:pre-wrap; word-break:break-all;';
+    tdMemo.style.color = result.memo ? '#ddd' : '#666';
+    tdMemo.style.fontStyle = result.memo ? 'normal' : 'italic';
+    tdMemo.textContent = result.memo || '(메모 없음)';
+    _makeMemoEditable(tdMemo);
 
-    // [2] 태그 셀 — 독립 편집 상태
+    // [2] 태그 — 클릭 편집 이벤트 등록
     const tdTags = document.createElement('td');
-    tdTags.style.cssText = 'vertical-align:top; padding:0; min-width:140px;';
-    tdTags.appendChild(_buildTagsCell(result));
+    tdTags.dataset.tagCell = 'true';
+    tdTags.dataset.charId = result.charId;
+    tdTags.style.cssText = 'vertical-align:middle; padding:6px 8px; min-width:140px;';
+    _renderTagChipsInCell(tdTags, result.tags || []);
 
     tr.appendChild(tdName);
     tr.appendChild(tdMemo);
@@ -1064,209 +1075,171 @@ function _createMemoTagRow(result) {
 }
 
 /**
- * 메모 셀 내용 생성 (표시 + 인라인 편집 — 버튼으로만 편집 진입)
+ * 메모 헤더 토글 버튼 초기화 (설명 칸의 _initDescToggleBtn과 동일한 패턴)
  */
-function _buildMemoCell(result) {
-    let isEditing = false;
+function _initMemoToggleBtn(table, btnSelector) {
+    const btn = table.querySelector(btnSelector);
+    if (!btn) return;
+    let editMode = false;
 
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'position:relative; min-height:32px;';
+    btn.addEventListener('click', () => {
+        editMode = !editMode;
+        btn.style.background = editMode ? '#25c2a0' : '#4a5abb';
+        btn.title = editMode ? '메모 편집 종료' : '메모 편집';
 
-    // ── 표시 영역 ──────────────────────────────────────────
-    const display = document.createElement('div');
-    display.className = 'memo-tag-display';
-    display.style.cssText = `
-        white-space:pre-wrap; word-break:break-all;
-        padding:6px 36px 6px 8px;
-        min-height:32px;
-        border-radius:4px;
-        color: ${result.memo ? '#ddd' : '#666'};
-        font-style: ${result.memo ? 'normal' : 'italic'};
-    `;
-    display.textContent = result.memo || '(메모 없음)';
-
-    // ── 편집 버튼 ──────────────────────────────────────────
-    const editBtn = document.createElement('button');
-    editBtn.textContent = '✏️';
-    editBtn.title = '메모 편집';
-    editBtn.style.cssText = `
-        position:absolute; top:4px; right:4px;
-        background:#4a5abb; color:#fff; border:none;
-        border-radius:4px; padding:2px 5px;
-        cursor:pointer; font-size:11px; opacity:0.7;
-        transition:opacity 0.15s;
-    `;
-    editBtn.onmouseenter = () => editBtn.style.opacity = '1';
-    editBtn.onmouseleave = () => { if (!isEditing) editBtn.style.opacity = '0.7'; };
-
-    // ── textarea ───────────────────────────────────────────
-    const ta = document.createElement('textarea');
-    ta.style.cssText = `
-        display:none; width:100%; min-height:80px;
-        background:#1a2040; color:#fff;
-        border:1px solid #4a5abb; border-radius:4px;
-        padding:6px 8px; box-sizing:border-box;
-        font-size:inherit; font-family:inherit; resize:vertical;
-    `;
-    ta.placeholder = '메모를 입력하세요...';
-    ta.value = result.memo || '';
-
-    // ── 저장/취소 버튼 행 ──────────────────────────────────
-    const btnRow = document.createElement('div');
-    btnRow.style.cssText = 'display:none; gap:4px; padding:4px 8px 6px; justify-content:flex-end;';
-    const saveBtn = document.createElement('button');
-    saveBtn.textContent = '💾 저장';
-    saveBtn.style.cssText = 'background:#25c2a0;color:#fff;border:none;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:12px;font-weight:bold;';
-    const cancelBtn = document.createElement('button');
-    cancelBtn.textContent = '✖ 취소';
-    cancelBtn.style.cssText = 'background:#e05252;color:#fff;border:none;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:12px;';
-    btnRow.appendChild(saveBtn);
-    btnRow.appendChild(cancelBtn);
-
-    // ── 편집 진입 (버튼 클릭으로만) ────────────────────────
-    const enterEdit = () => {
-        if (isEditing) return;
-        isEditing = true;
-        ta.value = result.memo || '';
-        display.style.display = 'none';
-        editBtn.style.opacity = '1';
-        ta.style.display = 'block';
-        btnRow.style.display = 'flex';
-        ta.focus();
-        ta.setSelectionRange(ta.value.length, ta.value.length);
-    };
-
-    // ── 저장 ───────────────────────────────────────────────
-    const save = () => {
-        const newMemo = ta.value;
-        result.memo = newMemo;
-
-        // 캐릭터 관리 탭 DOM 반영
-        const section = document.getElementById(result.charId);
-        if (section) {
-            const memoTextarea = section.querySelector('[data-key="info_memo"]');
-            if (memoTextarea) memoTextarea.value = newMemo;
-            if (typeof updateMemoPreview === 'function') updateMemoPreview(result.charId);
-        }
-        if (typeof autoSave === 'function') autoSave();
-
-        // 표시 갱신
-        display.textContent = newMemo || '(메모 없음)';
-        display.style.color = newMemo ? '#ddd' : '#666';
-        display.style.fontStyle = newMemo ? 'normal' : 'italic';
-
-        exitEdit();
-    };
-
-    // ── 편집 종료 ──────────────────────────────────────────
-    const exitEdit = () => {
-        isEditing = false;
-        ta.style.display = 'none';
-        btnRow.style.display = 'none';
-        display.style.display = '';
-        editBtn.style.opacity = '0.7';
-    };
-
-    editBtn.addEventListener('click', enterEdit);
-    saveBtn.addEventListener('click', save);
-    cancelBtn.addEventListener('click', exitEdit);
-    ta.addEventListener('keydown', e => {
-        if (e.key === 'Escape') exitEdit();
+        table.querySelectorAll('tbody td[data-memo-cell="true"]').forEach(td => {
+            td.dataset.memoEditMode = editMode ? 'on' : 'off';
+            td.style.cursor = editMode ? 'text' : 'default';
+            td.title = editMode ? '클릭하여 메모 편집' : '';
+            if (editMode) {
+                td.style.outline = '1px solid #4a5abb';
+                td.style.background = 'rgba(74,91,187,0.15)';
+            } else {
+                td.style.outline = '';
+                td.style.background = '';
+                // 열려있는 textarea blur 처리
+                const ta = td.querySelector('textarea');
+                if (ta) ta.blur();
+            }
+        });
     });
-
-    wrapper.appendChild(display);
-    wrapper.appendChild(editBtn);
-    wrapper.appendChild(ta);
-    wrapper.appendChild(btnRow);
-    return wrapper;
 }
 
 /**
- * 태그 셀 내용 생성 (표시 + 인라인 편집 — 버튼으로만 편집 진입)
+ * 태그 헤더 토글 버튼 초기화
+ * 토글 ON → 즉시 모든 태그 셀에 편집 UI 표시
+ * 토글 OFF → 편집 UI 닫고 칩 표시 복원
  */
-function _buildTagsCell(result) {
-    let isEditing = false;
+function _initTagToggleBtn(table, btnSelector) {
+    const btn = table.querySelector(btnSelector);
+    if (!btn) return;
+    let editMode = false;
 
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'position:relative; min-height:32px;';
+    btn.addEventListener('click', () => {
+        editMode = !editMode;
+        btn.style.background = editMode ? '#25c2a0' : '#4a5abb';
+        btn.title = editMode ? '태그 편집 종료' : '태그 편집';
 
-    // ── 태그 칩 표시 영역 ──────────────────────────────────
-    const display = document.createElement('div');
-    display.className = 'tags-display';
-    display.style.cssText = 'display:flex; flex-wrap:wrap; gap:4px; padding:6px 36px 6px 8px; min-height:32px; border-radius:4px; align-items:flex-start;';
-    _renderTagChipsInDisplay(display, result.tags || []);
+        table.querySelectorAll('tbody td[data-tag-cell="true"]').forEach(td => {
+            td.dataset.tagEditMode = editMode ? 'on' : 'off';
+            if (editMode) {
+                _insertTagEditUI(td);
+            } else {
+                const charId = td.dataset.charId;
+                const tags = (typeof AppState !== 'undefined' && AppState.charTags?.[charId]) || [];
+                td.innerHTML = '';
+                td.style.cssText = 'vertical-align:middle; padding:6px 8px; min-width:140px; cursor:default;';
+                td.title = '';
+                _renderTagChipsInCell(td, tags);
+            }
+        });
+    });
+}
 
-    // ── 편집 버튼 ──────────────────────────────────────────
-    const editBtn = document.createElement('button');
-    editBtn.textContent = '✏️';
-    editBtn.title = '태그 편집';
-    editBtn.style.cssText = `
-        position:absolute; top:4px; right:4px;
-        background:#4a5abb; color:#fff; border:none;
-        border-radius:4px; padding:2px 5px;
-        cursor:pointer; font-size:11px; opacity:0.7;
-        transition:opacity 0.15s;
-    `;
-    editBtn.onmouseenter = () => editBtn.style.opacity = '1';
-    editBtn.onmouseleave = () => { if (!isEditing) editBtn.style.opacity = '0.7'; };
+/**
+ * 메모 td 클릭 시 textarea로 편집 (설명 칸의 _makeDescEditable과 동일한 패턴)
+ */
+function _makeMemoEditable(td) {
+    td.addEventListener('click', () => {
+        if (td.dataset.memoEditMode !== 'on') return;
+        if (td.querySelector('textarea')) return; // 이미 편집 중
 
-    // ── 편집 영역 (평소 숨김) ──────────────────────────────
+        const charId = td.dataset.charId;
+        const rect = td.getBoundingClientRect();
+        const tdW = rect.width;
+        const tdH = Math.max(rect.height, 60);
+
+        const currentVal = td.dataset.memoVal !== undefined ? td.dataset.memoVal : td.textContent.replace('(메모 없음)', '');
+
+        const ta = document.createElement('textarea');
+        ta.value = currentVal;
+        ta.placeholder = '메모를 입력하세요...';
+        ta.style.cssText = `width:${tdW}px; height:${tdH}px; min-height:${tdH}px; background:#1a2040; color:#fff; border:1px solid #4a5abb; border-radius:3px; padding:4px; box-sizing:border-box; font-size:inherit; font-family:inherit; resize:vertical; display:block;`;
+
+        ta.addEventListener('blur', () => {
+            const newVal = ta.value;
+            td.dataset.memoVal = newVal;
+            td.style.cssText = 'vertical-align:top; padding:6px 8px; min-width:260px; white-space:pre-wrap; word-break:break-all; cursor:text; outline:1px solid #4a5abb; background:rgba(74,91,187,0.15);';
+            td.style.color = newVal ? '#ddd' : '#666';
+            td.style.fontStyle = newVal ? 'normal' : 'italic';
+            td.title = '클릭하여 메모 편집';
+            td.textContent = newVal || '(메모 없음)';
+
+            // 캐릭터 관리 탭 반영
+            if (charId) {
+                const section = document.getElementById(charId);
+                if (section) {
+                    const memoEl = section.querySelector('[data-key="info_memo"]');
+                    if (memoEl) memoEl.value = newVal;
+                    if (typeof updateMemoPreview === 'function') updateMemoPreview(charId);
+                }
+                if (typeof autoSave === 'function') autoSave();
+            }
+        });
+
+        ta.addEventListener('keydown', e => { if (e.key === 'Escape') ta.blur(); });
+
+        td.innerHTML = '';
+        td.style.padding = '0';
+        td.title = '';
+        td.appendChild(ta);
+        ta.focus();
+        ta.setSelectionRange(ta.value.length, ta.value.length);
+    });
+}
+
+/**
+ * 태그 td에 편집 UI 삽입 (토글 ON 즉시 호출)
+ * 레이아웃: [기존 칩들(×삭제)] [입력창][+][💾]
+ */
+function _insertTagEditUI(td) {
+    const charId = td.dataset.charId;
+    let editingTags = [...((typeof AppState !== 'undefined' && AppState.charTags?.[charId]) || [])];
+
+    td.innerHTML = '';
+    td.style.cssText = 'vertical-align:top; padding:4px 6px; min-width:160px; outline:1px solid #4a5abb; background:rgba(74,91,187,0.15);';
+
     const editArea = document.createElement('div');
-    editArea.style.cssText = 'display:none; padding:4px 8px 6px;';
+    editArea.className = 'tag-edit-area';
 
-    const hint = document.createElement('div');
-    hint.style.cssText = 'font-size:11px; color:#888; margin-bottom:4px;';
-    hint.textContent = '태그 입력 (최대 3개, Enter 또는 , 로 추가)';
+    // 칩 영역 (× 포함)
+    const editChips = document.createElement('div');
+    editChips.style.cssText = 'display:flex; flex-wrap:wrap; gap:4px; margin-bottom:4px; min-height:20px;';
 
-    // 태그 입력 행
+    // 입력 행
     const inputRow = document.createElement('div');
-    inputRow.style.cssText = 'display:flex; gap:4px; align-items:center;';
+    inputRow.style.cssText = 'display:flex; gap:3px; align-items:center;';
     const tagInput = document.createElement('input');
     tagInput.type = 'text';
-    tagInput.placeholder = '#태그 입력...';
-    tagInput.style.cssText = 'flex:1; background:#1a2040; color:#fff; border:1px solid #4a5abb; border-radius:4px; padding:4px 6px; font-size:inherit; box-sizing:border-box;';
+    tagInput.placeholder = '#태그...';
+    tagInput.style.cssText = 'flex:1; min-width:50px; background:#1a2040; color:#fff; border:1px solid #4a5abb; border-radius:4px; padding:2px 5px; font-size:inherit; box-sizing:border-box;';
     const addBtn = document.createElement('button');
     addBtn.textContent = '+';
-    addBtn.style.cssText = 'background:#25c2a0;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-weight:bold;';
+    addBtn.style.cssText = 'background:#25c2a0;color:#fff;border:none;border-radius:4px;padding:2px 7px;cursor:pointer;font-weight:bold;flex-shrink:0;';
     inputRow.appendChild(tagInput);
     inputRow.appendChild(addBtn);
 
-    // 현재 태그 칩 편집 영역
-    const editChips = document.createElement('div');
-    editChips.style.cssText = 'display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; min-height:24px;';
-
-    // 저장/취소 버튼
-    const btnRow = document.createElement('div');
-    btnRow.style.cssText = 'display:flex; gap:4px; margin-top:6px; justify-content:flex-end;';
-    const saveBtn = document.createElement('button');
-    saveBtn.textContent = '💾 저장';
-    saveBtn.style.cssText = 'background:#25c2a0;color:#fff;border:none;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:12px;font-weight:bold;';
-    const cancelBtn = document.createElement('button');
-    cancelBtn.textContent = '✖ 취소';
-    cancelBtn.style.cssText = 'background:#e05252;color:#fff;border:none;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:12px;';
-    btnRow.appendChild(saveBtn);
-    btnRow.appendChild(cancelBtn);
-
-    editArea.appendChild(hint);
-    editArea.appendChild(inputRow);
     editArea.appendChild(editChips);
-    editArea.appendChild(btnRow);
+    editArea.appendChild(inputRow);
+    td.appendChild(editArea);
 
-    // 편집 중 임시 태그 배열
-    let editingTags = [];
-
-    // 편집 칩 렌더링
     const renderEditChips = () => {
         editChips.innerHTML = '';
+        if (editingTags.length === 0) {
+            const empty = document.createElement('span');
+            empty.style.cssText = 'color:#555; font-style:italic; font-size:11px;';
+            empty.textContent = '(태그 없음)';
+            editChips.appendChild(empty);
+        }
         editingTags.forEach((tag, idx) => {
             const chip = document.createElement('span');
-            chip.style.cssText = 'background:#2a3158; color:#e6e9ff; border-radius:12px; padding:2px 8px; font-size:12px; display:flex; align-items:center; gap:4px;';
+            chip.style.cssText = 'background:#2a3158; color:#e6e9ff; border-radius:12px; padding:2px 7px; font-size:12px; display:inline-flex; align-items:center; gap:3px;';
             const lbl = document.createElement('span');
             lbl.textContent = tag;
             const del = document.createElement('span');
             del.textContent = '×';
-            del.style.cssText = 'cursor:pointer; font-weight:bold; color:#aaa;';
-            del.onclick = () => { editingTags.splice(idx, 1); renderEditChips(); };
+            del.style.cssText = 'cursor:pointer; font-weight:bold; color:#ff8080; line-height:1;';
+            del.onclick = () => { editingTags.splice(idx, 1); syncTags(); renderEditChips(); };
             chip.appendChild(lbl);
             chip.appendChild(del);
             editChips.appendChild(chip);
@@ -1275,8 +1248,28 @@ function _buildTagsCell(result) {
         addBtn.disabled = editingTags.length >= 3;
         tagInput.style.opacity = editingTags.length >= 3 ? '0.4' : '1';
     };
+    renderEditChips();
 
-    // 태그 추가
+    // 태그 변경 시 즉시 저장
+    const syncTags = () => {
+        if (typeof AppState !== 'undefined' && AppState.charTags) {
+            AppState.charTags[charId] = [...editingTags];
+        }
+        const section = document.getElementById(charId);
+        if (section) {
+            const tagContainer = document.getElementById(`${charId}_tags`);
+            if (tagContainer) {
+                tagContainer.innerHTML = '';
+                editingTags.forEach(tag => {
+                    if (typeof createTagChip === 'function') {
+                        tagContainer.appendChild(createTagChip(tag, charId));
+                    }
+                });
+            }
+        }
+        if (typeof autoSave === 'function') autoSave();
+    };
+
     const addTag = () => {
         let val = tagInput.value.trim();
         if (!val) return;
@@ -1285,92 +1278,45 @@ function _buildTagsCell(result) {
         if (editingTags.includes(val)) { alert('이미 존재하는 태그입니다.'); return; }
         editingTags.push(val);
         tagInput.value = '';
+        syncTags();
         renderEditChips();
     };
 
-    // ── 편집 진입 (버튼 클릭으로만) ────────────────────────
-    const enterEdit = () => {
-        if (isEditing) return;
-        isEditing = true;
-        editingTags = [...(result.tags || [])];
-        renderEditChips();
-        display.style.display = 'none';
-        editBtn.style.opacity = '1';
-        editArea.style.display = 'block';
-        tagInput.focus();
-    };
-
-    // ── 저장 ───────────────────────────────────────────────
-    const save = () => {
-        result.tags = [...editingTags];
-
-        if (typeof AppState !== 'undefined' && AppState.charTags) {
-            AppState.charTags[result.charId] = result.tags;
-        }
-
-        // 캐릭터 관리 탭 태그 DOM 업데이트
-        const section = document.getElementById(result.charId);
-        if (section) {
-            const tagContainer = document.getElementById(`${result.charId}_tags`);
-            if (tagContainer) {
-                tagContainer.innerHTML = '';
-                result.tags.forEach(tag => {
-                    if (typeof createTagChip === 'function') {
-                        tagContainer.appendChild(createTagChip(tag, result.charId));
-                    }
-                });
-            }
-        }
-
-        if (typeof autoSave === 'function') autoSave();
-
-        _renderTagChipsInDisplay(display, result.tags);
-        exitEdit();
-    };
-
-    // ── 편집 종료 ──────────────────────────────────────────
-    const exitEdit = () => {
-        isEditing = false;
-        editArea.style.display = 'none';
-        display.style.display = 'flex';
-        editBtn.style.opacity = '0.7';
-    };
-
-    editBtn.addEventListener('click', enterEdit);
     addBtn.addEventListener('click', addTag);
     tagInput.addEventListener('keydown', e => {
         if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(); }
-        if (e.key === 'Escape') exitEdit();
     });
-    saveBtn.addEventListener('click', save);
-    cancelBtn.addEventListener('click', exitEdit);
+}
 
-    wrapper.appendChild(display);
-    wrapper.appendChild(editBtn);
-    wrapper.appendChild(editArea);
-    return wrapper;
+/**
+ * 태그 칩을 td에 직접 렌더링 (표시 전용)
+ */
+function _renderTagChipsInCell(td, tags) {
+    const existing = td.querySelector('.tag-chips-wrap');
+    if (existing) existing.remove();
+
+    if (!tags || tags.length === 0) {
+        const empty = document.createElement('span');
+        empty.style.cssText = 'color:#666; font-style:italic; font-size:12px;';
+        empty.textContent = '(태그 없음)';
+        td.appendChild(empty);
+        return;
+    }
+    const wrap = document.createElement('div');
+    wrap.className = 'tag-chips-wrap';
+    wrap.style.cssText = 'display:flex; flex-wrap:wrap; gap:4px;';
+    tags.forEach(tag => {
+        const chip = document.createElement('span');
+        chip.style.cssText = 'background:#2a3158; color:#e6e9ff; border-radius:12px; padding:2px 10px; font-size:12px;';
+        chip.textContent = tag;
+        wrap.appendChild(chip);
+    });
+    td.appendChild(wrap);
 }
 
 /**
  * 태그 칩을 display div에 렌더링
  */
-function _renderTagChipsInDisplay(container, tags) {
-    container.innerHTML = '';
-    if (!tags || tags.length === 0) {
-        const empty = document.createElement('span');
-        empty.style.cssText = 'color:#666; font-style:italic; font-size:12px; padding:2px 0;';
-        empty.textContent = '(태그 없음)';
-        container.appendChild(empty);
-        return;
-    }
-    tags.forEach(tag => {
-        const chip = document.createElement('span');
-        chip.style.cssText = 'background:#2a3158; color:#e6e9ff; border-radius:12px; padding:2px 10px; font-size:12px;';
-        chip.textContent = tag;
-        container.appendChild(chip);
-    });
-}
-
 function _getSealOptions(slot, isN1) {
     const armorSlots = ['상의', '하의', '어깨', '벨트', '신발'];
     const accSlots = ['팔찌', '목걸이', '반지'];
