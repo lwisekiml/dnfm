@@ -1432,7 +1432,7 @@ const WEAPON_AVATAR_ITEM_INFO = {
     "그린 커서": _WEAPON_AVATAR_TEMPLATES.WA_V4,
 
     // 힘, 지능, 체력, 정신력 +18
-    "주부 8단 후라이팬": _WEAPON_AVATAR_TEMPLATES.WA_V18,
+    "주부 9단 후라이팬": _WEAPON_AVATAR_TEMPLATES.WA_V18,
     "계란말이란 말이오": _WEAPON_AVATAR_TEMPLATES.WA_V18,
     "샐러드용 당근 통파": _WEAPON_AVATAR_TEMPLATES.WA_V18,
     "토메이토 토마토": _WEAPON_AVATAR_TEMPLATES.WA_V18,
@@ -1943,6 +1943,11 @@ const _CREATURE_TEMPLATES = {
 
         ]
     },
+    // SD 남격투가
+    RARE_V13: {
+        info: `화염의 각 +1, 뒷골목 싸움법 +1, 홍염질풍각 +1, 마운트 +1`,
+        stats: []
+    },
 
 
     // 비네, 쁘띠 스켈레톤 골드
@@ -2052,6 +2057,7 @@ const CREATURE_ITEM_INFO = {
     "SD 여거너": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V4 },
     "SD 여귀검사": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V3 },
     "SD 여프리스트": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V5 },
+    "SD 남격투가": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V13 },
     "녹색 잭 오 랜턴": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V7 },
     "달빛 매니저": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V2 },
     "마법학 교수": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V2 },
@@ -2180,7 +2186,7 @@ const ARTIFACT_SET_DATA = [
         setEffect: '모속강 +10\n공격 시 5% 추가 데미지\n30초 마다 공격속도 3%, 이동속도 3%, 캐스팅속도 3% 증가',
     },
     {
-        setName: '새끼용, 실프, 에메랄드',
+        setName: '새끼용의 손톱, 실프의 오브, 에메랄드 오브',
         red: {
             name: '새끼용의 손톱',
             stats: {
@@ -2199,6 +2205,29 @@ const ARTIFACT_SET_DATA = [
             name: '에메랄드 오브',
             stats: {
                 '크리쳐_art_green_stat_HPMAX':  '165',
+            }
+        },
+    },
+    {
+        setName: '새끼용의 이빨, 실프의 날개, 에메랄드 머리장식',
+        red: {
+            name: '새끼용의 이빨',
+            stats: {
+                '크리쳐_art_red_stat_힘':         '13',
+                '크리쳐_art_red_stat_지능':        '13',
+            }
+        },
+        blue: {
+            name: '실프의 날개',
+            stats: {
+                '크리쳐_art_blue_stat_공격속도':   '4',
+                '크리쳐_art_blue_stat_캐스팅속도':  '6',
+            }
+        },
+        green: {
+            name: '에메랄드 머리장식',
+            stats: {
+                '크리쳐_art_green_stat_HPMAX':  '132',
             }
         },
     },
@@ -2243,6 +2272,29 @@ const ARTIFACT_SET_DATA = [
         },
         green: {
             name: '과일 초코 녹차 파르페',
+            stats: {
+                '크리쳐_art_green_stat_HPMAX':  '165',
+            }
+        },
+    },
+    {
+        setName: '초콜릿 세트',
+        red: {
+            name: '장난감을 품은 초콜릿',
+            stats: {
+                '크리쳐_art_red_stat_힘':         '18',
+                '크리쳐_art_red_stat_지능':        '18',
+            }
+        },
+        blue: {
+            name: '뭐지 모름',
+            stats: {
+                '크리쳐_art_blue_stat_공격속도':   '5',
+                '크리쳐_art_blue_stat_캐스팅속도':  '7.5',
+            }
+        },
+        green: {
+            name: '두바이를 건너온 초콜릿',
             stats: {
                 '크리쳐_art_green_stat_HPMAX':  '165',
             }
