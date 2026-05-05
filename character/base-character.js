@@ -712,7 +712,9 @@ function restoreSavedData(section, savedData, charId) {
         const key = el.getAttribute('data-key');
         const data = getInputData(savedData.inputs, key);
 
-        if (!data || key.endsWith('_rarity')) return;
+        // _rarity 스킵 조건: 일반 장비 희귀도 select(1단계에서 이미 처리)만 제외.
+        // 크리쳐 아티팩트의 hidden input(_rarity 포함)은 select가 아니므로 여기서 복원해야 함.
+        if (!data || (key.endsWith('_rarity') && el.tagName === 'SELECT')) return;
 
         el.value = data.val;
 
