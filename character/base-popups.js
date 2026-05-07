@@ -119,6 +119,45 @@ function _entriesToLines(arr) {
     return lines;
 }
 
+// ============================================
+// 아바타 desc 조합 헬퍼
+// ============================================
+
+/**
+ * 기존 아바타_desc 문자열에서 아바타 세트 부분(무기 아바타 구분선 이전)만 추출
+ */
+function _extractAvatarDescPart(descVal) {
+    if (!descVal) return '';
+    const sep = '\n\n=====\n무기 아바타\n';
+    const idx = descVal.indexOf(sep);
+    return idx !== -1 ? descVal.slice(0, idx).trim() : descVal.trim();
+}
+
+/**
+ * 기존 아바타_desc 문자열에서 무기 아바타 부분(구분선 이후)만 추출
+ */
+function _extractWeaponAvatarDescPart(descVal) {
+    if (!descVal) return '';
+    const sep = '\n\n=====\n무기 아바타\n';
+    const idx = descVal.indexOf(sep);
+    return idx !== -1 ? descVal.slice(idx + sep.length).trim() : '';
+}
+
+/**
+ * 아바타 세트 내용과 무기 아바타 내용을 합쳐 최종 desc 생성
+ * - 둘 다 있으면: 아바타내용 + 빈줄 + "무기 아바타" + 빈줄 + 무기아바타내용
+ * - 하나만 있으면: 해당 내용만
+ */
+function _buildAvatarDesc(avatarPart, weaponAvatarPart) {
+    const a = (avatarPart || '').trim();
+    const w = (weaponAvatarPart || '').trim();
+    // 아바타, 무기 아바타 둘 다 있을 때
+    if (a && w) return `${a}\n\n=====\n무기 아바타\n${w}`;
+    if (a) return a;
+    if (w) return `무기 아바타\n${w}`;
+    return '';
+}
+
 // 캐릭터 추가 동기화 무한루프 방지 플래그
 // _syncInProgress → UIState.syncInProgress (core-state.js)
 
@@ -1771,10 +1810,10 @@ function avatarPopupSave() {
                 if (m && gradeCounts[m[2]] !== undefined) gradeCounts[m[2]]++;
             });
 
-            const descLines = [];
+            const avatarLines = [];
 
             ['언커먼', '레어'].forEach((grade, gradeIdx) => {
-                if (gradeIdx > 0 && descLines.length > 0) descLines.push('');
+                if (gradeIdx > 0 && avatarLines.length > 0) avatarLines.push('');
                 const count = gradeCounts[grade];
                 if (count < 3) return;
 
@@ -1792,18 +1831,22 @@ function avatarPopupSave() {
                 if (maxEffect.cumulative) {
                     // 누적: 이전 단계 label도 포함
                     tiers.forEach((tier, tierIdx) => {
-                        if (tierIdx > 0) descLines.push('');
-                        descLines.push(`${grade} ${tier}세트`);
-                        descLines.push(gradeEffects[tier].label);
+                        if (tierIdx > 0) avatarLines.push('');
+                        avatarLines.push(`${grade} ${tier}세트`);
+                        avatarLines.push(gradeEffects[tier].label);
                     });
                 } else {
                     // 비누적: 해당 단계만
-                    descLines.push(`${grade} ${maxTier}세트`);
-                    descLines.push(maxEffect.label);
+                    avatarLines.push(`${grade} ${maxTier}세트`);
+                    avatarLines.push(maxEffect.label);
                 }
             });
 
-            descEl.value = descLines.join('\n');
+            // 무기 아바타 내용 추출 (기존 desc에서 보존)
+            const weaponAvatarPart = _extractWeaponAvatarDescPart(descEl.value);
+
+            // 최종 desc 조합
+            descEl.value = _buildAvatarDesc(avatarLines.join('\n'), weaponAvatarPart);
         }
     }
 
@@ -2124,21 +2167,26 @@ function weaponAvatarPopupSave() {
         if (descEl) {
             const baseLines = _entriesToLines(stats.base);
             const effLines  = _entriesToLines(stats.eff);
-            const lines = [];
+            const waLines = [];
             if (baseLines.length) {
-                lines.push('기본정보');
-                lines.push(...baseLines);
+                waLines.push('기본정보');
+                waLines.push(...baseLines);
             }
             if (effLines.length) {
-                if (baseLines.length) lines.push('---');
-                lines.push('효과');
-                lines.push(...effLines);
+                if (baseLines.length) waLines.push('---');
+                waLines.push('효과');
+                waLines.push(...effLines);
             }
             if (stats.desc) {
-                if (lines.length > 0) lines.push('---');
-                lines.push(stats.desc);
+                if (waLines.length > 0) waLines.push('---');
+                waLines.push(stats.desc);
             }
-            descEl.value = lines.join('\n');
+
+            // 아바타 세트 내용 추출 (기존 desc에서 보존)
+            const avatarPart = _extractAvatarDescPart(descEl.value);
+
+            // 최종 desc 조합
+            descEl.value = _buildAvatarDesc(avatarPart, waLines.join('\n'));
         }
     }
 
