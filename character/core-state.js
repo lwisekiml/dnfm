@@ -98,6 +98,7 @@ const UIState = {
 
     // mode-tag-filter.js
     filterTag:          '',  // 현재 활성화된 태그 필터
+    filterStat:         '',  // 현재 활성화된 스탯/속강 필터
     autocompleteIndex:  -1,  // 태그 자동완성 선택 인덱스
 
     // core-main.js

@@ -191,7 +191,177 @@ function getTagDisplayColor(tag) {
 }
 
 // ============================================
-// 3. 태그 자동완성
+// 3. 스탯/속강 필터
+// ============================================
+
+// UIState.filterStat: '' | '힘' | '지능' | '화속강' | '수속강' | '명속강' | '암속강'
+// UIState.filterStat 는 core-state.js의 UIState에 추가 필요
+// → 여기서는 UIState에 동적으로 추가하여 사용
+
+/**
+ * 스탯/속강 필터 패널 열기/닫기
+ */
+function toggleStatFilterPanel() {
+    const existing = document.getElementById('statFilterPanel');
+    if (existing) {
+        existing.remove();
+        const btn = document.getElementById('btnStatFilter');
+        if (btn) btn.classList.remove('active');
+        return;
+    }
+
+    const btn = document.getElementById('btnStatFilter');
+    if (btn) btn.classList.add('active');
+    showStatFilterPanel();
+}
+
+/**
+ * 스탯/속강 필터 패널 생성
+ */
+function showStatFilterPanel() {
+    const panel = document.createElement('div');
+    panel.id = 'statFilterPanel';
+
+    panel.style.cssText = `
+        position: fixed;
+        top: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1a1a1a;
+        border: 2px solid #ffd700;
+        border-radius: 8px;
+        padding: 16px;
+        z-index: 1000;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+        min-width: 320px;
+        max-width: 600px;
+    `;
+
+    const currentFilter = UIState.filterStat || '';
+
+    const statOptions = [
+        { label: '전체보기', value: '', color: '#ffd700' },
+    ];
+
+    const statGroup = [
+        { label: '힘', value: '힘', color: '#ff8c42' },
+        { label: '지능', value: '지능', color: '#5bc0eb' },
+    ];
+
+    const eleGroup = [
+        { label: '화속강', value: '화속강', color: '#ff5252' },
+        { label: '수속강', value: '수속강', color: '#448aff' },
+        { label: '명속강', value: '명속강', color: '#ffd700' },
+        { label: '암속강', value: '암속강', color: '#b39ddb' },
+    ];
+
+    // 현재 캐릭터 수 집계
+    const sections = document.querySelectorAll('.char-section');
+    const statCounts = { '힘': 0, '지능': 0, '화속강': 0, '수속강': 0, '명속강': 0, '암속강': 0 };
+    sections.forEach(sec => {
+        const statSel = sec.querySelector('select[data-key="info_stat_type"]');
+        const eleSel  = sec.querySelector('select[data-key="info_ele_type"]');
+        const statVal = statSel ? statSel.value : '';
+        const eleVal  = eleSel  ? eleSel.value  : '';
+        if (statVal && statCounts[statVal] !== undefined) statCounts[statVal]++;
+        if (eleVal  && statCounts[eleVal]  !== undefined) statCounts[eleVal]++;
+    });
+
+    function makeBtn(opt) {
+        const isActive = currentFilter === opt.value;
+        const countStr = opt.value === '' ? `(${sections.length})` : `(${statCounts[opt.value] ?? 0})`;
+        return `<button
+            onclick="applyStatFilter('${opt.value}')"
+            style="padding: 7px 16px; margin: 4px; font-size: 13px; font-weight: bold;
+                   background: ${isActive ? opt.color : 'rgba(255,255,255,0.08)'};
+                   color: ${isActive ? (opt.value === '' ? '#000' : '#fff') : opt.color};
+                   border: 2px solid ${opt.color};
+                   border-radius: 20px; cursor: pointer; transition: all 0.2s;">
+            ${opt.label} ${countStr}
+        </button>`;
+    }
+
+    panel.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-weight: bold; color: #ffd700; font-size: 15px;">📊 스탯/속강 필터</span>
+            <button onclick="closeStatFilterPanel()"
+                    style="background: transparent; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 0;">×</button>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; margin-bottom: 8px;">
+            ${makeBtn(statOptions[0])}
+        </div>
+        <div style="font-size: 11px; color: #888; margin: 6px 4px 4px;">스탯</div>
+        <div style="display: flex; flex-wrap: wrap; margin-bottom: 8px;">
+            ${statGroup.map(makeBtn).join('')}
+        </div>
+        <div style="font-size: 11px; color: #888; margin: 6px 4px 4px;">속강</div>
+        <div style="display: flex; flex-wrap: wrap;">
+            ${eleGroup.map(makeBtn).join('')}
+        </div>
+    `;
+
+    document.body.appendChild(panel);
+}
+
+/**
+ * 스탯/속강 필터 적용
+ */
+function applyStatFilter(value) {
+    UIState.filterStat = value;
+    filterByStat(value);
+    closeStatFilterPanel();
+
+    const btn = document.getElementById('btnStatFilter');
+    if (btn) {
+        if (value === '') {
+            btn.classList.remove('active');
+            btn.style.background = '';
+            btn.style.color = '';
+        } else {
+            btn.classList.add('active');
+            btn.style.background = '#ffd700';
+            btn.style.color = '#000';
+        }
+    }
+}
+
+/**
+ * 스탯/속강으로 캐릭터 섹션 표시/숨김
+ */
+function filterByStat(value) {
+    const sections = document.querySelectorAll('.char-section');
+    sections.forEach(sec => {
+        if (value === '') {
+            sec.style.display = '';
+            return;
+        }
+        const statSel = sec.querySelector('select[data-key="info_stat_type"]');
+        const eleSel  = sec.querySelector('select[data-key="info_ele_type"]');
+        const statVal = statSel ? statSel.value : '';
+        const eleVal  = eleSel  ? eleSel.value  : '';
+
+        const matched = (statVal === value) || (eleVal === value);
+        sec.style.display = matched ? '' : 'none';
+    });
+}
+
+/**
+ * 스탯/속강 필터 패널 닫기
+ */
+function closeStatFilterPanel() {
+    const panel = document.getElementById('statFilterPanel');
+    if (panel) panel.remove();
+
+    const btn = document.getElementById('btnStatFilter');
+    if (btn && !UIState.filterStat) {
+        btn.classList.remove('active');
+        btn.style.background = '';
+        btn.style.color = '';
+    }
+}
+
+// ============================================
+// 4. 태그 자동완성
 // ============================================
 
 /**
