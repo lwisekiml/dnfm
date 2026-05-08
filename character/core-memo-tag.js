@@ -416,7 +416,7 @@ function openDescModal(inputEl) {
 
     // 칭호/외형칭호/오라는 항상 읽기 전용 (선택지로만 변경 가능)
     const dataKey = inputEl.getAttribute('data-key') || '';
-    const readonlySlots = ['칭호_desc', '외형칭호_desc', '오라_desc', '크리쳐_desc', '아바타_desc'];
+    const readonlySlots = ['칭호_desc', '외형칭호_desc', '오라_desc', '크리쳐_desc'];
     const isReadonlySlot = readonlySlots.some(k => dataKey === k);
 
     UIState.descInput = inputEl;
@@ -504,11 +504,25 @@ function openDescModal(inputEl) {
     modal.style.left = left + 'px';
     modal.style.visibility = 'visible';
 
-    if (!isLocked) {
+    if (!isLocked && !isReadonlySlot) {
         setTimeout(() => {
             const ta = document.getElementById('descModalTextarea');
             if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
         }, 100);
+    }
+
+    // 잠금 상태(또는 읽기 전용 슬롯)일 때: 외부 클릭 시 팝업 닫기
+    if (isLocked || isReadonlySlot) {
+        setTimeout(() => {
+            function _descOutsideClick(e) {
+                const m = document.getElementById('descModal');
+                if (m && !m.contains(e.target)) {
+                    closeDescModal();
+                    document.removeEventListener('mousedown', _descOutsideClick);
+                }
+            }
+            document.addEventListener('mousedown', _descOutsideClick);
+        }, 0);
     }
 }
 
