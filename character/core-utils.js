@@ -142,7 +142,7 @@ const DataTables = {
                 case 'special': return this.SPECIAL_SEAL1[option] || null;
             }
         } else if (sealLevel === 2) {
-            if (slotType === 'weapon' && (option === "물리 공격력" || option === "마법 공격력")) {
+            if ((slotType === 'weapon' || slotType === 'special') && (option === "물리 공격력" || option === "마법 공격력")) {
                 return "18";
             }
             if ((slotType === 'armor' || slotType === 'special') && (option === "물리 크리티컬" || option === "마법 크리티컬")) {
