@@ -42,6 +42,18 @@ function toggleTagFilterPanel() {
         return;
     }
 
+    // 스탯 패널이 열려있으면 닫기
+    const statPanel = document.getElementById('statFilterPanel');
+    if (statPanel) {
+        statPanel.remove();
+        const statBtn = document.getElementById('btnStatFilter');
+        if (statBtn && !UIState.filterStat) {
+            statBtn.classList.remove('active');
+            statBtn.style.background = '';
+            statBtn.style.color = '';
+        }
+    }
+
     document.getElementById('btnTagFilter').classList.add('active');
     showTagFilterPanel();
 }
@@ -208,6 +220,16 @@ function toggleStatFilterPanel() {
         const btn = document.getElementById('btnStatFilter');
         if (btn) btn.classList.remove('active');
         return;
+    }
+
+    // 태그 패널이 열려있으면 닫기
+    const tagPanel = document.getElementById('tagFilterPanel');
+    if (tagPanel) {
+        tagPanel.remove();
+        const tagBtn = document.getElementById('btnTagFilter');
+        if (tagBtn && UIState.filterTag === '') {
+            tagBtn.classList.remove('active');
+        }
     }
 
     const btn = document.getElementById('btnStatFilter');
