@@ -424,14 +424,12 @@ function displaySearchResults(slot, results) {
 }
 
 /**
- * 검색 결과 행 생성
+ * 검색 결과 행 생성 (읽기 전용, 설명만 편집 가능)
  */
 function createSearchResultRow(slot, result) {
     const tr = document.createElement('tr');
     tr.dataset.charId = result.charId;
     tr.dataset.slot = slot;
-    tr.style.cursor = 'pointer';
-    tr.title = '클릭하여 편집';
 
     // 희귀도 클래스
     const rarityClass = result.rarity ? `rare-${result.rarity}` : '';
@@ -461,7 +459,7 @@ function createSearchResultRow(slot, result) {
     const embClass = getEmblemHighlight(slot, result.emb1, result.eleType);
 
     tr.innerHTML = `
-        <td style="white-space: nowrap; user-select: none; cursor: pointer;">✏️ ${result.job}(${result.name})</td>
+        <td style="white-space: nowrap;">${result.job}(${result.name})</td>
         <td class="${rarityClass}">${result.rarity}</td>
         <td class="${exceedClass}">${result.exceed}</td>
         <td class="${prefixClass}">${result.prefix}</td>
@@ -477,12 +475,6 @@ function createSearchResultRow(slot, result) {
         <td>${result.enchant_val}</td>
         <td class="desc-col" style="white-space: pre-wrap; text-align: left; padding: 4px 8px;">${result.desc || ''}</td>
     `;
-
-    // 직업/이름 셀 클릭 시 인라인 편집 (설명 제외)
-    tr.querySelector('td:first-child').addEventListener('click', () => {
-        if (tr.dataset.editing === 'true') return;
-        _enterSearchRowEditMode(tr, slot, result);
-    });
 
     return tr;
 }
@@ -1304,7 +1296,7 @@ function _renderTagChipsInCell(td, tags) {
 }
 
 /**
- * 태그 칩을 display div에 렌더링
+ * 봉인 옵션 반환 (슬롯/n1|n2 기준)
  */
 function _getSealOptions(slot, isN1) {
     const armorSlots = ['상의', '하의', '어깨', '벨트', '신발'];
@@ -1316,25 +1308,6 @@ function _getSealOptions(slot, isN1) {
     if (accSlots.includes(slot)) return _SEARCH_EDIT_OPTIONS['seal_accessory' + suffix];
     if (specialSlots.includes(slot)) return _SEARCH_EDIT_OPTIONS['seal_special' + suffix];
     return [''];
-}
-
-function _makeSelect(options, currentVal) {
-    const sel = document.createElement('select');
-    sel.style.cssText = 'width:100%; background:#1a2040; color:#fff; border:1px solid #4a5abb; border-radius:3px; padding:2px; font-size:inherit;';
-    options.forEach(opt => {
-        const o = document.createElement('option');
-        o.value = opt; o.textContent = opt || '(없음)';
-        if (opt === currentVal) o.selected = true;
-        sel.appendChild(o);
-    });
-    return sel;
-}
-
-function _makeInput(currentVal) {
-    const inp = document.createElement('input');
-    inp.type = 'text'; inp.value = currentVal || '';
-    inp.style.cssText = 'width:100%; background:#1a2040; color:#fff; border:1px solid #4a5abb; border-radius:3px; padding:2px; box-sizing:border-box; font-size:inherit;';
-    return inp;
 }
 
 /**
@@ -1443,7 +1416,7 @@ function _makeDescEditable(td, charId, slot) {
             td.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px; cursor:text; outline:1px solid #4a5abb; background:rgba(74,91,187,0.15);';
             td.title = '클릭하여 설명 편집';
             td.textContent = newVal || '';
-            if (charId && slot) _applySearchEditToDOM(charId, slot, { desc: newVal });
+            if (charId && slot) _applyDescToDOM(charId, slot, newVal);
         });
 
         ta.addEventListener('keydown', (e) => {
@@ -1459,216 +1432,16 @@ function _makeDescEditable(td, charId, slot) {
 }
 
 /**
- * 설명 td 편집 모드 전환 (헤더 버튼으로 제어)
- * width:100% 사용 → 측정 오차 없이 td 크기 그대로
+ * 설명 변경 결과를 실제 상세입력 DOM에 반영 + autoSave
  */
-/**
- * 인라인 편집 모드 진입 (설명 제외)
- */
-function _enterSearchRowEditMode(tr, slot, result) {
-    tr.dataset.editing = 'true';
-    tr.style.background = 'rgba(74,91,187,0.2)';
-
-    const tds = tr.querySelectorAll('td');
-
-    // td 크기 고정 (편집 중 레이아웃 안 흔들리도록)
-    Array.from(tds).forEach(td => {
-        const w = td.getBoundingClientRect().width;
-        td.style.width = w + 'px';
-        td.style.minWidth = w + 'px';
-        td.style.maxWidth = w + 'px';
-    });
-
-    // [0] 저장/취소 버튼
-    tds[0].innerHTML = '';
-    tds[0].style.whiteSpace = 'nowrap';
-    const saveBtn = document.createElement('button');
-    saveBtn.textContent = '💾';
-    saveBtn.title = '저장';
-    saveBtn.style.cssText = 'background:#25c2a0;color:#fff;border:none;border-radius:4px;padding:3px 7px;cursor:pointer;margin-right:3px;font-size:13px;';
-    const cancelBtn = document.createElement('button');
-    cancelBtn.textContent = '✖';
-    cancelBtn.title = '취소';
-    cancelBtn.style.cssText = 'background:#e05252;color:#fff;border:none;border-radius:4px;padding:3px 7px;cursor:pointer;font-size:13px;';
-    const nameSpan = document.createElement('div');
-    nameSpan.textContent = `${result.job}(${result.name})`;
-    nameSpan.style.cssText = 'font-size:11px;color:#aaa;margin-top:3px;';
-    tds[0].appendChild(saveBtn);
-    tds[0].appendChild(cancelBtn);
-    tds[0].appendChild(nameSpan);
-
-    // [1~13] select / input (설명 tds[14] 제외)
-    const fields = [
-        { idx:1,  el: _makeSelect(_SEARCH_EDIT_OPTIONS.rarity, result.rarity) },
-        { idx:2,  el: _makeSelect(_SEARCH_EDIT_OPTIONS.exceed, result.exceed) },
-        { idx:3,  el: _makeSelect(_SEARCH_EDIT_OPTIONS.prefix, result.prefix) },
-        { idx:4,  el: _makeInput(result.itemname) },
-        { idx:5,  el: _makeInput(result.reinforce) },
-        { idx:6,  el: _makeSelect(_getSealOptions(slot, true), result.seal1) },
-        { idx:7,  el: _makeInput(result.seal1_val) },
-        { idx:8,  el: _makeSelect(_getSealOptions(slot, false), result.seal2) },
-        { idx:9,  el: _makeInput(result.seal2_val) },
-        { idx:10, el: _makeInput(result.emb1) },
-        { idx:11, el: _makeInput(result.emb2) },
-        { idx:12, el: _makeInput(result.enchant) },
-        { idx:13, el: _makeInput(result.enchant_val) },
-    ];
-    fields.forEach(({ idx, el }) => { tds[idx].innerHTML = ''; tds[idx].appendChild(el); });
-
-    // 저장
-    saveBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const descTa = tds[14].querySelector('textarea');
-        const descVal = descTa ? descTa.value : (tds[14].dataset.descVal ?? tds[14].textContent);
-        const newData = {
-            rarity:      tds[1].querySelector('select').value,
-            exceed:      tds[2].querySelector('select').value,
-            prefix:      tds[3].querySelector('select').value,
-            itemname:    tds[4].querySelector('input').value,
-            reinforce:   tds[5].querySelector('input').value,
-            seal1:       tds[6].querySelector('select').value,
-            seal1_val:   tds[7].querySelector('input').value,
-            seal2:       tds[8].querySelector('select').value,
-            seal2_val:   tds[9].querySelector('input').value,
-            emb1:        tds[10].querySelector('input').value,
-            emb2:        tds[11].querySelector('input').value,
-            enchant:     tds[12].querySelector('input').value,
-            enchant_val: tds[13].querySelector('input').value,
-            desc:        descVal,
-        };
-        _applySearchEditToDOM(result.charId, slot, newData);
-        Object.assign(result, newData);
-        _exitSearchRowEditMode(tr, slot, result);
-    });
-
-    // 취소
-    cancelBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        _exitSearchRowEditMode(tr, slot, result);
-    });
-}
-
-/**
- * 인라인 편집 모드 종료
- */
-function _exitSearchRowEditMode(tr, slot, result) {
-    tr.dataset.editing = 'false';
-    tr.style.background = '';
-
-    tr.querySelectorAll('td').forEach(td => {
-        td.style.width = '';
-        td.style.minWidth = '';
-        td.style.maxWidth = '';
-    });
-
-    const rarityClass = result.rarity ? `rare-${result.rarity}` : '';
-    const exceedClass = result.exceed ? `ex-${result.exceed}` : '';
-    let prefixClass = '';
-    if (result.prefix) {
-        if (result.prefix.startsWith('T')) prefixClass = 'prefix-tier';
-        else {
-            prefixClass = 'prefix-selected';
-            if (slot === '무기') {
-                if (result.prefix === '광채') prefixClass += ' p-blue';
-                else if (result.prefix === '분쇄') prefixClass += ' p-red';
-                else if (result.prefix === '선명') prefixClass += ' p-green';
-                else if (result.prefix === '강타') prefixClass += ' p-yellow';
-            }
-        }
-    }
-    const seal1Class = getSealHighlight(slot, result.seal1, result.statType, result.eleType, true);
-    const seal2Class = getSealHighlight(slot, result.seal2, result.statType, result.eleType, false);
-    const embClass   = getEmblemHighlight(slot, result.emb1, result.eleType);
-
-    const tds = tr.querySelectorAll('td');
-
-    // [0] 직업/이름 복원 + 클릭 이벤트 재등록
-    const newTd = tds[0].cloneNode(false);
-    newTd.innerHTML = `✏️ ${result.job}(${result.name})`;
-    newTd.style.cssText = 'white-space:nowrap; user-select:none; cursor:pointer;';
-    newTd.addEventListener('click', () => {
-        if (tr.dataset.editing === 'true') return;
-        _enterSearchRowEditMode(tr, slot, result);
-    });
-    tds[0].parentNode.replaceChild(newTd, tds[0]);
-
-    const allTds = tr.querySelectorAll('td');
-    allTds[1].className = rarityClass;  allTds[1].textContent = result.rarity;
-    allTds[2].className = exceedClass;  allTds[2].textContent = result.exceed;
-    allTds[3].className = prefixClass;  allTds[3].textContent = result.prefix;
-    allTds[4].textContent = result.itemname;
-    allTds[5].textContent = result.reinforce;
-    allTds[6].className = seal1Class;   allTds[6].textContent = result.seal1;
-    allTds[7].className = seal1Class;   allTds[7].textContent = result.seal1_val;
-    allTds[8].className = seal2Class;   allTds[8].textContent = result.seal2;
-    allTds[9].className = seal2Class;   allTds[9].textContent = result.seal2_val;
-    allTds[10].className = embClass;    allTds[10].textContent = result.emb1;
-    allTds[11].className = embClass;    allTds[11].textContent = result.emb2;
-    allTds[12].textContent = result.enchant;
-    allTds[13].textContent = result.enchant_val;
-
-    // [14] 설명 - 값 갱신 (textarea가 열려 있으면 값만 업데이트, 아니면 텍스트 복원)
-    const descTd = allTds[14];
-    const descTa = descTd.querySelector('textarea');
-    descTd.dataset.descVal = result.desc || '';
-    if (descTa) {
-        descTa.value = result.desc || '';
-    } else {
-        descTd.className = 'desc-col';
-        // 편집 모드 ON 상태면 테두리/배경 유지
-        if (descTd.dataset.descEditMode === 'on') {
-            descTd.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px; cursor:text; outline:1px solid #4a5abb; background:rgba(74,91,187,0.15);';
-        } else {
-            descTd.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px;';
-        }
-        descTd.textContent = result.desc || '';
-    }
-}
-
-/**
- * 편집 결과를 실제 상세입력 DOM에 반영 + autoSave
- */
-function _applySearchEditToDOM(charId, slot, newData) {
+function _applyDescToDOM(charId, slot, descVal) {
     const section = document.getElementById(charId);
     if (!section) return;
 
-    const fieldMap = {
-        rarity:      `select[data-key="${slot}_rarity"]`,
-        exceed:      `select[data-key="${slot}_exceed"]`,
-        prefix:      `select[data-key="${slot}_prefix"]`,
-        itemname:    `[data-key="${slot}_itemname"]`,
-        reinforce:   `input[data-key="${slot}_reinforce"]`,
-        seal1:       `select[data-key="${slot}_seal1"]`,
-        seal1_val:   `input[data-key="${slot}_seal1_val"]`,
-        seal2:       `select[data-key="${slot}_seal2"]`,
-        seal2_val:   `input[data-key="${slot}_seal2_val"]`,
-        emb1:        `[data-key="${slot}_emb1"]`,
-        emb2:        `[data-key="${slot}_emb2"]`,
-        enchant:     `input[data-key="${slot}_enchant"]`,
-        enchant_val: `input[data-key="${slot}_enchant_val"]`,
-        desc:        `[data-key="${slot}_desc"]`,
-    };
-
-    Object.entries(newData).forEach(([field, val]) => {
-        const el = section.querySelector(fieldMap[field]);
-        if (el) el.value = val;
-    });
-
-    if (typeof updateStyle === 'function') {
-        const rarityEl = section.querySelector(`select[data-key="${slot}_rarity"]`);
-        if (rarityEl) updateStyle(rarityEl, 'rarity');
-        const prefixEl = section.querySelector(`select[data-key="${slot}_prefix"]`);
-        if (prefixEl) updateStyle(prefixEl, 'prefix');
-    }
-
-    if (typeof checkArmorSetColor === 'function') checkArmorSetColor(charId);
-    if (typeof checkAccSetColor === 'function') checkAccSetColor(charId);
-    if (typeof checkSpecialSetColor === 'function') checkSpecialSetColor(charId);
+    const descEl = section.querySelector(`[data-key="${slot}_desc"]`);
+    if (descEl) descEl.value = descVal;
 
     if (typeof autoSave === 'function') autoSave();
 }
-
-// 기존 _enterMemoTagEditMode / _exitMemoTagEditMode 함수는
-// 새로운 인라인 편집 방식(_buildMemoCell / _buildTagsCell)으로 대체되어 제거됨
 
 console.log("✅ mode-search.js 로드 완료");
