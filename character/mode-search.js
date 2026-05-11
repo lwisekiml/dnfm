@@ -212,11 +212,13 @@ function getSlotDataForSearch(section, slot) {
     // 아바타 슬롯 전용
     if (slot === "아바타") {
         const btn = section.querySelector('button[data-key="아바타_itemname"]');
+        const weaponAvatarBtn = section.querySelector('button[data-weapon-avatar-btn]');
         return {
             isSpecial: true,
             specialType: 'avatar',
             avatarValue: btn?.getAttribute('data-avatar-value') || btn?.textContent || '',
             weaponStat: section.querySelector('select[data-key="아바타_weapon_stat"]')?.value || '',
+            weaponAvatarName: weaponAvatarBtn?.getAttribute('data-weapon-avatar-name') || '',
             desc: section.querySelector('[data-key="아바타_desc"]')?.value || ''
         };
     }
@@ -537,13 +539,13 @@ function createAvatarSearchTable(container, results) {
     `;
     document.head.appendChild(style);
 
-    // thead
+    // thead — "무기 아바타 수치" → "무기 아바타" + 이름 컬럼 추가
     const thead = document.createElement('thead');
     thead.innerHTML = `
         <tr>
             <th>직업/이름</th>
             <th>파츠 설정</th>
-            <th>무기 아바타 수치</th>
+            <th>무기 아바타</th>
             <th>설명 <button class="simple-desc-toggle-btn" title="설명 편집" style="background:#4a5abb;color:#fff;border:none;border-radius:4px;padding:1px 6px;cursor:pointer;font-size:11px;margin-left:4px;">✏️</button></th>
         </tr>
     `;
@@ -558,7 +560,7 @@ function createAvatarSearchTable(container, results) {
         tdName.style.whiteSpace = 'nowrap';
         tdName.textContent = `${result.job}(${result.name})`;
 
-        // 파츠 설정 - 언커먼/레어 색상 적용 (renderAvatarBtnHTML 활용)
+        // 파츠 설정 - 언커먼/레어 색상 적용
         const tdAvatar = document.createElement('td');
         tdAvatar.style.cssText = 'white-space:nowrap; text-align:left; padding:2px 6px;';
         if (typeof renderAvatarBtnHTML === 'function') {
@@ -567,23 +569,10 @@ function createAvatarSearchTable(container, results) {
             tdAvatar.textContent = result.avatarValue || '';
         }
 
-        const tdWeaponStat = document.createElement('td');
-        tdWeaponStat.style.whiteSpace = 'nowrap';
-        // value("힘,지능,체력,정신력|18") 대신 label 표시
-        const weaponStatLabel = (() => {
-            const val = result.weaponStat || '';
-            if (!val) return '';
-            const matched = (typeof AVATAR_WEAPON_STATS !== 'undefined')
-                ? AVATAR_WEAPON_STATS.find(item => {
-                    if (!item.stats || item.stats.length === 0) return false;
-                    const statStr = item.stats.join(',');
-                    const encoded = item.amount !== null ? `${statStr}|${item.amount}` : statStr;
-                    return encoded === val;
-                })
-                : null;
-            return matched ? matched.label : val;
-        })();
-        tdWeaponStat.textContent = weaponStatLabel;
+        // 무기 아바타 이름
+        const tdWeaponAvatarName = document.createElement('td');
+        tdWeaponAvatarName.style.whiteSpace = 'nowrap';
+        tdWeaponAvatarName.textContent = result.weaponAvatarName || '';
 
         const tdDesc = document.createElement('td');
         tdDesc.dataset.descCell = 'true';
@@ -593,7 +582,7 @@ function createAvatarSearchTable(container, results) {
 
         tr.appendChild(tdName);
         tr.appendChild(tdAvatar);
-        tr.appendChild(tdWeaponStat);
+        tr.appendChild(tdWeaponAvatarName);
         tr.appendChild(tdDesc);
         tbody.appendChild(tr);
     });
