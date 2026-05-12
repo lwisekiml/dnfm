@@ -47,6 +47,11 @@ function enterSearchMode() {
     // 기본 option (disabled + selected)
     let optionsHTML = '<option value="" disabled selected>▼ 슬롯 선택...</option>';
 
+    // 그룹 옵션 추가 (방어구/악세서리/특수장비 전체 검색)
+    optionsHTML += `<option value="방어구" style="font-weight:bold; color:#ffd700;">── 방어구 (전체) ──</option>`;
+    optionsHTML += `<option value="악세서리" style="font-weight:bold; color:#ffd700;">── 악세서리 (전체) ──</option>`;
+    optionsHTML += `<option value="특수장비" style="font-weight:bold; color:#ffd700;">── 특수장비 (전체) ──</option>`;
+
     // 각 슬롯 옵션 추가 (칭호/외형칭호 통합)
     AppConstants.SLOTS.forEach(slot => {
         // 칭호와 외형칭호를 하나로 통합
@@ -82,6 +87,18 @@ function performSearch() {
     if (!selectedSlot) {
         document.getElementById('searchResultContent').innerHTML =
             '<div style="text-align: center; padding: 40px; color: #888;">슬롯을 선택하여 검색하세요.</div>';
+        return;
+    }
+
+    // 그룹 선택 시 탭 UI로 표시
+    const GROUP_SLOTS = {
+        "방어구":   ["상의", "어깨", "하의", "신발", "벨트"],
+        "악세서리": ["목걸이", "팔찌", "반지"],
+        "특수장비": ["보조장비", "귀걸이", "마법석"]
+    };
+
+    if (GROUP_SLOTS[selectedSlot]) {
+        _renderGroupSlotTabs(selectedSlot, GROUP_SLOTS[selectedSlot]);
         return;
     }
 
@@ -1442,6 +1459,159 @@ function _applyDescToDOM(charId, slot, descVal) {
     if (descEl) descEl.value = descVal;
 
     if (typeof autoSave === 'function') autoSave();
+}
+
+/**
+ * 그룹 슬롯 전체 테이블 렌더링 (방어구/악세서리/특수장비)
+ * 모든 캐릭터의 해당 슬롯들을 한 테이블에 표시
+ * 구조: 직업/이름(rowspan) | 슬롯 | 희귀도 | 익시드 | 접두어 | 아이템명 | 강화 | 봉인×2 | 엠블렘×2 | 마법부여×2 | 설명(rowspan)
+ */
+function _renderGroupSlotTabs(groupName, slotList) {
+    const container = document.getElementById('searchResultContent');
+    const sections  = document.querySelectorAll('.char-section');
+
+    const wrapper = document.createElement('div');
+    wrapper.style.overflowX = 'auto';
+    wrapper.style.webkitOverflowScrolling = 'touch';
+
+    const table = document.createElement('table');
+    table.className = 'compare-table search-result-table search-table-custom';
+    table.style.tableLayout = 'auto';
+    table.style.width = 'auto';
+    table.style.fontWeight = '900';
+
+    // thead
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th rowspan="2">직업/이름</th>
+            <th rowspan="2">슬롯</th>
+            <th colspan="5">기본 정보</th>
+            <th colspan="4">마법봉인</th>
+            <th colspan="2">엠블렘</th>
+            <th colspan="2">마법부여</th>
+            <th rowspan="2" class="desc-col">설명 <button class="grp-desc-toggle-btn" style="background:#4a5abb;color:#fff;border:none;border-radius:4px;padding:1px 6px;cursor:pointer;font-size:11px;margin-left:4px;">✏️</button></th>
+        </tr>
+        <tr>
+            <th>희귀도</th>
+            <th>익시드</th>
+            <th>접두어</th>
+            <th>아이템명</th>
+            <th>강화</th>
+            <th>고유옵션</th>
+            <th>수치</th>
+            <th>일반옵션</th>
+            <th>수치</th>
+            <th>엠블렘1</th>
+            <th>엠블렘2</th>
+            <th>마법부여</th>
+            <th>수치</th>
+        </tr>
+    `;
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+
+    sections.forEach(section => {
+        const charId   = section.id;
+        const job      = section.querySelector('[data-key="info_job"]')?.value  || '미정';
+        const name     = section.querySelector('[data-key="info_name"]')?.value || '이름없음';
+        const statType = section.querySelector('[data-key="info_stat_type"]')?.value || '';
+        const eleType  = section.querySelector('[data-key="info_ele_type"]')?.value  || '';
+        const rowCount = slotList.length;
+
+        slotList.forEach((slot, idx) => {
+            const slotData = getSlotDataForSearch(section, slot);
+            const result   = { charId, job, name, statType, eleType, ...slotData };
+
+            const tr = document.createElement('tr');
+            tr.dataset.charId = charId;
+            tr.dataset.slot   = slot;
+
+            // 첫 슬롯에만 직업/이름 td 추가 (rowspan)
+            if (idx === 0) {
+                const tdName = document.createElement('td');
+                tdName.rowSpan = rowCount;
+                tdName.style.cssText = 'white-space:nowrap; vertical-align:middle; border-bottom:2px solid var(--border-heavy, #555);';
+                tdName.textContent = `${job}(${name})`;
+                tr.appendChild(tdName);
+            }
+
+            // 슬롯명 td
+            const tdSlot = document.createElement('td');
+            tdSlot.style.whiteSpace = 'nowrap';
+            tdSlot.style.color = '#ffd700';
+            tdSlot.textContent = slot;
+            tr.appendChild(tdSlot);
+
+            // 희귀도 ~ 마법부여 수치 (createSearchResultRow와 동일 로직)
+            const rarityClass  = result.rarity ? `rare-${result.rarity}` : '';
+            const exceedClass  = result.exceed ? `ex-${result.exceed}`   : '';
+
+            let prefixClass = '';
+            if (result.prefix) {
+                if (result.prefix.startsWith('T')) {
+                    prefixClass = 'prefix-tier';
+                } else {
+                    prefixClass = 'prefix-selected';
+                }
+            }
+
+            const seal1Class = getSealHighlight(slot, result.seal1, statType, eleType, true);
+            const seal2Class = getSealHighlight(slot, result.seal2, statType, eleType, false);
+            const embClass   = getEmblemHighlight(slot, result.emb1, eleType);
+
+            const dataCells = [
+                { cls: rarityClass,  text: result.rarity      || '' },
+                { cls: exceedClass,  text: result.exceed      || '' },
+                { cls: prefixClass,  text: result.prefix      || '' },
+                { cls: '',           text: result.itemname    || '' },
+                { cls: '',           text: result.reinforce   || '' },
+                { cls: seal1Class,   text: result.seal1       || '' },
+                { cls: seal1Class,   text: result.seal1_val   || '' },
+                { cls: seal2Class,   text: result.seal2       || '' },
+                { cls: seal2Class,   text: result.seal2_val   || '' },
+                { cls: embClass,     text: result.emb1        || '' },
+                { cls: embClass,     text: result.emb2        || '' },
+                { cls: '',           text: result.enchant     || '' },
+                { cls: '',           text: result.enchant_val || '' },
+            ];
+
+            dataCells.forEach(({ cls, text }) => {
+                const td = document.createElement('td');
+                if (cls) td.className = cls;
+                td.textContent = text;
+                tr.appendChild(td);
+            });
+
+            // 설명 td: 첫 슬롯에만 rowspan으로 합치기
+            if (idx === 0) {
+                const tdDesc = document.createElement('td');
+                tdDesc.rowSpan = rowCount;
+                tdDesc.dataset.descCell = 'true';
+                tdDesc.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px; vertical-align:middle; border-bottom:2px solid var(--border-heavy, #555);';
+                // 설명은 첫 슬롯(상의 등) 기준으로 표시
+                tdDesc.textContent = result.desc || '';
+                _makeDescEditable(tdDesc, charId, slot);
+                tr.appendChild(tdDesc);
+            }
+
+            // 캐릭터 구분선: 마지막 슬롯 행에 두꺼운 아래 테두리
+            if (idx === rowCount - 1) {
+                tr.style.borderBottom = '2px solid var(--border-heavy, #555)';
+            }
+
+            tbody.appendChild(tr);
+        });
+    });
+
+    table.appendChild(tbody);
+    wrapper.appendChild(table);
+    container.innerHTML = '';
+    container.appendChild(wrapper);
+
+    // 설명 편집 버튼 토글
+    _initDescToggleBtn(table, '.grp-desc-toggle-btn');
 }
 
 console.log("✅ mode-search.js 로드 완료");
