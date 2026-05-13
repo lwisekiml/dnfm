@@ -1470,6 +1470,14 @@ function _renderGroupSlotTabs(groupName, slotList) {
     const container = document.getElementById('searchResultContent');
     const sections  = document.querySelectorAll('.char-section');
 
+    // 그룹별 setsMap 매핑
+    const GROUP_SETS_MAP = {
+        "방어구":   armorSets,
+        "악세서리": accSets,
+        "특수장비": specialSets
+    };
+    const setsMap = GROUP_SETS_MAP[groupName] || {};
+
     const wrapper = document.createElement('div');
     wrapper.style.overflowX = 'auto';
     wrapper.style.webkitOverflowScrolling = 'touch';
@@ -1520,6 +1528,14 @@ function _renderGroupSlotTabs(groupName, slotList) {
         const eleType  = section.querySelector('[data-key="info_ele_type"]')?.value  || '';
         const rowCount = slotList.length;
 
+        // 세트 정보 수집: setCounts = { 세트명: 개수 }
+        const { setCounts } = getActiveSetSlots(section, slotList, setsMap);
+        // 2개 이상인 세트만 추출 (1개는 표시 안 함)
+        const setLines = Object.entries(setCounts)
+            .filter(([, cnt]) => cnt >= 2)
+            .sort((a, b) => b[1] - a[1])  // 개수 많은 순
+            .map(([setName, cnt]) => ({ setName, cnt }));
+
         slotList.forEach((slot, idx) => {
             const slotData = getSlotDataForSearch(section, slot);
             const result   = { charId, job, name, statType, eleType, ...slotData };
@@ -1532,8 +1548,21 @@ function _renderGroupSlotTabs(groupName, slotList) {
             if (idx === 0) {
                 const tdName = document.createElement('td');
                 tdName.rowSpan = rowCount;
-                tdName.style.cssText = 'white-space:nowrap; vertical-align:middle; border-bottom:2px solid var(--border-heavy, #555);';
-                tdName.textContent = `${job}(${name})`;
+                tdName.style.cssText = 'white-space:nowrap; vertical-align:middle; border-bottom:2px solid var(--border-heavy, #555); padding: 4px 8px;';
+
+                // 직업/이름 텍스트
+                const nameDiv = document.createElement('div');
+                nameDiv.textContent = `${job}(${name})`;
+                tdName.appendChild(nameDiv);
+
+                // 세트 정보 (2개 이상인 세트만 표시)
+                setLines.forEach(({ setName, cnt }) => {
+                    const setDiv = document.createElement('div');
+                    setDiv.style.cssText = 'font-size:11px; color:#71D2E5; margin-top:3px; white-space:nowrap;';
+                    setDiv.textContent = `${setName} ${cnt}세트`;
+                    tdName.appendChild(setDiv);
+                });
+
                 tr.appendChild(tdName);
             }
 
