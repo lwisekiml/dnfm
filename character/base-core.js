@@ -1165,7 +1165,7 @@ function openSlotSelectPanel(charId, setName, setsMap, slotType, slotTypeSlots, 
             const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
             if (nameEl) {
                 nameEl.value = itemName;
-                nameEl.dispatchEvent(new Event('change'));
+                nameEl.dispatchEvent(new Event('change', { bubbles: true }));
             }
         });
         if (checkboxes.some(cb => cb.checked)) {
@@ -1361,7 +1361,7 @@ function applySetItems(charId, slotType, setsMap, setName) {
         const nameEl = section.querySelector(`[data-key="${slot}_itemname"]`);
         if (nameEl) {
             nameEl.value = matched;
-            nameEl.dispatchEvent(new Event('change'));
+            nameEl.dispatchEvent(new Event('change', { bubbles: true }));
         }
     });
 
