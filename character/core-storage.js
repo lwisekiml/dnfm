@@ -337,7 +337,7 @@ function importFromJSON(input) {
                 old: "-",
                 new: "백업 파일로부터 데이터가 복원됨"
             });
-            if (AppState.changeHistory.length > 10) AppState.changeHistory.pop();
+            if (AppState.changeHistory.length > 50) AppState.changeHistory.pop();
             AppState.saveHistory();
 
             // 통합 스토리지에 저장

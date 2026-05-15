@@ -131,7 +131,7 @@ document.addEventListener('change', function (e) {
             old: (displayOld === "" ? "(빈칸)" : displayOld),
             new: (displayNew === "" ? "(빈칸)" : displayNew)
         });
-        if (AppState.changeHistory.length > 10) AppState.changeHistory.pop();
+        if (AppState.changeHistory.length > 50) AppState.changeHistory.pop();
 
         AppState.saveHistory();
         AppState.updateSnapshot();
@@ -155,15 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const overlay = document.getElementById('modalOverlay');
-
-    if (overlay) {
-        overlay.addEventListener('click', () => {
-            const historyModal = document.getElementById('historyModal');
-            if (historyModal && getComputedStyle(historyModal).display !== 'none') {
-                if (typeof closeHistoryModal === "function") closeHistoryModal();
-            }
-        });
-    }
 
     // 칭호/오라 팝업 숫자 input에서 e, E, +, -, ArrowUp, ArrowDown 입력 차단
     ['title-popup', 'aura-popup'].forEach(id => {
