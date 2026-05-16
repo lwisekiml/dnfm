@@ -468,52 +468,117 @@ function showRecentUpdates() {
 
     renderUpdatePage(1);
 
-    const p1El = document.getElementById('update-tab-p1');
-    if (p1History.length === 0) {
-        p1El.innerHTML = '<p style="color:#aaa;">변경 기록이 없습니다.</p>';
-    } else {
-        p1El.innerHTML = p1History.map((h, idx) => {
-            const details = Array.isArray(h.details) ? h.details : [];
-            const hasDetails = details.length > 0;
-
-            const nameChanged = h.old !== h.new;
-            const isCreature  = h.slot === '크리쳐';
-            const detailLabel = isCreature ? `항목 ${details.length}개 변경` : `스탯 ${details.length}개 변경`;
-            let summary = '';
-            if (isCreature) {
-                summary = `크리쳐 설정 수정` + (hasDetails ? ` <span style="color:#aaa;font-size:0.9em">(${detailLabel})</span>` : '');
-            } else if (nameChanged && hasDetails) {
-                summary = `${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)} <span style="color:#aaa;font-size:0.9em">(${detailLabel})</span>`;
-            } else if (nameChanged) {
-                summary = `${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)}`;
-            } else if (hasDetails) {
-                summary = `${getSpanWithColor(h.new)} <span style="color:#aaa;font-size:0.9em">(${detailLabel})</span>`;
-            } else {
-                summary = `${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)}`;
-            }
-
-            const detailHtml = hasDetails ? `
-                <div id="hist-detail-${idx}" style="display:none; margin-top:6px; padding:6px 10px;
-                     background:#1a1a2e; border-radius:6px; font-size:0.88em; color:#ccc; line-height:1.7;">
-                    ${details.join('<br>')}
-                </div>
-                <button onclick="toggleHistDetail(${idx})" id="hist-btn-${idx}"
-                    style="margin-top:4px; padding:2px 10px; font-size:0.82em; background:#2a3158;
-                           color:#aaa; border:1px solid #3a4168; border-radius:4px; cursor:pointer;">
-                    ▶ 상세보기
-                </button>` : '';
-
-            return `<div style="border-bottom:1px solid #333; padding:8px 0;">
-                <span style="color:#ffd700;">[${h.time}]</span>
-                <b style="color:#fff;"> ${h.charName}</b>
-                <span style="color:#aaa;"> - ${h.slot}:</span><br>
-                ${summary}
-                ${detailHtml}
-            </div>`;
-        }).join('');
-    }
+    p1HistoryData = p1History;
+    currentP1Page = 1;
+    renderP1Page(1);
 
     document.getElementById("updateModal").style.display = 'flex';
+}
+
+function renderP1Page(pageNum) {
+    const p1El = document.getElementById('update-tab-p1');
+    if (!p1El) return;
+
+    if (p1HistoryData.length === 0) {
+        p1El.innerHTML = '<p style="color:#aaa;">변경 기록이 없습니다.</p>';
+        renderP1PaginationButtons(1);
+        return;
+    }
+
+    const startIdx = (pageNum - 1) * P1_ITEMS_PER_PAGE;
+    const endIdx = startIdx + P1_ITEMS_PER_PAGE;
+    const pageItems = p1HistoryData.slice(startIdx, endIdx);
+
+    p1El.innerHTML = pageItems.map((h, i) => {
+        const idx = startIdx + i;
+        const details = Array.isArray(h.details) ? h.details : [];
+        const hasDetails = details.length > 0;
+
+        const nameChanged = h.old !== h.new;
+        const isCreature  = h.slot === '크리쳐';
+        const detailLabel = isCreature ? `항목 ${details.length}개 변경` : `스탯 ${details.length}개 변경`;
+        let summary = '';
+        if (isCreature) {
+            summary = `크리쳐 설정 수정` + (hasDetails ? ` <span style="color:#aaa;font-size:0.9em">(${detailLabel})</span>` : '');
+        } else if (nameChanged && hasDetails) {
+            summary = `${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)} <span style="color:#aaa;font-size:0.9em">(${detailLabel})</span>`;
+        } else if (nameChanged) {
+            summary = `${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)}`;
+        } else if (hasDetails) {
+            summary = `${getSpanWithColor(h.new)} <span style="color:#aaa;font-size:0.9em">(${detailLabel})</span>`;
+        } else {
+            summary = `${getSpanWithColor(h.old)} → ${getSpanWithColor(h.new)}`;
+        }
+
+        const detailHtml = hasDetails ? `
+            <div id="hist-detail-${idx}" style="display:none; margin-top:6px; padding:6px 10px;
+                 background:#1a1a2e; border-radius:6px; font-size:0.88em; color:#ccc; line-height:1.7;">
+                ${details.join('<br>')}
+            </div>
+            <button onclick="toggleHistDetail(${idx})" id="hist-btn-${idx}"
+                style="margin-top:4px; padding:2px 10px; font-size:0.82em; background:#2a3158;
+                       color:#aaa; border:1px solid #3a4168; border-radius:4px; cursor:pointer;">
+                ▶ 상세보기
+            </button>` : '';
+
+        return `<div style="border-bottom:1px solid #333; padding:8px 0;">
+            <span style="color:#ffd700;">[${h.time}]</span>
+            <b style="color:#fff;"> ${h.charName}</b>
+            <span style="color:#aaa;"> - ${h.slot}:</span><br>
+            ${summary}
+            ${detailHtml}
+        </div>`;
+    }).join('');
+
+    renderP1PaginationButtons(pageNum);
+}
+
+function renderP1PaginationButtons(currentPage) {
+    const paginationContainer = document.getElementById('p1Pagination');
+    if (!paginationContainer) return;
+    paginationContainer.innerHTML = '';
+
+    const totalPages = Math.ceil(p1HistoryData.length / P1_ITEMS_PER_PAGE);
+    if (totalPages <= 1) return;
+
+    const firstBtn = document.createElement('button');
+    firstBtn.textContent = '⏮ 처음으로';
+    firstBtn.disabled = currentPage === 1;
+    firstBtn.onclick = () => { currentP1Page = 1; renderP1Page(1); };
+    paginationContainer.appendChild(firstBtn);
+
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '◀ 이전';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => {
+        if (currentPage > 1) { currentP1Page = currentPage - 1; renderP1Page(currentP1Page); }
+    };
+    paginationContainer.appendChild(prevBtn);
+
+    const pageGroupStart = Math.floor((currentPage - 1) / 5) * 5 + 1;
+    const pageGroupEnd = Math.min(pageGroupStart + 4, totalPages);
+
+    for (let i = pageGroupStart; i <= pageGroupEnd; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.textContent = i;
+        pageBtn.className = currentPage === i ? 'active' : '';
+        pageBtn.onclick = () => { currentP1Page = i; renderP1Page(i); };
+        paginationContainer.appendChild(pageBtn);
+    }
+
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = '다음 ▶';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => {
+        if (currentPage < totalPages) { currentP1Page = currentPage + 1; renderP1Page(currentP1Page); }
+    };
+    paginationContainer.appendChild(nextBtn);
+
+    const lastBtn = document.createElement('button');
+    lastBtn.textContent = '끝으로 ⏭';
+    lastBtn.disabled = currentPage === totalPages;
+    lastBtn.onclick = () => { currentP1Page = totalPages; renderP1Page(totalPages); };
+    paginationContainer.appendChild(lastBtn);
 }
 
 function toggleHistDetail(idx) {
@@ -531,6 +596,7 @@ function switchUpdateTab(tab) {
     const p2Btn = document.getElementById('tab-update-p2');
     const p1Btn = document.getElementById('tab-update-p1');
     const paginationEl = document.getElementById('updatePagination');
+    const p1PaginationEl = document.getElementById('p1Pagination');
 
     if (tab === 'p2') {
         p2El.style.display = '';
@@ -542,6 +608,7 @@ function switchUpdateTab(tab) {
         p1Btn.style.color = '#aaa';
         p1Btn.style.fontWeight = '';
         if (paginationEl) paginationEl.style.display = '';
+        if (p1PaginationEl) p1PaginationEl.style.display = 'none';
     } else {
         p2El.style.display = 'none';
         p1El.style.display = '';
@@ -552,6 +619,7 @@ function switchUpdateTab(tab) {
         p1Btn.style.color = '#fff';
         p1Btn.style.fontWeight = 'bold';
         if (paginationEl) paginationEl.style.display = 'none';
+        if (p1PaginationEl) p1PaginationEl.style.display = '';
     }
 }
 

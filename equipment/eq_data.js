@@ -13,6 +13,11 @@ let filteredUpdatesData = [];
 const ITEMS_PER_PAGE = 10;
 const TOTAL_PAGES = 5;
 
+// 상세입력 변경 기록 페이지 관련
+let currentP1Page = 1;
+let p1HistoryData = [];
+const P1_ITEMS_PER_PAGE = 10;
+
 let currentActionCharId = null;
 
 // ===== 전역 상태 변수 =====
