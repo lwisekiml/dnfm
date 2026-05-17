@@ -281,9 +281,17 @@
 <!-- 캐릭터 순서 편집 모달 -->
 <div id="charOrderModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this) closeCharacterOrderModal();">
     <div class="modal-content" style="min-width:320px; max-width:500px; width:90vw;">
-        <h2 style="margin-bottom:20px; color:#fff;">캐릭터 순서 편집</h2>
+        <h2 style="margin-bottom:12px; color:#fff;">캐릭터 순서 편집</h2>
+        <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+            <button type="button" class="modal-btn" style="background:#3a5a8a; color:#fff; font-size:12px; padding:6px 12px;"
+                    onclick="sortCharactersByPower()">⚔️ 항마력 정렬</button>
+            <button type="button" class="modal-btn" style="background:#5a3a8a; color:#fff; font-size:12px; padding:6px 12px;"
+                    onclick="sortCharactersByStat()">💪 스탯 정렬</button>
+            <button type="button" class="modal-btn" style="background:#3a7a5a; color:#fff; font-size:12px; padding:6px 12px;"
+                    onclick="sortCharactersByEle()">🌀 속강 정렬</button>
+        </div>
         <p style="color:#aaa; font-size:0.9em; margin-bottom:16px;">드래그하여 순서를 변경하세요.</p>
-        <div id="charOrderList" style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto;"></div>
+        <div id="charOrderList" style="display:flex; flex-direction:column; gap:8px; max-height:55vh; overflow-y:auto;"></div>
         <div class="modal-options" style="display:flex; gap:10px; margin-top:24px;">
             <button type="button" class="modal-btn" style="background:#25c2a0; color:#fff; flex:1;"
                     onclick="saveCharacterOrder()">저장</button>

@@ -488,3 +488,49 @@ function saveCharacterOrder() {
     closeCharacterOrderModal();
     alert('순서 변경이 완료되었습니다!');
 }
+
+// ─────────────────────────────────────────
+// 7.5 정렬 함수
+// ─────────────────────────────────────────
+
+/**
+ * 항마력 내림차순 정렬
+ */
+function sortCharactersByPower() {
+    characters.sort((a, b) => {
+        const aVal = parseFloat(a.inputs?.['info_power']?.val || '0') || 0;
+        const bVal = parseFloat(b.inputs?.['info_power']?.val || '0') || 0;
+        return bVal - aVal;
+    });
+    renderCharOrderList();
+}
+
+/**
+ * 스탯 정렬 (힘 → 지능 → 나머지)
+ */
+function sortCharactersByStat() {
+    const STAT_ORDER = { '힘': 0, '지능': 1 };
+    characters.sort((a, b) => {
+        const aVal = a.inputs?.['info_stat_type']?.val || '';
+        const bVal = b.inputs?.['info_stat_type']?.val || '';
+        const aOrder = STAT_ORDER[aVal] ?? 99;
+        const bOrder = STAT_ORDER[bVal] ?? 99;
+        return aOrder - bOrder;
+    });
+    renderCharOrderList();
+}
+
+/**
+ * 속강 정렬 (화속강 → 수속강 → 명속강 → 암속강 → 나머지)
+ */
+function sortCharactersByEle() {
+    const ELE_ORDER = { '화속강': 0, '수속강': 1, '명속강': 2, '암속강': 3 };
+    characters.sort((a, b) => {
+        const aVal = a.inputs?.['info_ele_type']?.val || '';
+        const bVal = b.inputs?.['info_ele_type']?.val || '';
+        const aOrder = ELE_ORDER[aVal] ?? 99;
+        const bOrder = ELE_ORDER[bVal] ?? 99;
+        return aOrder - bOrder;
+    });
+    renderCharOrderList();
+}
