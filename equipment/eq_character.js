@@ -371,10 +371,14 @@ function renderCharOrderList() {
         item.className = 'char-order-item';
         item.draggable = true;
         item.dataset.index = index;
+        const power = char.inputs?.['info_power']?.val || '-';
+        const stat  = char.inputs?.['info_stat_type']?.val || '-';
+        const ele   = char.inputs?.['info_ele_type']?.val || '-';
         item.innerHTML = `
-            <span class="char-order-handle">☰</span>
-            <span class="char-order-label">${index + 1}. ${char.job} (${char.name})</span>
-        `;
+    <span class="char-order-handle">☰</span>
+    <span class="char-order-label">${index + 1}. ${char.job} (${char.name})</span>
+    <span style="color:#aaa; font-size:0.85em; margin-left:8px;">항마력 ${power} / ${stat} / ${ele}</span>
+`;
 
         // 드래그 이벤트
         item.addEventListener('dragstart', onCharOrderDragStart);
