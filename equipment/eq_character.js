@@ -538,3 +538,27 @@ function sortCharactersByEle() {
     });
     renderCharOrderList();
 }
+
+/**
+ * 캐릭터 이름 가나다순 정렬
+ */
+function sortCharactersByName() {
+    characters.sort((a, b) => {
+        const aName = (a.name || '').trim();
+        const bName = (b.name || '').trim();
+        return aName.localeCompare(bName, 'ko-KR');
+    });
+    renderCharOrderList();
+}
+
+/**
+ * 직업명 가나다순 정렬
+ */
+function sortCharactersByJob() {
+    characters.sort((a, b) => {
+        const aJob = (a.job || '').trim();
+        const bJob = (b.job || '').trim();
+        return aJob.localeCompare(bJob, 'ko-KR');
+    });
+    renderCharOrderList();
+}
