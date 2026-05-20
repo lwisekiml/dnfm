@@ -313,11 +313,11 @@
 
     <!-- 컨트롤바 -->
     <div class="control-bar">
-        <button onclick="addCharacter()" class="ctrl-btn" style="background: linear-gradient(135deg, #25c2a0, #1a8a70);">➕ 캐릭터 추가</button>
-        <button onclick="lockAllCharacters()" class="ctrl-btn" style="background: linear-gradient(135deg, #555e7a, #3a4260);">전체 잠금</button>
-        <button class="ctrl-btn active" id="btnBasicMode" onclick="switchToBasicMode()">📋 기본</button>
-        <button class="ctrl-btn" id="btnCompareMode" onclick="enterCompareMode()">⚖️ 비교</button>
-        <button class="ctrl-btn" id="btnSearchMode" onclick="enterSearchMode()">🔍 검색</button>
+        <button onclick="closeTagFilterPanel(); closeStatFilterPanel(); addCharacter();" style="background: linear-gradient(135deg, #25c2a0, #1a8a70);" class="ctrl-btn" ...>➕ 캐릭터 추가</button>
+        <button onclick="closeTagFilterPanel(); closeStatFilterPanel(); lockAllCharacters();" style="background: linear-gradient(135deg, #555e7a, #3a4260);" class="ctrl-btn" ...>전체 잠금</button>
+        <button class="ctrl-btn active" id="btnBasicMode" onclick="closeTagFilterPanel(); closeStatFilterPanel(); switchToBasicMode();">📋 기본</button>
+        <button class="ctrl-btn" id="btnCompareMode" onclick="closeTagFilterPanel(); closeStatFilterPanel(); enterCompareMode();">⚖️ 비교</button>
+        <button class="ctrl-btn" id="btnSearchMode" onclick="closeTagFilterPanel(); closeStatFilterPanel(); enterSearchMode();">🔍 검색</button>
         <button class="ctrl-btn" id="btnTagFilter" onclick="toggleTagFilterPanel()">🏷️ 태그</button>
         <button class="ctrl-btn" id="btnStatFilter" onclick="toggleStatFilterPanel()">📊 스탯/속강</button>
         <span id="statusMsg" class="status-msg"></span>
