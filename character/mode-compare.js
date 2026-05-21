@@ -1019,6 +1019,18 @@ function switchToBasicMode() {
     document.getElementById('btnCompareMode').classList.remove('active');
     document.getElementById('btnSearchMode').classList.remove('active');
 
+    // 태그/스탯 버튼 활성화
+    const btnTag = document.getElementById('btnTagFilter');
+    const btnStat = document.getElementById('btnStatFilter');
+    if (btnTag)  { btnTag.disabled  = false; btnTag.style.opacity  = ''; btnTag.style.cursor  = ''; }
+    if (btnStat) { btnStat.disabled = false; btnStat.style.opacity = ''; btnStat.style.cursor = ''; }
+
+    // 캐릭터 추가/전체 잠금 버튼 활성화
+    const btnAdd  = document.getElementById('btnAddCharacter');
+    const btnLock = document.getElementById('btnLockAll');
+    if (btnAdd)  { btnAdd.disabled  = false; btnAdd.style.opacity  = ''; btnAdd.style.cursor  = ''; }
+    if (btnLock) { btnLock.disabled = false; btnLock.style.opacity = ''; btnLock.style.cursor = ''; }
+
     if (typeof closeRuneModal === 'function') closeRuneModal();
     if (typeof closeHistoryModal === 'function') closeHistoryModal();
 }
@@ -1042,6 +1054,20 @@ function enterCompareMode() {
     document.getElementById('btnBasicMode').classList.remove('active');
     document.getElementById('btnCompareMode').classList.add('active');
     document.getElementById('btnSearchMode').classList.remove('active');
+
+    // 태그/스탯 패널 닫기 + 버튼 비활성화
+    if (typeof closeTagFilterPanel  === 'function') closeTagFilterPanel();
+    if (typeof closeStatFilterPanel === 'function') closeStatFilterPanel();
+    const btnTag = document.getElementById('btnTagFilter');
+    const btnStat = document.getElementById('btnStatFilter');
+    if (btnTag)  { btnTag.disabled  = true; btnTag.style.opacity  = '0.4'; btnTag.style.cursor  = 'not-allowed'; }
+    if (btnStat) { btnStat.disabled = true; btnStat.style.opacity = '0.4'; btnStat.style.cursor = 'not-allowed'; }
+
+    // 캐릭터 추가/전체 잠금 버튼 비활성화
+    const btnAdd  = document.getElementById('btnAddCharacter');
+    const btnLock = document.getElementById('btnLockAll');
+    if (btnAdd)  { btnAdd.disabled  = true; btnAdd.style.opacity  = '0.4'; btnAdd.style.cursor  = 'not-allowed'; }
+    if (btnLock) { btnLock.disabled = true; btnLock.style.opacity = '0.4'; btnLock.style.cursor = 'not-allowed'; }
 
     const selectLeft = document.getElementById('compareCharacterSelectLeft');
     const selectRight = document.getElementById('compareCharacterSelectRight');
