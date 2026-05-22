@@ -371,14 +371,10 @@ function renderCharOrderList() {
         item.className = 'char-order-item';
         item.draggable = true;
         item.dataset.index = index;
-        const power = char.inputs?.['info_power']?.val || '-';
-        const stat  = char.inputs?.['info_stat_type']?.val || '-';
-        const ele   = char.inputs?.['info_ele_type']?.val || '-';
         item.innerHTML = `
-    <span class="char-order-handle">☰</span>
-    <span class="char-order-label">${index + 1}. ${char.job} (${char.name})</span>
-    <span style="color:#aaa; font-size:0.85em; margin-left:8px;">항마력 ${power} / ${stat} / ${ele}</span>
-`;
+            <span class="char-order-handle">☰</span>
+            <span class="char-order-label">${index + 1}. ${char.job} (${char.name})</span>
+        `;
 
         // 드래그 이벤트
         item.addEventListener('dragstart', onCharOrderDragStart);
@@ -535,30 +531,6 @@ function sortCharactersByEle() {
         const aOrder = ELE_ORDER[aVal] ?? 99;
         const bOrder = ELE_ORDER[bVal] ?? 99;
         return aOrder - bOrder;
-    });
-    renderCharOrderList();
-}
-
-/**
- * 캐릭터 이름 가나다순 정렬
- */
-function sortCharactersByName() {
-    characters.sort((a, b) => {
-        const aName = (a.name || '').trim();
-        const bName = (b.name || '').trim();
-        return aName.localeCompare(bName, 'ko-KR');
-    });
-    renderCharOrderList();
-}
-
-/**
- * 직업명 가나다순 정렬
- */
-function sortCharactersByJob() {
-    characters.sort((a, b) => {
-        const aJob = (a.job || '').trim();
-        const bJob = (b.job || '').trim();
-        return aJob.localeCompare(bJob, 'ko-KR');
     });
     renderCharOrderList();
 }

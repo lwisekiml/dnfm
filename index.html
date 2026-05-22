@@ -283,12 +283,6 @@
     <div class="modal-content" style="min-width:320px; max-width:500px; width:90vw;">
         <h2 style="margin-bottom:12px; color:#fff;">캐릭터 순서 편집</h2>
         <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-            <button type="button" class="modal-btn" style="background:#6a4a2a; color:#fff; font-size:12px; padding:6px 12px;"
-                    onclick="sortCharactersByName()">이름(가나다순) 정렬</button>
-            <button type="button" class="modal-btn" style="background:#6a4a2a; color:#fff; font-size:12px; padding:6px 12px;"
-                    onclick="sortCharactersByJob()">직업(가나다순) 정렬</button>
-        </div>
-        <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
             <button type="button" class="modal-btn" style="background:#3a5a8a; color:#fff; font-size:12px; padding:6px 12px;"
                     onclick="sortCharactersByPower()">⚔️ 항마력 정렬</button>
             <button type="button" class="modal-btn" style="background:#5a3a8a; color:#fff; font-size:12px; padding:6px 12px;"
@@ -313,11 +307,11 @@
 
     <!-- 컨트롤바 -->
     <div class="control-bar">
-        <button id="btnAddCharacter" onclick="closeTagFilterPanel(); closeStatFilterPanel(); switchToBasicMode(); addCharacter();" style="background: linear-gradient(135deg, #25c2a0, #1a8a70);" class="ctrl-btn" ...>➕ 캐릭터 추가</button>
-        <button id="btnLockAll" onclick="closeTagFilterPanel(); closeStatFilterPanel(); switchToBasicMode(); lockAllCharacters();" style="background: linear-gradient(135deg, #555e7a, #3a4260);" class="ctrl-btn" ...>전체 잠금</button>
-        <button class="ctrl-btn active" id="btnBasicMode" onclick="closeTagFilterPanel(); closeStatFilterPanel(); switchToBasicMode();">📋 기본</button>
-        <button class="ctrl-btn" id="btnCompareMode" onclick="closeTagFilterPanel(); closeStatFilterPanel(); enterCompareMode();">⚖️ 비교</button>
-        <button class="ctrl-btn" id="btnSearchMode" onclick="closeTagFilterPanel(); closeStatFilterPanel(); enterSearchMode();">🔍 검색</button>
+        <button onclick="addCharacter()" class="ctrl-btn" style="background: linear-gradient(135deg, #25c2a0, #1a8a70);">➕ 캐릭터 추가</button>
+        <button onclick="lockAllCharacters()" class="ctrl-btn" style="background: linear-gradient(135deg, #555e7a, #3a4260);">전체 잠금</button>
+        <button class="ctrl-btn active" id="btnBasicMode" onclick="switchToBasicMode()">📋 기본</button>
+        <button class="ctrl-btn" id="btnCompareMode" onclick="enterCompareMode()">⚖️ 비교</button>
+        <button class="ctrl-btn" id="btnSearchMode" onclick="enterSearchMode()">🔍 검색</button>
         <button class="ctrl-btn" id="btnTagFilter" onclick="toggleTagFilterPanel()">🏷️ 태그</button>
         <button class="ctrl-btn" id="btnStatFilter" onclick="toggleStatFilterPanel()">📊 스탯/속강</button>
         <span id="statusMsg" class="status-msg"></span>
