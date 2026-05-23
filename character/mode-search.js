@@ -1627,17 +1627,13 @@ function _renderGroupSlotTabs(groupName, slotList) {
                 tr.appendChild(td);
             });
 
-            // 설명 td: 첫 슬롯에만 rowspan으로 합치기
-            if (idx === 0) {
-                const tdDesc = document.createElement('td');
-                tdDesc.rowSpan = rowCount;
-                tdDesc.dataset.descCell = 'true';
-                tdDesc.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px; vertical-align:middle; border-bottom:2px solid var(--border-heavy, #555);';
-                // 설명은 첫 슬롯(상의 등) 기준으로 표시
-                tdDesc.textContent = result.desc || '';
-                _makeDescEditable(tdDesc, charId, slot);
-                tr.appendChild(tdDesc);
-            }
+            // 설명 td: 모든 슬롯 행에 각각 표시
+            const tdDesc = document.createElement('td');
+            tdDesc.dataset.descCell = 'true';
+            tdDesc.style.cssText = 'white-space:pre-wrap; text-align:left; padding:4px 8px; vertical-align:middle;';
+            tdDesc.textContent = result.desc || '';
+            _makeDescEditable(tdDesc, charId, slot);
+            tr.appendChild(tdDesc);
 
             // 캐릭터 구분선: 마지막 슬롯 행에 두꺼운 아래 테두리
             if (idx === rowCount - 1) {
