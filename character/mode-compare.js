@@ -1202,7 +1202,7 @@ function displayComparison() {
 
     // 이동 버튼 3개
     const navBtnWrap = document.createElement('div');
-    navBtnWrap.style.cssText = 'display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;';
+    navBtnWrap.style.cssText = 'display:flex;gap:8px;margin-top:16px;margin-bottom:16px;flex-wrap:wrap;';
     ['방어구 비교', '악세서리 비교', '특수장비 비교'].forEach((label, i) => {
         const targetId = ['cmp-stat-armor', 'cmp-stat-acc', 'cmp-stat-special'][i];
         const btn = document.createElement('button');
