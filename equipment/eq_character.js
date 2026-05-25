@@ -359,6 +359,17 @@ function closeCharacterOrderModal() {
     const modal = document.getElementById('charOrderModal');
     if (modal) modal.style.display = 'none';
     isEditingCharacterOrder = false;
+    // 삭제 모드 상태 및 UI 초기화
+    _charDeleteMode = false;
+    _charDeleteSelected.clear();
+    const btn = document.getElementById('charDeleteModeBtn');
+    const deleteBtn = document.getElementById('charDeleteSelectedBtn');
+    if (btn) {
+        btn.textContent = '🗑️ 삭제 선택 모드';
+        btn.style.background = '#7a3a3a';
+        btn.style.border = '2px solid #c0392b';
+    }
+    if (deleteBtn) deleteBtn.style.display = 'none';
 }
 
 function renderCharOrderList() {
@@ -369,24 +380,66 @@ function renderCharOrderList() {
     characters.forEach((char, index) => {
         const item = document.createElement('div');
         item.className = 'char-order-item';
-        item.draggable = true;
         item.dataset.index = index;
-        item.innerHTML = `
-            <span class="char-order-handle">☰</span>
-            <span class="char-order-label">${index + 1}. ${char.job} (${char.name})</span>
-        `;
+        item.dataset.charId = char.id;
 
-        // 드래그 이벤트
-        item.addEventListener('dragstart', onCharOrderDragStart);
-        item.addEventListener('dragover', onCharOrderDragOver);
-        item.addEventListener('dragleave', onCharOrderDragLeave);
-        item.addEventListener('drop', onCharOrderDrop);
-        item.addEventListener('dragend', onCharOrderDragEnd);
+        const power = char.inputs?.['info_power']?.val || '-';
+        const stat  = char.inputs?.['info_stat_type']?.val || '-';
+        const ele   = char.inputs?.['info_ele_type']?.val || '-';
 
-        // 터치 이벤트 (모바일)
-        item.addEventListener('touchstart', onCharOrderTouchStart, { passive: true });
-        item.addEventListener('touchmove', onCharOrderTouchMove, { passive: false });
-        item.addEventListener('touchend', onCharOrderTouchEnd);
+        if (_charDeleteMode) {
+            // 삭제 모드: 체크박스 표시, 드래그 비활성화
+            const isChecked = _charDeleteSelected.has(char.id);
+            item.style.cursor = 'pointer';
+            if (isChecked) {
+                item.style.background = 'rgba(231, 76, 60, 0.25)';
+                item.style.borderColor = '#e74c3c';
+            }
+            item.innerHTML = `
+    <input type="checkbox" ${isChecked ? 'checked' : ''}
+           style="width:18px; height:18px; cursor:pointer; accent-color:#e74c3c; flex-shrink:0;">
+    <span class="char-order-label" style="flex:1;">${index + 1}. ${char.job} (${char.name})</span>
+    <span style="color:#aaa; font-size:0.85em; margin-left:8px;">항마력 ${power} / ${stat} / ${ele}</span>
+`;
+            // 항목 클릭 시 체크박스 토글
+            item.addEventListener('click', function(e) {
+                if (e.target.type === 'checkbox') return; // 체크박스 직접 클릭은 아래 change 이벤트가 처리
+                const cb = this.querySelector('input[type="checkbox"]');
+                if (cb) cb.click();
+            });
+            const cb = item.querySelector('input[type="checkbox"]');
+            if (cb) {
+                cb.addEventListener('change', function() {
+                    if (this.checked) {
+                        _charDeleteSelected.add(char.id);
+                        item.style.background = 'rgba(231, 76, 60, 0.25)';
+                        item.style.borderColor = '#e74c3c';
+                    } else {
+                        _charDeleteSelected.delete(char.id);
+                        item.style.background = '';
+                        item.style.borderColor = '';
+                    }
+                    updateDeleteButton();
+                });
+            }
+        } else {
+            // 일반 모드: 드래그 활성화
+            item.draggable = true;
+            item.innerHTML = `
+    <span class="char-order-handle">☰</span>
+    <span class="char-order-label">${index + 1}. ${char.job} (${char.name})</span>
+    <span style="color:#aaa; font-size:0.85em; margin-left:8px;">항마력 ${power} / ${stat} / ${ele}</span>
+`;
+            item.addEventListener('dragstart', onCharOrderDragStart);
+            item.addEventListener('dragover', onCharOrderDragOver);
+            item.addEventListener('dragleave', onCharOrderDragLeave);
+            item.addEventListener('drop', onCharOrderDrop);
+            item.addEventListener('dragend', onCharOrderDragEnd);
+
+            item.addEventListener('touchstart', onCharOrderTouchStart, { passive: true });
+            item.addEventListener('touchmove', onCharOrderTouchMove, { passive: false });
+            item.addEventListener('touchend', onCharOrderTouchEnd);
+        }
 
         list.appendChild(item);
     });
@@ -396,6 +449,135 @@ function renderCharOrderList() {
 let _dragSrcIndex = null;
 let _dragTouchClone = null;
 let _dragTouchSrcIndex = null;
+
+// ─────────────────────────────────────────
+// 7.4-1 다중 삭제 모드
+// ─────────────────────────────────────────
+let _charDeleteMode = false;
+let _charDeleteSelected = new Set();
+
+function toggleCharDeleteMode() {
+    _charDeleteMode = !_charDeleteMode;
+    _charDeleteSelected.clear();
+
+    const btn = document.getElementById('charDeleteModeBtn');
+    const deleteBtn = document.getElementById('charDeleteSelectedBtn');
+
+    if (_charDeleteMode) {
+        if (btn) {
+            btn.textContent = '✖ 삭제 모드 끄기';
+            btn.style.background = '#c0392b';
+            btn.style.border = '2px solid #e74c3c';
+        }
+        if (deleteBtn) deleteBtn.style.display = '';
+    } else {
+        if (btn) {
+            btn.textContent = '🗑️ 삭제 선택 모드';
+            btn.style.background = '#7a3a3a';
+            btn.style.border = '2px solid #c0392b';
+        }
+        if (deleteBtn) deleteBtn.style.display = 'none';
+    }
+
+    renderCharOrderList();
+    updateDeleteButton();
+}
+
+function updateDeleteButton() {
+    const deleteBtn = document.getElementById('charDeleteSelectedBtn');
+    if (!deleteBtn) return;
+    const count = _charDeleteSelected.size;
+    if (count > 0) {
+        deleteBtn.textContent = `🗑️ 선택된 ${count}명 삭제`;
+        deleteBtn.disabled = false;
+        deleteBtn.style.opacity = '1';
+        deleteBtn.style.cursor = 'pointer';
+    } else {
+        deleteBtn.textContent = '🗑️ 선택된 0명 삭제';
+        deleteBtn.disabled = true;
+        deleteBtn.style.opacity = '0.4';
+        deleteBtn.style.cursor = 'not-allowed';
+    }
+}
+
+function deleteSelectedCharacters() {
+    if (_charDeleteSelected.size === 0) return;
+
+    const count = _charDeleteSelected.size;
+    const names = characters
+        .filter(c => _charDeleteSelected.has(c.id))
+        .map(c => `${c.job} (${c.name})`)
+        .join(', ');
+
+    // charOrderModal을 잠깐 숨기고 confirmModal을 앞에 띄움
+    const charOrderModal = document.getElementById('charOrderModal');
+    if (charOrderModal) charOrderModal.style.display = 'none';
+
+    // 취소 버튼에 charOrderModal 다시 열기 처리 추가
+    const confirmCancelBtn = document.querySelector('#confirmModal .modal-options .modal-btn:last-child');
+    const originalCancelOnclick = confirmCancelBtn ? confirmCancelBtn.getAttribute('onclick') : null;
+    if (confirmCancelBtn) {
+        confirmCancelBtn.onclick = function () {
+            closeConfirmModal();
+            // 취소 시 charOrderModal 다시 표시
+            if (charOrderModal) charOrderModal.style.display = 'flex';
+        };
+    }
+
+    openConfirmModal(
+        '캐릭터 다중 삭제',
+        `다음 ${count}명을 삭제하시겠습니까?\n${names}\n\n삭제된 데이터는 복구할 수 없습니다.`,
+        function () {
+            // 확인 시: 삭제 실행
+            _charDeleteSelected.forEach(charId => {
+                // characters 배열에서 제거
+                characters = characters.filter(c => String(c.id) !== String(charId));
+
+                // project1 DOM에서도 제거
+                const p1Section = document.getElementById(charId);
+                if (p1Section) {
+                    p1Section.remove();
+                    if (typeof AppState !== 'undefined') {
+                        delete AppState.charRuneData[charId];
+                        delete AppState.charTags?.[charId];
+                    }
+                }
+
+                // 선택된 캐릭터가 현재 활성화된 캐릭터면 초기화
+                if (activeCharacterId === charId) {
+                    const setListEl = document.getElementById('setList');
+                    const panelEl = document.getElementById('panel');
+                    if (setListEl) setListEl.innerHTML = '';
+                    if (panelEl) panelEl.innerHTML = '';
+                    activeCharacterId = null;
+                }
+            });
+
+            saveLocalData();
+            renderCharacterList();
+
+            // 삭제 모드 종료 및 charOrderModal도 닫기
+            _charDeleteMode = false;
+            _charDeleteSelected.clear();
+
+            const btn = document.getElementById('charDeleteModeBtn');
+            const deleteBtn = document.getElementById('charDeleteSelectedBtn');
+            if (btn) {
+                btn.textContent = '🗑️ 삭제 선택 모드';
+                btn.style.background = '#7a3a3a';
+                btn.style.border = '2px solid #c0392b';
+            }
+            if (deleteBtn) deleteBtn.style.display = 'none';
+
+            // 취소 버튼 원래대로 복구
+            if (confirmCancelBtn) {
+                confirmCancelBtn.onclick = function () { closeConfirmModal(); };
+            }
+
+            alert(`${count}명이 삭제되었습니다.`);
+        }
+    );
+}
 
 function onCharOrderDragStart(e) {
     _dragSrcIndex = parseInt(this.dataset.index);
@@ -531,6 +713,30 @@ function sortCharactersByEle() {
         const aOrder = ELE_ORDER[aVal] ?? 99;
         const bOrder = ELE_ORDER[bVal] ?? 99;
         return aOrder - bOrder;
+    });
+    renderCharOrderList();
+}
+
+/**
+ * 캐릭터 이름 가나다순 정렬
+ */
+function sortCharactersByName() {
+    characters.sort((a, b) => {
+        const aName = (a.name || '').trim();
+        const bName = (b.name || '').trim();
+        return aName.localeCompare(bName, 'ko-KR');
+    });
+    renderCharOrderList();
+}
+
+/**
+ * 직업명 가나다순 정렬
+ */
+function sortCharactersByJob() {
+    characters.sort((a, b) => {
+        const aJob = (a.job || '').trim();
+        const bJob = (b.job || '').trim();
+        return aJob.localeCompare(bJob, 'ko-KR');
     });
     renderCharOrderList();
 }
