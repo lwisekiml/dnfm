@@ -37,8 +37,8 @@ function buildExceedUniqueEffectRows(effect1, exceed1, effect2, exceed2) {
     const exceedLabel2 = exceed2 ? `<span style="color:${exceedColor[exceed2]||'#fff'};font-weight:bold;font-size:0.78em;">[${exceed2}]</span> ` : '';
     return `<tr style="background:rgba(100,114,168,0.08);">
         <td style="text-align:center;padding:2px 6px;color:#d6d989;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">고유 효과</td>
-        <td style="text-align:left;padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;">${exceedLabel1}${fmtEffect(effect1, exceed1)}</td>
-        <td style="text-align:left;padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;">${exceedLabel2}${fmtEffect(effect2, exceed2)}</td>
+        <td style="text-align:left;padding:4px 8px;border-right:2px solid #aaa !important;vertical-align:top;" colspan="2">${exceedLabel1}${fmtEffect(effect1, exceed1)}</td>
+        <td style="text-align:left;padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">${exceedLabel2}${fmtEffect(effect2, exceed2)}</td>
         <td style="text-align:center;padding:2px 6px;color:#d6d989;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">고유 효과</td>
     </tr>`;
 }
@@ -411,13 +411,13 @@ function _statTableThead(name1, name2) {
     return `
     <thead>
         <tr>
-            <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;border-right:1px solid #2a3158;">${name1}</th>
+            <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;border-right:2px solid #aaa !important;">${name1}</th>
             <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;">${name2}</th>
         </tr>
         <tr>
             <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">구분</th>
             <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
-            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:140px;border-right:1px solid #2a3158;">수치</th>
+            <th class="stat-divider-right" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:140px;border-right:2px solid #aaa !important;">수치</th>
             <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:140px;border-right:1px solid #2a3158;">수치</th>
             <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
             <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;">구분</th>
@@ -430,7 +430,7 @@ function _statRow(tagColor, sectionTag, displayKey, display1, display2, highligh
     return `<tr style="${highlight}">
     <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${hasData1 ? sectionTag : ''}</td>
     <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${hasData1 ? displayKey : ''}</td>
-    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+    <td class="stat-divider-right" style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:2px solid #aaa !important;">${display1}</td>
     <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
     <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${hasData2 ? displayKey : ''}</td>
     <td style="text-align:center;padding:2px 6px;color:${tagColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${hasData2 ? sectionTag : ''}</td>
@@ -473,7 +473,7 @@ function buildTotalStatCompare(section1, section2, name1, name2) {
         common.forEach(attr => {
             tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
     <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">속성부여</td>
-    <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${attrDisplay(attr)}</td>
+    <td style="text-align:center;padding:3px 8px;white-space:nowrap;border-right:2px solid #aaa !important;" colspan="2">${attrDisplay(attr)}</td>
     <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${attrDisplay(attr)}</td>
     <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">속성부여</td>
 </tr>`;
@@ -484,7 +484,7 @@ function buildTotalStatCompare(section1, section2, name1, name2) {
             const a2 = only2[i] || null;
             tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
     <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${a1 ? '속성부여' : ''}</td>
-    <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${a1 ? attrDisplay(a1) : ''}</td>
+    <td style="text-align:center;padding:3px 8px;white-space:nowrap;border-right:2px solid #aaa !important;" colspan="2">${a1 ? attrDisplay(a1) : ''}</td>
     <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${a2 ? attrDisplay(a2) : ''}</td>
     <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${a2 ? '속성부여' : ''}</td>
 </tr>`;
@@ -499,7 +499,7 @@ function buildTotalStatCompare(section1, section2, name1, name2) {
         const hl = !isSame ? 'background:rgba(100,114,168,0.12);' : '';
         tbodyHtml += `<tr style="${hl}">
     <td style="text-align:center;padding:2px 6px;color:#7a9fcf;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${speed1 ? '기본효과' : ''}</td>
-    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;" colspan="2">${speed1}</td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;border-right:2px solid #aaa !important;" colspan="2">${speed1}</td>
     <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;" colspan="2">${speed2}</td>
     <td style="text-align:center;padding:2px 6px;color:#7a9fcf;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${speed2 ? '기본효과' : ''}</td>
 </tr>`;
@@ -518,14 +518,14 @@ function buildTotalStatCompare(section1, section2, name1, name2) {
         tbodyHtml += `<tr style="${hl}">
     <td style="text-align:center;padding:2px 6px;color:#aaa;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${s1 ? '합산' : ''}</td>
     <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${s1 ? statName : ''}</td>
-    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+    <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:2px solid #aaa !important;">${display1}</td>
     <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
     <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${s2 ? statName : ''}</td>
     <td style="text-align:center;padding:2px 6px;color:#aaa;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${s2 ? '합산' : ''}</td>
 </tr>`;
     });
 
-    tableWrap.innerHTML = `<table style="border-collapse:collapse;width:max-content;min-width:400px;">${_statTableThead(name1, name2)}<tbody>${tbodyHtml}</tbody></table>`;
+    tableWrap.innerHTML = `<table class="stat-compare-table" style="border-collapse:collapse;width:max-content;min-width:400px;">${_statTableThead(name1, name2)}<tbody>${tbodyHtml}</tbody></table>`;
     wrapper.appendChild(tableWrap);
     return wrapper;
 }
@@ -1005,7 +1005,7 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
 
     let tbodyHtml = `<tr>
         <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;">무기</td>
-        <td style="text-align:center;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${makeWeaponLabel(r1)}</td>
+        <td style="text-align:center;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;border-right:2px solid #aaa !important;" colspan="2">${makeWeaponLabel(r1)}</td>
         <td style="text-align:center;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${makeWeaponLabel(r2)}</td>
         <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;border-left:1px solid #2a3158;">무기</td>
     </tr>`;
@@ -1030,7 +1030,7 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
             const hl = !isSame ? 'background:rgba(100,114,168,0.12);' : '';
             tbodyHtml += `<tr style="${hl}">
     <td style="text-align:center;padding:2px 6px;color:#7a9fcf;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${speedKey1 ? '기본효과' : ''}</td>
-    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;" colspan="2">${dk1}</td>
+    <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;border-right:2px solid #aaa !important;" colspan="2">${dk1}</td>
     <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;" colspan="2">${dk2}</td>
     <td style="text-align:center;padding:2px 6px;color:#7a9fcf;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${speedKey2 ? '기본효과' : ''}</td>
 </tr>`;
@@ -1056,7 +1056,7 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
         const ad = (attrs) => attrs.map(a => `<span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(100,114,168,0.25);color:#b0bcff;font-size:0.8em;margin:1px 2px;">${a}</span>`).join(' ') || '<span style="color:#555;font-size:0.8em;">-</span>';
         tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
             <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">속성</td>
-            <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${ad(attrs1)}</td>
+            <td style="text-align:center;padding:3px 8px;white-space:nowrap;border-right:2px solid #aaa !important;" colspan="2">${ad(attrs1)}</td>
             <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${ad(attrs2)}</td>
             <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">속성</td>
         </tr>`;
@@ -1069,7 +1069,7 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
         const rowBg = (desc1 !== desc2) ? 'background:rgba(240,165,0,0.06);' : '';
         tbodyHtml += `<tr style="${rowBg}">
             <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">설명</td>
-            <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fd(desc1)}</td>
+            <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:2px solid #aaa !important;text-align:left;vertical-align:top;">${fd(desc1)}</td>
             <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fd(desc2)}</td>
             <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">설명</td>
         </tr>`;
@@ -1088,7 +1088,7 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
     if (eff1 || eff2) {
         tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
             <td style="text-align:center;padding:2px 6px;color:#d6d989;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">고유 효과</td>
-            <td style="text-align:left;padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">${fmtEff(eff1, r1.prefix)}</td>
+            <td style="text-align:left;padding:4px 8px;border-right:2px solid #aaa !important;vertical-align:top;" colspan="2">${fmtEff(eff1, r1.prefix)}</td>
             <td style="text-align:left;padding:4px 8px;border-right:1px solid #2a3158;vertical-align:top;" colspan="2">${fmtEff(eff2, r2.prefix)}</td>
             <td style="text-align:center;padding:2px 6px;color:#d6d989;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">고유 효과</td>
         </tr>`;
@@ -1102,7 +1102,7 @@ function buildWeaponStatCompare(section1, section2, name1, name2) {
     wrapper.appendChild(titleEl);
     const tableWrap = document.createElement('div');
     tableWrap.style.cssText = 'overflow-x:auto;margin-top:6px;';
-    tableWrap.innerHTML = `<table style="border-collapse:collapse;width:max-content;min-width:400px;">${_statTableThead(name1, name2)}<tbody>${tbodyHtml}</tbody></table>`;
+    tableWrap.innerHTML = `<table class="stat-compare-table" style="border-collapse:collapse;width:max-content;min-width:400px;">${_statTableThead(name1, name2)}<tbody>${tbodyHtml}</tbody></table>`;
     wrapper.appendChild(tableWrap);
     return wrapper;
 }
@@ -1125,7 +1125,7 @@ function _buildSlotStatCompare(title, slots, section1, section2, name1, name2, g
         if (!r1.stats && !r2.stats) {
             tbodyHtml += `<tr>
                 <td style="text-align:center;padding:3px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;">${slot}</td>
-                <td style="text-align:center;padding:3px 8px;color:#555;font-size:0.8em;" colspan="2">${r1.itemname || '(미착용)'}</td>
+                <td style="text-align:center;padding:3px 8px;color:#555;font-size:0.8em;border-right:2px solid #aaa !important;" colspan="2">${r1.itemname || '(미착용)'}</td>
                 <td style="text-align:center;padding:3px 8px;color:#555;font-size:0.8em;" colspan="2">${r2.itemname || '(미착용)'}</td>
                 <td style="text-align:center;padding:3px 8px;color:#e6c86e;font-size:0.85em;font-weight:bold;">${slot}</td>
             </tr>`;
@@ -1138,7 +1138,7 @@ function _buildSlotStatCompare(title, slots, section1, section2, name1, name2, g
 
         tbodyHtml += `<tr>
             <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;">${slot}</td>
-            <td style="text-align:center;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${makeLabel(r1)}</td>
+            <td style="text-align:center;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;border-right:2px solid #aaa !important;" colspan="2">${makeLabel(r1)}</td>
             <td style="text-align:center;padding:3px 8px;color:#aad4ff;font-size:0.78em;white-space:nowrap;" colspan="2">${makeLabel(r2)}</td>
             <td style="text-align:center;padding:4px 8px;color:#e6c86e;font-size:0.85em;white-space:nowrap;font-weight:bold;border-left:1px solid #2a3158;">${slot}</td>
         </tr>`;
@@ -1165,7 +1165,7 @@ function _buildSlotStatCompare(title, slots, section1, section2, name1, name2, g
             const ad = (attrs) => attrs.map(a => `<span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(100,114,168,0.25);color:#b0bcff;font-size:0.8em;margin:1px 2px;">${a}</span>`).join(' ') || '<span style="color:#555;font-size:0.8em;">-</span>';
             tbodyHtml += `<tr style="background:rgba(100,114,168,0.08);">
                 <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">속성</td>
-                <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${ad(attrs1)}</td>
+                <td style="text-align:center;padding:3px 8px;white-space:nowrap;border-right:2px solid #aaa !important;" colspan="2">${ad(attrs1)}</td>
                 <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${ad(attrs2)}</td>
                 <td style="text-align:center;padding:2px 6px;color:#b0bcff;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">속성</td>
             </tr>`;
@@ -1178,7 +1178,7 @@ function _buildSlotStatCompare(title, slots, section1, section2, name1, name2, g
             const rowBg = (desc1 !== desc2) ? 'background:rgba(240,165,0,0.06);' : '';
             tbodyHtml += `<tr style="${rowBg}">
                 <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">설명</td>
-                <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fd(desc1)}</td>
+                <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:2px solid #aaa !important;text-align:left;vertical-align:top;">${fd(desc1)}</td>
                 <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fd(desc2)}</td>
                 <td style="text-align:center;padding:2px 6px;color:#c8b87a;font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">설명</td>
             </tr>`;
@@ -1205,7 +1205,7 @@ function _buildSlotStatCompare(title, slots, section1, section2, name1, name2, g
     wrapper.appendChild(titleEl);
     const tableWrap = document.createElement('div');
     tableWrap.style.cssText = 'overflow-x:auto;margin-top:6px;';
-    tableWrap.innerHTML = `<table style="border-collapse:collapse;width:max-content;min-width:400px;">${_statTableThead(name1, name2)}<tbody>${tbodyHtml}</tbody></table>`;
+    tableWrap.innerHTML = `<table class="stat-compare-table" style="border-collapse:collapse;width:max-content;min-width:400px;">${_statTableThead(name1, name2)}<tbody>${tbodyHtml}</tbody></table>`;
     wrapper.appendChild(tableWrap);
     return wrapper;
 }
@@ -1276,7 +1276,7 @@ function buildSpecialStatCompare(section1, section2, name1, name2) {
 
 function buildSetEffectRows(eff1, eff2, tierLabel1, tierLabel2, tierColor, tierBg) {
     let html = `<tr style="background:${tierBg};">
-        <td colspan="3" style="text-align:center;padding:6px 8px;color:${tierColor};font-size:0.9em;font-weight:bold;border-right:1px solid #2a3158;">${tierLabel1 ? `━━━ ${tierLabel1} 효과 ━━━` : ''}</td>
+        <td colspan="3" style="text-align:center;padding:6px 8px;color:${tierColor};font-size:0.9em;font-weight:bold;border-right:2px solid #aaa !important;">${tierLabel1 ? `━━━ ${tierLabel1} 효과 ━━━` : ''}</td>
         <td colspan="3" style="text-align:center;padding:6px 8px;color:${tierColor};font-size:0.9em;font-weight:bold;">${tierLabel2 ? `━━━ ${tierLabel2} 효과 ━━━` : ''}</td>
     </tr>`;
 
@@ -1290,7 +1290,7 @@ function buildSetEffectRows(eff1, eff2, tierLabel1, tierLabel2, tierColor, tierB
             const has1 = set1.has(attr), has2 = set2.has(attr);
             html += `<tr style="background:rgba(100,114,168,0.08);">
                 <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${has1 ? tierLabel1 : ''}</td>
-                <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${has1 ? ad(attr) : ''}</td>
+                <td style="text-align:center;padding:3px 8px;white-space:nowrap;border-right:2px solid #aaa !important;" colspan="2">${has1 ? ad(attr) : ''}</td>
                 <td style="text-align:center;padding:3px 8px;white-space:nowrap;" colspan="2">${has2 ? ad(attr) : ''}</td>
                 <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${has2 ? tierLabel2 : ''}</td>
             </tr>`;
@@ -1317,7 +1317,7 @@ function buildSetEffectRows(eff1, eff2, tierLabel1, tierLabel2, tierColor, tierB
             html += `<tr style="${highlight}">
                 <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${s1 ? tierLabel1 : ''}</td>
                 <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${s1 ? statName : ''}</td>
-                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display1}</td>
+                <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:2px solid #aaa !important;">${display1}</td>
                 <td style="text-align:center;padding:2px 8px;color:#e6e9ff;font-size:0.85em;white-space:nowrap;border-right:1px solid #2a3158;">${display2}</td>
                 <td style="text-align:center;padding:2px 8px;color:#ccc;font-size:0.82em;white-space:nowrap;">${s2 ? statName : ''}</td>
                 <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${s2 ? tierLabel2 : ''}</td>
@@ -1332,7 +1332,7 @@ function buildSetEffectRows(eff1, eff2, tierLabel1, tierLabel2, tierColor, tierB
         const rowBg = (desc1 !== desc2) ? 'background:rgba(240,165,0,0.06);' : '';
         html += `<tr style="${rowBg}">
             <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-right:1px solid #2a3158;">${eff1 ? tierLabel1 : ''}</td>
-            <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fd(desc1)}</td>
+            <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:2px solid #aaa !important;text-align:left;vertical-align:top;">${fd(desc1)}</td>
             <td colspan="2" style="padding:4px 8px;color:#c8b87a;font-size:0.8em;border-right:1px solid #2a3158;text-align:left;vertical-align:top;">${fd(desc2)}</td>
             <td style="text-align:center;padding:2px 6px;color:${tierColor};font-size:0.75em;white-space:nowrap;border-left:1px solid #2a3158;">${eff2 ? tierLabel2 : ''}</td>
         </tr>`;
@@ -1345,13 +1345,13 @@ function _setEffectThead(name1, name2) {
     return `
     <thead>
         <tr>
-            <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;border-right:1px solid #2a3158;">${name1}</th>
+            <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;border-right:2px solid #aaa !important;">${name1}</th>
             <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;">${name2}</th>
         </tr>
         <tr>
             <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;border-right:1px solid #2a3158;">구분</th>
             <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
-            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:140px;border-right:1px solid #2a3158;">수치</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:140px;border-right:2px solid #aaa !important;">수치</th>
             <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:140px;border-right:1px solid #2a3158;">수치</th>
             <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
             <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;">구분</th>
@@ -1410,7 +1410,7 @@ function buildArmorSetEffectCompare(section1, section2, name1, name2) {
     const set2Label = result2.setName ? `${result2.setName} (${result2.count}셋)` : '세트 없음';
 
     let tbodyHtml = `<tr>
-        <td style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;" colspan="3">${set1Label}</td>
+        <td style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;white-space:nowrap;font-weight:bold;border-right:2px solid #aaa !important;" colspan="3">${set1Label}</td>
         <td style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;white-space:nowrap;font-weight:bold;" colspan="3">${set2Label}</td>
     </tr>`;
 
@@ -1439,7 +1439,7 @@ function buildArmorSetEffectCompare(section1, section2, name1, name2) {
     wrapper.appendChild(titleEl);
     const tableWrap = document.createElement('div');
     tableWrap.style.cssText = 'overflow-x:auto;margin-top:6px;';
-    tableWrap.innerHTML = `<table style="border-collapse:collapse;width:max-content;min-width:400px;">${_setEffectThead(name1, name2)}<tbody>${tbodyHtml}</tbody></table>`;
+    tableWrap.innerHTML = `<table class="stat-compare-table" style="border-collapse:collapse;width:max-content;min-width:400px;">${_setEffectThead(name1, name2)}<tbody>${tbodyHtml}</tbody></table>`;
     wrapper.appendChild(tableWrap);
     return wrapper;
 }
@@ -1479,7 +1479,7 @@ function _buildSimpleSetEffectCompare(title, slots, slotPrefixKeys, section1, se
     const mkLabel = (r) => r.setName ? `${r.prefix && r.prefix !== '기본' ? r.prefix + ': ' : ''}${r.setName} (${r.count}셋)` : '세트 없음';
 
     let tbodyHtml = `<tr>
-        <td style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;white-space:nowrap;font-weight:bold;border-right:1px solid #2a3158;" colspan="3">${mkLabel(result1)}</td>
+        <td style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;white-space:nowrap;font-weight:bold;border-right:2px solid #aaa !important;" colspan="3">${mkLabel(result1)}</td>
         <td style="text-align:center;padding:6px 8px;color:#ffd700;font-size:0.9em;white-space:nowrap;font-weight:bold;" colspan="3">${mkLabel(result2)}</td>
     </tr>`;
 
@@ -1496,7 +1496,7 @@ function _buildSimpleSetEffectCompare(title, slots, slotPrefixKeys, section1, se
     wrapper.appendChild(titleEl);
     const tableWrap = document.createElement('div');
     tableWrap.style.cssText = 'overflow-x:auto;margin-top:6px;';
-    tableWrap.innerHTML = `<table style="border-collapse:collapse;width:max-content;min-width:400px;">${_setEffectThead(name1, name2)}<tbody>${tbodyHtml}</tbody></table>`;
+    tableWrap.innerHTML = `<table class="stat-compare-table" style="border-collapse:collapse;width:max-content;min-width:400px;">${_setEffectThead(name1, name2)}<tbody>${tbodyHtml}</tbody></table>`;
     wrapper.appendChild(tableWrap);
     return wrapper;
 }

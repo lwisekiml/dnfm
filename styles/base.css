@@ -1110,3 +1110,8 @@ body.theme-mixed #section-detail-view .char-info-table {
     font-size: 0.95em;
     font-weight: bold;
 }
+
+#section-detail-view td.stat-divider-right,
+#section-detail-view th.stat-divider-right {
+    border-right: 2px solid #aaa !important;
+}
