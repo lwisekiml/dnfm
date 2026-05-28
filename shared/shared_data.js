@@ -1421,6 +1421,7 @@ const WEAPON_AVATAR_ITEM_INFO = {
     "홈쇼핑 공구세트 무기": _WEAPON_AVATAR_TEMPLATES.WA_V3,
     "디멘션 사복검": _WEAPON_AVATAR_TEMPLATES.WA_V3,
     "수행자의 도": _WEAPON_AVATAR_TEMPLATES.WA_V3,
+    "차원 과학자의 무기": _WEAPON_AVATAR_TEMPLATES.WA_V3,
 
     // 기본정보
     // 힘, 지능, 체력, 정신력 +50
@@ -1934,7 +1935,7 @@ const _CREATURE_TEMPLATES = {
         info: `던전 입장 시 자신을 포함한 파티원의 모든 속성 강화 2 증가`,
         stats: []
     },
-    // 4th 아루, 4th 따봉 기어, 4th 하트 에임, 4th 파티 크라운, 4th 사회자 마누스, 4th 윙키
+    // 4th 아루, 4th 따봉 기어, 4th 하트 에임, 4th 파티 크라운, 4th 사회자 마누스, 4th 윙키, SD 라라아 크리쳐
     RARE_V12: {
         info: `던전 입장 시 모든 속성 강화 3, 모든 속성 저항 3 증가`,
         stats: [
@@ -2074,6 +2075,7 @@ const CREATURE_ITEM_INFO = {
     "퍼스트 버서커 : 카잔 파핑 크리쳐": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V10 },
     "펌킨 단진": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V6 },
     "펌킨 랜디": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V7 },
+    "SD 라라아 크리쳐": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V12 },
 
     // === 언커먼 (UNCOMMON) ===
     "비네": { grade: '언커먼', ..._CREATURE_TEMPLATES.UNCOMMON_V1 },
@@ -2095,6 +2097,36 @@ const CREATURE_ITEM_INFO = {
  * - setEffect : 세트 효과 텍스트 (줄바꿈 구분)
  */
 const ARTIFACT_SET_DATA = [
+    {
+        setName: '솔도로스 아티팩트 세트',
+        red: {
+            name: '솔도로스의 사자검',
+            stats: {
+                '크리쳐_art_red_stat_물리 공격력': '22',
+                '크리쳐_art_red_stat_마법 공격력': '22',
+                '크리쳐_art_red_stat_힘':         '36',
+                '크리쳐_art_red_stat_지능':        '36',
+            }
+        },
+        blue: {
+            name: '솔도로스의 탈혼검',
+            stats: {
+                '크리쳐_art_blue_stat_공격속도':   '5',
+                '크리쳐_art_blue_stat_캐스팅속도':  '7.5',
+                '크리쳐_art_blue_stat_이동속도':   '2.5',
+                '크리쳐_art_blue_stat_적중':       '100',
+            }
+        },
+        green: {
+            name: '솔도로스의 탈명도',
+            stats: {
+                '크리쳐_art_green_stat_HPMAX':  '165',
+                '크리쳐_art_green_stat_MPMAX':  '165',
+                '크리쳐_art_green_stat_모속강': '4',
+            }
+        },
+        setEffect: '최종 데미지 5% 증가\n모속강 +10\n공격 시 5% 추가 데미지\n30초 마다 공격속도 3%, 이동속도 3%, 캐스팅속도 3% 증가',
+    },
     {
         setName: '흑룡 아티팩트 3세트 효과',
         red: {
