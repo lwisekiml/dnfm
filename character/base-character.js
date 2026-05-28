@@ -1000,6 +1000,24 @@ function lockAllCharacters() {
 }
 
 /**
+ * 모든 캐릭터 해제
+ */
+function unlockAllCharacters() {
+    const allSections = document.querySelectorAll('.char-section');
+    if (allSections.length === 0) return;
+
+    if (confirm("모든 캐릭터를 해제 상태로 변경하시겠습니까?")) {
+        allSections.forEach(section => toggleEdit(section.id, false));
+
+        const statusMsg = document.getElementById('statusMsg');
+        if (statusMsg) {
+            statusMsg.innerText = "🔓 모든 캐릭터가 해제되었습니다.";
+            setTimeout(() => statusMsg.innerText = "", 2000);
+        }
+    }
+}
+
+/**
  * 편집 잠금/해제 토글
  */
 function toggleEdit(charId, isLock) {
