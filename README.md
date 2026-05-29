@@ -20,7 +20,11 @@ project/
 │   ├── core-core-state.js                   # 전역 상태 관리 (AppState, UIState)
 │   ├── core-core-storage.js                 # 자동저장, JSON 내보내기/가져오기
 │   ├── core-core-utils.js                   # DOM·슬롯·클래스 유틸, 봉인 수치 테이블, 헬퍼 함수
-│   ├── mode-compare.js                 # 비교 모드 전체 (장비·봉인·엠블렘·스탯·세트 비교)
+│   ├── mode-compare-utils.js  → 공통 헬퍼 (CompareUtils, 세트효과 계산, _statRow 등)
+│   ├── mode-compare-eq.js     → 장비 비교 (장비/봉인/엠블렘/마법부여/팝업)
+│   ├── mode-compare-stat.js   → 스탯 비교 (전체합산/무기/방어구/악세/특수/세트효과)
+│   ├── mode-compare-all.js    → 전체 비교 (전체 아이템 스탯 목록)
+│   ├── mode-compare.js        → 진입점 (enterCompareMode, displayComparison, switchCompareTab)
 │   ├── mode-search.js                  # 검색 모드 전체 (슬롯별 검색, 결과 표시, 인라인 편집)
 │   └── mode-tag-filter.js              # 태그 필터 패널, 빠른 버튼, 태그 자동완성
 ├── data/                               # 아이템 원본 데이터
