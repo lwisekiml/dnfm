@@ -26,12 +26,11 @@ function _recordMemoTagHistory(charId, slot, oldVal, newVal) {
 }
 
 // ============================================
-// 팝업 설정 (여기서 한 번에 관리)
+// 팝업 공통 설정 (메모/설명 팝업 공유)
 // ============================================
 
-// 메모 팝업 설정
-const MEMO_POPUP = {
-    // 팝업 모달 크기/스타일
+const POPUP_STYLE = {
+    // 모달 크기/스타일
     width:        '350px',
     background:   '#1a1a1a',
     border:       '3px solid #ffd700',
@@ -41,41 +40,60 @@ const MEMO_POPUP = {
     zIndex:       '1000',
 
     // 입력창 (편집 모드)
-    textareaHeight:     '200px',
-    textareaBg:         '#0a0a0a',
-    textareaBorder:     '2px solid #444',
-    textareaFontSize:   '13px',
+    textareaHeight:    '200px',
+    textareaBg:        '#0a0a0a',
+    textareaBorder:    '2px solid #444',
+    textareaFontSize:  '13px',
 
     // 읽기전용 div (잠금 모드)
-    readonlyMinHeight:  '200px',
-    readonlyMaxHeight:  '200px',  // 이 높이 초과 시 스크롤
-    readonlyBg:         '#0a0a0a',
-    readonlyBorder:     '2px solid #333',
+    readonlyMinHeight: '200px',
+    readonlyMaxHeight: '200px',  // 이 높이 초과 시 스크롤
+    readonlyBg:        '#0a0a0a',
+    readonlyBorder:    '2px solid #333',
 };
 
-// 설명 팝업 설정
-const DESC_POPUP = {
-    // 팝업 모달 크기/스타일
-    width:        '350px',
-    background:   '#1a1a1a',
-    border:       '3px solid #ffd700',
-    borderRadius: '8px',
-    padding:      '15px',
-    boxShadow:    '0 8px 32px rgba(0, 0, 0, 0.9)',
-    zIndex:       '1000',
+// 하위 호환 별칭 (기존 참조 유지)
+const MEMO_POPUP = POPUP_STYLE;
+const DESC_POPUP = POPUP_STYLE;
 
-    // 입력창 (편집 모드)
-    textareaHeight:     '200px',
-    textareaBg:         '#0a0a0a',
-    textareaBorder:     '2px solid #444',
-    textareaFontSize:   '13px',
+// ============================================
+// 팝업 위치 계산 공통 헬퍼
+// ============================================
 
-    // 읽기전용 div (잠금 모드)
-    readonlyMinHeight:  '200px',
-    readonlyMaxHeight:  '200px',  // 이 높이 초과 시 스크롤
-    readonlyBg:         '#0a0a0a',
-    readonlyBorder:     '2px solid #333',
-};
+/**
+ * 팝업 모달을 anchorEl 기준으로 화면 안에 배치
+ * - 기본: anchorEl 바로 아래 왼쪽 정렬
+ * - 화면 오른쪽/아래/왼쪽 벗어나면 자동 보정
+ * @param {HTMLElement} modal     - 배치할 팝업 요소 (이미 body에 append된 상태)
+ * @param {HTMLElement} anchorEl  - 기준 요소
+ */
+function _calcPopupPosition(modal, anchorEl) {
+    modal.style.visibility = 'hidden';
+    if (!modal.parentElement) document.body.appendChild(modal);
+
+    const rect      = anchorEl.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft= window.pageXOffset || document.documentElement.scrollLeft;
+    const modalW    = modal.offsetWidth;
+    const modalH    = modal.offsetHeight;
+    const viewW     = window.innerWidth;
+    const viewH     = window.innerHeight;
+
+    // 기본: anchorEl 바로 아래, 왼쪽 정렬
+    let top  = rect.bottom + scrollTop  + 5;
+    let left = rect.left   + scrollLeft;
+
+    // 오른쪽 벗어나면 왼쪽으로 당기기
+    if (rect.left + modalW > viewW) left = scrollLeft + viewW - modalW - 10;
+    // 아래 벗어나면 anchorEl 위로 올리기
+    if (rect.bottom + modalH + 5 > viewH) top = rect.top + scrollTop - modalH - 5;
+    // 왼쪽 벗어나면 보정
+    if (left < scrollLeft + 5) left = scrollLeft + 5;
+
+    modal.style.top        = top  + 'px';
+    modal.style.left       = left + 'px';
+    modal.style.visibility = 'visible';
+}
 
 /**
  * 태그 추가
@@ -313,19 +331,11 @@ function openMemoModal(charId) {
         `;
     }
 
-    // 메모 미리보기 위치 찾기
+    // 메모 미리보기 기준으로 팝업 배치 (화면 넘침 자동 보정 포함)
     const memoPreview = document.getElementById(`${charId}_memo_preview`);
-    if (memoPreview) {
-        const rect = memoPreview.getBoundingClientRect();
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-
-        // 미리보기 바로 아래에 배치
-        modal.style.top = (rect.bottom + scrollTop + 5) + 'px';
-        modal.style.left = (rect.left + scrollLeft) + 'px';
-    }
-
+    const anchorEl = memoPreview || document.body;
     document.body.appendChild(modal);
+    _calcPopupPosition(modal, anchorEl);
 
     // textarea에 포커스 (잠금 아닐 때만)
     if (!isLocked) {
@@ -469,40 +479,8 @@ function openDescModal(inputEl) {
         `;
     }
 
-    // 일단 body에 붙여서 실제 크기 측정
-    modal.style.visibility = 'hidden';
-    document.body.appendChild(modal);
-
-    const rect = inputEl.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-    const modalW = modal.offsetWidth;
-    const modalH = modal.offsetHeight;
-    const viewW = window.innerWidth;
-    const viewH = window.innerHeight;
-
-    // 기본: input 아래, input 왼쪽 정렬
-    let top = rect.bottom + scrollTop + 5;
-    let left = rect.left + scrollLeft;
-
-    // 오른쪽 벗어나면 왼쪽으로 당기기
-    if (rect.left + modalW > viewW) {
-        left = scrollLeft + viewW - modalW - 10;
-    }
-
-    // 아래 벗어나면 input 위로 올리기
-    if (rect.bottom + modalH + 5 > viewH) {
-        top = rect.top + scrollTop - modalH - 5;
-    }
-
-    // 화면 왼쪽 밖으로 나가면 보정
-    if (left < scrollLeft + 5) {
-        left = scrollLeft + 5;
-    }
-
-    modal.style.top = top + 'px';
-    modal.style.left = left + 'px';
-    modal.style.visibility = 'visible';
+    // inputEl 기준으로 팝업 배치 (화면 넘침 자동 보정 포함)
+    _calcPopupPosition(modal, inputEl);
 
     if (!isLocked && !isReadonlySlot) {
         setTimeout(() => {
