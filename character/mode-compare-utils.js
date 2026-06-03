@@ -528,24 +528,24 @@ function _statTableThead(name1, name2) {
             <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;">${name2}</th>
         </tr>
         <tr>
-            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;${CS.BR_THIN}">구분</th>
-            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
-            <th class="stat-divider-right" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:140px;${CS.BR_THICK}">수치</th>
-            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:140px;${CS.BR_THIN}">수치</th>
-            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
-            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;">구분</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;min-width:80px;${CS.BR_THIN}">구분</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:160px;min-width:160px;">스탯</th>
+            <th class="stat-divider-right" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:160px;min-width:160px;${CS.BR_THICK}">수치</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:160px;min-width:160px;${CS.BR_THIN}">수치</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:160px;min-width:160px;">스탯</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;min-width:80px;">구분</th>
         </tr>
     </thead>`;
 }
 
 function _statRow(tagColor, sectionTag, displayKey, display1, display2, highlight, hasData1, hasData2) {
     return `<tr style="${highlight}">
-    <td style="${CS.TAG_CELL(tagColor)}${CS.BR_THIN}">${hasData1 ? sectionTag : ''}</td>
-    <td style="${CS.KEY_CELL}">${hasData1 ? displayKey : ''}</td>
-    <td class="stat-divider-right" style="${CS.VAL_CELL}${CS.BR_THICK}">${display1}</td>
-    <td style="${CS.VAL_CELL}${CS.BR_THIN}">${display2}</td>
-    <td style="${CS.KEY_CELL}">${hasData2 ? displayKey : ''}</td>
-    <td style="${CS.TAG_CELL(tagColor)}${CS.BL_THIN}">${hasData2 ? sectionTag : ''}</td>
+    <td style="${CS.TAG_CELL(tagColor)}width:80px;min-width:80px;${CS.BR_THIN}">${hasData1 ? sectionTag : ''}</td>
+    <td style="${CS.KEY_CELL}width:160px;min-width:160px;">${hasData1 ? displayKey : ''}</td>
+    <td class="stat-divider-right" style="${CS.VAL_CELL}width:160px;min-width:160px;${CS.BR_THICK}">${display1}</td>
+    <td style="${CS.VAL_CELL}width:160px;min-width:160px;${CS.BR_THIN}">${display2}</td>
+    <td style="${CS.KEY_CELL}width:160px;min-width:160px;">${hasData2 ? displayKey : ''}</td>
+    <td style="${CS.TAG_CELL(tagColor)}width:80px;min-width:80px;${CS.BL_THIN}">${hasData2 ? sectionTag : ''}</td>
 </tr>`;
 }
 
@@ -557,12 +557,12 @@ function _setEffectThead(name1, name2) {
             <th colspan="3" style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.85em;color:#ffd700;">${name2}</th>
         </tr>
         <tr>
-            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;${CS.BR_THIN}">구분</th>
-            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
-            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:140px;${CS.BR_THICK}">수치</th>
-            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:140px;${CS.BR_THIN}">수치</th>
-            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;">스탯</th>
-            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;">구분</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;min-width:80px;${CS.BR_THIN}">구분</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:160px;min-width:160px;">스탯</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:160px;min-width:160px;${CS.BR_THICK}">수치</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:160px;min-width:160px;${CS.BR_THIN}">수치</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:160px;min-width:160px;">스탯</th>
+            <th style="padding:4px 8px;text-align:center;white-space:nowrap;font-size:0.8em;width:80px;min-width:80px;">구분</th>
         </tr>
     </thead>`;
 }
