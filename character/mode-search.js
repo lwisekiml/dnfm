@@ -49,11 +49,13 @@ function enterSearchMode() {
     if (btnTag)  { btnTag.disabled  = true; btnTag.style.opacity  = '0.4'; btnTag.style.cursor  = 'not-allowed'; }
     if (btnStat) { btnStat.disabled = true; btnStat.style.opacity = '0.4'; btnStat.style.cursor = 'not-allowed'; }
 
-    // 캐릭터 추가/전체 잠금 버튼 비활성화
-    const btnAdd  = document.getElementById('btnAddCharacter');
-    const btnLock = document.getElementById('btnLockAll');
-    if (btnAdd)  { btnAdd.disabled  = true; btnAdd.style.opacity  = '0.4'; btnAdd.style.cursor  = 'not-allowed'; }
-    if (btnLock) { btnLock.disabled = true; btnLock.style.opacity = '0.4'; btnLock.style.cursor = 'not-allowed'; }
+    // 캐릭터 추가/전체 잠금/전체 해제 버튼 비활성화
+    const btnAdd    = document.getElementById('btnAddCharacter');
+    const btnLock   = document.getElementById('btnLockAll');
+    const btnUnlock = document.getElementById('btnUnlockAll');
+    if (btnAdd)    { btnAdd.disabled    = true; btnAdd.style.opacity    = '0.4'; btnAdd.style.cursor    = 'not-allowed'; }
+    if (btnLock)   { btnLock.disabled   = true; btnLock.style.opacity   = '0.4'; btnLock.style.cursor   = 'not-allowed'; }
+    if (btnUnlock) { btnUnlock.disabled = true; btnUnlock.style.opacity = '0.4'; btnUnlock.style.cursor = 'not-allowed'; }
 
     // 슬롯 선택 초기화
     const slotSelect = document.getElementById('searchSlotSelect');
