@@ -1051,6 +1051,4 @@ const GameData = {
     WEAPON_AVATAR_ITEM_INFO
 };
 
-
-
 console.log("✅ shared_data_seal.js 로드 완료");

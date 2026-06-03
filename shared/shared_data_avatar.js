@@ -856,4 +856,5 @@ const ARTIFACT_SET_DATA = [
         },
     },
 ];
+
 console.log("✅ shared_data_avatar.js 로드 완료");

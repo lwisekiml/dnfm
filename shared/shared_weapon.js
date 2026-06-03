@@ -386,3 +386,5 @@ function getWeaponDataByJob(jobName) {
     if (base) return WEAPON_DATA_MAP[JOB_TO_WEAPON_KEY[base]] || null;
     return null;
 }
+
+console.log("✅ shared_weapon.js 로드 완료");

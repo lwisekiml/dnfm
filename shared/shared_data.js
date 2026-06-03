@@ -433,3 +433,5 @@ function makePrefixKey(pref, setName) {
     if (LEGACY_PREFIX_SETS.includes(setName)) return setName;
     return `${pref}: ${setName}`;
 }
+
+console.log("✅ shared_data.js 로드 완료");
