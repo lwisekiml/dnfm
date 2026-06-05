@@ -316,30 +316,6 @@ function moveCharacterDown(index) {
     }
 }
 
-// 5-5. 편집 모드 토글
-function toggleEditMode() {
-    const editBtn = document.getElementById("edit-order-btn");
-
-    isEditingCharacterOrder = !isEditingCharacterOrder;
-
-    if (isEditingCharacterOrder) {
-        // 편집 모드 활성화
-        editBtn.textContent = "변경완료";
-        editBtn.style.background = "linear-gradient(135deg, #25c2a0, #1a8c7d)";
-    } else {
-        // 편집 모드 비활성화
-        editBtn.textContent = "✏️ 편집";
-        editBtn.style.background = "linear-gradient(135deg, #3399cc, #2a6f9e)";
-
-        // 데이터 저장
-        saveLocalData();
-        alert("순서 변경이 완료되었습니다!");
-    }
-
-    // 캐릭터 리스트 다시 렌더링
-    renderCharacterList();
-}
-
 // 5-5. 편집 모드 토글 → 모달 오픈 방식으로 변경
 function toggleEditMode() {
     openCharacterOrderModal();
