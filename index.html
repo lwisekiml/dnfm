@@ -1469,5 +1469,134 @@
     });
 </script>
 
+<!-- ================================================
+     세트 달성 알림 (토스트 + 버튼 애니메이션)
+================================================ -->
+<div id="set-toast-container" style="
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 10px;
+    z-index: 9000;
+    pointer-events: none;
+"></div>
+
+<style>
+    /* 토스트 기본 스타일 */
+    .set-toast {
+        min-width: 220px;
+        max-width: 300px;
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: bold;
+        color: #fff;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+        opacity: 0;
+        transform: translateX(60px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        pointer-events: none;
+        line-height: 1.5;
+    }
+    .set-toast.toast-show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    .set-toast.toast-hide {
+        opacity: 0;
+        transform: translateX(60px);
+    }
+
+    /* 3세트: 초록 계열 */
+    .set-toast-3 {
+        background: linear-gradient(135deg, #1a4a2a, #2ecc71);
+        border: 1px solid #2ecc71;
+    }
+    /* 5세트: 골드 계열 */
+    .set-toast-5 {
+        background: linear-gradient(135deg, #4a3a00, #ffd700);
+        border: 1px solid #ffd700;
+        color: #1a1200;
+    }
+
+    /* 버튼 달성 애니메이션 */
+    @keyframes set-achieve-flash {
+        0%   { filter: brightness(1); transform: scale(1); }
+        20%  { filter: brightness(2.2); transform: scale(1.08); }
+        40%  { filter: brightness(1); transform: scale(1); }
+        60%  { filter: brightness(2.0); transform: scale(1.06); }
+        80%  { filter: brightness(1); transform: scale(1); }
+        100% { filter: brightness(1); transform: scale(1); }
+    }
+    .set-btn.set-achieved-anim {
+        animation: set-achieve-flash 0.7s ease;
+    }
+</style>
+
+<script>
+    // ================================================
+    // 세트 달성 토스트 알림
+    // ================================================
+
+    /**
+     * 세트 달성 토스트 표시
+     * @param {string} setName - 세트 이름
+     * @param {number} tier    - 3 또는 5
+     */
+    function showSetAchievedToast(setName, tier) {
+        const container = document.getElementById('set-toast-container');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = `set-toast set-toast-${tier}`;
+
+        const icon = tier === 5 ? '🏆' : '✅';
+        const label = tier === 5 ? '5세트 달성!' : '3세트 달성!';
+        // 세트명이 너무 길면 줄여서 표시
+        const displayName = setName.length > 16 ? setName.slice(0, 15) + '…' : setName;
+
+        toast.innerHTML = `${icon} <span style="font-size:13px;">${displayName}</span><br>${label}`;
+        container.appendChild(toast);
+
+        // 애니메이션 시작 (다음 프레임에 클래스 추가)
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                toast.classList.add('toast-show');
+            });
+        });
+
+        // 2.5초 후 페이드 아웃 → 제거
+        setTimeout(() => {
+            toast.classList.remove('toast-show');
+            toast.classList.add('toast-hide');
+            setTimeout(() => {
+                if (toast.parentNode) toast.parentNode.removeChild(toast);
+            }, 350);
+        }, 2500);
+    }
+
+    /**
+     * 세트 버튼 달성 애니메이션
+     * @param {string} setName - 세트 이름
+     */
+    function animateSetButton(setName) {
+        const buttons = document.querySelectorAll('.set-btn');
+        buttons.forEach(btn => {
+            const text = btn.textContent || btn.innerText;
+            if (text.includes(setName)) {
+                // 기존 애니메이션 제거 후 재적용 (연속 클릭 대응)
+                btn.classList.remove('set-achieved-anim');
+                void btn.offsetWidth; // reflow 강제로 애니메이션 리셋
+                btn.classList.add('set-achieved-anim');
+                btn.addEventListener('animationend', () => {
+                    btn.classList.remove('set-achieved-anim');
+                }, { once: true });
+            }
+        });
+    }
+</script>
+
 </body>
 </html>

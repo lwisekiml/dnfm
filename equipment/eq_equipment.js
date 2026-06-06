@@ -918,6 +918,9 @@ function increment(charId, key) {
     const oldValue = char.armorCounts[key] || 0;
     const newValue = oldValue + 1;
 
+    // 증가 전 distinctParts 스냅샷 (세트 달성 감지용)
+    const prevDistinct = currentSetName ? getCachedDistinctParts(char, currentSetName) : -1;
+
     char.armorCounts[key] = newValue;
     char.updateTimes[key] = Date.now();
     if (!char.updateHistory) char.updateHistory = [];
@@ -933,6 +936,25 @@ function increment(charId, key) {
     if (currentSetName) {
         updateSetButtonCount(currentSetName, char);
         updateAllRowColors(char, currentSetName);
+
+        // 세트 달성 알림 (새로 달성한 경우만)
+        const newDistinct = getCachedDistinctParts(char, currentSetName);
+        const slots = ALL_SETS[currentSetName] || [];
+        const fullSize = slots.length;
+        if (fullSize === 5) {
+            if (prevDistinct < 5 && newDistinct === 5) {
+                showSetAchievedToast(currentSetName, 5);
+                animateSetButton(currentSetName);
+            } else if (prevDistinct < 3 && newDistinct >= 3) {
+                showSetAchievedToast(currentSetName, 3);
+                animateSetButton(currentSetName);
+            }
+        } else {
+            if (prevDistinct < 3 && newDistinct === 3) {
+                showSetAchievedToast(currentSetName, 3);
+                animateSetButton(currentSetName);
+            }
+        }
     }
     updateCategoryTotals(char);
 }
