@@ -453,6 +453,7 @@
                 <th>태그</th>
                 <th>잠금</th>
                 <th>해제</th>
+                <th>복사</th>
                 <th>삭제</th>
                 <th>순서변경</th>
             </tr>
@@ -517,6 +518,9 @@
                 </td>
                 <td style="padding:4px 6px; vertical-align:top;">
                     <button onclick="toggleEdit('{CHAR_ID}', false)" class="btn-char-unlock unlock-btn" style="display:block; width:100%;">해제</button>
+                </td>
+                <td style="padding:4px 6px; vertical-align:top;">
+                    <button onclick="copyCharacter('{CHAR_ID}')" class="btn-action" style="display:block; width:100%; background: linear-gradient(135deg, #4a7cc7, #2a5aa0);">복사</button>
                 </td>
                 <td style="padding:4px 6px; vertical-align:top;">
                     <button onclick="deleteCharacter('{CHAR_ID}')" class="del-btn" style="width:100%;">삭제</button>

@@ -905,6 +905,164 @@ function restoreSavedData(section, savedData, charId) {
 }
 
 /**
+ * 캐릭터 복사
+ * - 현재 캐릭터의 모든 inputs, 룬 데이터, 태그를 복사해 새 캐릭터로 생성
+ * - 복사본은 원본 바로 아래에 삽입, 잠금 해제 상태로 생성
+ */
+function copyCharacter(charId) {
+    const section = document.getElementById(charId);
+    if (!section) return;
+
+    // 1) 현재 입력값 수집 (autoSave와 동일한 방식)
+    const inputsObj = {};
+    section.querySelectorAll('input[data-key], select[data-key], textarea[data-key]').forEach(el => {
+        const key = el.getAttribute('data-key');
+        if (key === '무기_weapontype') return;
+        if (key.startsWith('info_')) {
+            inputsObj[key] = { val: el.value, cls: el.className };
+            return;
+        }
+        const underIdx = key.indexOf('_');
+        if (underIdx === -1) {
+            inputsObj[key] = { val: el.value, cls: el.className };
+            return;
+        }
+        const slot = key.slice(0, underIdx);
+        const field = key.slice(underIdx + 1);
+        if (!inputsObj[slot]) inputsObj[slot] = {};
+        inputsObj[slot][field] = { val: el.value, cls: el.className };
+    });
+
+    // 2) button[data-key] 수집
+    section.querySelectorAll('button[data-key]').forEach(btn => {
+        const key = btn.getAttribute('data-key');
+
+        if (key === '크리쳐_name') {
+            if (!inputsObj['크리쳐']) inputsObj['크리쳐'] = {};
+            inputsObj['크리쳐']['name']          = { val: btn.getAttribute('data-creature-name')          || '', cls: btn.className };
+            inputsObj['크리쳐']['mode']          = { val: btn.getAttribute('data-creature-mode')          || 'sel', cls: '' };
+            inputsObj['크리쳐']['seteffect']     = { val: btn.getAttribute('data-creature-seteffect')     || '', cls: '' };
+            inputsObj['크리쳐']['setauto']       = { val: btn.getAttribute('data-creature-setauto')       || 'false', cls: '' };
+            inputsObj['크리쳐']['art-seteffect'] = { val: btn.getAttribute('data-creature-art-seteffect') || '', cls: '' };
+            inputsObj['크리쳐']['art-setauto']   = { val: btn.getAttribute('data-creature-art-setauto')   || 'false', cls: '' };
+            return;
+        }
+        if (key === '칭호_itemname') {
+            if (!inputsObj['칭호']) inputsObj['칭호'] = {};
+            inputsObj['칭호']['itemname']    = { val: btn.getAttribute('data-title-name')   || '', cls: btn.className };
+            inputsObj['칭호']['title_stats'] = { val: btn.getAttribute('data-title-stats')  || '{}', cls: '' };
+            return;
+        }
+        if (key === '오라_itemname') {
+            if (!inputsObj['오라']) inputsObj['오라'] = {};
+            inputsObj['오라']['itemname']   = { val: btn.getAttribute('data-aura-name')   || '', cls: btn.className };
+            inputsObj['오라']['aura_stats'] = { val: btn.getAttribute('data-aura-stats')  || '{}', cls: '' };
+            return;
+        }
+        if (key === '아바타_itemname') {
+            if (!inputsObj['아바타']) inputsObj['아바타'] = {};
+            const rawVal = btn.getAttribute('data-avatar-value') || '';
+            const parts = {};
+            rawVal.trim().split(/\s+/).forEach(t => {
+                const m = t.match(/^(.+)\((.+)\)$/);
+                if (m) parts[m[1]] = m[2];
+            });
+            inputsObj['아바타']['parts']    = parts;
+            inputsObj['아바타']['itemname'] = { val: rawVal, cls: btn.className };
+        }
+    });
+
+    // 3) 무기 아바타 수치 버튼
+    const weaponAvatarBtn = section.querySelector('button[data-weapon-avatar-btn]');
+    if (weaponAvatarBtn) {
+        if (!inputsObj['아바타']) inputsObj['아바타'] = {};
+        const waStats = JSON.parse(weaponAvatarBtn.getAttribute('data-weapon-avatar-stats') || '{}');
+        inputsObj['아바타']['weapon_stat'] = {
+            name: weaponAvatarBtn.getAttribute('data-weapon-avatar-name') || '',
+            base: waStats.base || [],
+            eff:  waStats.eff  || [],
+            desc: waStats.desc || ''
+        };
+    }
+
+    // 4) 크리쳐 아티팩트 hidden input 수집
+    section.querySelectorAll('input[type="hidden"][data-key]').forEach(hidden => {
+        const key = hidden.getAttribute('data-key');
+        const underIdx = key.indexOf('_');
+        if (underIdx === -1) return;
+        const slot  = key.slice(0, underIdx);
+        const field = key.slice(underIdx + 1);
+        if (!inputsObj[slot]) inputsObj[slot] = {};
+        inputsObj[slot][field] = { val: hidden.value, cls: '' };
+    });
+
+    // 5) 룬 데이터 deep copy
+    const origRune = AppState.charRuneData[charId] || { runes: Array(20).fill().map(() => ({name:'',lv:'',skillLv:''})), gakin:['',''] };
+    const copiedRune = {
+        runes: origRune.runes.map(r => ({ ...r })),
+        gakin: [...origRune.gakin]
+    };
+    if (!inputsObj['스킬룬']) inputsObj['스킬룬'] = {};
+    inputsObj['스킬룬'].runeData = copiedRune;
+
+    // 6) 태그 deep copy
+    const origTags = (AppState.charTags && AppState.charTags[charId]) ? [...AppState.charTags[charId]] : [];
+
+    // 7) 원본 이름에 "(복사)" 붙이기
+    if (inputsObj['info_name']) {
+        const origName = inputsObj['info_name'].val || '';
+        inputsObj['info_name'] = { ...inputsObj['info_name'], val: origName + '(복사)' };
+    }
+
+    // 8) 복사 데이터 구성
+    const newId = 'char_' + Date.now() + Math.random().toString(16).slice(2);
+    const copiedData = {
+        id:     newId,
+        job:    inputsObj['info_job']?.val   || '',
+        name:   (inputsObj['info_name']?.val || ''),
+        locked: false,
+        inputs: inputsObj,
+        tags:   origTags,
+        armorCounts:    {},
+        weaponCounts:   {},
+        updateTimes:    {},
+        craftMaterials: {}
+    };
+
+    // 9) characters 배열에도 추가 (project2 연동)
+    if (typeof characters !== 'undefined') {
+        const origIdx = characters.findIndex(c => c.id === charId);
+        if (origIdx !== -1) {
+            characters.splice(origIdx + 1, 0, copiedData);
+        } else {
+            characters.push(copiedData);
+        }
+    }
+
+    // 10) DOM 생성: createCharacterTable로 새 캐릭터 섹션 생성
+    const container = document.getElementById('characterContainer');
+    const origSection = document.getElementById(charId);
+    createCharacterTable(copiedData);
+
+    // createCharacterTable은 container 끝에 append하므로
+    // 원본 바로 다음으로 이동
+    const newSection = document.getElementById(newId);
+    if (newSection && origSection && origSection.nextSibling !== newSection) {
+        container.insertBefore(newSection, origSection.nextSibling);
+    }
+
+    // 11) 상태 저장
+    if (typeof saveLocalData === 'function') saveLocalData();
+    if (typeof renderCharacterList === 'function') renderCharacterList();
+
+    const statusMsg = document.getElementById('statusMsg');
+    if (statusMsg) {
+        statusMsg.innerText = '📋 캐릭터가 복사되었습니다.';
+        setTimeout(() => statusMsg.innerText = '', 2000);
+    }
+}
+
+/**
  * 캐릭터 삭제
  */
 function deleteCharacter(charId) {
