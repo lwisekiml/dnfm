@@ -107,6 +107,111 @@ function buildTotalStatCompare(section1, section2, name1, name2) {
             hl, !!s1, !!s2);
     });
 
+    // ── 차이 요약 행 ──────────────────────────────────────────
+    // 캐릭터별 스탯/속강 타입 읽기
+    const statType1 = section1.querySelector('select[data-key="info_stat_type"]')?.value || '';
+    const statType2 = section2.querySelector('select[data-key="info_stat_type"]')?.value || '';
+    const eleType1  = section1.querySelector('select[data-key="info_ele_type"]')?.value  || '';
+    const eleType2  = section2.querySelector('select[data-key="info_ele_type"]')?.value  || '';
+
+    // 요약할 스탯 그룹 정의
+    const SUMMARY_GROUPS = [
+        {
+            label: '주스탯 (힘/지능)',
+            stats: ['힘', '지능'],
+            highlight: (name) => (name === statType1 || name === statType2),
+        },
+        {
+            label: '속강',
+            stats: ['화속강', '수속강', '명속강', '암속강'],
+            highlight: (name) => (name === eleType1 || name === eleType2),
+        },
+        {
+            label: '공격력',
+            stats: ['물리 공격력', '마법 공격력'],
+            highlight: () => false,
+        },
+        {
+            label: '크리티컬',
+            stats: ['물리 크리티컬', '마법 크리티컬'],
+            highlight: () => false,
+        },
+        {
+            label: 'HP/MP',
+            stats: ['HP MAX', 'MP MAX'],
+            highlight: () => false,
+        },
+        {
+            label: '피해/스킬',
+            stats: ['모든 타입 피해 증가', '스킬 공격력 증가'],
+            highlight: () => false,
+        },
+        {
+            label: '모든 속성',
+            stats: ['모든 속성 강화'],
+            highlight: () => false,
+        },
+    ];
+
+    // 요약 대상 스탯이 하나라도 있는지 확인
+    const hasSummary = SUMMARY_GROUPS.some(g =>
+        g.stats.some(n => total1.statMap[n] || total2.statMap[n])
+    );
+
+    if (hasSummary) {
+        // 구분선
+        tbodyHtml += `<tr>
+    <td colspan="6" style="padding:0;border-top:2px solid #4a5178;"></td>
+</tr>`;
+        // 요약 헤더 행
+        tbodyHtml += `<tr style="background:rgba(74,81,120,0.35);">
+    <td colspan="3" style="text-align:center;padding:5px 8px;color:#d4b8ff;font-size:0.82em;font-weight:bold;${CS.BR_THICK}">━━ 차이 요약 ━━</td>
+    <td colspan="3" style="text-align:center;padding:5px 8px;color:#d4b8ff;font-size:0.82em;font-weight:bold;">━━ 차이 요약 ━━</td>
+</tr>`;
+
+        SUMMARY_GROUPS.forEach(group => {
+            const rowsInGroup = [];
+            group.stats.forEach(statName => {
+                const s1 = total1.statMap[statName] || null;
+                const s2 = total2.statMap[statName] || null;
+                if (!s1 && !s2) return;
+                const v1   = s1?.amount ?? 0;
+                const v2   = s2?.amount ?? 0;
+                const unit = s1?.unit || s2?.unit || '';
+                const diff = v2 - v1;
+                const isHL = group.highlight(statName);
+
+                // 차이 표시 (오른쪽 캐릭터 기준: +면 오른쪽이 높음)
+                const diffColor  = diff > 0 ? '#2ecc71' : diff < 0 ? '#e74c3c' : '#888';
+                const diffPrefix = diff > 0 ? '+' : '';
+                const diffText   = diff !== 0
+                    ? `<span style="color:${diffColor};font-weight:bold;">${diffPrefix}${diff}${unit}</span>`
+                    : `<span style="color:#888;">±0</span>`;
+
+                // 각 캐릭터 수치
+                const val1Text = s1 ? `${v1}${unit}` : '';
+                const val2Text = s2 ? `${v2}${unit}` : '';
+
+                // 주목 스탯 강조 (캐릭터 스탯/속강 타입과 일치)
+                const rowBg = isHL
+                    ? 'background:rgba(100,114,168,0.22);'
+                    : 'background:rgba(74,81,120,0.12);';
+                const nameColor = isHL ? '#ffd700' : '#ccc';
+
+                rowsInGroup.push(`<tr style="${rowBg}">
+    <td style="${CS.TAG_CELL('#d4b8ff')}width:80px;min-width:80px;${CS.BR_THIN}">${group.label}</td>
+    <td style="text-align:center;padding:2px 8px;color:${nameColor};font-size:0.82em;width:160px;min-width:160px;">${statName}</td>
+    <td class="stat-divider-right" style="${CS.VAL_CELL}width:160px;min-width:160px;${CS.BR_THICK}">${val1Text}</td>
+    <td style="${CS.VAL_CELL}width:160px;min-width:160px;${CS.BR_THIN}">${val2Text}</td>
+    <td style="text-align:center;padding:2px 8px;font-size:0.82em;width:160px;min-width:160px;">${diffText}</td>
+    <td style="${CS.TAG_CELL('#d4b8ff')}width:80px;min-width:80px;${CS.BL_THIN}">차이</td>
+</tr>`);
+            });
+            tbodyHtml += rowsInGroup.join('');
+        });
+    }
+    // ── 차이 요약 행 끝 ───────────────────────────────────────
+
     return _makeStatWrapper('*전체 스탯 합산 비교*', tbodyHtml, name1, name2);
 }
 
