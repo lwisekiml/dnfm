@@ -91,6 +91,189 @@ function closeConfirmModal() {
 // ─────────────────────────────────────────
 // 9.1 세트 버튼 관리
 // ─────────────────────────────────────────
+/* ========================================
+목표 세트 설정
+======================================== */
+
+/**
+ * 카테고리 제목 옆 🎯 버튼 생성
+ */
+function makeGoalTriggerButton(setType, char) {
+    const setTypeLabel = setType === 'ARMOR' ? '방어구' : setType === 'ACCESSORY' ? '악세' : '특장';
+    const currentGoal = char.goals && char.goals[setType] ? char.goals[setType] : null;
+
+    const btn = document.createElement("button");
+    btn.className = "goal-trigger-btn";
+    btn.title = `${setTypeLabel} 목표 세트 설정`;
+    btn.innerHTML = currentGoal ? `🎯 <span style="font-size:11px; color:#25c2a0;">${currentGoal}</span>` : `🎯`;
+    btn.onclick = (e) => {
+        e.stopPropagation();
+        showGoalDropdown(btn, setType, char);
+    };
+    return btn;
+}
+
+/**
+ * 🎯 버튼 클릭 시 드롭다운 표시
+ */
+function showGoalDropdown(triggerBtn, setType, char) {
+    // 기존 드롭다운 제거
+    closeGoalContextMenu();
+
+    const sets = setType === 'ARMOR' ? ARMOR_SETS
+        : setType === 'ACCESSORY' ? ACCESSORY_SETS
+            : SPECIAL_SETS;
+
+    const currentGoal = char.goals && char.goals[setType] ? char.goals[setType] : null;
+    const setTypeLabel = setType === 'ARMOR' ? '방어구' : setType === 'ACCESSORY' ? '악세' : '특장';
+
+    const dropdown = document.createElement('div');
+    dropdown.id = 'goal-context-menu';
+    dropdown.style.cssText = `
+        position: absolute;
+        background: #1a1e33;
+        border: 1px solid #2a3158;
+        border-radius: 8px;
+        padding: 6px 0;
+        z-index: 9999;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+        min-width: 220px;
+        max-height: 360px;
+        overflow-y: auto;
+    `;
+
+    // 헤더
+    const header = document.createElement('div');
+    header.className = 'goal-menu-label';
+    header.textContent = `🎯 ${setTypeLabel} 목표 세트 선택`;
+    dropdown.appendChild(header);
+
+    // 현재 목표 해제 버튼
+    if (currentGoal) {
+        const removeItem = document.createElement('div');
+        removeItem.className = 'goal-menu-item goal-menu-remove';
+        removeItem.textContent = `❌ 목표 해제 (${currentGoal})`;
+        removeItem.onclick = () => removeGoal(setType, char.id);
+        dropdown.appendChild(removeItem);
+
+        const divider = document.createElement('div');
+        divider.style.cssText = 'border-top:1px solid #2a3158; margin:4px 0;';
+        dropdown.appendChild(divider);
+    }
+
+    // 세트 목록
+    Object.keys(sets).forEach(setName => {
+        const item = document.createElement('div');
+        item.className = 'goal-menu-item goal-menu-set';
+        const isSelected = setName === currentGoal;
+        if (isSelected) {
+            item.style.color = '#25c2a0';
+            item.textContent = `✅ ${setName}`;
+        } else {
+            item.textContent = setName;
+        }
+        item.onclick = () => setGoal(setName, setType, char.id);
+        dropdown.appendChild(item);
+    });
+
+    document.body.appendChild(dropdown);
+
+    // 트리거 버튼 위치 기준으로 드롭다운 배치
+    const rect = triggerBtn.getBoundingClientRect();
+    dropdown.style.left = rect.left + window.scrollX + 'px';
+    dropdown.style.top  = rect.bottom + window.scrollY + 4 + 'px';
+
+    // 화면 밖으로 나가면 위치 조정
+    requestAnimationFrame(() => {
+        const dr = dropdown.getBoundingClientRect();
+        if (dr.right > window.innerWidth)  dropdown.style.left = (window.innerWidth - dr.width - 8) + 'px';
+        if (dr.bottom > window.innerHeight) dropdown.style.top  = (rect.top + window.scrollY - dr.height - 4) + 'px';
+    });
+
+    // 외부 클릭 시 닫기
+    setTimeout(() => {
+        document.addEventListener('click', closeGoalContextMenu, { once: true });
+    }, 0);
+}
+
+function closeGoalContextMenu() {
+    const menu = document.getElementById('goal-context-menu');
+    if (menu) menu.remove();
+}
+
+/**
+ * 목표 세트 설정
+ */
+function setGoal(setName, setType, charId) {
+    closeGoalContextMenu();
+    const char = characters.find(c => c.id === charId);
+    if (!char) return;
+    if (!char.goals) char.goals = {};
+    char.goals[setType] = setName;
+    saveLocalData();
+    // 세트 버튼 목록 새로고침
+    showSetButtons(char, true);
+
+    showGoalToast(`🎯 목표 설정: ${setName}`);
+}
+
+/**
+ * 목표 세트 해제
+ */
+function removeGoal(setType, charId) {
+    closeGoalContextMenu();
+    const char = characters.find(c => c.id === charId);
+    if (!char || !char.goals) return;
+    delete char.goals[setType];
+    saveLocalData();
+    showSetButtons(char, true);
+}
+
+/**
+ * 목표 달성 여부 체크 (increment 호출 후 사용)
+ */
+function checkGoalAchieved(char, setName) {
+    if (!char.goals) return;
+    const setType = getSetType(setName);
+    if (char.goals[setType] !== setName) return;
+
+    const slots = ALL_SETS[setName] || [];
+    const fullSize = slots.length;
+    const distinctParts = getCachedDistinctParts(char, setName);
+
+    if (distinctParts >= fullSize) {
+        showGoalToast(`🏆 목표 달성! ${setName} ${fullSize}세트 완성!`, true);
+    }
+}
+
+/**
+ * 목표 관련 토스트 (기존 세트 달성 토스트와 별도)
+ */
+function showGoalToast(message, isAchieved = false) {
+    const container = document.getElementById('set-toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = 'set-toast';
+    toast.style.background = isAchieved
+        ? 'linear-gradient(135deg, #1a3a4a, #25c2a0)'
+        : 'linear-gradient(135deg, #2a2a4a, #4a33cc)';
+    toast.style.border = isAchieved ? '1px solid #25c2a0' : '1px solid #4a33cc';
+    toast.innerHTML = message;
+
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => toast.classList.add('toast-show'));
+    });
+
+    setTimeout(() => {
+        toast.classList.remove('toast-show');
+        toast.classList.add('toast-hide');
+        setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 350);
+    }, isAchieved ? 3500 : 2000);
+}
+
 function showSetButtons(char, isRefresh = false) {
     const setList = document.getElementById("setList");
     const panel = document.getElementById("panel");
@@ -134,25 +317,43 @@ function showSetButtons(char, isRefresh = false) {
     // ----------------------------------------------------
 
     // 방어구
+    const armorHeader = document.createElement("div");
+    armorHeader.style.cssText = "display:flex; align-items:center; gap:8px;";
     const armorTitle = document.createElement("h2");
     armorTitle.textContent = `[방어구 (${totalArmor}개)]`;
-    setList.appendChild(armorTitle);
+    armorTitle.style.margin = "0";
+    const armorGoalBtn = makeGoalTriggerButton("ARMOR", char);
+    armorHeader.appendChild(armorTitle);
+    armorHeader.appendChild(armorGoalBtn);
+    setList.appendChild(armorHeader);
     Object.keys(ARMOR_SETS).forEach(setName => {
         setList.appendChild(makeSetButton(setName, char));
     });
 
     // 악세
+    const accHeader = document.createElement("div");
+    accHeader.style.cssText = "display:flex; align-items:center; gap:8px;";
     const accTitle = document.createElement("h2");
     accTitle.textContent = `[악세 (${totalAccessory}개)]`;
-    setList.appendChild(accTitle);
+    accTitle.style.margin = "0";
+    const accGoalBtn = makeGoalTriggerButton("ACCESSORY", char);
+    accHeader.appendChild(accTitle);
+    accHeader.appendChild(accGoalBtn);
+    setList.appendChild(accHeader);
     Object.keys(ACCESSORY_SETS).forEach(setName => {
         setList.appendChild(makeSetButton(setName, char));
     });
 
     // 특장
+    const spHeader = document.createElement("div");
+    spHeader.style.cssText = "display:flex; align-items:center; gap:8px;";
     const spTitle = document.createElement("h2");
     spTitle.textContent = `[특장 (${totalSpecial}개)]`;
-    setList.appendChild(spTitle);
+    spTitle.style.margin = "0";
+    const spGoalBtn = makeGoalTriggerButton("SPECIAL", char);
+    spHeader.appendChild(spTitle);
+    spHeader.appendChild(spGoalBtn);
+    setList.appendChild(spHeader);
     Object.keys(SPECIAL_SETS).forEach(setName => {
         setList.appendChild(makeSetButton(setName, char));
     });
@@ -219,8 +420,21 @@ function makeSetButton(setName, char) {
         btn.classList.add("selected");
     }
 
-    // 수정된 부분: "세트명 (장비수)" 형태로 내용 구성
-    let buttonContent = `${setName} (${totalParts})`;
+    // 목표 세트 여부 확인
+    const isGoal = char.goals && char.goals[setType] === setName;
+
+    // 버튼 내용 구성
+    let buttonContent = '';
+    if (isGoal) {
+        const goalPct = fullSize > 0 ? Math.round((distinctParts / fullSize) * 100) : 0;
+        const goalColor = distinctParts < 3 ? '#aaa' : distinctParts <= 4 ? '#ffd700' : '#fff';
+        buttonContent += `🎯 `;
+        buttonContent += `${setName} (${totalParts})`;
+        const goalText = distinctParts >= fullSize ? '✔ 완료' : `${distinctParts}/${fullSize} (${goalPct}%)`;
+        buttonContent += ` <span class="goal-progress-span" style="font-size:11px; color:${goalColor}; font-weight:bold;">${goalText}</span>`;
+    } else {
+        buttonContent += `${setName} (${totalParts})`;
+    }
 
     // 추가: 악세/특장 추가 정보 표시
     if (setType === "ACCESSORY" && ACCESSORY_EXTRA_INFO[setName]) {
@@ -229,7 +443,13 @@ function makeSetButton(setName, char) {
         buttonContent += `<br>(${SPECIAL_EXTRA_INFO[setName]})</span>`;
     }
 
-    btn.innerHTML = buttonContent; // innerHTML로 내용 설정
+    btn.innerHTML = buttonContent;
+
+    // 목표 세트면 테두리 강조
+    if (isGoal) {
+        btn.style.outline = '2px solid #25c2a0';
+        btn.style.outlineOffset = '1px';
+    }
 
     btn.onclick = (event) => {
         // [선택 로직 추가]: 모든 세트 버튼에서 'selected' 클래스 제거
@@ -869,6 +1089,17 @@ function updateSetButtonCount(setName, char) {
         } else {
             if (distinctParts === 3) btn.classList.add('set3');
         }
+
+        // 목표 달성률 갱신
+        const isGoal = char.goals && char.goals[setType] === setName;
+        const goalSpan = btn.querySelector('.goal-progress-span');
+        if (isGoal && goalSpan) {
+            const goalPct = fullSize > 0 ? Math.round((distinctParts / fullSize) * 100) : 0;
+            const goalColor = distinctParts < 3 ? '#aaa' : distinctParts <= 4 ? '#ffd700' : '#fff';
+            const goalText = distinctParts >= fullSize ? '' : `${distinctParts}/${fullSize} (${goalPct}%)`;
+            goalSpan.textContent = goalText;
+            goalSpan.style.color = goalColor;
+        }
     });
 }
 
@@ -955,6 +1186,9 @@ function increment(charId, key) {
                 animateSetButton(currentSetName);
             }
         }
+
+        // 목표 달성 체크
+        checkGoalAchieved(char, currentSetName);
     }
     updateCategoryTotals(char);
 }

@@ -1525,6 +1525,48 @@
         color: #1a1200;
     }
 
+    /* 목표 설정 컨텍스트 메뉴 */
+    .goal-trigger-btn {
+        padding: 3px 10px;
+        background: #2a3158;
+        border: 1px solid #25c2a0;
+        border-radius: 6px;
+        color: #e6e9ff;
+        font-size: 13px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.15s;
+        flex-shrink: 0;
+    }
+    .goal-trigger-btn:hover {
+        background: #1a3a33;
+    }
+
+    .goal-menu-item {
+        padding: 9px 16px;
+        color: #e6e9ff;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .goal-menu-item:hover {
+        background: #2a3158;
+    }
+    .goal-menu-set:hover  { color: #25c2a0; }
+    .goal-menu-remove:hover { color: #e74c3c; }
+    .goal-menu-label {
+        padding: 6px 16px 4px;
+        font-size: 11px;
+        color: #888;
+        border-bottom: 1px solid #2a3158;
+        margin-bottom: 4px;
+    }
+    .goal-menu-current {
+        padding: 5px 16px;
+        font-size: 11px;
+        color: #666;
+    }
+
     /* 버튼 달성 애니메이션 */
     @keyframes set-achieve-flash {
         0%   { filter: brightness(1); transform: scale(1); }
