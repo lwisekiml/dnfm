@@ -42,12 +42,9 @@ function enterSearchMode() {
     document.getElementById('btnSearchMode').classList.add('active');
 
     // 태그/스탯 패널 닫기 + 버튼 비활성화
-    if (typeof closeTagFilterPanel  === 'function') closeTagFilterPanel();
-    if (typeof closeStatFilterPanel === 'function') closeStatFilterPanel();
-    const btnTag = document.getElementById('btnTagFilter');
-    const btnStat = document.getElementById('btnStatFilter');
-    if (btnTag)  { btnTag.disabled  = true; btnTag.style.opacity  = '0.4'; btnTag.style.cursor  = 'not-allowed'; }
-    if (btnStat) { btnStat.disabled = true; btnStat.style.opacity = '0.4'; btnStat.style.cursor = 'not-allowed'; }
+    if (typeof closeFilterPanel === 'function') closeFilterPanel();
+    const btnFilter = document.getElementById('btnFilter');
+    if (btnFilter) { btnFilter.disabled = true; btnFilter.style.opacity = '0.4'; btnFilter.style.cursor = 'not-allowed'; }
 
     // 캐릭터 추가/전체 잠금/전체 해제 버튼 비활성화
     const btnAdd    = document.getElementById('btnAddCharacter');

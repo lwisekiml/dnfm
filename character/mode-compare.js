@@ -22,10 +22,8 @@ function switchToBasicMode() {
     document.getElementById('btnBasicMode').classList.add('active');
     document.getElementById('btnCompareMode').classList.remove('active');
     document.getElementById('btnSearchMode').classList.remove('active');
-    const btnTag = document.getElementById('btnTagFilter');
-    const btnStat = document.getElementById('btnStatFilter');
-    if (btnTag)  { btnTag.disabled  = false; btnTag.style.opacity  = ''; btnTag.style.cursor  = ''; }
-    if (btnStat) { btnStat.disabled = false; btnStat.style.opacity = ''; btnStat.style.cursor = ''; }
+    const btnFilter = document.getElementById('btnFilter');
+    if (btnFilter) { btnFilter.disabled = false; btnFilter.style.opacity = ''; btnFilter.style.cursor = ''; }
     const btnAdd    = document.getElementById('btnAddCharacter');
     const btnLock   = document.getElementById('btnLockAll');
     const btnUnlock = document.getElementById('btnUnlockAll');
@@ -49,12 +47,9 @@ function enterCompareMode() {
     document.getElementById('btnCompareMode').classList.add('active');
     document.getElementById('btnSearchMode').classList.remove('active');
 
-    if (typeof closeTagFilterPanel  === 'function') closeTagFilterPanel();
-    if (typeof closeStatFilterPanel === 'function') closeStatFilterPanel();
-    const btnTag = document.getElementById('btnTagFilter');
-    const btnStat = document.getElementById('btnStatFilter');
-    if (btnTag)  { btnTag.disabled  = true; btnTag.style.opacity  = '0.4'; btnTag.style.cursor  = 'not-allowed'; }
-    if (btnStat) { btnStat.disabled = true; btnStat.style.opacity = '0.4'; btnStat.style.cursor = 'not-allowed'; }
+    if (typeof closeFilterPanel === 'function') closeFilterPanel();
+    const btnFilter = document.getElementById('btnFilter');
+    if (btnFilter) { btnFilter.disabled = true; btnFilter.style.opacity = '0.4'; btnFilter.style.cursor = 'not-allowed'; }
     const btnAdd    = document.getElementById('btnAddCharacter');
     const btnLock   = document.getElementById('btnLockAll');
     const btnUnlock = document.getElementById('btnUnlockAll');
