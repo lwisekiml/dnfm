@@ -472,6 +472,15 @@ const _CREATURE_TEMPLATES = {
         info: `화염의 각 +1, 뒷골목 싸움법 +1, 홍염질풍각 +1, 마운트 +1`,
         stats: []
     },
+    // 범법, 어지러법, 잠와법, 울먹법, 부끄러법, 눈이번쩍법, 심술법, 계란모법, 우울한법, 행복해법, 멋쟁이법, 이불이최고법, 슈퍼마법법, 씽씽법
+    RARE_V14: {
+        info: `던전 입장 시 모든 속성 강화 6, 모든 속성 저항 11 증가`,
+        stats: [
+            { stat: '던전 입장 시 모든 속성 강화', amount: 6, unit: '', label: '던전 입장 시 모든 속성 강화 6' },
+            { stat: '던전 입장 시 모든 속성 저항', amount: 11, unit: '', label: '던전 입장 시 모든 속성 저항 11' },
+
+        ]
+    },
 
 
     // 비네, 쁘띠 스켈레톤 골드
@@ -599,6 +608,20 @@ const CREATURE_ITEM_INFO = {
     "펌킨 단진": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V6 },
     "펌킨 랜디": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V7 },
     "SD 라라아 크리쳐": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V12 },
+    "모범법": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V14 },
+    "어지러법": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V14 },
+    "잠와법": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V14 },
+    "울먹법": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V14 },
+    "부끄러법": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V14 },
+    "눈이번쩍법": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V14 },
+    "심술법": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V14 },
+    "계란모법": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V14 },
+    "우울한법": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V14 },
+    "행복해법": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V14 },
+    "멋쟁이법": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V14 },
+    "이불이최고법": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V14 },
+    "슈퍼마법법": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V14 },
+    "씽씽법": { grade: '레어', ..._CREATURE_TEMPLATES.RARE_V14 },
 
     // === 언커먼 (UNCOMMON) ===
     "비네": { grade: '언커먼', ..._CREATURE_TEMPLATES.UNCOMMON_V1 },
