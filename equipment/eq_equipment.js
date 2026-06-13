@@ -562,13 +562,18 @@ function openSet(setName, char) {
 </tr></thead><tbody></tbody>`;
         const tbody2 = table2.querySelector("tbody");
 
+        const totalDistinctForExceedSpecial = getCachedDistinctParts(char, setName);
         prefixes.forEach(pref => {
             EXCEED_TAGS.forEach(ex => {
                 const name = `[${ex}] ${pref}: ${setName}`;
                 const key = `${name} ${exceedSlot}`;
                 const val = char.armorCounts[key] || 0;
                 const color = EXCEED_COLOR_MAP[ex] || "#fff";
-                const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> <span style="color:#e6b800; font-weight:bold;">${pref}</span>`;                const tr = document.createElement("tr");
+                const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> <span style="color:#e6b800; font-weight:bold;">${pref}</span>`;
+                const tr = document.createElement("tr");
+                if (val > 0 && totalDistinctForExceedSpecial === 3) {
+                    tr.className = "set3";
+                }
                 tr.innerHTML = `<td style="text-align:center;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
                 tbody2.appendChild(tr);
             });
@@ -658,6 +663,7 @@ function openSet(setName, char) {
         const tbody2 = accTable2.querySelector("tbody");
 
         if (prefixes.length > 0) {
+            const totalDistinctForExceed = getCachedDistinctParts(char, setName);
             prefixes.forEach(pref => {
                 EXCEED_TAGS.forEach(ex => {
                     const prefKey = makePrefixKey(pref, setName);
@@ -667,6 +673,9 @@ function openSet(setName, char) {
                     const color = EXCEED_COLOR_MAP[ex] || "#fff";
                     const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> <span style="color:#e6b800; font-weight:bold;">${pref}</span>`;
                     const tr = document.createElement("tr");
+                    if (val > 0 && totalDistinctForExceed === 3) {
+                        tr.className = "set3";
+                    }
                     tr.innerHTML = `<td style="text-align:center;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
                     tbody2.appendChild(tr);
                 });
@@ -711,6 +720,8 @@ function openSet(setName, char) {
         const tbody1 = armTable1.querySelector("tbody");
 
         if (prefixes.length > 0) {
+            const totalDistinctForExceed = getCachedDistinctParts(char, setName);
+            const fullSizeForExceed = slots.length;
             prefixes.forEach(pref => {
                 EXCEED_TAGS.forEach(ex => {
                     const prefKey = makePrefixKey(pref, setName);
@@ -720,6 +731,10 @@ function openSet(setName, char) {
                     const color = EXCEED_COLOR_MAP[ex] || "#fff";
                     const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> <span style="color:#e6b800; font-weight:bold;">${pref}</span>`;
                     const tr = document.createElement("tr");
+                    if (val > 0) {
+                        if (totalDistinctForExceed === fullSizeForExceed) tr.className = "set5";
+                        else if (totalDistinctForExceed >= 3) tr.className = "set3";
+                    }
                     tr.innerHTML = `<td style="text-align:center;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
                     tbody1.appendChild(tr);
                 });
