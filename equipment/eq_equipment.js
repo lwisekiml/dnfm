@@ -364,6 +364,7 @@ function showSetButtons(char, isRefresh = false) {
 function makeSetButton(setName, char) {
     let count3 = 0, count5 = 0;
     let totalParts = 0; // x 값 (총 개수) 초기화
+    let totalExceedParts = 0; // 익시드 개수
 
     const slots = ALL_SETS[setName] || [];
     const prefixes = ALL_PREFIX[setName] || [];
@@ -391,7 +392,9 @@ function makeSetButton(setName, char) {
         slots.forEach(slot => {
             let key = `${groupKey} ${slot}`;
             if (isExceedKey && !exceedSlots.includes(slot)) return;
-            totalParts += char.armorCounts[key] || 0;
+            const cnt = char.armorCounts[key] || 0;
+            totalParts += cnt;
+            if (isExceedKey) totalExceedParts += cnt;
         });
     });
 
@@ -429,11 +432,11 @@ function makeSetButton(setName, char) {
         const goalPct = fullSize > 0 ? Math.round((distinctParts / fullSize) * 100) : 0;
         const goalColor = distinctParts < 3 ? '#aaa' : distinctParts <= 4 ? '#ffd700' : '#fff';
         buttonContent += `🎯 `;
-        buttonContent += `${setName} (${totalParts})`;
+        buttonContent += `${setName} (${totalParts}/${totalExceedParts})`;
         const goalText = distinctParts >= fullSize ? '✔ 완료' : `${distinctParts}/${fullSize} (${goalPct}%)`;
         buttonContent += ` <span class="goal-progress-span" style="font-size:11px; color:${goalColor}; font-weight:bold;">${goalText}</span>`;
     } else {
-        buttonContent += `${setName} (${totalParts})`;
+        buttonContent += `${setName} (${totalParts}/${totalExceedParts})`;
     }
 
     // 추가: 악세/특장 추가 정보 표시
@@ -663,7 +666,7 @@ function openSet(setName, char) {
         const tbody2 = accTable2.querySelector("tbody");
 
         if (prefixes.length > 0) {
-            const totalDistinctForExceed = getCachedDistinctParts(char, setName);
+            const totalDistinctForExceedAcc = getCachedDistinctParts(char, setName);
             prefixes.forEach(pref => {
                 EXCEED_TAGS.forEach(ex => {
                     const prefKey = makePrefixKey(pref, setName);
@@ -673,7 +676,7 @@ function openSet(setName, char) {
                     const color = EXCEED_COLOR_MAP[ex] || "#fff";
                     const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> <span style="color:#e6b800; font-weight:bold;">${pref}</span>`;
                     const tr = document.createElement("tr");
-                    if (val > 0 && totalDistinctForExceed === 3) {
+                    if (val > 0 && totalDistinctForExceedAcc === 3) {
                         tr.className = "set3";
                     }
                     tr.innerHTML = `<td style="text-align:center;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
@@ -720,8 +723,8 @@ function openSet(setName, char) {
         const tbody1 = armTable1.querySelector("tbody");
 
         if (prefixes.length > 0) {
-            const totalDistinctForExceed = getCachedDistinctParts(char, setName);
-            const fullSizeForExceed = slots.length;
+            const totalDistinctForExceedArm = getCachedDistinctParts(char, setName);
+            const fullSizeForExceedArm = slots.length;
             prefixes.forEach(pref => {
                 EXCEED_TAGS.forEach(ex => {
                     const prefKey = makePrefixKey(pref, setName);
@@ -732,8 +735,8 @@ function openSet(setName, char) {
                     const labelHtml = `<span style="color:${color}; font-weight:bold;">[${ex}]</span> <span style="color:#e6b800; font-weight:bold;">${pref}</span>`;
                     const tr = document.createElement("tr");
                     if (val > 0) {
-                        if (totalDistinctForExceed === fullSizeForExceed) tr.className = "set5";
-                        else if (totalDistinctForExceed >= 3) tr.className = "set3";
+                        if (totalDistinctForExceedArm === fullSizeForExceedArm) tr.className = "set5";
+                        else if (totalDistinctForExceedArm >= 3) tr.className = "set3";
                     }
                     tr.innerHTML = `<td style="text-align:center;">${labelHtml}</td><td>${makeNumberButton(char.id, key, val)}</td>`;
                     tbody1.appendChild(tr);
@@ -1081,18 +1084,21 @@ function updateSetButtonCount(setName, char) {
         });
 
         let totalParts = 0;
+        let totalExceedParts = 0;
         allGroupKeys.forEach(groupKey => {
             const isExceedKey = groupKey.startsWith('[');
             slots.forEach(slot => {
                 if (isExceedKey && !exceedSlots.includes(slot)) return;
                 const key = `${groupKey} ${slot}`;
-                totalParts += char.armorCounts[key] || 0;
+                const cnt = char.armorCounts[key] || 0;
+                totalParts += cnt;
+                if (isExceedKey) totalExceedParts += cnt;
             });
         });
 
-        // innerHTML에서 첫 번째 (숫자) 패턴만 교체
+        // innerHTML에서 첫 번째 (숫자/숫자) 패턴만 교체
         // (textContent != innerHTML인 악세/특장 EXTRA_INFO 버튼도 정상 동작)
-        btn.innerHTML = btn.innerHTML.replace(/\(\d+\)/, `(${totalParts})`);
+        btn.innerHTML = btn.innerHTML.replace(/\(\d+\/\d+\)/, `(${totalParts}/${totalExceedParts})`);
 
         const distinctParts = getCachedDistinctParts(char, setName);
         const fullSize = slots.length;
