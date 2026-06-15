@@ -1452,8 +1452,9 @@
             if (top  + ph > window.innerHeight - 8) top = rect.top - ph - 4;
             if (left < 8) left = 8;
 
+            popup.style.position = 'absolute';
             popup.style.left = left + 'px';
-            popup.style.top  = top  + 'px';
+            popup.style.top  = (top + window.scrollY) + 'px';
 
             // 외부 클릭 시 닫기
             setTimeout(() => {

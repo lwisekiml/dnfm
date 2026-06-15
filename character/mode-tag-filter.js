@@ -98,8 +98,8 @@ function showFilterPanel() {
     const panel = document.createElement('div');
     panel.id = 'filterPanel';
     panel.style.cssText = `
-        position: fixed;
-        top: 50px;
+        position: absolute;
+        top: ${50 + window.scrollY}px;
         left: 50%;
         transform: translateX(-50%);
         background: #1a1a1a;
