@@ -48,9 +48,11 @@ function enterSearchMode() {
 
     // 캐릭터 추가/전체 잠금/전체 해제 버튼 비활성화
     const btnAdd    = document.getElementById('btnAddCharacter');
+    const btnList   = document.getElementById('btnCharList');
     const btnLock   = document.getElementById('btnLockAll');
     const btnUnlock = document.getElementById('btnUnlockAll');
     if (btnAdd)    { btnAdd.disabled    = true; btnAdd.style.opacity    = '0.4'; btnAdd.style.cursor    = 'not-allowed'; }
+    if (btnList)   { btnList.disabled   = true; btnList.style.opacity   = '0.4'; btnList.style.cursor   = 'not-allowed'; }
     if (btnLock)   { btnLock.disabled   = true; btnLock.style.opacity   = '0.4'; btnLock.style.cursor   = 'not-allowed'; }
     if (btnUnlock) { btnUnlock.disabled = true; btnUnlock.style.opacity = '0.4'; btnUnlock.style.cursor = 'not-allowed'; }
 

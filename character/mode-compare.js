@@ -25,9 +25,11 @@ function switchToBasicMode() {
     const btnFilter = document.getElementById('btnFilter');
     if (btnFilter) { btnFilter.disabled = false; btnFilter.style.opacity = ''; btnFilter.style.cursor = ''; }
     const btnAdd    = document.getElementById('btnAddCharacter');
+    const btnList   = document.getElementById('btnCharList');
     const btnLock   = document.getElementById('btnLockAll');
     const btnUnlock = document.getElementById('btnUnlockAll');
     if (btnAdd)    { btnAdd.disabled    = false; btnAdd.style.opacity    = ''; btnAdd.style.cursor    = ''; }
+    if (btnList)   { btnList.disabled   = false; btnList.style.opacity   = ''; btnList.style.cursor   = ''; }
     if (btnLock)   { btnLock.disabled   = false; btnLock.style.opacity   = ''; btnLock.style.cursor   = ''; }
     if (btnUnlock) { btnUnlock.disabled = false; btnUnlock.style.opacity = ''; btnUnlock.style.cursor = ''; }
     if (typeof closeRuneModal === 'function') closeRuneModal();
@@ -51,9 +53,11 @@ function enterCompareMode() {
     const btnFilter = document.getElementById('btnFilter');
     if (btnFilter) { btnFilter.disabled = true; btnFilter.style.opacity = '0.4'; btnFilter.style.cursor = 'not-allowed'; }
     const btnAdd    = document.getElementById('btnAddCharacter');
+    const btnList   = document.getElementById('btnCharList');
     const btnLock   = document.getElementById('btnLockAll');
     const btnUnlock = document.getElementById('btnUnlockAll');
     if (btnAdd)    { btnAdd.disabled    = true; btnAdd.style.opacity    = '0.4'; btnAdd.style.cursor    = 'not-allowed'; }
+    if (btnList)   { btnList.disabled   = true; btnList.style.opacity   = '0.4'; btnList.style.cursor   = 'not-allowed'; }
     if (btnLock)   { btnLock.disabled   = true; btnLock.style.opacity   = '0.4'; btnLock.style.cursor   = 'not-allowed'; }
     if (btnUnlock) { btnUnlock.disabled = true; btnUnlock.style.opacity = '0.4'; btnUnlock.style.cursor = 'not-allowed'; }
 
